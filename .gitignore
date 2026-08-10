@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Data products: raw inputs are retained locally, and processed products are
+# always recreated by scripts in src/. Neither belongs in the code repository.
+/data/raw/
+/data/processed/
+/data/cache/
+/data/external/
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Generated reports and diagnostics
+/reports/main/
+/reports/working/
+/archive/
+
+# Local scratch files
+.Rhistory
+
+# OS/editor
+.DS_Store
+.vscode/

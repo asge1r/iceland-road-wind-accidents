@@ -1,0 +1,39 @@
+# Data map
+
+`raw/` contains unchanged sources. `processed/` contains only canonical analysis
+inputs or expensive reusable caches. Readable tables and figures are under
+`reports/`; superseded intermediates are recoverable under
+`archive/data_legacy_2026-07-22/`.
+
+## Analysis A: frequency-standardized O/E
+
+Primary inputs:
+
+- `processed/accidents/rural_injury_accidents.parquet`
+- `processed/weather/wind_frequency_station_year_season.parquet`
+- `processed/accidents/oe_station_period_bins.parquet`
+
+The primary result standardizes within weather station, calendar year, and
+meteorological season. It does not use traffic. The separately labelled traffic
+sensitivity uses annual/seasonal road-section exposure from Analysis B. Daily
+PDF traffic is a further restricted 2019-2024 sensitivity only.
+
+## Analysis B: road-section table and figures
+
+Primary inputs/output:
+
+- `processed/traffic/annual_road_section_exposure.csv`
+- `processed/weather/wind_frequency_road_period_2007_2024.parquet`
+- `processed/traffic/road_section_wind_panel_2007_2024.parquet`
+
+The panel unit is road section, year, official traffic period, wind variable,
+and wind bin. `f` and `fg` are separate rows. Readable mean-wind and gust tables,
+traffic-adjusted rates, and figures are generated under `reports/` from this
+same panel.
+
+## 2025 status
+
+Raw 2025 accident, injury, and vehicle files are retained in `raw/accidents/`.
+The current canonical accident tables still end in 2024. Do not label an output
+2007-2025 until the 2025 files have passed the same coordinate, rural/urban,
+road, surface, severity, and weather matching pipeline.
