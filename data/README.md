@@ -1,4 +1,8 @@
-# Data map
+# Local data map
+
+This repository intentionally does not include raw or processed data. To run
+the pipeline after cloning, obtain the authorised source deliveries and place
+them in the paths below. No script alters a file in `data/raw/`.
 
 `raw/` contains unchanged sources. `processed/` contains only canonical analysis
 inputs or expensive reusable caches. Readable tables and figures are under

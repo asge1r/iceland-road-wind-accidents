@@ -20,7 +20,7 @@ RAW_2007_2024 = Path("data/raw/accidents/accidents_2007_2024.txt")
 RAW_2025 = Path("data/raw/accidents/accidents_2025.txt")
 RAW_ROAD_LINKS = Path("data/raw/accidents/road_links_2007_2025.txt")
 DEFAULT_OUTPUT = Path("data/processed/accidents/all_accidents_enriched.parquet")
-DEFAULT_RURAL_INJURY = Path("data/processed/accidents/rural_injury_accidents.parquet")
+DEFAULT_RURAL_INJURY = Path("data/processed/accidents/rural_injury_accidents_base.parquet")
 
 
 def read_accident_file(path: Path, newer_format: bool) -> pd.DataFrame:
@@ -107,7 +107,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--include-2025", action="store_true", help="Add the separate 2025 source delivery.")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--rural-output", type=Path, default=DEFAULT_RURAL_INJURY)
+    parser.add_argument(
+        "--rural-output", type=Path, default=DEFAULT_RURAL_INJURY,
+        help="Pre-weather rural injury subset; the weather-matched canonical file is written by match_accidents_weather.",
+    )
     args = parser.parse_args()
     prepare(args.include_2025, args.output, args.rural_output)
 

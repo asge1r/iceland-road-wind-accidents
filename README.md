@@ -52,8 +52,14 @@ by following [`pipeline.md`](pipeline.md).
 ```
 
 This command recreates the retained results from existing processed data. To
-rebuild processed data from raw files, run the steps in `pipeline.md` in order.
-See `docs/` for source and variable definitions.
+rebuild data from authorised raw files and then recreate the results, run:
+
+```bash
+.venv/bin/python -m src.run_pipeline --stage all
+```
+
+See `data/README.md` for the required local source files and `docs/` for source
+and variable definitions.
 
 ## Primary Assumptions
 

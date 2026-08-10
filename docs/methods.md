@@ -26,8 +26,9 @@ replace observed daily counts.
 
 ## Counter coordinates
 
-In the current reproducible pipeline, a PDF `stöð` is checked against the
-year-specific Bst/Est range and interpolated along the recorded road geometry.
-The output labels this as estimated. The planned preferred method is an
-independent match to the Road Administration's official 20 m road-station
-points, with this interpolation retained as a fallback and validation method.
+In the current reproducible pipeline, a PDF `stöð` is the primary location
+evidence. It is checked against the year-specific Bst/Est range and
+interpolated along the recorded road geometry. The output labels this as
+estimated. An independent match to the Road Administration's official 20 m
+road-station points is retained as a validation and fallback method; it does
+not replace a valid PDF `stöð` location.

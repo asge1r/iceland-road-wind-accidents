@@ -7,6 +7,12 @@ with:
 .venv/bin/python -m src.run_analysis
 ```
 
+To rebuild processed data from authorised raw data and then recreate results:
+
+```bash
+.venv/bin/python -m src.run_pipeline --stage all
+```
+
 ## Prepare data
 
 - `accidents/prepare_accidents.py`: builds the canonical 2007–2024 accident table

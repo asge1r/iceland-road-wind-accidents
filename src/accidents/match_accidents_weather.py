@@ -16,7 +16,7 @@ DEFAULT_ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parque
 DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
 DEFAULT_STATIONS = Path("data/processed/weather/stations.csv")
 DEFAULT_OUTPUT = Path(
-    "data/processed/accidents/rural_injury_accidents_weather.parquet"
+    "data/processed/accidents/rural_injury_accidents.parquet"
 )
 DEFAULT_COVERAGE = Path(
     "archive/generated_diagnostics/oe/accident_weather_coverage.csv"
