@@ -1,0 +1,13 @@
+file,rows,years,key,source
+processed/accidents/rural_injury_accidents.parquet,6120,2007-2024,nid,"Derived from raw accident, road, weather, and annual traffic data"
+processed/accidents/accidents.csv,6120,2007-2024,nid,Readable CSV export of the canonical accident table
+processed/accidents/oe_station_period_bins.parquet,1010768,2007-2024,"scenario + station + year + season + wind bin",Derived O/E analysis input
+processed/weather/weather_10min_clean.parquet,214043666,2007-2025,station + time,Cleaned from raw/weather/weather_10min_raw.parquet
+processed/traffic/annual_road_section_exposure.csv,33757,2000-2025,road_section + year,Vegagerdin annual traffic workbooks
+processed/traffic/daily_counts.parquet,774274,2019-2024,counter_site_id + date,"Vegagerdin daily traffic PDF reports; direction/lane channels summed"
+processed/traffic/daily_locations.csv,2332,2019-2024,counter_site_id + year,"Official or estimated counter location with method and quality fields"
+processed/traffic/daily_traffic.parquet,774274,2019-2024,counter_site_id + date,"Canonical join of daily counts and locations"
+processed/traffic/daily_traffic_weather.parquet,774274,2019-2024,counter_site_id + date,"Daily traffic joined to nearest usable daytime weather station"
+processed/traffic/daily_traffic_wind_response.parquet,774274,2019-2024,counter_site_id + date,"Observed daily traffic joined to daytime wind, local expected traffic, VDU/SDU/VHDU period, and annual traffic references"
+processed/traffic/road_section_wind_panel_2007_2024.parquet,1316817,2007-2024,"road section + year + traffic period + variable + wind bin",Derived Analysis B panel
+processed/weather/stations.csv,771,station history,station,Icelandic Meteorological Office station metadata

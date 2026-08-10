@@ -33,6 +33,7 @@ __pycache__/
 /todo.md
 /PROJECT_MAP.md
 /PROJECT_STRUCTURE.md
+/scripts/
 
 # OS/editor
 .DS_Store
