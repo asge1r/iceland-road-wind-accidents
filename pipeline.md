@@ -12,7 +12,7 @@ excluded from Git. Detailed source and variable documentation is in `docs/`.
 | Step | Script | Main input | Main output | Purpose |
 |---|---|---|---|---|
 | Prepare accidents | `src.accidents.prepare_accidents` | `raw/accidents/` | `processed/accidents/all_accidents_enriched.parquet`, `rural_injury_accidents_base.parquet` | Preserve all valid accidents, attach source road link and rural/urban classification. |
-| Clean weather | `src.weather.clean_weather` | `raw/weather/weather_10min_raw.parquet` | `processed/weather/weather_10min_clean.parquet` | Keep valid wind; exclude `f > 40`, `fg > 75` and verified frozen all-zero runs. |
+| Clean weather | `src.weather.clean_weather` | `raw/weather/weather_10min_raw.parquet` | `processed/weather/weather_10min_clean.parquet` | Keep `0 <= f < 45` and `0 <= fg < 65`; explicitly report negative values and zero gusts; exclude verified frozen all-zero runs. |
 | Annual traffic | `src.traffic.prepare_annual_traffic` | `raw/traffic/annual/` | `processed/traffic/annual_road_section_exposure.csv` | Standardise ÁDU, SDU, VDU, Bst and Est. |
 | Extract daily traffic | `src.traffic.extract_daily_traffic` | `raw/traffic/daily_pdf/` | `processed/traffic/daily_counts.parquet` | Extract PDF counts and sum direction/lane channels at each physical counter. |
 | Download road geometry | `src.traffic.download_road_geometry` | Road Administration MapServer/6 | `raw/traffic/reference/roads.geojson` | Download official road geometry and start/end road stations. |

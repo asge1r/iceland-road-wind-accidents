@@ -13,7 +13,7 @@
   accident and selected observation. Observations are on a 10-minute grid, so
   the selected adjacent observation is at most five minutes away.
 
-Clean wind observations satisfy `0 <= f <= 50`, `0 <= fg <= 75`, and
+Clean wind observations satisfy `0 <= f < 45`, `0 <= fg < 65`, and
 `fg + 0.5 >= f`. Rows missing `f` or `fg` are excluded from the clean weather
 file. Missing temperature does not invalidate an otherwise usable wind row.
 

@@ -29,7 +29,7 @@ the authorised source deliveries transparent and reproducible.
 
 - `data/raw/weather/weather_10min_raw.parquet`: raw continuous 10-minute weather observations.
 - `data/processed/weather/weather_10min_clean.parquet`: cleaned `f`, `fg`, and `t`, with
-  `0 <= f <= 40 m/s`, `0 <= fg <= 75 m/s`, and frozen all-zero sensor runs removed.
+  `0 <= f < 45 m/s`, `0 <= fg < 65 m/s`, and frozen all-zero sensor runs removed.
 - `data/processed/accidents/rural_injury_accidents.parquet`: all 6,120 study
   accidents with location, road, weather and nullable annual-traffic fields.
 - `data/processed/accidents/accidents.csv`: readable CSV export of the same

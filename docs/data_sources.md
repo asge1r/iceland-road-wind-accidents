@@ -17,7 +17,7 @@ kept outside Git because they are large and may have distribution restrictions.
 | Dataset | Rows / files | Years | Columns retained in the canonical step |
 |---|---:|---|---|
 | Accident delivery | 236,494 source rows; 118,247 valid coordinate/time accident records | 2007--2024 | `nid`, timestamp, coordinates, `meidsli`, `tegohapps`, `flokkur2`, location text |
-| Weather delivery | 226,580,952 ten-minute rows; 211,511,015 after wind cleaning | 2007--2024 | station, time, `f`, `fg`, `t` |
+| Weather delivery | 226,580,952 ten-minute rows; retained count is generated in the weather-cleaning audit | 2007--2025 | station, time, `f`, `fg`, `t` |
 | Annual traffic output | 33,757 road-section/year rows | 2000--2025 | road section, Bst, Est, length, ÁDU, SDU, VDU, vehicle-km |
 | Daily traffic output | 774,274 counter-day rows across 476 sites | 2019--2024 | date, counter site, `stöð`, road section, summed count, channels, coordinates and location method |
 

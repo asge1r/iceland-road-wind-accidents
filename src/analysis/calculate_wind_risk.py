@@ -515,7 +515,9 @@ Limitations
 - Missing measurements may not be random, especially during severe weather.
 - No non-accident road traffic is in this ratio. Wind can change travel demand.
 - Repeated bins and comparisons are exploratory; individual high-wind bins are sparse.
-- The f > 40 m/s and fg > 75 m/s cleaning thresholds are operational quality
+- The wind-quality rules are 0 <= f < 45 m/s and 0 <= fg < 65 m/s. Negative
+  values and values at or above either upper bound are excluded and reported
+  in the weather-cleaning audit.
   rules and are reported explicitly in the coverage table.
 """
     args.notes.write_text(notes, encoding="utf-8")

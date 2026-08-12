@@ -500,8 +500,8 @@ def build_accident_counts(
     clean_wind = accidents[
         accidents["within_20km"].fillna(False)
         & accidents["wind_available"].fillna(False)
-        & accidents["f"].between(0, 50, inclusive="both")
-        & accidents["fg"].between(0, 75, inclusive="both")
+        & accidents["f"].between(0, 45, inclusive="left")
+        & accidents["fg"].between(0, 65, inclusive="left")
         & accidents["fg"].add(0.5).ge(accidents["f"])
     ].copy()
     diagnostics["exact_matches_with_clean_wind_within_20km"] = len(clean_wind)
@@ -1160,8 +1160,8 @@ def build_traffic_adjusted_rates(
     accidents = accidents[
         accidents["within_20km"].fillna(False)
         & accidents["wind_available"].fillna(False)
-        & accidents["f"].between(0, 50, inclusive="left")
-        & accidents["fg"].between(0, 75, inclusive="left")
+        & accidents["f"].between(0, 45, inclusive="left")
+        & accidents["fg"].between(0, 65, inclusive="left")
     ].copy()
 
     output: list[pd.DataFrame] = []

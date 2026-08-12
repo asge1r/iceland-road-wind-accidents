@@ -18,8 +18,9 @@ DEFAULT_OUTPUT = Path("data/processed/weather/weather_10min_clean.parquet")
 DEFAULT_SUMMARY = Path("archive/generated_diagnostics/weather_cleaning_by_year.csv")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/weather_cleaning_notes.txt")
 
-MAX_MEAN_WIND_MS = 40.0
-MAX_GUST_MS = 75.0
+# Upper bounds are exclusive: 45.0 and 65.0 m/s are not retained.
+MAX_MEAN_WIND_MS = 45.0
+MAX_GUST_MS = 65.0
 GUST_BELOW_MEAN_TOLERANCE_MS = 0.5
 MIN_TEMPERATURE_C = -60.0
 MAX_TEMPERATURE_C = 50.0
@@ -162,8 +163,8 @@ def add_stats(
     missing_both = ~valid_f & ~valid_fg
     missing_f_only = ~valid_f & valid_fg
     missing_fg_only = valid_f & ~valid_fg
-    invalid_f = valid_f & ((f < 0) | (f > MAX_MEAN_WIND_MS))
-    invalid_fg = valid_fg & ((fg < 0) | (fg > MAX_GUST_MS))
+    invalid_f = valid_f & ((f < 0) | (f >= MAX_MEAN_WIND_MS))
+    invalid_fg = valid_fg & ((fg < 0) | (fg >= MAX_GUST_MS))
     invalid_pair = (
         valid_f
         & valid_fg
@@ -189,30 +190,37 @@ def add_stats(
         out = stats[int(year)]
         out["input_rows"] += int(mask.sum())
         out["missing_f"] += int((mask & ~valid_f).sum())
-        out["f_outside_0_40"] += int(
-            (mask & valid_f & ((f < 0) | (f > MAX_MEAN_WIND_MS))).sum()
+        out["f_below_zero"] += int((mask & valid_f & (f < 0)).sum())
+        out["f_at_or_above_45"] += int(
+            (mask & valid_f & (f >= MAX_MEAN_WIND_MS)).sum()
         )
-        out["f_above_40"] += int((mask & valid_f & (f > MAX_MEAN_WIND_MS)).sum())
         out["missing_fg"] += int((mask & ~valid_fg).sum())
-        out["fg_outside_0_75"] += int(
-            (mask & valid_fg & ((fg < 0) | (fg > MAX_GUST_MS))).sum()
+        out["fg_below_zero"] += int((mask & valid_fg & (fg < 0)).sum())
+        out["fg_at_or_above_65"] += int(
+            (mask & valid_fg & (fg >= MAX_GUST_MS)).sum()
         )
-        out["fg_above_75"] += int((mask & valid_fg & (fg > MAX_GUST_MS)).sum())
+        out["fg_zero_rows"] += int((mask & valid_fg & (fg == 0)).sum())
+        out["fg_zero_with_zero_f"] += int(
+            (mask & valid_fg & valid_f & (fg == 0) & (f == 0)).sum()
+        )
+        out["fg_zero_with_positive_f"] += int(
+            (mask & valid_fg & valid_f & (fg == 0) & (f > 0)).sum()
+        )
         valid_pair_values = (
             mask
             & valid_f
             & valid_fg
             & (f >= 0)
-            & (f <= MAX_MEAN_WIND_MS)
+            & (f < MAX_MEAN_WIND_MS)
             & (fg >= 0)
-            & (fg <= MAX_GUST_MS)
+            & (fg < MAX_GUST_MS)
         )
         out["fg_below_f_beyond_tolerance"] += int(
             (valid_pair_values & (fg + GUST_BELOW_MEAN_TOLERANCE_MS < f)).sum()
         )
         out["frozen_zero_rows"] += int((mask & frozen_zero).sum())
         out["nail_rows"] += int(
-            (mask & valid_f & valid_fg & ((f > MAX_MEAN_WIND_MS) | (fg > MAX_GUST_MS))).sum()
+            (mask & valid_f & valid_fg & ((f >= MAX_MEAN_WIND_MS) | (fg >= MAX_GUST_MS))).sum()
         )
         out["dropped_any_wind_rule"] += int((mask & ~keep_wind).sum())
         out["clean_wind_rows"] += int((mask & keep_wind).sum())
@@ -259,9 +267,9 @@ def clean_batch(
         valid_f
         & valid_fg
         & (f >= 0)
-        & (f <= MAX_MEAN_WIND_MS)
+        & (f < MAX_MEAN_WIND_MS)
         & (fg >= 0)
-        & (fg <= MAX_GUST_MS)
+        & (fg < MAX_GUST_MS)
         & (fg + GUST_BELOW_MEAN_TOLERANCE_MS >= f)
         & ~frozen_zero
     )
@@ -304,8 +312,8 @@ Scope: {'pilot, first ' + str(max_row_groups) + ' row groups' if max_row_groups 
 
 Rules
 -----
-- Keep mean wind when 0 <= f <= {MAX_MEAN_WIND_MS:g} m/s.
-- Keep gust when 0 <= fg <= {MAX_GUST_MS:g} m/s.
+- Keep mean wind when 0 <= f < {MAX_MEAN_WIND_MS:g} m/s.
+- Keep gust when 0 <= fg < {MAX_GUST_MS:g} m/s.
 - Require fg + {GUST_BELOW_MEAN_TOLERANCE_MS:g} >= f.
 - Exclude a run only when both f and fg are exactly zero at uninterrupted
   10-minute intervals for more than two hours.
@@ -315,7 +323,7 @@ Rules
 
 Interpretation of the upper limits
 ----------------------------------
-The limits f <= 40 m/s and fg <= 75 m/s are the operational thesis quality rules
+The limits f < {MAX_MEAN_WIND_MS:g} m/s and fg < {MAX_GUST_MS:g} m/s are the operational thesis quality rules
 specified by the supervisor. Rows above either limit are reported as excluded; the
 script does not claim that every naturally high observation is a measurement error.
 
@@ -327,7 +335,11 @@ Counts
 - Clean wind rows with missing/invalid t retained: {wind_rows - full_rows:,}
 - Rows excluded by at least one wind rule: {int(totals['dropped_any_wind_rule']):,}
   ({100 * totals['dropped_any_wind_rule'] / input_rows:.4f}%)
-- Unique high-value nail rows (f > 40 or fg > 75): {int(totals['nail_rows']):,}
+- Mean-wind values below 0 m/s: {int(totals['f_below_zero']):,}
+- Gust values below 0 m/s: {int(totals['fg_below_zero']):,}
+- Gust values equal to 0 m/s: {int(totals['fg_zero_rows']):,}
+  (with f = 0: {int(totals['fg_zero_with_zero_f']):,}; with f > 0: {int(totals['fg_zero_with_positive_f']):,})
+- Unique high-value nail rows (f >= {MAX_MEAN_WIND_MS:g} or fg >= {MAX_GUST_MS:g}): {int(totals['nail_rows']):,}
   ({100 * totals['nail_rows'] / input_rows:.4f}%)
 - Frozen all-zero intervals >2 h: {len(frozen_intervals):,}
 - Rows excluded in frozen all-zero intervals: {int(totals['frozen_zero_rows']):,}

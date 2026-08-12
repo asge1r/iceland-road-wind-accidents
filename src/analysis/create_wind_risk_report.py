@@ -393,8 +393,12 @@ def write_weather_coverage(
         ("raw_10_minute_rows", "input_rows", "Raw weather observations."),
         ("missing_f", "missing_f", "Can overlap other exclusion categories."),
         ("missing_fg", "missing_fg", "Can overlap other exclusion categories."),
-        ("f_above_40_ms", "f_above_40", "Operational spike threshold."),
-        ("fg_above_75_ms", "fg_above_75", "Operational spike threshold."),
+        ("f_below_zero_ms", "f_below_zero", "Invalid negative mean-wind value."),
+        ("fg_below_zero_ms", "fg_below_zero", "Invalid negative gust value."),
+        ("f_at_or_above_45_ms", "f_at_or_above_45", "Operational upper threshold."),
+        ("fg_at_or_above_65_ms", "fg_at_or_above_65", "Operational upper threshold."),
+        ("fg_equal_zero_ms", "fg_zero_rows", "Reported separately; gusts of zero are unusual."),
+        ("fg_zero_with_positive_f", "fg_zero_with_positive_f", "Internally inconsistent zero gust."),
         (
             "fg_below_f_beyond_tolerance",
             "fg_below_f_beyond_tolerance",
@@ -831,7 +835,13 @@ def main() -> None:
         bin_mapping=FG_THREE_MS_BINS,
         bin_order=FG_THREE_MS_ORDER,
     )
-    validate_totals(bin_width_sensitivity, 5914)
+    # A different bin width must retain exactly the current primary sample.
+    # Do not hard-code an old accident count: valid weather cleaning rules can
+    # legitimately change the matched sample while preserving this invariant.
+    primary_fg_total = int(
+        primary.loc[primary["variable"].eq("fg"), "observed_accidents"].sum()
+    )
+    validate_totals(bin_width_sensitivity, primary_fg_total)
 
     write_thesis_outputs(
         primary,
