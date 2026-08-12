@@ -2,12 +2,25 @@
 
 ## Weather quality
 
-- Retain wind observations only when `0 <= f < 45 m/s` and `0 <= fg < 65 m/s`.
-- Exclude and explicitly report every negative `f` or `fg` value. Report all
-  `fg = 0` observations separately, including the unusual subset with `f > 0`.
-- Do not discard an otherwise valid wind observation because temperature is missing.
-- Exclude uninterrupted runs lasting two hours or more where both `f` and `fg`
-  are exactly zero. A record with `f = 0` alone is retained.
+The weather-cleaning script never imputes or clips wind values. Its rules are
+fixed before analysis and are reported annually in
+`archive/generated_diagnostics/weather_cleaning_by_year.csv`.
+
+| Condition | Treatment | Audit category |
+|---|---|---|
+| Both `f` and `fg` are unavailable throughout a station-year | Exclude from the wind-observation universe | Station-year without wind data |
+| `f` or `fg` is missing within a wind-capable station-year | Exclude the record | Missing wind value |
+| `f < 0` or `fg < 0` | Exclude the record | Negative wind value |
+| `f >= 45 m/s` or `fg >= 65 m/s` | Exclude the record | Upper-threshold value |
+| `fg = 0` and `f > 0` | Exclude the record | Inconsistent zero gust |
+| `fg + 0.5 < f` | Exclude the record | Gust below mean wind |
+| `f = 0` alone, or a short `f = fg = 0` run | Retain | Valid calm wind |
+| `f = fg = 0` at uninterrupted 10-minute intervals for at least two hours | Exclude the full run | Frozen zero run |
+| Temperature is missing or outside the temperature plausibility range | Retain the wind record; set `t` missing | Temperature not required |
+
+The raw delivery contains station-time records from stations that do not
+measure wind, for example precipitation and radiation stations. These are not
+interpreted as missing wind observations from the wind-monitoring network.
 
 ## Accident sample
 
