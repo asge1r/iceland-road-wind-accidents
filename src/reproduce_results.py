@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -12,6 +13,7 @@ from src.figures.create_crosswind_figure import create_figure
 
 INPUT = Path("data/replication/tables")
 OUTPUT = Path("reports/reproduced/figures")
+REFERENCE = Path("data/replication/figures")
 
 
 def main() -> None:
@@ -28,9 +30,14 @@ def main() -> None:
         "Daily traffic relative to expected traffic by mean wind speed",
     )
     create_figure(pd.read_csv(INPUT / "crosswind.csv"), OUTPUT / "crosswind.png")
-    # The exact published gust figure is included in data/replication/figures.
-    # Its table is copied alongside it for inspection and independent checking.
+    snapshot = OUTPUT.parent / "reference_snapshot"
+    snapshot.mkdir(parents=True, exist_ok=True)
+    for figure in REFERENCE.glob("*.png"):
+        shutil.copy2(figure, snapshot / figure.name)
+    # The snapshot contains every exact published figure. The two core figures
+    # above are additionally redrawn from their tracked numerical tables.
     print(f"Wrote core reproduced figures to {OUTPUT}")
+    print(f"Copied exact result snapshot to {snapshot}")
 
 
 if __name__ == "__main__":
