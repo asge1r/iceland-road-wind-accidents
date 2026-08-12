@@ -9,10 +9,17 @@ not assign coordinates or weather.
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 import pandas as pd
 
-from src.traffic import prepare_daily_traffic as legacy
+from src.traffic import daily_pdf_parser
+
+
+OUT_COUNTS = Path("data/processed/traffic/daily_counts.parquet")
+OUT_CHANNELS = Path("archive/generated_diagnostics/daily_traffic_channels_2019_2024.csv")
+OUT_METADATA = Path("archive/generated_diagnostics/daily_counter_metadata_2019_2024.csv")
+OUT_NOTES = Path("archive/generated_diagnostics/traffic_pdf_2019_2024_notes.txt")
 
 
 def extract() -> None:
@@ -22,12 +29,12 @@ def extract() -> None:
     summaries: list[dict[str, object]] = []
     missing_years: list[int] = []
 
-    for year in sorted(legacy.PDF_CANDIDATES):
-        path = legacy.resolve_pdf(year)
+    for year in sorted(daily_pdf_parser.PDF_CANDIDATES):
+        path = daily_pdf_parser.resolve_pdf(year)
         if path is None:
             missing_years.append(year)
             continue
-        channel_rows, metadata, summary = legacy.parse_year(year, path)
+        channel_rows, metadata, summary = daily_pdf_parser.parse_year(year, path)
         parsed_frames.append(channel_rows)
         metadata_frames.append(metadata)
         summaries.append(summary)
@@ -38,7 +45,7 @@ def extract() -> None:
     channels = pd.concat(parsed_frames, ignore_index=True).sort_values(
         ["year", "station_id", "road_section", "date"]
     )
-    counter_days = legacy.build_counter_days(channels)
+    counter_days = daily_pdf_parser.build_counter_days(channels)
     count_columns = [
         "date", "year", "counter_site_id", "station_id", "road_section",
         "site_name", "traffic_volume", "directional_channels", "source_fastnr",
@@ -46,13 +53,13 @@ def extract() -> None:
     if counter_days.duplicated(["counter_site_id", "date"]).any():
         raise ValueError("Daily-count output is not unique on physical counter and date.")
 
-    legacy.OUT_COUNTS.parent.mkdir(parents=True, exist_ok=True)
-    legacy.OUT_CHANNEL_MULTI.parent.mkdir(parents=True, exist_ok=True)
-    legacy.OUT_META_MULTI.parent.mkdir(parents=True, exist_ok=True)
-    channels.to_csv(legacy.OUT_CHANNEL_MULTI, index=False)
-    counter_days[count_columns].to_parquet(legacy.OUT_COUNTS, index=False, compression="zstd")
+    OUT_COUNTS.parent.mkdir(parents=True, exist_ok=True)
+    OUT_CHANNELS.parent.mkdir(parents=True, exist_ok=True)
+    OUT_METADATA.parent.mkdir(parents=True, exist_ok=True)
+    channels.to_csv(OUT_CHANNELS, index=False)
+    counter_days[count_columns].to_parquet(OUT_COUNTS, index=False, compression="zstd")
     pd.concat(metadata_frames, ignore_index=True).drop_duplicates().to_csv(
-        legacy.OUT_META_MULTI, index=False
+        OUT_METADATA, index=False
     )
 
     notes = [
@@ -65,10 +72,10 @@ def extract() -> None:
         f"Channel rows retained for audit: {len(channels):,}",
         f"Physical counter-day rows: {len(counter_days):,}",
         f"Physical counter sites: {counter_days['counter_site_id'].nunique():,}",
-        f"Output: {legacy.OUT_COUNTS}",
+        f"Output: {OUT_COUNTS}",
     ]
-    legacy.OUT_NOTES_MULTI.parent.mkdir(parents=True, exist_ok=True)
-    legacy.OUT_NOTES_MULTI.write_text("\n".join(notes) + "\n", encoding="utf-8")
+    OUT_NOTES.parent.mkdir(parents=True, exist_ok=True)
+    OUT_NOTES.write_text("\n".join(notes) + "\n", encoding="utf-8")
     print("\n".join(notes))
 
 

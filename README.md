@@ -10,7 +10,8 @@ intervals.
 This GitHub repository contains code and documentation only. Raw data, derived
 data and generated figures remain local and are excluded by `.gitignore`.
 Someone with the authorised source files can recreate every processed dataset
-by following [`pipeline.md`](pipeline.md).
+by following [`pipeline.md`](pipeline.md). The five allowed processed inputs
+and their required columns are defined in [`docs/data_contracts.md`](docs/data_contracts.md).
 
 ## Directory structure
 
@@ -47,6 +48,13 @@ by following [`pipeline.md`](pipeline.md).
 
 ## Rebuild the results
 
+After cloning, create a Python environment, install the project dependencies,
+and place the authorised raw deliveries in the paths in
+[`data/README.md`](data/README.md). The public road geometry is downloaded by
+the pipeline. The six daily-traffic PDFs (2019--2024) must be supplied to
+`data/raw/traffic/daily_pdf/`; they are required only for the daily-traffic
+sensitivity figures.
+
 ```bash
 .venv/bin/python -m src.run_analysis
 ```
@@ -60,6 +68,13 @@ rebuild data from authorised raw files and then recreate the results, run:
 
 See `data/README.md` for the required local source files and `docs/` for source
 and variable definitions.
+
+Without data, a clone can inspect every documented script, contract and fixed
+analysis decision. With existing processed files it can redraw the retained
+figures; with all raw deliveries it can rebuild the full pipeline. Three broad
+data families alone (accidents, weather and traffic) are not enough: the
+accident work also needs the supplied road-link and urban-boundary references,
+and daily traffic also needs the six PDFs and station metadata.
 
 ## Primary Assumptions
 

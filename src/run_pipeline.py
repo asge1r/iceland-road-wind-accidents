@@ -17,7 +17,9 @@ PREPARE_STEPS = [
     "src.weather.clean_weather",
     "src.traffic.prepare_annual_traffic",
     "src.traffic.extract_daily_traffic",
+    "src.traffic.download_road_geometry",
     "src.traffic.locate_daily_counters_from_station",
+    "src.analysis.analyze_daily_traffic",
     "src.accidents.match_accidents_weather",
     "src.weather.build_wind_frequency",
 ]

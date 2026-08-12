@@ -23,15 +23,15 @@ To rebuild processed data from authorised raw data and then recreate results:
 - `traffic/prepare_annual_traffic.py`: creates the 2000–2025 ADU/SDU/VDU table.
 - `traffic/extract_daily_traffic.py`: extracts PDF channels and sums them into
   one physical-counter/day count.
-- `traffic/locate_daily_counters.py`: attaches documented counter coordinates to
-  those counts without rereading PDFs.
 - `traffic/download_road_geometry.py`: downloads the official road-section geometry
   and start/end stations used for the primary PDF-`stöð` location rule.
-- `traffic/locate_daily_counters_from_station.py`: applies that direct official
-  PDF-`stöð` location rule, falling back to the existing Bst/Est method only if
-  the road-reference file is absent or a station is not covered.
-- `traffic/prepare_daily_traffic.py`: compatibility implementation shared by the
-  two focused traffic scripts; do not use it for new pipeline commands.
+- `traffic/locate_daily_counters_from_station.py`: applies the direct official
+  PDF-`stöð` location rule. A counter without a valid official section is kept
+  but explicitly labelled `location_unavailable`; it is not silently relocated.
+- `traffic/validate_station_locations.py`: independently checks calculated
+  PDF-`stöð` coordinates against the official 20 m road-point layer.
+- `traffic/daily_pdf_parser.py`: the narrowly scoped PDF parsing helper used by
+  `extract_daily_traffic.py`; it contains no location or weather analysis.
 - `accidents/match_accidents_weather.py`: matches accidents to valid 10-minute wind.
 - `weather/build_wind_frequency.py`: calculates wind frequency by station, year, and
   season.

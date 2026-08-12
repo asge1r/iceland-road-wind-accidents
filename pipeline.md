@@ -16,7 +16,8 @@ excluded from Git. Detailed source and variable documentation is in `docs/`.
 | Annual traffic | `src.traffic.prepare_annual_traffic` | `raw/traffic/annual/` | `processed/traffic/annual_road_section_exposure.csv` | Standardise ÁDU, SDU, VDU, Bst and Est. |
 | Extract daily traffic | `src.traffic.extract_daily_traffic` | `raw/traffic/daily_pdf/` | `processed/traffic/daily_counts.parquet` | Extract PDF counts and sum direction/lane channels at each physical counter. |
 | Download road geometry | `src.traffic.download_road_geometry` | Road Administration MapServer/6 | `raw/traffic/reference/roads.geojson` | Download official road geometry and start/end road stations. |
-| Locate daily counters | `src.traffic.locate_daily_counters_from_station` | daily counts, official road geometry | `processed/traffic/daily_traffic.parquet` | Interpolate PDF `stöð` along its official road geometry; use Bst/Est method only as fallback. |
+| Locate daily counters | `src.traffic.locate_daily_counters_from_station` | daily counts, official road geometry | `processed/traffic/daily_traffic.parquet` | Interpolate PDF `stöð` along its official road geometry. Keep sites without a valid geometry as explicitly unavailable. |
+| Validate counter locations | `src.traffic.validate_station_locations` | daily counter locations, Road Administration MapServer/4 | `processed/traffic/daily_counter_station_validation.csv` | Compare PDF-`stöð` interpolation with official 20 m road points; never alters locations. |
 | Daily weather | `src.analysis.analyze_daily_traffic` | daily traffic, clean weather, stations | `processed/traffic/daily_traffic_weather.parquet` | Pair each counter-day with the nearest usable weather station within 20 km and calculate 10:00–21:59 weather. |
 | Accident weather | `src.accidents.match_accidents_weather` | enriched accidents, clean weather, stations | `processed/accidents/rural_injury_accidents.parquet` | Attach the nearest valid ten-minute weather observation to each rural injury accident. |
 | Daily wind response | `src.analysis.build_daily_traffic_wind_analysis` | daily traffic/weather, annual traffic | `processed/traffic/daily_traffic_wind_response.parquet` | Calculate observed/expected daily traffic by daytime mean-wind bin. |
@@ -34,9 +35,9 @@ excluded from Git. Detailed source and variable documentation is in `docs/`.
 ## Daily-counter location rule
 
 Daily PDF `stöð` is treated as a metre station along the reported road section.
-The current implementation validates PDF `stöð` against that year's Bst/Est and
-interpolates the point along the registered road-section geometry. This is the
-primary rule because `stöð` identifies the physical PDF counter site. It retains
-`location_method`, `location_is_estimated` and uncertainty fields. Official
-20 m road-station points are used as an independent validation and fallback,
-not as a reason to displace a valid PDF `stöð` location.
+The current implementation accepts it only inside the official start/end
+station range and interpolates the point along the registered road geometry.
+This is the primary rule because `stöð` identifies the physical PDF counter
+site. It retains `location_method`, `location_is_estimated` and uncertainty
+fields. Official 20 m road-station points are used only as an independent
+validation, never to displace a valid PDF-`stöð` location.

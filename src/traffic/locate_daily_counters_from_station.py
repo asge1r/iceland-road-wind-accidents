@@ -1,10 +1,4 @@
-"""Locate daily PDF counters from road number, section and PDF ``stöð``.
-
-``stöð`` is the counter's reported metre station, not a generic counter label.
-This script uses official MapServer/6 start/end stations and road geometry when
-``roads.geojson`` is available. It retains the established Bst/Est-based method
-as a documented fallback, so existing results remain reproducible.
-"""
+"""Locate daily PDF counters from road number, section and PDF ``stöð``."""
 
 from __future__ import annotations
 
@@ -17,10 +11,10 @@ import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
-from src.traffic import prepare_daily_traffic as fallback
-
-
 ROADS = Path("data/raw/traffic/reference/roads.geojson")
+COUNTS = Path("data/processed/traffic/daily_counts.parquet")
+OUTPUT = Path("data/processed/traffic/daily_traffic.parquet")
+LOCATIONS = Path("data/processed/traffic/daily_locations.csv")
 
 
 def geometry_sequences(geometry: dict[str, object]) -> list[list[list[float]]]:
@@ -79,6 +73,7 @@ def locate_with_official_geometry(daily: pd.DataFrame, roads_path: Path) -> pd.D
         for feature in roads.get((road_number, section_code.lower()), []):
             try:
                 matched = interpolate(feature, float(site.station_id))
+                properties = feature["properties"]
                 break
             except ValueError:
                 continue
@@ -98,6 +93,9 @@ def locate_with_official_geometry(daily: pd.DataFrame, roads_path: Path) -> pd.D
                 "location_max_offset_along_road_km": np.nan,
                 "location_max_offset_straight_line_m": np.nan,
                 "location_station_range_valid": True,
+                "location_station_start_m": float(properties["KAFLISTODUPPHAF"]),
+                "location_station_end_m": float(properties["KAFLISTODENDIR"]),
+                "location_station_fraction": (float(site.station_id) - float(properties["KAFLISTODUPPHAF"])) / (float(properties["KAFLISTODENDIR"]) - float(properties["KAFLISTODUPPHAF"])),
                 "official_counter_name": None,
                 "counter_name_score": np.nan,
                 "counter_name_margin": np.nan,
@@ -107,39 +105,26 @@ def locate_with_official_geometry(daily: pd.DataFrame, roads_path: Path) -> pd.D
 
 
 def locate() -> None:
-    """Write the existing canonical daily-traffic table with the best available rule."""
-    daily = pd.read_parquet(fallback.OUT_COUNTS)
+    """Write locations from the official geometry; do not infer a fallback."""
+    daily = pd.read_parquet(COUNTS)
     if not ROADS.exists():
-        print(f"Official road geometry not found at {ROADS}; using documented Bst/Est fallback.")
-        fallback.rebuild_locations_only()
-        return
+        raise FileNotFoundError(f"Missing {ROADS}; first run src.traffic.download_road_geometry.")
 
     direct = locate_with_official_geometry(daily, ROADS)
-    legacy = fallback.add_counter_locations(daily)
     if direct.empty:
         raise RuntimeError("No daily counters could be located from the official road geometry.")
-    location_columns = [column for column in legacy.columns if column not in daily.columns]
-    direct_location_columns = [
-        column for column in direct.columns if column not in {"year", "counter_site_id"}
-    ]
-    output = legacy.merge(
-        direct.rename(columns={column: f"{column}_official" for column in direct_location_columns}),
-        on=["year", "counter_site_id"], how="left", validate="many_to_one",
-    )
-    for column in direct_location_columns:
-        official_column = f"{column}_official"
-        if column in output:
-            output[column] = output[official_column].where(output[official_column].notna(), output[column])
-        else:
-            output[column] = output[official_column]
-        output = output.drop(columns=official_column)
-    # Preserve all established columns. The direct official method replaces only
-    # those locations for which the PDF station lies in a current official range.
+    output = daily.merge(direct, on=["year", "counter_site_id"], how="left", validate="many_to_one")
+    for column in ["location_x_3057", "location_y_3057", "location_lon", "location_lat"]:
+        output[column] = output[column].astype(float)
+    output["location_method"] = output["location_method"].fillna("location_unavailable")
+    output["location_is_estimated"] = output["location_is_estimated"].fillna(True)
     output = output.sort_values(["counter_site_id", "date"])
-    output.to_parquet(fallback.OUT_LONG_MULTI, index=False, compression="zstd")
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    output.to_parquet(OUTPUT, index=False, compression="zstd")
+    location_columns = [column for column in output.columns if column not in daily.columns]
     output[["year", "counter_site_id", *location_columns]].drop_duplicates(
         ["year", "counter_site_id"]
-    ).to_csv(fallback.OUT_LOCATIONS, index=False)
+    ).to_csv(LOCATIONS, index=False)
     print(
         f"Wrote {len(output):,} counter-days; official PDF-station geometry used for "
         f"{len(direct):,}/{daily[['year', 'counter_site_id']].drop_duplicates().shape[0]:,} counter-site years."
