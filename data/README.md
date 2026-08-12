@@ -1,25 +1,27 @@
 # Local data map
 
-This repository includes `analysis/`, the five compact inputs needed to run
-results after cloning. Raw and processed data remain local. To rebuild analysis
-inputs, obtain authorised source deliveries and place them in the paths below.
-No script alters a file in `data/raw/`.
+This repository intentionally does not include raw or processed data. To run
+the pipeline after cloning, obtain the authorised source deliveries and place
+them in the paths below. No script alters a file in `data/raw/`; generated
+files are written under `data/processed/` or `archive/` and are ignored by Git.
 
-`src.prepare.traffic.download_road_geometry` is the exception to manual retrieval: it
+`src.traffic.download_road_geometry` is the exception to manual retrieval: it
 downloads the public Road Administration MapServer/6 reference file to
 `raw/traffic/reference/roads.geojson`. It is then used to locate daily PDF
 counters from their reported `stöð` value.
 
-`raw/` contains unchanged sources. `processed/` contains expensive local
-preparation caches. The compact versioned inputs are under `analysis/`.
-Readable tables and figures are under
+`raw/` contains unchanged sources. `processed/` contains only canonical analysis
+inputs or expensive reusable caches. Readable tables and figures are under
 `reports/`; superseded intermediates are recoverable under
 `archive/data_legacy_2026-07-22/`.
 
 ## Analysis A: frequency-standardized O/E
 
-Active inputs: `analysis/accidents.csv` and
-`analysis/weather_station_frequency.csv`.
+Primary inputs:
+
+- `processed/accidents/rural_injury_accidents.parquet`
+- `processed/weather/wind_frequency_station_year_season.parquet`
+- `processed/accidents/oe_station_period_bins.parquet`
 
 The primary result standardizes within weather station, calendar year, and
 meteorological season. It does not use traffic. The separately labelled traffic
@@ -28,8 +30,11 @@ PDF traffic is a further restricted 2019-2024 sensitivity only.
 
 ## Analysis B: road-section table and figures
 
-Active inputs: `analysis/annual_traffic.csv`, `analysis/road_wind.csv` and
-`analysis/daily_counter_wind.csv`.
+Primary inputs/output:
+
+- `processed/traffic/annual_road_section_exposure.csv`
+- `processed/weather/wind_frequency_road_period_2007_2024.parquet`
+- `processed/traffic/road_section_wind_panel_2007_2024.parquet`
 
 The panel unit is road section, year, official traffic period, wind variable,
 and wind bin. `f` and `fg` are separate rows. Readable mean-wind and gust tables,
@@ -42,3 +47,23 @@ Raw 2025 accident, injury, and vehicle files are retained in `raw/accidents/`.
 The current canonical accident tables still end in 2024. Do not label an output
 2007-2025 until the 2025 files have passed the same coordinate, rural/urban,
 road, surface, severity, and weather matching pipeline.
+
+## Local rebuild order
+
+From the project root, run:
+
+```bash
+.venv/bin/python -m src.run_pipeline --stage prepare
+.venv/bin/python -m src.run_analysis
+```
+
+The first command needs the accident, weather, annual-traffic and station
+source deliveries. The daily-PDF workflow is optional and deliberately
+separate because those PDFs are not available in every local copy:
+
+```bash
+.venv/bin/python -m src.run_pipeline --stage prepare --daily-traffic
+```
+
+Git supplies the documented methods; each authorised user supplies the data
+locally and regenerates the processed tables and figures.

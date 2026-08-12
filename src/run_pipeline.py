@@ -1,0 +1,72 @@
+"""Run the documented raw-data preparation pipeline and, optionally, results.
+
+Run from the project root. Raw data must first be placed in the directories
+listed in ``data/README.md``. The default ``prepare`` stage does not redraw
+figures; use ``--stage all`` only when the complete raw-data pipeline is wanted.
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+import subprocess
+import sys
+
+
+CORE_PREPARE_STEPS = [
+    "src.accidents.prepare_accidents",
+    "src.weather.clean_weather",
+    "src.traffic.prepare_annual_traffic",
+    "src.accidents.match_accidents_weather",
+    "src.weather.build_wind_frequency",
+]
+
+DAILY_TRAFFIC_STEPS = [
+    "src.traffic.extract_daily_traffic",
+    "src.traffic.download_road_geometry",
+    "src.traffic.locate_daily_counters_from_station",
+    "src.analysis.analyze_daily_traffic",
+]
+
+
+def run(module: str, *, dry_run: bool = False) -> None:
+    command = [sys.executable, "-m", module]
+    print("Running:", " ".join(command), flush=True)
+    if not dry_run:
+        subprocess.run(command, check=True)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stage", choices=["prepare", "results", "all"], default="prepare")
+    parser.add_argument(
+        "--daily-traffic", action="store_true",
+        help="Rebuild daily traffic from the six local PDF files (2019-2024).",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="Print the selected local steps without changing files.",
+    )
+    args = parser.parse_args()
+    if args.stage in {"prepare", "all"}:
+        for module in CORE_PREPARE_STEPS:
+            run(module, dry_run=args.dry_run)
+        pdf_directory = Path("data/raw/traffic/daily_pdf")
+        if args.daily_traffic:
+            for module in DAILY_TRAFFIC_STEPS:
+                run(module, dry_run=args.dry_run)
+        elif not pdf_directory.exists():
+            print("Skipping daily-traffic rebuild: data/raw/traffic/daily_pdf/ is absent. "
+                  "Use --daily-traffic after adding the six PDFs.")
+        else:
+            print("Skipping daily-traffic rebuild by default. Use --daily-traffic to parse PDFs.")
+        if Path("data/processed/traffic/daily_traffic_weather.parquet").exists():
+            run("src.export_working_tables", dry_run=args.dry_run)
+        else:
+            print("Skipping daily working-table export: no daily traffic/weather cache exists.")
+    if args.stage in {"results", "all"}:
+        run("src.run_analysis", dry_run=args.dry_run)
+
+
+if __name__ == "__main__":
+    main()

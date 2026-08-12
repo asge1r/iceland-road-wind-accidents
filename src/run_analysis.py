@@ -4,8 +4,8 @@ Run from the project root with::
 
     .venv/bin/python -m src.run_analysis
 
-The program uses only the five versioned inputs under ``data/analysis``. Each
-module validates its inputs and writes traceable tables before drawing a figure.
+The program uses prepared clean data under ``data/processed``. Each module
+validates its inputs and writes traceable tables before drawing a figure.
 """
 
 import subprocess
@@ -20,10 +20,16 @@ def run(module: str, *arguments: str) -> None:
 
 def main() -> None:
     """Calculate wind-frequency adjustment and redraw the retained figures."""
+    run("src.weather.build_wind_frequency", "--distribution-only")
+    run("src.analysis.build_road_section_wind_table")
     run("src.analysis.calculate_wind_risk")
     run("src.analysis.create_wind_risk_report")
-    run("src.analysis.render_road_wind")
-    run("src.analysis.render_daily_wind")
+    run("src.analysis.analyze_daily_traffic", "--plot-only")
+    run("src.analysis.build_daily_traffic_wind_analysis")
+    run("src.analysis.analyze_daily_counter_availability")
+    run("src.figures.create_data_overview_figures")
+    run("src.figures.create_accident_profile_figure")
+    run("src.figures.create_counter_weather_distance_figure")
 
 
 if __name__ == "__main__":
