@@ -388,22 +388,39 @@ def write_weather_coverage(
     )
 
     cleaning = pd.read_csv(cleaning_path)
+    # The audit has an explicit total row. Exclude it before reporting
+    # otherwise every weather count would be doubled.
+    cleaning = cleaning[cleaning["year"].astype(str).ne("total")].copy()
     input_rows = int(cleaning["input_rows"].sum())
     measurement_metrics = [
         ("raw_10_minute_rows", "input_rows", "Raw weather observations."),
-        ("missing_f", "missing_f", "Can overlap other exclusion categories."),
-        ("missing_fg", "missing_fg", "Can overlap other exclusion categories."),
-        ("f_below_zero_ms", "f_below_zero", "Invalid negative mean-wind value."),
-        ("fg_below_zero_ms", "fg_below_zero", "Invalid negative gust value."),
+        (
+            "station_year_without_wind_data",
+            "no_wind_station_year",
+            "Station-time rows from station-years with no wind values.",
+        ),
+        (
+            "missing_wind_in_wind_capable_station_year",
+            "missing_wind",
+            "Missing f or fg within a station-year that otherwise measures wind.",
+        ),
+        ("negative_wind_values", "negative", "Invalid negative f or fg value."),
+        ("f_below_zero_ms", "negative_f", "Reported negative mean-wind value."),
+        ("fg_below_zero_ms", "negative_fg", "Reported negative gust value."),
         ("f_at_or_above_45_ms", "f_at_or_above_45", "Operational upper threshold."),
         ("fg_at_or_above_65_ms", "fg_at_or_above_65", "Operational upper threshold."),
         ("fg_equal_zero_ms", "fg_zero_rows", "Reported separately; gusts of zero are unusual."),
-        ("fg_zero_with_positive_f", "fg_zero_with_positive_f", "Internally inconsistent zero gust."),
+        (
+            "fg_zero_with_positive_f",
+            "fg_zero_with_positive_f",
+            "Internally inconsistent zero gust; excluded.",
+        ),
         (
             "fg_below_f_beyond_tolerance",
-            "fg_below_f_beyond_tolerance",
+            "gust_below_mean",
             "Failed internal wind consistency rule.",
         ),
+        ("frozen_zero_runs", "frozen_zero", "Both f and fg equal zero for at least two hours."),
         ("clean_wind_rows", "clean_wind_rows", "Rows retained with valid f and fg."),
     ]
     for metric, column, note in measurement_metrics:
