@@ -15,9 +15,11 @@ provenance or intermediate matching columns. The detailed files in
 
 ## Derivative outputs
 
-`daily.txt` is a tab-separated copy of `daily_traffic.csv`, retained solely for
-easy inspection and compatibility with the earlier Drive work. It is not a
-sixth dataset and no script reads it. `wind_frequency_station_year_season.parquet`,
+`daily.txt` is a short tab-separated inspection table, retained for easy
+inspection and compatibility with the earlier Drive work. Its only columns are
+date, road section, PDF `stöð`, daily traffic, coordinates, paired weather
+station/distance and daytime `f`/`fg`. It is not a sixth dataset and no script
+reads it. `wind_frequency_station_year_season.parquet`,
 `road_section_wind_panel_2007_2024.parquet`, `oe_station_period_bins.parquet`,
 and `daily_traffic_wind_response.parquet` are analysis-specific derivatives.
 

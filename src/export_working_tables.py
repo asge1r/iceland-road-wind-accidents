@@ -2,8 +2,8 @@
 
 The detailed files under ``data/processed/{accidents,weather,traffic}`` remain
 pipeline caches.  This module deliberately exports only the columns used for
-analysis or routine inspection.  ``daily.txt`` is a tab-separated convenience
-copy of ``daily_traffic.csv`` for compatibility with the earlier Drive layout.
+analysis or routine inspection. ``daily.txt`` is a deliberately shorter
+tab-separated inspection table in the style of the earlier Drive layout.
 """
 
 from __future__ import annotations
@@ -66,7 +66,15 @@ def write_daily_traffic() -> None:
     )
     data = data.sort_values(["counter_site_id", "date"])
     data.to_csv(ROOT / "daily_traffic.csv", index=False)
-    data.to_csv(ROOT / "daily.txt", sep="\t", index=False)
+    # Keep this deliberately small. Year/month/weekday and the composite site
+    # ID can be recreated from date, road section and PDF station. Location
+    # diagnostics remain in daily_traffic.csv rather than this inspection file.
+    drive_columns = [
+        "date", "road_section", "station_id", "traffic_volume", "lat", "lon",
+        "weather_station_id", "weather_station_dist_km", "f_daytime_mean",
+        "fg_daytime_max",
+    ]
+    data[drive_columns].to_csv(ROOT / "daily.txt", sep="\t", index=False)
 
 
 def main() -> None:
