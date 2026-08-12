@@ -6,7 +6,8 @@
 - Exclude and explicitly report every negative `f` or `fg` value. Report all
   `fg = 0` observations separately, including the unusual subset with `f > 0`.
 - Do not discard an otherwise valid wind observation because temperature is missing.
-- Exclude uninterrupted runs longer than two hours where both `f` and `fg` are exactly zero.
+- Exclude uninterrupted runs lasting two hours or more where both `f` and `fg`
+  are exactly zero. A record with `f = 0` alone is retained.
 
 ## Accident sample
 
