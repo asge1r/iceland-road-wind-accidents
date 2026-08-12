@@ -8,8 +8,7 @@ intervals.
 ## Repository scope
 
 This GitHub repository contains code and documentation only. Raw data, derived
-data and generated figures remain local and are excluded by `.gitignore`, apart
-from the small tracked [`data/replication/`](data/replication/) bundle.
+data and generated figures remain local and are excluded by `.gitignore`.
 Someone with the authorised source files can recreate every processed dataset
 by following [`pipeline.md`](pipeline.md). The five allowed processed inputs
 and their required columns are defined in [`docs/data_contracts.md`](docs/data_contracts.md).
@@ -48,16 +47,6 @@ and their required columns are defined in [`docs/data_contracts.md`](docs/data_c
   adjustment.
 
 ## Rebuild the results
-
-To inspect the exact reported tables and figures immediately after cloning,
-run the small-data replication command:
-
-```bash
-.venv/bin/python -m src.reproduce_results
-```
-
-It needs no raw data and writes core figures to `reports/reproduced/figures/`.
-The full pipeline remains separately reproducible from authorised source data.
 
 After cloning, create a Python environment, install the project dependencies,
 and place the authorised raw deliveries in the paths in

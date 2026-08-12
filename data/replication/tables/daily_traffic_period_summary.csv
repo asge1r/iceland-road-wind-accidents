@@ -1,4 +1,0 @@
-traffic_period,counter_days,counters,road_sections,weather_stations,mean_daily_traffic,median_daily_traffic,median_annual_period_daily_traffic,annual_reference_coverage_pct
-VDU,240502,465,296,191,4065.0941613791156,645.0,780.0,99.8490657042353
-SDU,249944,460,292,171,5217.486188906315,1701.0,1950.0,99.85356719905258
-VHDU,247975,465,296,181,4607.17707026918,952.0,1094.2622950819673,99.85240447625769

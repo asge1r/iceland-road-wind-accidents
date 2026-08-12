@@ -37,8 +37,6 @@ To rebuild processed data from authorised raw data and then recreate results:
   season.
 - `export_working_tables.py`: exports the five small working tables documented in
   `docs/data_contracts.md`; it does not perform any statistical analysis.
-- `export_replication_bundle.py`: exports the small Git-tracked result bundle.
-- `reproduce_results.py`: redraws core figures from that bundle without raw data.
 
 ## Create tables and figures
 

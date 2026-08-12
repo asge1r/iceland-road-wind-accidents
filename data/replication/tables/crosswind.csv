@@ -1,3 +1,0 @@
-crosswind_group,observed_accidents,expected_accidents,observed_expected_ratio,ci_95_low,ci_95_high,accidents_in_analysis,weather_stations,median_background_observations_per_accident
-<9 m/s,4345,4437.384684236447,0.9791803751960837,0.9678304831836383,0.9892779677302086,4811,244,1008.0
->=9 m/s,466,373.61531576355236,1.2472722084415688,1.1297582565278277,1.3813269257585978,4811,244,1008.0

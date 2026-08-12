@@ -11,11 +11,6 @@ __pycache__/
 /data/cache/
 /data/external/
 
-# Small, versioned replication bundle. It contains no raw observations or
-# 10-minute weather data; see data/replication/README.md.
-!/data/replication/
-!/data/replication/**
-
 # LaTeX build files
 *.aux
 *.log
