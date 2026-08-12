@@ -25,6 +25,11 @@ To rebuild processed data from authorised raw data and then recreate results:
   one physical-counter/day count.
 - `traffic/locate_daily_counters.py`: attaches documented counter coordinates to
   those counts without rereading PDFs.
+- `traffic/download_road_geometry.py`: downloads the official road-section geometry
+  and start/end stations used for the primary PDF-`stöð` location rule.
+- `traffic/locate_daily_counters_from_station.py`: applies that direct official
+  PDF-`stöð` location rule, falling back to the existing Bst/Est method only if
+  the road-reference file is absent or a station is not covered.
 - `traffic/prepare_daily_traffic.py`: compatibility implementation shared by the
   two focused traffic scripts; do not use it for new pipeline commands.
 - `accidents/match_accidents_weather.py`: matches accidents to valid 10-minute wind.

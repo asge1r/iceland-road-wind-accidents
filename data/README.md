@@ -4,6 +4,11 @@ This repository intentionally does not include raw or processed data. To run
 the pipeline after cloning, obtain the authorised source deliveries and place
 them in the paths below. No script alters a file in `data/raw/`.
 
+`src.traffic.download_road_geometry` is the exception to manual retrieval: it
+downloads the public Road Administration MapServer/6 reference file to
+`raw/traffic/reference/roads.geojson`. It is then used to locate daily PDF
+counters from their reported `stöð` value.
+
 `raw/` contains unchanged sources. `processed/` contains only canonical analysis
 inputs or expensive reusable caches. Readable tables and figures are under
 `reports/`; superseded intermediates are recoverable under

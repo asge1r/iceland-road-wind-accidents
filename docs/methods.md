@@ -27,8 +27,10 @@ replace observed daily counts.
 ## Counter coordinates
 
 In the current reproducible pipeline, a PDF `stöð` is the primary location
-evidence. It is checked against the year-specific Bst/Est range and
-interpolated along the recorded road geometry. The output labels this as
-estimated. An independent match to the Road Administration's official 20 m
-road-station points is retained as a validation and fallback method; it does
-not replace a valid PDF `stöð` location.
+evidence. It is interpolated along the Road Administration's official road
+geometry using the official start/end station values from MapServer/6. The
+output labels this as estimated because it is an interpolation, not a supplied
+counter coordinate. The prior Bst/Est-based interpolation is retained only as
+a fallback when a station is not covered by the official geometry. An
+independent match to the Road Administration's 20 m road-station points is a
+validation method; it does not replace a valid PDF `stöð` location.

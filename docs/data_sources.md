@@ -9,7 +9,7 @@ kept outside Git because they are large and may have distribution restrictions.
 | Weather | [Icelandic Met Office API](https://api.vedur.is/weather/observations/aws/raw/10min) | `data/raw/weather/` | Ten-minute automatic-weather-station observations. |
 | Annual traffic | [Icelandic Road and Coastal Administration traffic publications](https://www.vegagerdin.is/vegakerfid/umferd-og-slys/umferd) | `data/raw/traffic/annual/` | Annual ÁDU, SDU, VDU and road-section records. |
 | Daily traffic | Icelandic Road and Coastal Administration annual counter PDFs | `data/raw/traffic/daily_pdf/` | Annual PDF calendars of daily counter readings. |
-| Road geography | [Road Administration MapServer](https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer) | `data/raw/traffic/reference/` | Road-section geometry, counter locations and 20 m road-station points used to locate PDF counters. |
+| Road geography | [Road Administration MapServer](https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer) | `data/raw/traffic/reference/` | MapServer/6 road-section geometry and official start/end stations; used to interpolate PDF `stöð` positions. Counter locations and 20 m points are validation sources. |
 | Urban boundaries | [Statistics Iceland WFS](https://gis.is/geoserver/Hagstofan/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Hagstofan:thettbylisstadir&outputFormat=application/json) | `data/raw/accidents/` | Urban-area polygons used for the rural/urban classification. |
 
 ## Current source and output scope
