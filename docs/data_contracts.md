@@ -1,21 +1,21 @@
 # Canonical data contracts
 
-These are the five small working datasets intended for inspection and ordinary
-analysis. Each is flat, one row has one stated unit, and it contains no
-provenance or intermediate matching columns. The detailed files in
-``processed/{accidents,weather,traffic}/`` are reproducible pipeline caches.
+The versioned analysis inputs are the five files in `data/analysis/`. Each is
+flat, has one stated unit, and contains no raw observations. `src.run_analysis`
+uses only these files (plus calculation caches it creates locally). The detailed
+files in `processed/{accidents,weather,traffic}/` are local pipeline caches.
 
 | Dataset | Unit and purpose | Required fields used downstream |
 |---|---|---|
-| `accidents.csv` | One rural injury accident with matched weather; main accident working table. | `nid`, `timestamp`, year/time, coordinates, `meidsli`, `severity`, accident type, rural/urban, road section, surface, weather station/distance, `f`, `fg`, `t` |
-| `weather.parquet` | One weather station and valid 10-minute observation. | `station`, `time`, `f`, `fg`, `t` |
-| `stations.csv` | One weather station. | `station`, `name`, `lat`, `lon`, `start`, `ending` |
-| `annual_traffic.csv` | One road section and calendar year. | `year`, `road_section`, section length, `adu`, `sdu`, `vdu`, vehicle-km |
-| `daily_traffic.csv` | One physical counter and date with daytime weather. | date, year, counter site, road section, PDF `stöð`, traffic volume, coordinates, location method, weather station/distance, daytime `f` and `fg`, month and weekday |
+| `accidents.csv` | One rural injury accident with matched weather. | `nid`, timestamp, injury code, accident type, road section, surface, weather station/distance/time difference, `f`, `fg`, `t` |
+| `weather_station_frequency.csv` | Weather station, year, season, wind variable and interval. | station, year, season, variable, bin and 10-minute measurement frequency |
+| `annual_traffic.csv` | One road section and calendar year. | year, road section, section length, `adu`, `sdu`, `vdu`, vehicle-km |
+| `daily_counter_wind.csv` | Counter, traffic period and mean-wind interval. | counter, wind bin, number of days, summed observed and expected daytime traffic |
+| `road_wind.csv` | Wind variable and interval for the traffic-adjusted sensitivity. | wind bin, estimated vehicle-km, injury counts, weather-only and traffic-adjusted O/E |
 
 ## Derivative outputs
 
-`daily.txt` is a short tab-separated inspection table, retained for easy
+`data/processed/daily.txt` is a short tab-separated inspection table, retained for easy
 inspection and compatibility with the earlier Drive work. Its only columns are
 date, road section, PDF `stöð`, daily traffic, coordinates, paired weather
 station/distance and daytime `f`/`fg`. It is not a sixth dataset and no script

@@ -37,6 +37,8 @@ To rebuild processed data from authorised raw data and then recreate results:
   season.
 - `export_working_tables.py`: exports the five small working tables documented in
   `docs/data_contracts.md`; it does not perform any statistical analysis.
+- `export_analysis_data.py`: turns local processed caches into the five small,
+  Git-tracked analysis inputs used by `run_analysis.py`.
 
 ## Create tables and figures
 

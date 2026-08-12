@@ -11,6 +11,10 @@ __pycache__/
 /data/cache/
 /data/external/
 
+# Versioned, compact analysis inputs. Raw data and generated caches stay ignored.
+!/data/analysis/
+!/data/analysis/**
+
 # LaTeX build files
 *.aux
 *.log

@@ -16,7 +16,7 @@ from src.weather.build_wind_frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, la
 
 
 DEFAULT_DETAILS = Path(
-    "data/processed/accidents/oe_station_period_bins.parquet"
+    "data/cache/oe_station_period_bins.parquet"
 )
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 ACCIDENT_MATCH_COVERAGE = Path(
@@ -24,7 +24,7 @@ ACCIDENT_MATCH_COVERAGE = Path(
 )
 DEFAULT_OUTPUT_DIR = Path("reports/main/tables")
 DEFAULT_FIGURE_DIR = Path("reports/main/figures")
-DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
+DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_WEATHER_CLEANING = Path(
     "archive/generated_diagnostics/weather_cleaning_by_year.csv"
 )
@@ -68,7 +68,7 @@ FG_THREE_MS_ORDER = labels(FG_UPPER_BOUNDS)
 
 
 def prepare_details(path: Path) -> pd.DataFrame:
-    details = pd.read_parquet(path)
+    details = pd.read_csv(path) if path.suffix == ".csv" else pd.read_parquet(path)
     if "max_time_difference_minutes" not in details:
         details["max_time_difference_minutes"] = PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
     details["coarse_bin"] = pd.NA
@@ -321,17 +321,16 @@ def write_weather_coverage(
     output_path: Path,
 ) -> pd.DataFrame:
     """Write one audit table for accident matching and weather cleaning."""
-    accidents = pd.read_parquet(
-        accidents_path,
-        columns=[
+    columns = [
             "nid",
             "weather_station_id",
             "weather_station_dist_km",
             "weather_time_difference_minutes",
             "f",
             "fg",
-        ],
-    )
+        ]
+    accidents = (pd.read_csv(accidents_path, usecols=columns) if accidents_path.suffix == ".csv"
+                 else pd.read_parquet(accidents_path, columns=columns))
     total_accidents = len(accidents)
     valid_wind = accidents["f"].notna() & accidents["fg"].notna()
     rows: list[dict[str, object]] = []
@@ -387,6 +386,11 @@ def write_weather_coverage(
         }
     )
 
+    if not cleaning_path.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        result = pd.DataFrame(rows)
+        result.to_csv(output_path, index=False)
+        return result
     cleaning = pd.read_csv(cleaning_path)
     input_rows = int(cleaning["input_rows"].sum())
     measurement_metrics = [

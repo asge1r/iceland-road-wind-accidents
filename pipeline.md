@@ -5,9 +5,10 @@ output:
 ---
 # Analysis pipeline
 
-Run commands from the project root. Raw files are never altered. Every output
-under `data/processed/` and `reports/` is reproducible and is deliberately
-excluded from Git. Detailed source and variable documentation is in `docs/`.
+Run commands from the project root. Raw files are never altered. The five small
+files under `data/analysis/` are versioned and are sufficient for
+`src.run_analysis`; large processed caches and reports are excluded from Git.
+Detailed source and variable documentation is in `docs/`.
 
 | Step | Script | Main input | Main output | Purpose |
 |---|---|---|---|---|

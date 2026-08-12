@@ -23,14 +23,14 @@ from src.weather.build_wind_frequency import (
 
 
 DEFAULT_ACCIDENTS = Path(
-    "data/processed/accidents/rural_injury_accidents.parquet"
+    "data/analysis/accidents.csv"
 )
 DEFAULT_FREQUENCY = Path(
-    "data/processed/weather/wind_frequency_station_year_season.parquet"
+    "data/analysis/weather_station_frequency.csv"
 )
 DEFAULT_RESULTS = Path("archive/generated_diagnostics/oe/detailed_results.csv")
 DEFAULT_DETAILS = Path(
-    "data/processed/accidents/oe_station_period_bins.parquet"
+    "data/cache/oe_station_period_bins.parquet"
 )
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/oe/calculation_notes.txt")
@@ -94,7 +94,8 @@ def load_data(
         "f",
         "fg",
     ]
-    accidents = pd.read_parquet(accidents_path, columns=columns)
+    accidents = (pd.read_csv(accidents_path, usecols=columns) if accidents_path.suffix == ".csv"
+                 else pd.read_parquet(accidents_path, columns=columns))
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
     if start:
         accidents = accidents[accidents["timestamp"].ge(pd.Timestamp(start))]
@@ -105,7 +106,7 @@ def load_data(
     accidents["season"] = season_from_month(accidents["timestamp"].dt.month)
     accidents["fg_minus_f"] = (accidents["fg"] - accidents["f"]).clip(lower=0)
 
-    frequency = pd.read_parquet(frequency_path)
+    frequency = pd.read_csv(frequency_path) if frequency_path.suffix == ".csv" else pd.read_parquet(frequency_path)
     frequency = frequency.rename(columns={"station": "weather_station_id"})
     frequency["weather_station_id"] = pd.to_numeric(
         frequency["weather_station_id"], errors="raise"

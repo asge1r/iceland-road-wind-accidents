@@ -7,8 +7,9 @@ intervals.
 
 ## Repository scope
 
-This GitHub repository contains code and documentation only. Raw data, derived
-data and generated figures remain local and are excluded by `.gitignore`.
+This GitHub repository contains code, documentation, and five compact
+analysis-ready CSV inputs under `data/analysis/`. Raw data, large processed
+caches and generated figures remain local and are excluded by `.gitignore`.
 Someone with the authorised source files can recreate every processed dataset
 by following [`pipeline.md`](pipeline.md). The five allowed processed inputs
 and their required columns are defined in [`docs/data_contracts.md`](docs/data_contracts.md).
@@ -58,6 +59,8 @@ sensitivity figures.
 ```bash
 .venv/bin/python -m src.run_analysis
 ```
+
+This command works directly after cloning and uses only `data/analysis/`.
 
 This command recreates the retained results from existing processed data. To
 rebuild data from authorised raw files and then recreate the results, run:

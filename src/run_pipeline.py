@@ -23,6 +23,7 @@ PREPARE_STEPS = [
     "src.accidents.match_accidents_weather",
     "src.weather.build_wind_frequency",
     "src.export_working_tables",
+    "src.export_analysis_data",
 ]
 
 
