@@ -1,0 +1,17 @@
+unit,metric,value,percent_of_input,note
+accidents,rural_injury_accidents_in_scope,6120,100.0,"Primary accident population, 2007-2024."
+accidents,valid_wind_within_10_km,4633,75.7,Spatial sensitivity.
+accidents,valid_wind_within_20_km,5914,96.63,Primary spatial criterion.
+accidents,valid_wind_within_30_km,6109,99.82,Loose spatial sensitivity only.
+accidents,valid_wind_within_20_km_and_0_minute_difference,719,11.75,Time-match sensitivity; <=5 minutes is primary.
+accidents,valid_wind_within_20_km_and_2_minute_difference,3019,49.33,Time-match sensitivity; <=5 minutes is primary.
+accidents,valid_wind_within_20_km_and_5_minute_difference,5914,96.63,Time-match sensitivity; <=5 minutes is primary.
+weather_stations,stations_in_primary_accident_analysis,254,,Distinct stations assigned to primary accidents.
+10_minute_weather_rows,raw_10_minute_rows,226580952,100.0,Raw weather observations.
+10_minute_weather_rows,missing_f,11930473,5.27,Can overlap other exclusion categories.
+10_minute_weather_rows,missing_fg,12238511,5.4,Can overlap other exclusion categories.
+10_minute_weather_rows,f_above_40_ms,30627,0.01,Operational spike threshold.
+10_minute_weather_rows,fg_above_75_ms,19551,0.01,Operational spike threshold.
+10_minute_weather_rows,fg_below_f_beyond_tolerance,2143,0.0,Failed internal wind consistency rule.
+10_minute_weather_rows,clean_wind_rows,211511015,93.35,Rows retained with valid f and fg.
+10_minute_weather_rows,weather_rows_excluded_total,15069937,6.65,Exclusive total removed by all wind-cleaning rules combined.

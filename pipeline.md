@@ -25,6 +25,7 @@ excluded from Git. Detailed source and variable documentation is in `docs/`.
 | Export working tables | `src.export_working_tables` | detailed processed caches | five files directly under `processed/` | Export the small, readable accident, weather, station and traffic tables; also write inspection-only `daily.txt`. |
 | Accident O/E | `src.analysis.calculate_wind_risk` | accident/weather and station-frequency data | `processed/accidents/oe_station_period_bins.parquet` | Create frequency-adjusted accident O/E inputs. |
 | Results | `src.analysis.create_wind_risk_report`, `src.figures.*` | processed analysis data | `reports/main/` | Create only thesis figures and small readable tables. |
+| Replication bundle | `src.export_replication_bundle` | small working tables and `reports/main/` | `data/replication/` | Version a 3–4 MB result snapshot that redraws core figures without restricted raw data. |
 
 ## Traffic-period names
 
