@@ -22,6 +22,7 @@ PREPARE_STEPS = [
     "src.analysis.analyze_daily_traffic",
     "src.accidents.match_accidents_weather",
     "src.weather.build_wind_frequency",
+    "src.export_working_tables",
 ]
 
 

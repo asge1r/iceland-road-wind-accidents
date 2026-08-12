@@ -22,6 +22,7 @@ excluded from Git. Detailed source and variable documentation is in `docs/`.
 | Accident weather | `src.accidents.match_accidents_weather` | enriched accidents, clean weather, stations | `processed/accidents/rural_injury_accidents.parquet` | Attach the nearest valid ten-minute weather observation to each rural injury accident. |
 | Daily wind response | `src.analysis.build_daily_traffic_wind_analysis` | daily traffic/weather, annual traffic | `processed/traffic/daily_traffic_wind_response.parquet` | Calculate observed/expected daily traffic by daytime mean-wind bin. |
 | Counter availability | `src.analysis.analyze_daily_counter_availability` | daily weather cache, daily traffic | `processed/traffic/daily_counter_availability.parquet` | Test whether counter records are disproportionately missing in high wind. |
+| Export working tables | `src.export_working_tables` | detailed processed caches | five files directly under `processed/` | Export the small, readable accident, weather, station and traffic tables; also write inspection-only `daily.txt`. |
 | Accident O/E | `src.analysis.calculate_wind_risk` | accident/weather and station-frequency data | `processed/accidents/oe_station_period_bins.parquet` | Create frequency-adjusted accident O/E inputs. |
 | Results | `src.analysis.create_wind_risk_report`, `src.figures.*` | processed analysis data | `reports/main/` | Create only thesis figures and small readable tables. |
 

@@ -35,6 +35,8 @@ To rebuild processed data from authorised raw data and then recreate results:
 - `accidents/match_accidents_weather.py`: matches accidents to valid 10-minute wind.
 - `weather/build_wind_frequency.py`: calculates wind frequency by station, year, and
   season.
+- `export_working_tables.py`: exports the five small working tables documented in
+  `docs/data_contracts.md`; it does not perform any statistical analysis.
 
 ## Create tables and figures
 
