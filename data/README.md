@@ -1,26 +1,25 @@
 # Local data map
 
-This repository intentionally does not include raw or processed data. To run
-the pipeline after cloning, obtain the authorised source deliveries and place
-them in the paths below. No script alters a file in `data/raw/`.
+This repository includes `analysis/`, the five compact inputs needed to run
+results after cloning. Raw and processed data remain local. To rebuild analysis
+inputs, obtain authorised source deliveries and place them in the paths below.
+No script alters a file in `data/raw/`.
 
-`src.traffic.download_road_geometry` is the exception to manual retrieval: it
+`src.prepare.traffic.download_road_geometry` is the exception to manual retrieval: it
 downloads the public Road Administration MapServer/6 reference file to
 `raw/traffic/reference/roads.geojson`. It is then used to locate daily PDF
 counters from their reported `stöð` value.
 
-`raw/` contains unchanged sources. `processed/` contains only canonical analysis
-inputs or expensive reusable caches. Readable tables and figures are under
+`raw/` contains unchanged sources. `processed/` contains expensive local
+preparation caches. The compact versioned inputs are under `analysis/`.
+Readable tables and figures are under
 `reports/`; superseded intermediates are recoverable under
 `archive/data_legacy_2026-07-22/`.
 
 ## Analysis A: frequency-standardized O/E
 
-Primary inputs:
-
-- `processed/accidents/rural_injury_accidents.parquet`
-- `processed/weather/wind_frequency_station_year_season.parquet`
-- `processed/accidents/oe_station_period_bins.parquet`
+Active inputs: `analysis/accidents.csv` and
+`analysis/weather_station_frequency.csv`.
 
 The primary result standardizes within weather station, calendar year, and
 meteorological season. It does not use traffic. The separately labelled traffic
@@ -29,11 +28,8 @@ PDF traffic is a further restricted 2019-2024 sensitivity only.
 
 ## Analysis B: road-section table and figures
 
-Primary inputs/output:
-
-- `processed/traffic/annual_road_section_exposure.csv`
-- `processed/weather/wind_frequency_road_period_2007_2024.parquet`
-- `processed/traffic/road_section_wind_panel_2007_2024.parquet`
+Active inputs: `analysis/annual_traffic.csv`, `analysis/road_wind.csv` and
+`analysis/daily_counter_wind.csv`.
 
 The panel unit is road section, year, official traffic period, wind variable,
 and wind bin. `f` and `fg` are separate rows. Readable mean-wind and gust tables,

@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.analysis.build_daily_traffic_wind_analysis import plot_results
+from src.analysis.plots import plot_daily_wind
 
 
 INPUT = Path("data/analysis/daily_counter_wind.csv")
@@ -45,7 +45,7 @@ def main() -> None:
     result["weather_stations"] = np.nan
     result["daytime_traffic_share_assumption"] = 0.95
     TABLE.parent.mkdir(parents=True, exist_ok=True); result.to_csv(TABLE, index=False)
-    plot_results(result, FIGURE, "All periods", "Daily traffic relative to expected traffic by mean wind speed")
+    plot_daily_wind(result, FIGURE)
     print(f"Wrote {TABLE} and {FIGURE}")
 
 

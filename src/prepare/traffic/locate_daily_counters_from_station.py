@@ -108,7 +108,7 @@ def locate() -> None:
     """Write locations from the official geometry; do not infer a fallback."""
     daily = pd.read_parquet(COUNTS)
     if not ROADS.exists():
-        raise FileNotFoundError(f"Missing {ROADS}; first run src.traffic.download_road_geometry.")
+        raise FileNotFoundError(f"Missing {ROADS}; first run src.prepare.traffic.download_road_geometry.")
 
     direct = locate_with_official_geometry(daily, ROADS)
     if direct.empty:

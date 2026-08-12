@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 from pyproj import Transformer
 
-from src.accidents.classify_urban_rural import SEVERITY_LABELS, classify_accidents, load_urban_features
+from src.prepare.accidents.classify_urban_rural import SEVERITY_LABELS, classify_accidents, load_urban_features
 
 
 RAW_2007_2024 = Path("data/raw/accidents/accidents_2007_2024.txt")

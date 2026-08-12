@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.traffic import daily_pdf_parser
+from src.prepare.traffic import daily_pdf_parser
 
 
 OUT_COUNTS = Path("data/processed/traffic/daily_counts.parquet")

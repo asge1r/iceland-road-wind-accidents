@@ -24,7 +24,7 @@ from pyproj import Transformer
 from scipy.stats import chi2
 from sklearn.neighbors import BallTree
 
-from src.weather.build_wind_frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
+from src.prepare.weather.build_wind_frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
 
 
 DEFAULT_ANNUAL_TRAFFIC = Path(

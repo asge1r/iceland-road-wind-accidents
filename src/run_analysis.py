@@ -4,8 +4,8 @@ Run from the project root with::
 
     .venv/bin/python -m src.run_analysis
 
-The program uses prepared clean data under ``data/processed``. Each module
-validates its inputs and writes traceable tables before drawing a figure.
+The program uses only the five versioned inputs under ``data/analysis``. Each
+module validates its inputs and writes traceable tables before drawing a figure.
 """
 
 import subprocess

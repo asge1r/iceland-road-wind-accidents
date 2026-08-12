@@ -13,17 +13,16 @@ import sys
 
 
 PREPARE_STEPS = [
-    "src.accidents.prepare_accidents",
-    "src.weather.clean_weather",
-    "src.traffic.prepare_annual_traffic",
-    "src.traffic.extract_daily_traffic",
-    "src.traffic.download_road_geometry",
-    "src.traffic.locate_daily_counters_from_station",
-    "src.analysis.analyze_daily_traffic",
-    "src.accidents.match_accidents_weather",
-    "src.weather.build_wind_frequency",
-    "src.export_working_tables",
-    "src.export_analysis_data",
+    "src.prepare.accidents.prepare_accidents",
+    "src.prepare.weather.clean_weather",
+    "src.prepare.traffic.prepare_annual_traffic",
+    "src.prepare.traffic.extract_daily_traffic",
+    "src.prepare.traffic.download_road_geometry",
+    "src.prepare.traffic.locate_daily_counters_from_station",
+    "src.prepare.match_daily_traffic_weather",
+    "src.prepare.accidents.match_accidents_weather",
+    "src.prepare.weather.build_wind_frequency",
+    "src.prepare.export_analysis_data",
 ]
 
 

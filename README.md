@@ -10,74 +10,53 @@ intervals.
 This GitHub repository contains code, documentation, and five compact
 analysis-ready CSV inputs under `data/analysis/`. Raw data, large processed
 caches and generated figures remain local and are excluded by `.gitignore`.
-Someone with the authorised source files can recreate every processed dataset
-by following [`pipeline.md`](pipeline.md). The five allowed processed inputs
-and their required columns are defined in [`docs/data_contracts.md`](docs/data_contracts.md).
+Someone with authorised source files can recreate the analysis inputs through
+[`pipeline.md`](pipeline.md). The five input contracts are defined in
+[`data/analysis/README.md`](data/analysis/README.md).
 
 ## Directory structure
 
-- `data/raw/{accidents,weather,traffic}/`: unchanged source and reference data.
-- `data/processed/{accidents,weather,traffic}/`: the small set of canonical
-  cleaned and joined inputs used by the analyses.
+- `data/raw/{accidents,weather,traffic}/`: unchanged local source and reference data.
+- `data/processed/{accidents,weather,traffic}/`: local, non-versioned preparation caches.
+- `data/analysis/`: five compact versioned inputs used by every active result script.
 - `docs/`: source inventory, variables and fixed analysis rules.
 - `archive/`: local diagnostics and superseded material; not version controlled.
-- `src/`: documented preparation, matching and analysis programs.
+- `src/prepare/`: raw-data cleaning and matching; run only with local source deliveries.
+- `src/analysis/`: compact-data results code; this is what a clone runs.
+- `src/legacy/`: retained prior/exploratory scripts, excluded from the active workflow.
 - `reports/main/`: supervisor-ready and thesis-ready outputs.
 - `reports/thesis/`: the current English thesis draft.
 
-## Core Data
+## Active analysis data
 
-- `data/raw/weather/weather_10min_raw.parquet`: raw continuous 10-minute weather observations.
-- `data/processed/weather/weather_10min_clean.parquet`: cleaned `f`, `fg`, and `t`, with
-  `0 <= f <= 40 m/s`, `0 <= fg <= 75 m/s`, and frozen all-zero sensor runs removed.
-- `data/processed/accidents/rural_injury_accidents.parquet`: all 6,120 study
-  accidents with location, road, weather and nullable annual-traffic fields.
-- `data/processed/accidents/accidents.csv`: readable CSV export of the same
-  6,120 accidents.
-- `data/processed/weather/wind_frequency_station_year_season.parquet`: wind
-  frequency denominator for analysis A.
-- `data/processed/accidents/oe_station_period_bins.parquet`: canonical
-  station-period O/E input for analysis A and its clustered bootstrap.
-- `data/processed/traffic/road_section_wind_panel_2007_2024.parquet`: canonical
-  long table for analysis B
-  by road section, year, official traffic period, wind variable, and 3 m/s
-  interval. VDU uses December-March; SDU uses June-September; the four remaining
-  months use a day-weighted traffic residual derived from ADU, SDU, and VDU.
-- `reports/main/traffic_adjustment.png`: direct
-  same-subset comparison of wind-frequency-only and wind-plus-traffic
-  adjustment.
+The five inputs and their units are documented in
+[`data/analysis/README.md`](data/analysis/README.md). They are compact
+aggregations of the local raw-data workflow, not copied result tables.
 
 ## Rebuild the results
 
-After cloning, create a Python environment, install the project dependencies,
-and place the authorised raw deliveries in the paths in
-[`data/README.md`](data/README.md). The public road geometry is downloaded by
-the pipeline. The six daily-traffic PDFs (2019--2024) must be supplied to
-`data/raw/traffic/daily_pdf/`; they are required only for the daily-traffic
-sensitivity figures.
+After cloning, create a Python environment and install the project dependencies.
 
 ```bash
 .venv/bin/python -m src.run_analysis
 ```
 
-This command works directly after cloning and uses only `data/analysis/`.
-
-This command recreates the retained results from existing processed data. To
-rebuild data from authorised raw files and then recreate the results, run:
+This command works directly after cloning and uses only `data/analysis/`. To
+rebuild the five analysis inputs from authorised raw files and then recreate
+results, run:
 
 ```bash
-.venv/bin/python -m src.run_pipeline --stage all
+.venv/bin/python -m src.run_prepare --stage all
 ```
 
 See `data/README.md` for the required local source files and `docs/` for source
 and variable definitions.
 
-Without data, a clone can inspect every documented script, contract and fixed
-analysis decision. With existing processed files it can redraw the retained
-figures; with all raw deliveries it can rebuild the full pipeline. Three broad
-data families alone (accidents, weather and traffic) are not enough: the
-accident work also needs the supplied road-link and urban-boundary references,
-and daily traffic also needs the six PDFs and station metadata.
+A clone already contains the five analysis inputs and can redraw results. With
+authorised raw deliveries it can also rebuild those inputs. Three broad data
+families alone (accidents, weather and traffic) are not enough: the accident
+work also needs supplied road links and urban boundaries, while daily traffic
+needs the six PDFs and station metadata.
 
 ## Primary Assumptions
 
