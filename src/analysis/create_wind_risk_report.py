@@ -248,6 +248,80 @@ def plot_one_variable(data: pd.DataFrame, variable: str, path: Path) -> None:
     plt.close(fig)
 
 
+def plot_primary_gust(data: pd.DataFrame, path: Path) -> None:
+    """Plot the primary O/E result with observed and expected accident counts."""
+    subset = data[data["variable"].eq("fg")].sort_values("bin_order")
+    x = np.arange(len(subset))
+    ratio = subset["relative_accident_frequency"].to_numpy(float)
+    low = subset["bootstrap_ci_95_low"].to_numpy(float)
+    high = subset["bootstrap_ci_95_high"].to_numpy(float)
+    observed = subset["observed_accidents"].to_numpy(float)
+    expected = subset["expected_accidents"].to_numpy(float)
+    display_bins = subset["coarse_bin"].str.replace(">=", "≥", regex=False)
+
+    figure, axes = plt.subplots(
+        2,
+        1,
+        figsize=(14.5, 9.2),
+        sharex=True,
+        gridspec_kw={"height_ratios": [2.1, 1]},
+        constrained_layout=True,
+    )
+    ratio_axis, count_axis = axes
+    ratio_axis.bar(x, ratio, color="#C7522A", width=0.72)
+    ratio_axis.errorbar(
+        x,
+        ratio,
+        yerr=np.vstack([np.maximum(0, ratio - low), np.maximum(0, high - ratio)]),
+        fmt="none",
+        ecolor="#222222",
+        capsize=4,
+        linewidth=1.2,
+        label="95% bootstrap interval",
+    )
+    ratio_axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+    ratio_axis.set_ylabel("Observed / expected accidents (O/E)")
+    ratio_axis.set_title("Relative occurrence of rural injury accidents by maximum wind gust")
+    ratio_axis.set_ylim(0, max(1.5, np.nanmax(high) * 1.14))
+    ratio_axis.grid(axis="y", alpha=0.2)
+    ratio_axis.legend(loc="upper left", frameon=False)
+
+    width = 0.36
+    observed_bars = count_axis.bar(
+        x - width / 2,
+        observed,
+        width,
+        color="#3F6C8C",
+        label="Observed accidents",
+    )
+    count_axis.bar(
+        x + width / 2,
+        expected,
+        width,
+        color="#A8C2D1",
+        label="Expected from local gust frequency",
+    )
+    count_axis.set_ylabel("Injury accidents (n)")
+    count_axis.set_xlabel("Maximum wind-gust interval, fg (m/s)")
+    count_axis.set_xticks(x, display_bins)
+    count_axis.grid(axis="y", alpha=0.2)
+    count_axis.legend(loc="upper right", frameon=False)
+    count_axis.set_ylim(0, observed.max() * 1.14)
+    label_offset = observed.max() * 0.018
+    for bar, value in zip(observed_bars, observed, strict=True):
+        count_axis.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + label_offset,
+            f"n={int(value)}",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+            color="#263238",
+        )
+    figure.savefig(path, dpi=240)
+    plt.close(figure)
+
+
 def plot_distribution_comparison(data: pd.DataFrame, path: Path) -> None:
     """Show observed counts, locally standardized expectation, and their ratio."""
     subset = data[data["variable"].eq("fg")].sort_values("bin_order").copy()
@@ -725,16 +799,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Finalize coarse wind-risk curves with station-cluster bootstrap intervals."
     )
-    parser.add_argument("--details", type=Path, default=DEFAULT_DETAILS)
-    parser.add_argument("--coverage", type=Path, default=DEFAULT_COVERAGE)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--figure-dir", type=Path, default=DEFAULT_FIGURE_DIR)
-    parser.add_argument("--accidents", type=Path, default=DEFAULT_ACCIDENTS)
+    parser.add_argument("-d", "--details", type=Path, default=DEFAULT_DETAILS)
+    parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
+    parser.add_argument("-o", "--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("-f", "--figure-dir", type=Path, default=DEFAULT_FIGURE_DIR)
+    parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
     parser.add_argument(
-        "--weather-cleaning", type=Path, default=DEFAULT_WEATHER_CLEANING
+        "-w", "--weather-cleaning", type=Path, default=DEFAULT_WEATHER_CLEANING
     )
-    parser.add_argument("--bootstrap-reps", type=int, default=5000)
-    parser.add_argument("--seed", type=int, default=20260719)
+    parser.add_argument("-b", "--bootstrap-reps", type=int, default=5000)
+    parser.add_argument("-s", "--seed", type=int, default=20260719)
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -870,9 +944,8 @@ def main() -> None:
         args.output_dir,
     )
 
-    plot_one_variable(
+    plot_primary_gust(
         primary,
-        "fg",
         args.figure_dir / "gust_risk.png",
     )
     plot_one_variable(

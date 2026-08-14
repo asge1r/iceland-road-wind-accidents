@@ -44,12 +44,14 @@ __pycache__/
 !/reports/main/figures/traffic_selection.png
 !/reports/main/figures/vehicles.png
 !/reports/main/figures/weather_selection.png
+!/reports/main/figures/weather_gust_frequency.png
 !/reports/main/tables/
 !/reports/main/tables/daily_traffic_wind.csv
 !/reports/main/tables/gust_coverage.csv
 !/reports/main/tables/gust_risk.csv
 !/reports/main/tables/road_coverage.csv
 !/reports/main/tables/weather_audit.csv
+!/reports/main/tables/weather_gust_frequency.csv
 !/reports/thesis/
 !/reports/thesis/draft_en.tex
 !/reports/thesis/draft_en.pdf

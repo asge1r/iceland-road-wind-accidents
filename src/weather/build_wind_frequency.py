@@ -305,23 +305,23 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build seasonal f/fg frequency tables for each weather station."
     )
-    parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
-    parser.add_argument("--stations", type=Path, default=DEFAULT_STATIONS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--wide", type=Path, default=DEFAULT_WIDE)
-    parser.add_argument("--notes", type=Path, default=DEFAULT_NOTES)
+    parser.add_argument("-i", "--input", type=Path, default=DEFAULT_INPUT)
+    parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
+    parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("-w", "--wide", type=Path, default=DEFAULT_WIDE)
+    parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
     parser.add_argument(
-        "--distribution-csv", type=Path, default=DEFAULT_DISTRIBUTION_CSV
+        "-c", "--distribution-csv", type=Path, default=DEFAULT_DISTRIBUTION_CSV
     )
     parser.add_argument(
-        "--distribution-figure", type=Path, default=DEFAULT_DISTRIBUTION_FIGURE
+        "-f", "--distribution-figure", type=Path, default=DEFAULT_DISTRIBUTION_FIGURE
     )
     parser.add_argument(
-        "--distribution-only",
+        "-d", "--distribution-only",
         action="store_true",
         help="Create the weather-only pooled gust distribution from --output.",
     )
-    parser.add_argument("--max-row-groups", type=int)
+    parser.add_argument("-m", "--max-row-groups", type=int)
     args = parser.parse_args()
 
     if args.distribution_only:

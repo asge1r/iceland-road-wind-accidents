@@ -55,10 +55,10 @@
 
 \begin{abstract}
 This thesis examines whether strong wind gusts are disproportionately common
-when rural injury accidents occur in Iceland. A reproducible Python pipeline
-integrates accident records, cleaned 10-minute weather observations, geographic
-urban boundaries, annual road-section traffic statistics, and observed daily
-traffic counts. The primary analysis includes 5,912 rural injury accidents from
+when rural injury accidents occur in Iceland. Accident records, cleaned
+10-minute weather observations, urban boundaries, annual road-section traffic
+statistics, and daily counter data are combined in a documented analysis. The
+primary analysis includes 5,912 rural injury accidents from
 2007--2024 with valid wind observations within 20 km. Within each weather
 station, calendar year, and season, observed accidents in each gust interval are
 compared with the number expected from the local background frequency of that
@@ -76,11 +76,10 @@ vehicle-kilometres, while observed daily traffic counts are used separately to
 show that travel falls during strong winds. These checks support the relevance
 of traffic exposure but are too incomplete to replace the primary analysis.
 
-The thesis documents how the data were cleaned, matched, checked, and analysed.
-Weather frequency, traffic exposure, coverage loss, and uncertainty are
-reported separately. The results are compatible with higher accident occurrence
-during extreme gusts. Hourly road-level traffic data would be needed for a
-per-vehicle interpretation.
+The thesis documents the data cleaning, matching, coverage checks, and
+statistical analysis. Weather frequency, traffic exposure, coverage loss, and
+uncertainty are reported separately. Hourly road-level traffic data would be
+needed to estimate accident risk per vehicle.
 \end{abstract}
 
 \tableofcontents
@@ -100,11 +99,8 @@ the risk faced by each vehicle while simultaneously reducing the number of
 vehicles on the road. Weather frequency and traffic exposure must therefore be
 treated as separate parts of the problem \cite{andrey2003,lord2010,washington2020}.
 
-The original project considered many weather variables, outcomes, and model
-families. That scope produced numerous outputs but obscured the central
-question. The final study is deliberately narrower: it focuses on maximum wind
-gust and rural accidents involving injury. Mean wind speed and traffic data are
-retained as supporting analyses.
+The primary analysis focuses on maximum wind gust and rural accidents involving
+injury. Mean wind speed and traffic data are used as supporting analyses.
 
 \section{Objective and Research Questions}
 
@@ -113,8 +109,8 @@ over-represented during strong wind gusts after accounting for how frequently
 those gusts occur locally.
 
 \begin{enumerate}
-  \item How can accident and 10-minute weather observations be linked in a
-  reproducible documented data pipeline?
+  \item How are accident and 10-minute weather observations linked in a
+  documented analysis?
   \item How does the observed frequency of rural injury accidents vary across
   maximum-gust intervals relative to local background gust frequency?
   \item How does the interpretation change when limited traffic information is
@@ -126,14 +122,14 @@ a causal effect or a national accident rate per vehicle-kilometre.
 
 \section{Contribution}
 
-The work contributes a documented Python workflow and an Icelandic case
-study. The workflow cleans large weather files, preserves unmatched accidents,
-records coverage at each spatial threshold, calculates background wind
-frequency, produces station-clustered uncertainty intervals, and regenerates
-the final figures and tables. This follows the principle that computational
-research should be inspectable and reproducible \cite{peng2011}.
+The work provides an Icelandic case study with documented data preparation and
+analysis. It records the weather-cleaning rules, keeps unmatched accidents in
+the matching data, reports spatial coverage, calculates local background wind
+frequency, and estimates uncertainty by weather-station-clustered bootstrap.
+The figures and tables can be regenerated from the documented scripts
+\cite{peng2011}.
 
-\chapter{Data and Software Pipeline}
+\chapter{Data and Analysis Files}
 
 \section{Source Websites and Downloaded Data}
 
@@ -217,27 +213,26 @@ Current network at download & Road section, section length,
 \end{tabularx}
 \end{table}
 
-The 2025 accident, injury, and vehicle deliveries are retained as raw source
-material but are not included in the 2007--2024 statistical analysis.
+The 2025 accident, injury, and vehicle files are stored with the source data.
+They are outside the 2007--2024 study period and are not used in the analysis.
 
 \section{Accident Data}
 
-The accident source covers 2007--2024 \cite{samgongustofaAccidents}. The primary
-study population contains 6,120 rural accidents involving injury. Accident
-severity is based on the source field \texttt{meidsli}: code 1 denotes a fatal
+The accident source covers 2007--2024 \cite{samgongustofaAccidents}. The study
+population comprises 6,120 rural accidents involving injury. Accident severity
+is based on the source field \texttt{meidsli}: code 1 denotes a fatal
 accident, code 2 a serious accident, code 3 a minor-injury accident, and code 4
 an accident without injury. The primary outcome is therefore
 \(\texttt{meidsli}\leq3\). The serious-or-fatal comparison uses
-\(\texttt{meidsli}\leq2\). The 16,487 rural damage-only accidents remain
-available in the source data but are not events in the injury outcome.
+\(\texttt{meidsli}\leq2\). The source data also contain 16,487 rural
+damage-only accidents; these are outside the injury outcome.
 
-Rural status is calculated from accident coordinates and Statistics Iceland
-urban-locality polygons rather than taken directly from the original accident
-file \cite{hagstofaThettbyli}. Points inside an urban polygon are classified as Urban and valid points
-outside all polygons are classified as Rural. A documented supervision rule
-classifies a defined Vestmannaeyjar area as Urban. The same 2020--2024 polygon
-dataset is applied to accidents from 2007--2024, so historical urban expansion
-is not represented. This is a limitation of the rural classification.
+Rural status is derived from accident coordinates and Statistics Iceland
+urban-locality polygons \cite{hagstofaThettbyli}. Points inside an urban polygon
+are classified as Urban, and valid points outside all polygons as Rural. A
+defined Vestmannaeyjar area is also classified as Urban. The same 2020--2024
+polygon dataset is applied to the full 2007--2024 accident period. Changes in
+urban boundaries before 2020 are therefore not represented.
 
 \begin{figure}[H]
 \centering
@@ -258,8 +253,9 @@ but are not part of the injury outcome.}
 \section{Weather Data}
 
 The weather source contains 10-minute observations from Icelandic weather
-stations. The main variables are mean wind speed (\texttt{f}), maximum wind
-gust (\texttt{fg}), and temperature (\texttt{t}). Wind rows are retained when
+stations. The variables used here are mean wind speed (\texttt{f}) and maximum
+wind gust (\texttt{fg}). Temperature (\texttt{t}) remains in the weather file
+but is not required for the wind analysis. A wind observation is used when
 
 \[
 0 \leq f < 45, \qquad 0 \leq fg < 65, \qquad fg + 0.5 \geq f.
@@ -273,15 +269,15 @@ excluded. Negative values, values at or above either upper limit, and
 internally inconsistent values where \texttt{fg = 0} but \texttt{f > 0} are
 excluded and reported in the annual audit. A value of \texttt{f = 0} alone is
 retained. Only uninterrupted all-zero runs where \texttt{f = fg = 0} for at
-least two hours are excluded as potentially frozen sensors. Temperature may be
-missing without invalidating an otherwise usable wind row.
+least two hours are excluded as potentially frozen sensors. Missing temperature
+does not affect whether a wind observation is used.
 
 Each accident is matched to the geographically nearest station with a clean
 wind observation at either adjacent timestamp on the 10-minute observation
 grid. The observations therefore have 10-minute resolution, but the selected
 observation is no more than five minutes from the recorded accident time. The
-primary maximum distance is 20 km. All 6,120 accidents remain in the output;
-unsuccessful matches are recorded rather than silently deleted.
+primary maximum distance is 20 km. The matching file retains all 6,120
+accidents and records whether each accident meets the weather-match criterion.
 
 \begin{table}[H]
 \centering
@@ -302,8 +298,10 @@ Clean wind observations retained & 211,497,897 & 93.34\% \\
 \end{table}
 
 After station-years without wind instrumentation are set aside, 98.48\% of
-wind-capable records are retained. The table is deliberately brief; the full
-audit keeps the individual quality rules separate.
+wind-capable records are used. The detailed audit reports each cleaning rule
+separately. The audit and the weather-distribution figure use the full
+2007--2025 weather delivery. The O/E analysis uses only observations matched to
+accidents from 2007--2024.
 
 \begin{figure}[H]
 \centering
@@ -311,6 +309,16 @@ audit keeps the individual quality rules separate.
 \caption{Weather observations retained after the documented wind-quality
 rules.}
 \label{fig:weather-selection}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{weather_gust_frequency.png}
+\caption{Distribution of maximum gust in the cleaned weather observations.
+Each valid 10-minute observation has equal weight. Gusts of 30 m/s or more are
+rare in the background weather data, which is why the expected accident counts
+in the upper gust bins are small.}
+\label{fig:weather-gust-frequency}
 \end{figure}
 
 \section{Traffic Data}
@@ -346,10 +354,9 @@ and the separate daily-counter diagnostic.}
 
 \section{Analysis-Ready Files}
 
-Table~\ref{tab:analysis-files-one} lists the files created from the downloaded
-sources and then used directly in the statistical workflow. Record counts
-refer to the current reproducible build. Derived Boolean indicators and
-readable labels are omitted from the column lists unless they enter a reported
+Table~\ref{tab:analysis-files-one} lists the analysis files created from the
+downloaded sources. Record counts refer to the current build. Derived Boolean
+indicators and readable labels are omitted unless they enter a reported
 calculation.
 
 \begin{table}[H]
@@ -434,32 +441,33 @@ traffic, station and distance, \texttt{f\_daytime\_mean},
 
 \section{Reproducible Implementation}
 
-The retained workflow is intentionally small. Weather cleaning is implemented
-in \texttt{src/clean\_weather.py}; accident matching in
-\texttt{src/match\_accidents\_weather.py}; the detailed observed/expected
-calculation in \texttt{src/analysis/calculate\_wind\_risk.py}; final bootstrap
-tables and figures in \texttt{src/analysis/create\_wind\_risk\_report.py}; the
-road-section sensitivity in \texttt{src/build\_road\_section\_wind\_table.py};
-and the daily traffic diagnostic in
-\texttt{src/analysis/analyze\_daily\_traffic.py}. The retained analytical
-outputs can be regenerated with
+The repository groups the code into weather, accident, traffic, and analysis
+modules. The weather module cleans observations, the accident module performs
+the weather match, and the analysis module produces O/E estimates, bootstrap
+intervals, road-section sensitivity results, and the daily counter diagnostic.
+The repository README identifies the individual programs. The reported results
+can be regenerated with
 
 \begin{verbatim}
 .venv/bin/python -m src.run_analysis
 \end{verbatim}
 
-Figures are generated directly by these programs and are not manually edited.
+Figures are generated by the analysis scripts and are not manually edited.
 
 \chapter{Methods}
 
 \section{Primary Wind-Frequency Analysis}
 
-Maximum gust is divided into 3 m/s intervals. Let \(g\) identify a weather
-station, calendar year, and meteorological season. Let \(A_{jg}\) be the number
-of accidents in gust interval \(j\) and group \(g\), and let
-\(A_g=\sum_j A_{jg}\). From all clean 10-minute observations, let \(T_{jg}\)
-be the number in interval \(j\) and \(T_g\) the total in group \(g\). The local
-background frequency is
+Maximum gust is divided into 3 m/s intervals. Each accident is compared with
+the gust distribution at its matched weather station in the same calendar year
+and season. The expected count in a gust interval is therefore based on how
+often that interval occurred locally, rather than on a national wind average.
+
+Let \(g\) identify a weather station, calendar year, and meteorological season.
+Let \(A_{jg}\) be the number of accidents in gust interval \(j\) and group \(g\),
+and let \(A_g=\sum_j A_{jg}\). From all clean 10-minute observations, let
+\(T_{jg}\) be the number in interval \(j\) and \(T_g\) the total in group \(g\).
+The local background frequency is
 
 \[
 p_{jg}=\frac{T_{jg}}{T_g}.
@@ -488,8 +496,9 @@ bootstrap distribution.
 
 \section{Why Traffic Is Not in the Primary Ratio}
 
-The primary denominator is background wind time. It does not assume that
-traffic is constant; traffic is simply unavailable at the required resolution.
+The primary denominator is background wind time. Traffic is not included because
+it is unavailable at the spatial and temporal resolution required for the full
+study period.
 Of 5,480 accidents with an exact road-section link, 5,294 also have clean wind
 within 20 km. Restricting the traffic comparison to the official SDU and VDU
 periods leaves 3,529 accidents. April--May and October--November are excluded
@@ -498,9 +507,9 @@ ADU, SDU, and VDU.
 
 Using those traffic data in the primary curve would change the study population
 and mix seasonal average traffic with 10-minute accident-time gusts. The
-primary curve is consequently described as
-\emph{wind-frequency-adjusted relative accident occurrence}. It is not a
-traffic-adjusted risk per vehicle.
+primary curve therefore measures
+\emph{wind-frequency-adjusted relative accident occurrence}. It does not
+measure traffic-adjusted risk per vehicle.
 
 \section{Road-Section Traffic Sensitivity}
 
@@ -541,8 +550,9 @@ I_{cd}=100\times
 \]
 
 An index below 100 indicates fewer counted vehicles than usual for that local
-calendar context. It is not a national count of people or vehicles. Daytime
-mean wind is calculated from clean observations between 10:00 and 21:59.
+calendar context. It describes the participating counter sites rather than
+national traffic. Daytime mean wind is calculated from clean observations
+between 10:00 and 21:59.
 Official counter coordinates are used where a conservative location link is
 available. Otherwise the report's \emph{stöð} is placed proportionally between
 the year-specific \texttt{Bst} and \texttt{Est} on the registered road-section
@@ -605,28 +615,22 @@ wind-frequency exposure.
 \centering
 \includegraphics[width=\textwidth]{gust_risk.png}
 \caption{Wind-frequency-adjusted relative occurrence of rural injury accidents
-by maximum gust. The dashed line is the expected value of one. Confidence
-intervals are based on 5,000 weather-station-clustered bootstrap samples.
+by maximum gust. The upper panel shows O/E; whiskers are 95\% intervals from
+5,000 weather-station-clustered bootstrap samples. The lower panel gives the
+observed count in each bin and the count expected from local gust frequency.
 Traffic volume is not included.}
 \label{fig:main-risk}
 \end{figure}
 
 \begin{table}[p]
 \centering
-\caption{Primary maximum-gust observed/expected results}
+\caption{Primary O/E results in the upper wind-gust range}
 \label{tab:main-risk}
 \small
 \begin{tabular}{rrrrr}
 \toprule
 Gust interval & Observed & Expected & O/E & 95\% clustered interval \\
 \midrule
-0--3 & 896 & 1070.5 & 0.84 & 0.78--0.89 \\
-3--6 & 1444 & 1466.8 & 0.98 & 0.94--1.03 \\
-6--9 & 1254 & 1204.8 & 1.04 & 0.98--1.10 \\
-9--12 & 915 & 884.9 & 1.03 & 0.97--1.10 \\
-12--15 & 553 & 578.2 & 0.96 & 0.87--1.04 \\
-15--18 & 353 & 336.9 & 1.05 & 0.93--1.18 \\
-18--21 & 205 & 186.7 & 1.10 & 0.96--1.24 \\
 21--24 & 131 & 94.3 & 1.39 & 1.10--1.69 \\
 24--27 & 62 & 47.8 & 1.30 & 0.99--1.62 \\
 27--30 & 31 & 22.2 & 1.39 & 0.93--1.89 \\
@@ -637,24 +641,40 @@ $\geq 36$ & 25 & 4.1 & 6.09 & 3.65--8.94 \\
 \end{tabular}
 \end{table}
 
-Ratios remain close to one across most low and moderate intervals. Clear
-over-representation appears from 30 m/s. The strongest result is at gusts of
-at least 36 m/s, where 25 accidents were observed compared with 4.1 expected.
-The ratio is 6.09 and its station-clustered interval is 3.65--8.94. The
-high-wind intervals contain few accidents and should be interpreted as a
-general upper-tail pattern rather than as precise thresholds.
+Ratios are close to one across most low and moderate intervals. The plotted
+ratios increase in the upper gust intervals, especially from 30 m/s. At gusts
+of at least 36 m/s, 25 accidents were observed compared with 4.1 expected. The
+O/E ratio is 6.09, with a station-clustered interval of 3.65--8.94. The lower
+panel of Figure~\ref{fig:main-risk} shows the count in every bin. The upper
+tail contains few accidents, so the results describe a broad pattern rather
+than precise thresholds.
 
-The main result is stable to station radius. For gusts of at least 36 m/s, the
-ratio is 7.17 at 10 km, 6.09 at 20 km, and 5.90 at 30 km. The corresponding
-serious-or-fatal analysis contains only four accidents in the highest gust bin;
-it is supportive but too sparse to replace the injury-accident result.
+The main result is stable to station radius (Table~\ref{tab:radius-sensitivity}).
+For gusts of at least 36 m/s, the ratio is 7.27 at 10 km, 6.09 at 20 km, and
+5.99 at 30 km. The corresponding serious-or-fatal analysis contains only four
+accidents in the highest gust bin; it is supportive but too sparse to replace
+the injury-accident result.
+
+\begin{table}[H]
+\centering
+\caption{Sensitivity of the highest-gust result to the maximum station distance}
+\label{tab:radius-sensitivity}
+\begin{tabular}{rrrrr}
+\toprule
+Maximum distance & Matched accidents & Observed at $\geq36$ & O/E & 95\% interval \\
+\midrule
+10 km & 4,622 & 25 & 7.27 & 4.38--10.63 \\
+20 km (primary) & 5,912 & 25 & 6.09 & 3.65--8.94 \\
+30 km & 6,109 & 26 & 5.99 & 3.54--8.87 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Mean Wind as a Supporting Analysis}
 
-Mean wind speed shows the same broad upper-tail pattern. The mean-wind O/E
-figure is provided in
-Appendix~\ref{app:mean-wind}; maximum gust remains the pre-specified exposure
-used for the main conclusion.
+Mean wind speed shows a similar upper-tail pattern. The mean-wind O/E figure is
+provided in Appendix~\ref{app:mean-wind}. Maximum gust is the primary exposure
+because sudden gusts have a direct physical relevance for vehicle stability.
 
 \section{Daily Traffic During Wind}
 
@@ -668,51 +688,48 @@ calculated from 10:00 to 21:59.}
 \label{fig:daily-traffic}
 \end{figure}
 
-The PDF extraction initially contains 1,033,659 records. Directional channels
-at the same physical site are summed, while distinct counter stations on the
-same road section remain separate. This gives 774,274 physical counter-days
-from 476 sites. Usable daytime wind is available for 738,424 counter-days
-(95.37\%). Traffic remains close to its local typical level below 9 m/s and
-declines at higher mean wind speeds. This supports lower travel demand during
-strong wind, but it does not estimate national traffic or traffic at each
-accident time. The annual-traffic sensitivity and detailed ADU validation are
-retained in Appendix~\ref{app:traffic}.
+The daily counter dataset contains 1,033,659 directional daily records.
+Directional channels at the same physical counter site are summed, while
+separate counter sites on the same road section remain separate. This produces
+774,274 counter-days from 476 sites. Usable daytime wind is available for
+738,424 counter-days (95.37\%). Traffic remains close to its local typical
+level below 9 m/s and declines at higher mean wind speeds. This pattern is
+consistent with lower travel demand during strong wind. It does not estimate
+national traffic or traffic at the time of each accident. The annual-traffic
+sensitivity and ADU validation are presented in Appendix~\ref{app:traffic}.
 
 \chapter{Discussion}
 
 \section{Interpretation}
 
-The primary result is clear but limited. Extreme gusts are over-represented at
-rural injury-accident times relative to how often those gusts occur locally.
-This pattern remains after the comparison is grouped by weather station,
-calendar year, and season, and after uncertainty is clustered by station. The
-result does not show that each increase in gust causes a proportional increase
-in accident risk. Moderate intervals fluctuate around one, and several upper
-intervals are sparse.
+Extreme gusts are over-represented at the times of rural injury accidents
+relative to their local frequency. The comparison is standardised within
+weather station, calendar year, and season, and uncertainty is clustered by
+station. The result describes association rather than a per-vehicle causal
+effect. Moderate gust intervals fluctuate around one, while several upper
+intervals contain few accidents.
 
-Traffic matters to the interpretation. The primary curve cannot distinguish
-between risk per vehicle and the number of vehicles exposed. The daily traffic
-diagnostic shows that travel falls in strong wind, while the small
-traffic-adjusted sensitivity produces larger upper-tail ratios. Together these
-results suggest that the primary weather-only curve is unlikely to be inflated
-simply because more vehicles travel during severe wind. Nevertheless, the
-available traffic data are too narrow to quantify the national per-vehicle
-effect.
+Traffic remains important for interpretation. The primary curve cannot separate
+risk per vehicle from the number of vehicles exposed. Daily counter data show
+lower traffic during strong wind, and the restricted traffic sensitivity gives
+larger upper-tail ratios. These findings make it less likely that the main O/E
+pattern is explained by increased travel during severe wind. The available
+traffic data are still too limited for a national per-vehicle estimate.
 
 \section{Strengths}
 
 The main strengths are the large 2007--2024 accident sample, 10-minute weather
-resolution, explicit spatial coverage reporting, local rather than national
-wind-frequency standardisation, and station-clustered bootstrap intervals.
-The pipeline preserves unmatched records and generates its figures directly
-from documented tables. The reduced scope also makes the link between research
-question, method, and result easier to audit.
+resolution, explicit spatial coverage reporting, local wind-frequency
+standardisation, and station-clustered bootstrap intervals. The matching data
+retain unmatched accidents and record the reason for each unsuccessful match.
+The limited scope keeps the connection between the research question, method,
+and result clear.
 
 \section{Limitations}
 
 \begin{itemize}
-  \item The primary result is not traffic-adjusted and must not be described as
-  accident risk per vehicle-kilometre.
+  \item The primary result is not traffic-adjusted. It should not be interpreted
+  as accident risk per vehicle-kilometre.
   \item A weather station up to 20 km away is a proxy for conditions at the
   accident location. Terrain can produce important differences over shorter
   distances.
@@ -723,8 +740,8 @@ question, method, and result easier to audit.
   can represent different directions, lanes, or locations; retaining counters
   separately avoids double counting but does not provide national coverage.
   \item The highest wind intervals contain relatively few accidents. Several
-  intervals and sensitivity comparisons are examined, so isolated estimates
-  should not be treated as independently pre-specified hypothesis tests.
+  intervals and sensitivity comparisons are shown, so individual estimates in
+  the upper tail should be interpreted with caution.
   \item Fixed 2020--2024 urban boundaries are applied to the entire 2007--2024
   accident period.
   \item The analysis is observational. Unmeasured road condition, vehicle type,
@@ -737,29 +754,26 @@ The most valuable additional data would be verified hourly traffic counts
 linked to stable road-section identifiers, section geometry, and the same
 weather stations used in the accident analysis. That would allow accident-time
 gust and non-accident vehicle exposure to be measured at compatible temporal
-resolution. A future analysis should pre-specify wider high-wind intervals,
-include vehicle class and exposed-road geometry, and use a hierarchical count
-model once adequate traffic exposure is available. Adding more models without
-better exposure data would increase complexity more than credibility.
+resolution. A future analysis could use wider high-wind intervals, vehicle
+class, and exposed-road geometry, and could apply a hierarchical count model
+once adequate traffic exposure is available. Better exposure data would add
+more value than additional models based on the current information.
 
 \chapter{Conclusion}
 
-This thesis developed a reproducible analysis of wind gusts and rural injury
-accidents in Iceland. Of 6,120 accidents from 2007--2024, 5,912 were matched to
-a valid wind observation within 20 km. After standardising for local gust
-frequency within station, year, and season, accidents were strongly
-over-represented at gusts of at least 36 m/s: 25 were observed compared with
-4.1 expected, an observed/expected ratio of 6.09 with a 95\%
-station-clustered interval of 3.65--8.94.
+This thesis examines wind gusts and rural injury accidents in Iceland. Of 6,120
+accidents from 2007--2024, 5,912 were matched to a valid wind observation
+within 20 km. After standardisation for local gust frequency within station,
+year, and season, accidents were over-represented at gusts of at least 36 m/s:
+25 were observed compared with 4.1 expected, giving an O/E ratio of 6.09 with a
+95\% station-clustered interval of 3.65--8.94.
 
-The finding is meaningful but not final proof of a causal per-vehicle effect.
-Observed daily traffic falls during strong winds, and a limited
-traffic-adjusted sensitivity strengthens the upper-tail pattern, but neither
-traffic source provides complete hourly exposure for the full study. The
-defensible conclusion is therefore that extreme gusts are associated with
-substantial over-representation of rural injury accidents relative to local
-wind frequency. Better linked hourly traffic data are required to convert this
-association into a precise road-risk estimate.
+Daily counter traffic falls during strong wind, and the restricted
+traffic-adjusted sensitivity also shows elevated upper-tail ratios. Neither
+traffic source provides complete hourly exposure for the full study period. The
+evidence therefore shows an association between extreme gusts and higher
+relative occurrence of rural injury accidents. Better linked hourly traffic
+data are required to estimate road risk per vehicle.
 
 \appendix
 \chapter{Supporting Analyses}
