@@ -1,97 +1,133 @@
-"""Create simple thesis figures showing retained and excluded source data."""
+"""Draw three source-to-analysis selection flow figures."""
 
+import argparse
 from pathlib import Path
 
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
+import pandas as pd
 
 
 OUT = Path("reports/main/figures")
+ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
+STUDY = Path("data/processed/accidents/rural_injury_accidents.parquet")
+WEATHER_AUDIT = Path("reports/main/tables/weather_audit.csv")
+ROAD_COVERAGE = Path("reports/main/tables/road_coverage.csv")
+DAILY_TRAFFIC = Path("data/processed/traffic/daily_traffic_weather.parquet")
+
 KEEP = "#5F8F78"
 DROP = "#C96A5B"
-OTHER = "#D6A84B"
 TEXT = "#263238"
 
 
-def fmt_count(value: int) -> str:
+def count(value: int) -> str:
     return f"{value:,}"
 
 
-def donut(axis, values, labels, colors, title, center_text, legend_y=-0.28):
-    total = sum(values)
-    legend_labels = [
-        f"{label}: {fmt_count(value)} ({100 * value / total:.1f}%)"
-        for label, value in zip(labels, values, strict=True)
-    ]
-    axis.pie(
-        values,
-        colors=colors,
-        startangle=90,
-        counterclock=False,
-        wedgeprops={"width": 0.34, "edgecolor": "white", "linewidth": 2},
+def draw_flow(axis, boxes: list[tuple[str, int, str]]) -> None:
+    """Render one retained-data flow on a supplied axis."""
+    axis.set_xlim(0, len(boxes) * 3.1)
+    axis.set_ylim(-1.2, 1.3)
+    axis.axis("off")
+    for index, (label, value, loss) in enumerate(boxes):
+        x = index * 3.1 + 0.1
+        patch = FancyBboxPatch(
+            (x, 0), 2.6, 0.8, boxstyle="round,pad=0.05,rounding_size=0.08",
+            facecolor=KEEP, edgecolor="white", linewidth=1.5,
+        )
+        axis.add_patch(patch)
+        axis.text(x + 1.3, 0.53, label, ha="center", va="center", fontsize=10, weight="bold", color="white")
+        axis.text(x + 1.3, 0.22, f"n = {count(value)}", ha="center", va="center", fontsize=11, color="white")
+        if index:
+            axis.annotate("", xy=(x - 0.1, 0.4), xytext=(x - 0.45, 0.4), arrowprops={"arrowstyle": "->", "color": TEXT, "lw": 1.8})
+            if loss:
+                axis.text(x - 0.28, -0.3, loss, ha="center", va="top", fontsize=8.5, color=DROP, wrap=True)
+
+def flow(path: Path, title: str, boxes: list[tuple[str, int, str]]) -> None:
+    """Render a one-row flow: retained steps above, main loss below arrows."""
+    figure, axis = plt.subplots(figsize=(14, 3.8), constrained_layout=True)
+    draw_flow(axis, boxes)
+    axis.set_title(title, loc="left", fontsize=15, weight="bold", color=TEXT)
+    figure.savefig(path, dpi=240, bbox_inches="tight")
+    plt.close(figure)
+
+
+def accident_figure() -> None:
+    all_accidents = pd.read_parquet(ACCIDENTS)
+    study = pd.read_parquet(STUDY)
+    valid_coordinates = int(all_accidents["urban_rural"].ne("Unknown").sum())
+    rural = int(all_accidents["urban_rural"].eq("Rural").sum())
+    matched = int((study["weather_station_dist_km"].le(20) & study["f"].notna() & study["fg"].notna()).sum())
+    flow(
+        OUT / "accident_selection.png",
+        "Accident selection, 2007–2024",
+        [
+            ("Valid accident time and coordinates", valid_coordinates, ""),
+            ("Rural accidents", rural, f"{count(valid_coordinates - rural)} urban"),
+            ("Rural injury accidents", len(study), f"{count(rural - len(study))} damage-only"),
+            ("Primary wind O/E sample", matched, f"{count(len(study) - matched)} without wind match within 20 km"),
+        ],
     )
-    axis.text(0, 0.06, center_text, ha="center", va="center", fontsize=11, weight="bold", color=TEXT)
-    axis.text(0, -0.15, f"n = {fmt_count(total)}", ha="center", va="center", fontsize=10, color=TEXT)
-    axis.set_title(title, fontsize=12, weight="bold", pad=12, color=TEXT)
-    axis.legend(legend_labels, loc="lower center", bbox_to_anchor=(0.5, legend_y), frameon=False, fontsize=9)
 
 
-def accident_figure():
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5.3), constrained_layout=True)
-    donut(
-        axes[0], [95_640, 16_487, 6_120],
-        ["Urban accidents (outside rural scope)", "Rural damage-only (available)", "Rural injury (primary outcome)"],
-        [DROP, OTHER, KEEP], "Available accident records", "All accidents\n2007–2024",
+def weather_figure() -> None:
+    audit = pd.read_csv(WEATHER_AUDIT)
+    raw = int(audit.loc[audit.metric.eq("raw_10_minute_rows"), "value"].iloc[0])
+    nonwind = int(audit.loc[audit.metric.eq("station_year_without_wind_data"), "value"].iloc[0])
+    retained = int(audit.loc[audit.metric.eq("clean_wind_rows"), "value"].iloc[0])
+    excluded = raw - nonwind - retained
+    flow(
+        OUT / "weather_selection.png",
+        "Weather-data selection, 2007–2025",
+        [
+            ("Raw station-time records", raw, ""),
+            ("Wind-capable station-years", raw - nonwind, f"{count(nonwind)} from station-years without wind data"),
+            ("Clean wind observations", retained, f"{count(excluded)} excluded by wind-quality rules"),
+        ],
     )
-    donut(
-        axes[1], [141, 1_262, 4_717],
-        ["Fatal (code 1)", "Serious (code 2)", "Minor injury (code 3)"],
-        [DROP, OTHER, KEEP], "Injury severity", "Rural injury\naccidents",
+
+
+def traffic_figure() -> None:
+    road = pd.read_csv(ROAD_COVERAGE).set_index("metric")["value"]
+    daily = pd.read_parquet(DAILY_TRAFFIC)
+    daily_wind = int(daily["f_daytime_mean"].notna().sum())
+    figure, axes = plt.subplots(2, 1, figsize=(10.5, 6.2), constrained_layout=True)
+    draw_flow(
+        axes[0],
+        [
+            ("Annual road-period records", int(road["road_section_year_traffic_periods"]), ""),
+            ("Road-periods with nearby wind", int(road["periods_with_wind_frequency"]), f"{count(int(road["road_section_year_traffic_periods"] - road["periods_with_wind_frequency"]))} without nearby clean wind"),
+        ],
     )
-    donut(
-        axes[2], [5_914, 206], ["Valid wind match ≤20 km", "No valid wind match ≤20 km"],
-        [KEEP, DROP], "Primary wind O/E sample", "Rural injury\naccidents",
+    axes[0].set_title("Annual traffic exposure: road-section sensitivity analysis", loc="left", fontsize=11, weight="bold", color=TEXT)
+    draw_flow(
+        axes[1],
+        [
+            ("Daily counter-days, 2019–2024", len(daily), ""),
+            ("Daily counter-days with daytime wind", daily_wind, f"{count(len(daily) - daily_wind)} without daytime wind"),
+        ],
     )
-    fig.suptitle("Accident data selection", fontsize=17, weight="bold", color=TEXT)
-    fig.savefig(OUT / "accident_selection.png", dpi=240, bbox_inches="tight")
-    plt.close(fig)
+    axes[1].set_title("Daily counter traffic: travel-demand diagnostic", loc="left", fontsize=11, weight="bold", color=TEXT)
+    figure.suptitle("Traffic data selection", x=0.01, ha="left", fontsize=15, weight="bold", color=TEXT)
+    figure.savefig(OUT / "traffic_selection.png", dpi=240, bbox_inches="tight")
+    plt.close(figure)
 
 
-def weather_figure():
-    raw = 226_580_952
-    retained = 214_043_666
-    excluded = raw - retained
-    fig, axis = plt.subplots(figsize=(8, 6))
-    fig.subplots_adjust(top=0.84, bottom=0.22)
-    donut(axis, [retained, excluded], ["Valid wind retained", "Wind observation excluded"], [KEEP, DROP], "", "Raw weather\nobservations", legend_y=-0.16)
-    fig.suptitle("Weather observations retained", fontsize=17, weight="bold", color=TEXT)
-    fig.savefig(OUT / "weather_selection.png", dpi=240, bbox_inches="tight")
-    plt.close(fig)
-
-
-def traffic_figure():
-    fig, axes = plt.subplots(1, 3, figsize=(15, 6.2))
-    fig.subplots_adjust(top=0.82, bottom=0.28, wspace=0.28)
-    donut(
-        axes[0], [16_257, 17_500], ["Study years 2007–2024", "Outside study years"],
-        [KEEP, DROP], "Annual road-section data", "Road-section-\nyear rows", legend_y=-0.18,
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "-o", "--output-dir", type=Path, default=OUT,
+        help="Directory for the three PNG figures (default: %(default)s).",
     )
-    donut(
-        axes[1], [44_070, 4_701], ["Usable nearby wind", "No usable wind within 20 km"],
-        [KEEP, DROP], "Main table coverage", "Road-section-\nyear-periods", legend_y=-0.18,
-    )
-    donut(
-        axes[2], [764_847, 9_427], ["Usable daytime wind", "No usable daytime wind"],
-        [KEEP, DROP], "Daily counter sensitivity", "Physical\ncounter-days", legend_y=-0.18,
-    )
-    fig.suptitle("Traffic data selection", fontsize=17, weight="bold", color=TEXT)
-    fig.savefig(OUT / "traffic_selection.png", dpi=240, bbox_inches="tight")
-    plt.close(fig)
+    return parser.parse_args()
 
 
-def main():
+def main() -> None:
+    global OUT
+    OUT = parse_args().output_dir
     OUT.mkdir(parents=True, exist_ok=True)
     accident_figure()
     weather_figure()

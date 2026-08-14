@@ -29,6 +29,31 @@ __pycache__/
 /reports/reproduced/
 /archive/
 
+# Versioned thesis deliverables: the draft, its PDF, and the small set of
+# figures and tables needed to inspect the reported results. Other generated
+# reports remain local.
+!/reports/main/
+!/reports/main/figures/
+!/reports/main/figures/accident_selection.png
+!/reports/main/figures/accidents.png
+!/reports/main/figures/daily_traffic_wind.png
+!/reports/main/figures/gust_risk.png
+!/reports/main/figures/mean_wind_oe.png
+!/reports/main/figures/severity.png
+!/reports/main/figures/traffic_adjustment.png
+!/reports/main/figures/traffic_selection.png
+!/reports/main/figures/vehicles.png
+!/reports/main/figures/weather_selection.png
+!/reports/main/tables/
+!/reports/main/tables/daily_traffic_wind.csv
+!/reports/main/tables/gust_coverage.csv
+!/reports/main/tables/gust_risk.csv
+!/reports/main/tables/road_coverage.csv
+!/reports/main/tables/weather_audit.csv
+!/reports/thesis/
+!/reports/thesis/draft_en.tex
+!/reports/thesis/draft_en.pdf
+
 # Local scratch files
 .Rhistory
 /todo.md
