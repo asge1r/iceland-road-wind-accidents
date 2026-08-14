@@ -25,14 +25,15 @@ DAILY_SOURCE = ROOT / "traffic/daily_traffic_weather.parquet"
 def write_accidents() -> None:
     columns = {
         "nid": "nid", "timestamp": "timestamp", "date": "date",
-        "accident_year": "year", "hour": "hour", "lat": "lat", "lon": "lon",
+        "hour": "hour", "lat": "lat", "lon": "lon",
         "meidsli": "meidsli", "severity": "severity", "tegohapps": "tegohapps",
         "flokkur2": "flokkur2", "urban_rural": "urban_rural",
-        "registered_road_section": "road_section", "surface_code_set": "surface_code_set",
+        "registered_road_section": "road_section",
         "weather_station_id": "weather_station_id", "weather_station_dist_km": "weather_station_dist_km",
-        "f": "f", "fg": "fg", "t": "t", "annual_exposure_available": "annual_exposure_available",
+        "f": "f", "fg": "fg", "t": "t",
     }
     data = pd.read_parquet(ACCIDENT_SOURCE, columns=list(columns)).rename(columns=columns)
+    data["year"] = pd.to_datetime(data["date"]).dt.year
     data.sort_values(["timestamp", "nid"]).to_csv(ROOT / "accidents.csv", index=False)
 
 
