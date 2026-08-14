@@ -43,7 +43,7 @@ the authorised source deliveries transparent and reproducible.
   by road section, year, official traffic period, wind variable, and 3 m/s
   interval. VDU uses December-March; SDU uses June-September; the four remaining
   months use a day-weighted traffic residual derived from ADU, SDU, and VDU.
-- `reports/main/traffic_adjustment.png`: direct
+- `reports/main/figures/traffic_sensitivity.png`: direct
   same-subset comparison of wind-frequency-only and wind-plus-traffic
   adjustment.
 
@@ -56,14 +56,14 @@ the pipeline. The six daily-traffic PDFs (2019--2024) are optional and are
 only needed for the daily-traffic sensitivity analysis.
 
 ```bash
-.venv/bin/python -m src.run_pipeline --stage prepare
-.venv/bin/python -m src.run_analysis
+.venv/bin/python -m src.prepare --stage prepare
+.venv/bin/python -m src.analyze
 ```
 
 Or, after raw preparation has completed, run both stages in one command:
 
 ```bash
-.venv/bin/python -m src.run_pipeline --stage all
+.venv/bin/python -m src.prepare --stage all
 ```
 
 See `data/README.md` for the required local source files and `docs/` for source
@@ -72,7 +72,7 @@ and variable definitions.
 To include the optional daily-traffic analysis, add the PDFs locally and use:
 
 ```bash
-.venv/bin/python -m src.run_pipeline --stage prepare --daily-traffic
+.venv/bin/python -m src.prepare --stage prepare --daily-traffic
 ```
 
 Without data, a clone can inspect every documented script and fixed analysis

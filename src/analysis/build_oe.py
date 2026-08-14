@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2
 
-from src.weather.build_wind_frequency import (
+from src.weather.frequency import (
     FG_MINUS_F_UPPER_BOUNDS,
     FG_UPPER_BOUNDS,
     F_UPPER_BOUNDS,

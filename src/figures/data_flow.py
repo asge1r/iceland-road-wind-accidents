@@ -14,7 +14,7 @@ import pandas as pd
 OUT = Path("reports/main/figures")
 ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
 STUDY = Path("data/processed/accidents/rural_injury_accidents.parquet")
-WEATHER_AUDIT = Path("reports/main/tables/weather_audit.csv")
+WEATHER_AUDIT = Path("reports/main/tables/weather_cleaning_audit.csv")
 ROAD_COVERAGE = Path("reports/main/tables/road_coverage.csv")
 DAILY_TRAFFIC = Path("data/processed/traffic/daily_traffic_weather.parquet")
 
@@ -62,7 +62,7 @@ def accident_figure() -> None:
     rural = int(all_accidents["urban_rural"].eq("Rural").sum())
     matched = int((study["weather_station_dist_km"].le(20) & study["f"].notna() & study["fg"].notna()).sum())
     flow(
-        OUT / "accident_selection.png",
+        OUT / "accident_flow.png",
         "Accident selection, 2007–2024",
         [
             ("Valid accident time and coordinates", valid_coordinates, ""),
@@ -80,7 +80,7 @@ def weather_figure() -> None:
     retained = int(audit.loc[audit.metric.eq("clean_wind_rows"), "value"].iloc[0])
     excluded = raw - nonwind - retained
     flow(
-        OUT / "weather_selection.png",
+        OUT / "weather_flow.png",
         "Weather-data selection, 2007–2025",
         [
             ("Raw station-time records", raw, ""),
@@ -112,7 +112,7 @@ def traffic_figure() -> None:
     )
     axes[1].set_title("Daily counter traffic: travel-demand diagnostic", loc="left", fontsize=11, weight="bold", color=TEXT)
     figure.suptitle("Traffic data selection", x=0.01, ha="left", fontsize=15, weight="bold", color=TEXT)
-    figure.savefig(OUT / "traffic_selection.png", dpi=240, bbox_inches="tight")
+    figure.savefig(OUT / "traffic_flow.png", dpi=240, bbox_inches="tight")
     plt.close(figure)
 
 

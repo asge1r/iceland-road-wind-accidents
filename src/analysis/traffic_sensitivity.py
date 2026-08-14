@@ -24,7 +24,7 @@ from pyproj import Transformer
 from scipy.stats import chi2
 from sklearn.neighbors import BallTree
 
-from src.weather.build_wind_frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
+from src.weather.frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
 
 
 DEFAULT_ANNUAL_TRAFFIC = Path(
@@ -63,7 +63,7 @@ DEFAULT_TRAFFIC_ADJUSTED_FIGURE = Path(
     "archive/generated_diagnostics/traffic_rates.png"
 )
 DEFAULT_ADJUSTMENT_COMPARISON_FIGURE = Path(
-    "reports/main/figures/traffic_adjustment.png"
+    "reports/main/figures/traffic_sensitivity.png"
 )
 DEFAULT_SDU_VDU_RATES = Path(
     "archive/generated_diagnostics/traffic_rates_sdu_vdu.csv"

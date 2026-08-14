@@ -25,7 +25,7 @@ import pyarrow.parquet as pq
 from scipy.stats import chi2
 from sklearn.neighbors import BallTree
 
-from src.weather.build_wind_frequency import FG_UPPER_BOUNDS, labels
+from src.weather.frequency import FG_UPPER_BOUNDS, labels
 
 
 DEFAULT_DAILY = Path(
@@ -63,7 +63,7 @@ DEFAULT_NOTES = Path("archive/generated_diagnostics/daily_traffic_notes.md")
 EARTH_RADIUS_KM = 6371.0088
 # The daily traffic diagnostic is descriptive, so it retains its sparse upper
 # mean-wind tail through 33 m/s. The primary O/E analysis retains its separate
-# 24+ m/s mean-wind specification from build_wind_frequency.
+# 24+ m/s mean-wind specification from weather.frequency.
 DAILY_F_UPPER_BOUNDS = np.arange(3, 34, 3, dtype=float)
 # Station 7475 (Reykjavík búveðurstöð reits) has a documented implausible
 # high-wind tail in the daily diagnostic (mean wind up to 49.6 m/s). It is

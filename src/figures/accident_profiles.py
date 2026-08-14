@@ -130,7 +130,7 @@ def plot_accident_families(family: pd.DataFrame) -> None:
     axis.set_xlim(0, data["count"].max() * 1.24)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right", "left"]].set_visible(False)
-    fig.savefig("reports/main/figures/accidents.png", dpi=240, bbox_inches="tight")
+    fig.savefig("reports/main/figures/accident_types.png", dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -155,7 +155,7 @@ def plot_vehicles(vehicles: pd.DataFrame) -> None:
     axis.set_ylim(0, vehicles["count"].max() * 1.18)
     axis.grid(axis="y", alpha=0.2)
     axis.spines[["top", "right"]].set_visible(False)
-    fig.savefig("reports/main/figures/vehicles.png", dpi=240, bbox_inches="tight")
+    fig.savefig("reports/main/figures/vehicles_per_accident.png", dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -190,7 +190,7 @@ def plot_severity(severity: pd.DataFrame, family: pd.DataFrame) -> None:
     axis.legend(frameon=False)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right"]].set_visible(False)
-    fig.savefig("reports/main/figures/severity.png", dpi=240, bbox_inches="tight")
+    fig.savefig("reports/main/figures/accident_types_by_severity.png", dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -202,9 +202,9 @@ def main() -> None:
     plot_accident_families(family)
     plot_vehicles(vehicles)
     plot_severity(severity, family)
-    print("Wrote reports/main/figures/accidents.png")
-    print("Wrote reports/main/figures/vehicles.png")
-    print("Wrote reports/main/figures/severity.png")
+    print("Wrote reports/main/figures/accident_types.png")
+    print("Wrote reports/main/figures/vehicles_per_accident.png")
+    print("Wrote reports/main/figures/accident_types_by_severity.png")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ the pipeline after cloning, obtain the authorised source deliveries and place
 them in the paths below. No script alters a file in `data/raw/`; generated
 files are written under `data/processed/` or `archive/` and are ignored by Git.
 
-`src.traffic.download_road_geometry` is the exception to manual retrieval: it
+`src.traffic.download_roads` is the exception to manual retrieval: it
 downloads the public Road Administration MapServer/6 reference file to
 `raw/traffic/reference/roads.geojson`. It is then used to locate daily PDF
 counters from their reported `stöð` value.
@@ -53,8 +53,8 @@ road, surface, severity, and weather matching pipeline.
 From the project root, run:
 
 ```bash
-.venv/bin/python -m src.run_pipeline --stage prepare
-.venv/bin/python -m src.run_analysis
+.venv/bin/python -m src.prepare --stage prepare
+.venv/bin/python -m src.analyze
 ```
 
 The first command needs the accident, weather, annual-traffic and station
@@ -62,7 +62,7 @@ source deliveries. The daily-PDF workflow is optional and deliberately
 separate because those PDFs are not available in every local copy:
 
 ```bash
-.venv/bin/python -m src.run_pipeline --stage prepare --daily-traffic
+.venv/bin/python -m src.prepare --stage prepare --daily-traffic
 ```
 
 Git supplies the documented methods; each authorised user supplies the data

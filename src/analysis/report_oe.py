@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.weather.build_wind_frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
+from src.weather.frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
 
 
 DEFAULT_DETAILS = Path(
@@ -599,7 +599,7 @@ def write_thesis_outputs(
     thesis["sparse_bin_fewer_than_20_accidents"] = thesis[
         "observed_accidents"
     ].lt(20)
-    thesis.to_csv(output_dir / "gust_risk.csv", index=False)
+    thesis.to_csv(output_dir / "gust_oe.csv", index=False)
     display = thesis.rename(
         columns={
             "wind_gust_interval_ms": "Wind gust (m/s)",
@@ -651,7 +651,7 @@ def write_thesis_outputs(
         100 * primary_coverage["analysed_accidents"] / scope_accidents
     )
     primary_coverage.to_csv(
-        output_dir / "gust_coverage.csv", index=False
+        output_dir / "weather_match_coverage.csv", index=False
     )
 
     high_bins = {"f": ">=24", "fg": ">=36", "fg_minus_f": ">=12"}
@@ -946,7 +946,7 @@ def main() -> None:
 
     plot_primary_gust(
         primary,
-        args.figure_dir / "gust_risk.png",
+        args.figure_dir / "gust_oe.png",
     )
     plot_one_variable(
         primary,
@@ -990,7 +990,7 @@ def main() -> None:
     weather_coverage = write_weather_coverage(
         args.accidents,
         args.weather_cleaning,
-        args.output_dir / "weather_audit.csv",
+        args.output_dir / "weather_cleaning_audit.csv",
     )
 
     notes = f"""Final wind-risk curve method

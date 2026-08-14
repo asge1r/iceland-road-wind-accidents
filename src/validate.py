@@ -12,8 +12,8 @@ import pyarrow.parquet as pq
 
 DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
 DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
-DEFAULT_GUST = Path("reports/main/tables/gust_risk.csv")
-DEFAULT_COVERAGE = Path("reports/main/tables/gust_coverage.csv")
+DEFAULT_GUST = Path("reports/main/tables/gust_oe.csv")
+DEFAULT_COVERAGE = Path("reports/main/tables/weather_match_coverage.csv")
 DEFAULT_SENSITIVITY = Path("archive/generated_diagnostics/gust_sensitivity.csv")
 DEFAULT_DAILY = Path("data/processed/traffic/daily_traffic_weather.parquet")
 DEFAULT_OUTPUT = Path("reports/main/tables/final_analysis_validation.md")

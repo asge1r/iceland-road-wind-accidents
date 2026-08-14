@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.traffic import daily_pdf_parser
+from src.traffic import pdf_parser
 
 
 OUT_COUNTS = Path("data/processed/traffic/daily_counts.parquet")
@@ -29,12 +29,12 @@ def extract() -> None:
     summaries: list[dict[str, object]] = []
     missing_years: list[int] = []
 
-    for year in sorted(daily_pdf_parser.PDF_CANDIDATES):
-        path = daily_pdf_parser.resolve_pdf(year)
+    for year in sorted(pdf_parser.PDF_CANDIDATES):
+        path = pdf_parser.resolve_pdf(year)
         if path is None:
             missing_years.append(year)
             continue
-        channel_rows, metadata, summary = daily_pdf_parser.parse_year(year, path)
+        channel_rows, metadata, summary = pdf_parser.parse_year(year, path)
         parsed_frames.append(channel_rows)
         metadata_frames.append(metadata)
         summaries.append(summary)
@@ -45,7 +45,7 @@ def extract() -> None:
     channels = pd.concat(parsed_frames, ignore_index=True).sort_values(
         ["year", "station_id", "road_section", "date"]
     )
-    counter_days = daily_pdf_parser.build_counter_days(channels)
+    counter_days = pdf_parser.build_counter_days(channels)
     count_columns = [
         "date", "year", "counter_site_id", "station_id", "road_section",
         "site_name", "traffic_volume", "directional_channels", "source_fastnr",

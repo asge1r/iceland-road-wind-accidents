@@ -14,18 +14,18 @@ import sys
 
 
 CORE_PREPARE_STEPS = [
-    "src.accidents.prepare_accidents",
-    "src.weather.clean_weather",
-    "src.traffic.prepare_annual_traffic",
-    "src.accidents.match_accidents_weather",
-    "src.weather.build_wind_frequency",
+    "src.accidents.build",
+    "src.weather.clean",
+    "src.traffic.annual",
+    "src.accidents.match_weather",
+    "src.weather.frequency",
 ]
 
 DAILY_TRAFFIC_STEPS = [
-    "src.traffic.extract_daily_traffic",
-    "src.traffic.download_road_geometry",
-    "src.traffic.locate_daily_counters_from_station",
-    "src.analysis.analyze_daily_traffic",
+    "src.traffic.daily",
+    "src.traffic.download_roads",
+    "src.traffic.locate_counters",
+    "src.analysis.match_daily_weather",
 ]
 
 
@@ -61,11 +61,11 @@ def main() -> None:
         else:
             print("Skipping daily-traffic rebuild by default. Use --daily-traffic to parse PDFs.")
         if Path("data/processed/traffic/daily_traffic_weather.parquet").exists():
-            run("src.export_working_tables", dry_run=args.dry_run)
+            run("src.export_tables", dry_run=args.dry_run)
         else:
             print("Skipping daily working-table export: no daily traffic/weather cache exists.")
     if args.stage in {"results", "all"}:
-        run("src.run_analysis", dry_run=args.dry_run)
+        run("src.analyze", dry_run=args.dry_run)
 
 
 if __name__ == "__main__":
