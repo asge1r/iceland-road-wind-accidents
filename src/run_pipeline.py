@@ -38,13 +38,13 @@ def run(module: str, *, dry_run: bool = False) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage", choices=["prepare", "results", "all"], default="prepare")
+    parser.add_argument("-s", "--stage", choices=["prepare", "results", "all"], default="prepare")
     parser.add_argument(
-        "--daily-traffic", action="store_true",
+        "-t", "--daily-traffic", action="store_true",
         help="Rebuild daily traffic from the six local PDF files (2019-2024).",
     )
     parser.add_argument(
-        "--dry-run", action="store_true",
+        "-n", "--dry-run", action="store_true",
         help="Print the selected local steps without changing files.",
     )
     args = parser.parse_args()
