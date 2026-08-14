@@ -1,0 +1,23 @@
+unit,metric,value,percent_of_input,note
+accidents,rural_injury_accidents_in_scope,6120,100.0,"Primary accident population, 2007-2024."
+accidents,valid_wind_within_10_km,4622,75.52,Spatial sensitivity.
+accidents,valid_wind_within_20_km,5912,96.6,Primary spatial criterion.
+accidents,valid_wind_within_30_km,6109,99.82,Loose spatial sensitivity only.
+accidents,valid_wind_within_20_km_and_0_minute_difference,719,11.75,Time-match sensitivity; <=5 minutes is primary.
+accidents,valid_wind_within_20_km_and_2_minute_difference,3017,49.3,Time-match sensitivity; <=5 minutes is primary.
+accidents,valid_wind_within_20_km_and_5_minute_difference,5912,96.6,Time-match sensitivity; <=5 minutes is primary.
+weather_stations,stations_in_primary_accident_analysis,255,,Distinct stations assigned to primary accidents.
+10_minute_weather_rows,raw_10_minute_rows,226580952,100.0,Raw weather observations.
+10_minute_weather_rows,station_year_without_wind_data,11810743,5.21,Station-time rows from station-years with no wind values.
+10_minute_weather_rows,missing_wind_in_wind_capable_station_year,427778,0.19,Missing f or fg within a station-year that otherwise measures wind.
+10_minute_weather_rows,negative_wind_values,255858,0.11,Invalid negative f or fg value.
+10_minute_weather_rows,f_below_zero_ms,253352,0.11,Reported negative mean-wind value.
+10_minute_weather_rows,fg_below_zero_ms,246160,0.11,Reported negative gust value.
+10_minute_weather_rows,f_at_or_above_45_ms,26161,0.01,Operational upper threshold.
+10_minute_weather_rows,fg_at_or_above_65_ms,22425,0.01,Operational upper threshold.
+10_minute_weather_rows,fg_equal_zero_ms,3211352,1.42,Reported separately; gusts of zero are unusual.
+10_minute_weather_rows,fg_zero_with_positive_f,78,0.0,Internally inconsistent zero gust; excluded.
+10_minute_weather_rows,fg_below_f_beyond_tolerance,2192,0.0,Failed internal wind consistency rule.
+10_minute_weather_rows,frozen_zero_runs,2541617,1.12,Both f and fg equal zero for at least two hours.
+10_minute_weather_rows,clean_wind_rows,211497897,93.34,Rows retained with valid f and fg.
+10_minute_weather_rows,weather_rows_excluded_total,15083055,6.66,Exclusive total removed by all wind-cleaning rules combined.
