@@ -27,9 +27,7 @@ steps that create it can each be checked without opening large cache files.
   observation by daylight and by actual road condition. The available road
   surface data describe road construction, not wet, icy or snowy conditions at
   the time of an accident.
-- The official University of Iceland thesis template has been identified in
-  `reports/thesis/TEMPLATE.md`. The final migration is deferred until the
-  substantive text has been approved.
+- The thesis now uses the University of Iceland template structure. The local
+  implementation and official source are documented in `reports/thesis/TEMPLATE.md`.
 - A discussion of the plotted weather patterns with a meteorologist is an
   external expert-review step, rather than a data-processing step.
-
