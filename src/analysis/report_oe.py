@@ -858,7 +858,8 @@ def main() -> None:
         for season in ["Winter", "Spring", "Summer", "Fall"]:
             scenarios.append((variable, 20, "Injury accidents", season))
     for vehicle_group in ["1 vehicle", "2 or more vehicles"]:
-        scenarios.append(("f", 20, vehicle_group, "All seasons"))
+        for variable in ["f_5m", "fg"]:
+            scenarios.append((variable, 20, vehicle_group, "All seasons"))
 
     for scenario_index, (variable, radius, severity, season) in enumerate(scenarios):
         result, draws = analyse_scenario(
@@ -919,7 +920,7 @@ def main() -> None:
     ].copy()
 
     subgroup = all_results[
-        all_results["variable"].eq("f")
+        all_results["variable"].isin(["f_5m", "fg"])
         & all_results["radius_km"].eq(20)
         & all_results["max_time_difference_minutes"].eq(
             PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
