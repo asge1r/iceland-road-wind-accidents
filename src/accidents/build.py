@@ -26,21 +26,20 @@ def read_accident_file(path: Path, newer_format: bool) -> pd.DataFrame:
         {
             "nid": "nid", "Dagsetning": "date_text", "Tími": "time_text",
             "xhnit": "x_3057", "yhnit": "y_3057", "meidsli": "meidsli",
-            "tegohapps": "tegohapps", "stadsetn": "stadsetn", "flokkur2": "flokkur2",
+            "tegohapps": "tegohapps", "stadsetn": "stadsetn",
         }
         if not newer_format
         else {
             "NID": "nid", "Dagsetning": "date_text", "Tími": "time_text",
             "Xhnit": "x_3057", "Yhnit": "y_3057", "Meiðsli": "meidsli",
             "Tegund óhapps": "tegohapps", "Staðsetning": "stadsetn",
-            "Tegund óhapps - yfirflokkur": "flokkur2",
         }
     )
     missing = set(names) - set(source.columns)
     if missing:
         raise ValueError(f"{path} is missing expected source columns: {sorted(missing)}")
     accidents = source[list(names)].rename(columns=names).copy()
-    for column in ["nid", "x_3057", "y_3057", "meidsli", "tegohapps", "flokkur2"]:
+    for column in ["nid", "x_3057", "y_3057", "meidsli", "tegohapps"]:
         accidents[column] = pd.to_numeric(accidents[column], errors="coerce")
     accidents["timestamp"] = pd.to_datetime(
         accidents["date_text"].fillna("") + " " + accidents["time_text"].fillna(""),

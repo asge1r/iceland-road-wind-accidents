@@ -55,7 +55,7 @@ def load_accidents() -> pd.DataFrame:
         )
     accidents = pd.read_csv(RAW_ACCIDENTS_FILE, sep="\t", dtype=str)
     accidents.columns = [column.strip() for column in accidents.columns]
-    for column in ["nid", "xhnit", "yhnit", "meidsli", "tegohapps", "flokkur2"]:
+    for column in ["nid", "xhnit", "yhnit", "meidsli", "tegohapps"]:
         accidents[column] = pd.to_numeric(accidents[column], errors="coerce")
     accidents = accidents.dropna(subset=["nid", "xhnit", "yhnit"]).copy()
     to_wgs84 = Transformer.from_crs("EPSG:3057", "EPSG:4326", always_xy=True)
