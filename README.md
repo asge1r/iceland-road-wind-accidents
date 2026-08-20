@@ -39,12 +39,15 @@ the authorised source deliveries transparent and reproducible.
 - `data/processed/accidents/oe_station_period_bins.parquet`: canonical
   station-period O/E input for analysis A and its clustered bootstrap.
 - `data/processed/traffic/road_section_wind_panel_2007_2025.parquet`: local
-  cache for the restricted annual-traffic comparison
+  cache for the annual-traffic rate comparison across all annual-traffic road
+  sections with qualifying weather coverage
   by road section, year, official traffic period, wind variable, and wind
   interval. VDU uses December-March; SDU uses June-September; the four remaining
   months use a day-weighted traffic residual derived from ADU, SDU, and VDU.
-- `reports/main/figures/traffic_adjusted_oe.png`: comparison of weather-frequency
-  O/E and annual-traffic-standardised O/E in the strictly matched subset.
+- `reports/main/figures/stratified_crash_rate_ratio_by_wind.png`: estimated
+  within-road-section injury-accident rate ratios by 5 m/s mean-wind interval.
+  It reports both time-proportional traffic allocation and a daily-counter-
+  informed allocation.
 
 ## Rebuild the results
 

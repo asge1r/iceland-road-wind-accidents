@@ -17,7 +17,7 @@ steps that create it can each be checked without opening large cache files.
 | Transparent source example | The thesis shows real early rows from the accident delivery, including source field names. | `reports/thesis/draft_en.tex`, Accident register subsection |
 | Readable main presentation | The primary figure uses six 5 m/s bins, sample sizes inside bars and no error-bar whiskers. The narrower 3 m/s version is in the appendix. | `reports/main/figures/mean_wind_oe.png`; `reports/main/figures/mean_wind_3m_oe.png` |
 | Subgroup descriptions | Mean-wind and gust figures are provided for season and one versus two-or-more vehicles. | `reports/main/figures/mean_wind_by_season_oe.png`; `reports/main/figures/mean_wind_by_vehicle_group_oe.png`; corresponding gust figures |
-| Traffic | Annual traffic is a restricted comparison and daily counter data are a descriptive check; neither replaces the primary weather-frequency denominator. | `reports/main/figures/traffic_adjusted_oe.png`; `reports/main/figures/daily_traffic_by_wind.png`; `docs/methods.md` |
+| Traffic | The conditional rate model compares wind intervals within road section, year and traffic period. It uses a shared weather station for accident and exposure; daily counter data provide a separate allocation check. Neither replaces the primary weather-frequency denominator. | `reports/main/figures/stratified_crash_rate_ratio_by_wind.png`; `reports/main/figures/daily_traffic_by_wind.png`; `docs/pipeline.md` |
 | Reproducible run | `python -m src.prepare` builds prepared inputs; `python -m src.analyze` creates tables, figures and validation. Both commands provide `-h`. | `README.md`; `docs/pipeline.md`; `src/prepare.py`; `src/analyze.py` |
 
 ## Deliberate scope limits
