@@ -1,12 +1,12 @@
 unit,metric,value,percent_of_input,note
-accidents,rural_injury_accidents_in_scope,6120,100.0,"Primary accident population, 2007-2024."
-accidents,valid_wind_within_10_km,4622,75.52,Spatial sensitivity.
-accidents,valid_wind_within_20_km,5912,96.6,Primary spatial criterion.
-accidents,valid_wind_within_30_km,6109,99.82,Loose spatial sensitivity only.
-accidents,valid_wind_within_20_km_and_0_minute_difference,719,11.75,Time-match sensitivity; <=5 minutes is primary.
-accidents,valid_wind_within_20_km_and_2_minute_difference,3017,49.3,Time-match sensitivity; <=5 minutes is primary.
-accidents,valid_wind_within_20_km_and_5_minute_difference,5912,96.6,Time-match sensitivity; <=5 minutes is primary.
-weather_stations,stations_in_primary_accident_analysis,255,,Distinct stations assigned to primary accidents.
+accidents,rural_injury_accidents_in_scope,6414,100.0,"Primary accident population, 2007-2025."
+accidents,valid_wind_within_10_km,4858,75.74,Spatial sensitivity.
+accidents,valid_wind_within_20_km,6192,96.54,Primary spatial criterion.
+accidents,valid_wind_within_30_km,6399,99.77,Loose spatial sensitivity only.
+accidents,valid_wind_within_20_km_and_0_minute_difference,756,11.79,Time-match sensitivity; <=5 minutes is primary.
+accidents,valid_wind_within_20_km_and_2_minute_difference,3166,49.36,Time-match sensitivity; <=5 minutes is primary.
+accidents,valid_wind_within_20_km_and_5_minute_difference,6192,96.54,Time-match sensitivity; <=5 minutes is primary.
+weather_stations,stations_in_primary_accident_analysis,270,,Distinct stations assigned to primary accidents.
 10_minute_weather_rows,raw_10_minute_rows,226580952,100.0,Raw weather observations.
 10_minute_weather_rows,station_year_without_wind_data,11810743,5.21,Station-time rows from station-years with no wind values.
 10_minute_weather_rows,missing_wind_in_wind_capable_station_year,427778,0.19,Missing f or fg within a station-year that otherwise measures wind.

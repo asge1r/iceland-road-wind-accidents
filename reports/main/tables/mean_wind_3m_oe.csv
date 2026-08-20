@@ -1,0 +1,10 @@
+mean_wind_interval_ms,observed_accidents,expected_accidents,observed_expected_ratio,station_bootstrap_ci_95_low,station_bootstrap_ci_95_high,bootstrap_probability_above_1,sparse_bin_fewer_than_20_accidents
+0-3,1696,1937.7,0.88,0.84,0.91,0.0,False
+3-6,2017,1903.0,1.06,1.02,1.1,0.9976,False
+6-9,1194,1210.2,0.99,0.93,1.05,0.3192,False
+9-12,666,651.8,1.02,0.94,1.11,0.6782,False
+12-15,319,299.0,1.07,0.95,1.19,0.854,False
+15-18,169,120.3,1.4,1.19,1.61,0.9998,False
+18-21,80,45.5,1.76,1.36,2.16,1.0,False
+21-24,28,16.0,1.75,1.12,2.44,0.9914,False
+>=24,23,8.5,2.71,1.2,4.77,0.9906,False
