@@ -19,6 +19,7 @@ CORE_PREPARE_STEPS = [
     "src.traffic.annual",
     "src.accidents.match_weather",
     "src.weather.frequency",
+    "src.traffic.build_road_period_cache",
 ]
 
 DAILY_TRAFFIC_STEPS = [
@@ -29,8 +30,8 @@ DAILY_TRAFFIC_STEPS = [
 ]
 
 
-def run(module: str, *, dry_run: bool = False) -> None:
-    command = [sys.executable, "-m", module]
+def run(module: str, *arguments: str, dry_run: bool = False) -> None:
+    command = [sys.executable, "-m", module, *arguments]
     print("Running:", " ".join(command), flush=True)
     if not dry_run:
         subprocess.run(command, check=True)
@@ -50,7 +51,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.stage in {"prepare", "all"}:
         for module in CORE_PREPARE_STEPS:
-            run(module, dry_run=args.dry_run)
+            extra = ("--include-2025",) if module == "src.accidents.build" else ()
+            run(module, *extra, dry_run=args.dry_run)
         pdf_directory = Path("data/raw/traffic/daily_pdf")
         if args.daily_traffic:
             for module in DAILY_TRAFFIC_STEPS:
@@ -60,10 +62,7 @@ def main() -> None:
                   "Use --daily-traffic after adding the six PDFs.")
         else:
             print("Skipping daily-traffic rebuild by default. Use --daily-traffic to parse PDFs.")
-        if Path("data/processed/traffic/daily_traffic_weather.parquet").exists():
-            run("src.export_tables", dry_run=args.dry_run)
-        else:
-            print("Skipping daily working-table export: no daily traffic/weather cache exists.")
+        run("src.export_tables", dry_run=args.dry_run)
     if args.stage in {"results", "all"}:
         run("src.analyze", dry_run=args.dry_run)
 

@@ -1,9 +1,4 @@
-"""Build the canonical accident table directly from immutable source files.
-
-The standard output covers 2007--2024, matching the completed weather and
-accident analysis period.  The optional 2025 delivery can be included for
-descriptive updates, but is not silently mixed into the thesis analysis.
-"""
+"""Build the canonical accident table directly from immutable source files."""
 
 from __future__ import annotations
 
@@ -105,10 +100,10 @@ def prepare(include_2025: bool, output: Path, rural_output: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--include-2025", action="store_true", help="Add the separate 2025 source delivery.")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("-y", "--include-2025", action="store_true", help="Add the separate 2025 source delivery.")
+    parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument(
-        "--rural-output", type=Path, default=DEFAULT_RURAL_INJURY,
+        "-r", "--rural-output", type=Path, default=DEFAULT_RURAL_INJURY,
         help="Pre-weather rural injury subset; the weather-matched canonical file is written by match_weather.",
     )
     args = parser.parse_args()

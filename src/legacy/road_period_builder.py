@@ -1,7 +1,7 @@
-"""Build the descriptive 2007-2024 road-section, traffic, and wind table.
+"""Build the descriptive 2007-2025 road-section, traffic, and wind table.
 
 The readable tables report wind frequency and actual accident counts by wind
-interval. Traffic-adjusted sensitivity results use official SDU and VDU values
+interval. The annual-traffic comparison uses official SDU and VDU values
 and a day-weighted residual derived from ADU for the remaining four months.
 """
 
@@ -34,7 +34,7 @@ DEFAULT_ALL_ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.pa
 DEFAULT_INJURY_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
 DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
 DEFAULT_PERIOD_WIND_FREQUENCY = Path(
-    "data/processed/weather/wind_frequency_road_period_2007_2024.parquet"
+    "data/processed/weather/wind_frequency_road_period_2007_2025.parquet"
 )
 DEFAULT_SURFACE = Path("data/raw/traffic/reference/road_surface_history.csv")
 DEFAULT_STATIONS = Path("data/processed/weather/stations.csv")
@@ -44,7 +44,7 @@ DEFAULT_SECTION_MIDPOINTS = Path(
 DEFAULT_ROAD_GEOMETRIES = Path(
     "data/raw/traffic/reference/road_sections.parquet"
 )
-DEFAULT_LONG = Path("data/processed/traffic/road_section_wind_panel_2007_2024.parquet")
+DEFAULT_LONG = Path("data/processed/traffic/road_section_wind_panel_2007_2025.parquet")
 DEFAULT_WIDE = Path("reports/working/tables/road_wind_full.csv")
 DEFAULT_ACCIDENT_ROWS = Path(
     "archive/generated_diagnostics/road_wind_accident_rows.csv"
@@ -63,7 +63,7 @@ DEFAULT_TRAFFIC_ADJUSTED_FIGURE = Path(
     "archive/generated_diagnostics/traffic_rates.png"
 )
 DEFAULT_ADJUSTMENT_COMPARISON_FIGURE = Path(
-    "reports/main/figures/traffic_sensitivity.png"
+    "archive/generated_diagnostics/road_period_comparison.png"
 )
 DEFAULT_SDU_VDU_RATES = Path(
     "archive/generated_diagnostics/traffic_rates_sdu_vdu.csv"
@@ -78,9 +78,9 @@ DEFAULT_SCOPE_COMPARISON_FIGURE = Path(
     "archive/generated_diagnostics/traffic_scope.png"
 )
 
-YEARS = range(2007, 2025)
+YEARS = range(2007, 2026)
 FIRST_YEAR = 2007
-LAST_YEAR = 2024
+LAST_YEAR = 2025
 EARTH_RADIUS_KM = 6371.0088
 PRIMARY_STATION_RADIUS_KM = 20.0
 TRAFFIC_PERIOD_ORDER = ["VDU", "SDU", "VHDU"]
@@ -261,7 +261,7 @@ def build_period_wind_frequency(
 
 
 def load_annual_traffic(path: Path) -> pd.DataFrame:
-    annual = pd.read_csv(path)
+    annual = pd.read_csv(path, low_memory=False)
     annual["year"] = pd.to_numeric(annual["year"], errors="coerce").astype("Int64")
     annual = annual[annual["year"].isin(YEARS)].copy()
     annual["year"] = annual["year"].astype(int)
@@ -474,7 +474,7 @@ def build_accident_counts(
         validate="many_to_one",
     )
     diagnostics = {
-        "rural_injury_accidents_2007_2024": int(
+        "rural_injury_accidents_2007_2025": int(
             pd.read_parquet(accidents_path, columns=["timestamp"])["timestamp"]
             .pipe(pd.to_datetime, errors="coerce")
             .dt.year.isin(YEARS)
@@ -1068,7 +1068,7 @@ def plot_traffic_period_summary(wide: pd.DataFrame, path: Path) -> None:
 
     fig.suptitle(
         "Accidents and traffic by official traffic period\n"
-        "Rural injury accidents with exact road-section exposure matches, 2007-2024"
+        "Rural injury accidents with exact road-section exposure matches, 2007-2025"
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=240)
@@ -1108,7 +1108,7 @@ def build_traffic_adjusted_rates(
 
     The denominator assumes that official average daily traffic is distributed
     across wind intervals in proportion to the interval's share of 10-minute
-    weather observations. This is a sensitivity calculation, not observed
+    weather observations. This is an estimated comparison, not observed
     traffic in each wind interval.
     """
     key = ["road_section", "year", "traffic_period"]
@@ -1439,7 +1439,7 @@ def plot_traffic_adjusted_rates(
 
     fig.suptitle(
         "Wind-frequency and traffic-adjusted injury accident rates\n"
-        f"{scope_label}; exact road-section matches, 2007-2024"
+        f"{scope_label}; exact road-section matches, 2007-2025"
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=240)
@@ -1494,7 +1494,7 @@ def write_notes(
     path: Path, coverage: pd.DataFrame, traffic_rate_diagnostics: dict[str, int]
 ) -> None:
     values = coverage.set_index("metric")["value"]
-    notes = f"""Road-section wind table, 2007-2024
+    notes = f"""Road-section wind table, 2007-2025
 =====================================
 
 Unit of the wide table
@@ -1541,7 +1541,7 @@ by severity, and the median official daily traffic across the included
 road-section/year rows. The accident bars are descriptive counts and are not
 traffic-adjusted rates. The VHDU traffic bar is the ADU/SDU/VDU residual.
 
-Traffic-adjusted sensitivity figure
+Annual-traffic comparison figure
 -----------------------------------
 The traffic-adjusted figure includes
 {traffic_rate_diagnostics['f_accidents_with_frequency_exposure']:,}
@@ -1559,7 +1559,7 @@ Only {traffic_rate_diagnostics['f_same_station_accidents']:,} of the included
 accidents used the same station as the nearest valid midpoint station assigned
 to their road section/year/period; other accident observations are local proxies but
 do not use the identical station as the denominator. The figure is therefore a
-sensitivity result, not the primary wind-risk estimate. Grey bars contain fewer
+comparison result, not the primary wind-risk estimate. Grey bars contain fewer
 than 20 accidents.
 
 The adjustment-comparison figure uses the same restricted accident subset for
@@ -1589,7 +1589,7 @@ Limitations
 This is a descriptive table. Wind frequency follows the traffic-period months.
 The derived VHDU traffic value assumes the annual, SDU, and VDU figures are
 mutually consistent; nonpositive residuals are left missing. Traffic is allocated
-to wind intervals in the sensitivity calculation in proportion to wind frequency,
+to wind intervals in the comparison in proportion to wind frequency,
 not from observed traffic under each wind condition. A station is still a proxy
 for conditions across the road section. When the nearest station lacks period
 data, the next-nearest valid station within 20 km is used; otherwise frequency
@@ -1602,60 +1602,64 @@ proof that no accident occurred.
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build the descriptive 2007-2024 road-section wind table."
+        description="Build the descriptive 2007-2025 road-section wind table."
     )
-    parser.add_argument("--annual-traffic", type=Path, default=DEFAULT_ANNUAL_TRAFFIC)
-    parser.add_argument("--all-accidents", type=Path, default=DEFAULT_ALL_ACCIDENTS)
+    parser.add_argument("-a", "--annual-traffic", type=Path, default=DEFAULT_ANNUAL_TRAFFIC)
+    parser.add_argument("-A", "--all-accidents", type=Path, default=DEFAULT_ALL_ACCIDENTS)
     parser.add_argument(
-        "--injury-accidents", type=Path, default=DEFAULT_INJURY_ACCIDENTS
+        "-i", "--injury-accidents", type=Path, default=DEFAULT_INJURY_ACCIDENTS
     )
-    parser.add_argument("--weather", type=Path, default=DEFAULT_WEATHER)
+    parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
     parser.add_argument(
-        "--period-wind-frequency",
+        "-p", "--period-wind-frequency",
         type=Path,
         default=DEFAULT_PERIOD_WIND_FREQUENCY,
     )
-    parser.add_argument("--rebuild-period-wind-frequency", action="store_true")
-    parser.add_argument("--max-weather-row-groups", type=int)
-    parser.add_argument("--surface", type=Path, default=DEFAULT_SURFACE)
-    parser.add_argument("--stations", type=Path, default=DEFAULT_STATIONS)
+    parser.add_argument("-r", "--rebuild-period-wind-frequency", action="store_true")
+    parser.add_argument("-m", "--max-weather-row-groups", type=int)
     parser.add_argument(
-        "--section-midpoints", type=Path, default=DEFAULT_SECTION_MIDPOINTS
+        "-K", "--cache-only", action="store_true",
+        help="Write only the road-period cache required by the annual-traffic comparison.",
     )
-    parser.add_argument("--long-output", type=Path, default=DEFAULT_LONG)
-    parser.add_argument("--wide-output", type=Path, default=DEFAULT_WIDE)
+    parser.add_argument("-u", "--surface", type=Path, default=DEFAULT_SURFACE)
+    parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
     parser.add_argument(
-        "--accident-rows-output", type=Path, default=DEFAULT_ACCIDENT_ROWS
+        "-M", "--section-midpoints", type=Path, default=DEFAULT_SECTION_MIDPOINTS
+    )
+    parser.add_argument("-o", "--long-output", type=Path, default=DEFAULT_LONG)
+    parser.add_argument("-O", "--wide-output", type=Path, default=DEFAULT_WIDE)
+    parser.add_argument(
+        "-x", "--accident-rows-output", type=Path, default=DEFAULT_ACCIDENT_ROWS
     )
     parser.add_argument(
-        "--mean-wind-table", type=Path, default=DEFAULT_MEAN_WIND_TABLE
+        "-f", "--mean-wind-table", type=Path, default=DEFAULT_MEAN_WIND_TABLE
     )
-    parser.add_argument("--gust-table", type=Path, default=DEFAULT_GUST_TABLE)
-    parser.add_argument("--coverage", type=Path, default=DEFAULT_COVERAGE)
-    parser.add_argument("--notes", type=Path, default=DEFAULT_NOTES)
-    parser.add_argument("--figure", type=Path, default=DEFAULT_FIGURE)
+    parser.add_argument("-g", "--gust-table", type=Path, default=DEFAULT_GUST_TABLE)
+    parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
+    parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
+    parser.add_argument("-F", "--figure", type=Path, default=DEFAULT_FIGURE)
     parser.add_argument(
-        "--traffic-adjusted-rates",
+        "-t", "--traffic-adjusted-rates",
         type=Path,
         default=DEFAULT_TRAFFIC_ADJUSTED_RATES,
     )
     parser.add_argument(
-        "--traffic-adjusted-figure",
+        "-T", "--traffic-adjusted-figure",
         type=Path,
         default=DEFAULT_TRAFFIC_ADJUSTED_FIGURE,
     )
     parser.add_argument(
-        "--adjustment-comparison-figure",
+        "-C", "--adjustment-comparison-figure",
         type=Path,
         default=DEFAULT_ADJUSTMENT_COMPARISON_FIGURE,
     )
-    parser.add_argument("--sdu-vdu-rates", type=Path, default=DEFAULT_SDU_VDU_RATES)
-    parser.add_argument("--sdu-vdu-figure", type=Path, default=DEFAULT_SDU_VDU_FIGURE)
+    parser.add_argument("-v", "--sdu-vdu-rates", type=Path, default=DEFAULT_SDU_VDU_RATES)
+    parser.add_argument("-V", "--sdu-vdu-figure", type=Path, default=DEFAULT_SDU_VDU_FIGURE)
     parser.add_argument(
-        "--scope-comparison", type=Path, default=DEFAULT_SCOPE_COMPARISON
+        "-q", "--scope-comparison", type=Path, default=DEFAULT_SCOPE_COMPARISON
     )
     parser.add_argument(
-        "--scope-comparison-figure", type=Path,
+        "-Q", "--scope-comparison-figure", type=Path,
         default=DEFAULT_SCOPE_COMPARISON_FIGURE,
     )
     args = parser.parse_args()
@@ -1683,6 +1687,11 @@ def main() -> None:
     )
     base = build_base_table(assigned_panel, counts, surface)
     long = build_long_table(base, wind, bin_counts)
+    if args.cache_only:
+        args.long_output.parent.mkdir(parents=True, exist_ok=True)
+        long.to_parquet(args.long_output, index=False, compression="zstd")
+        print(f"road_period_rows={len(long):,}")
+        return
     wide = build_wide_table(base, long)
     mean_wind_table = build_readable_bin_table(long, "f")
     gust_table = build_readable_bin_table(long, "fg")

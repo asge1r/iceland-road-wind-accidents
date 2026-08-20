@@ -17,21 +17,18 @@ from scipy.stats import chi2
 from src.weather.frequency import (
     FG_MINUS_F_UPPER_BOUNDS,
     FG_UPPER_BOUNDS,
+    F_FIVE_MS_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
+    GUST_FACTOR_MIN_MEAN_WIND,
+    GUST_FACTOR_UPPER_BOUNDS,
     labels,
 )
 
 
-DEFAULT_ACCIDENTS = Path(
-    "data/processed/accidents/rural_injury_accidents.parquet"
-)
-DEFAULT_FREQUENCY = Path(
-    "data/processed/weather/wind_frequency_station_year_season.parquet"
-)
+DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
+DEFAULT_FREQUENCY = Path("data/analysis/weather_frequency.csv")
 DEFAULT_RESULTS = Path("archive/generated_diagnostics/oe/detailed_results.csv")
-DEFAULT_DETAILS = Path(
-    "data/processed/accidents/oe_station_period_bins.parquet"
-)
+DEFAULT_DETAILS = Path("data/cache/oe_station_period_bins.parquet")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/oe/calculation_notes.txt")
 DEFAULT_FIGURES = Path("archive/generated_diagnostics/figures")
@@ -56,6 +53,12 @@ class VariableSpec:
 
 VARIABLES = [
     VariableSpec("f", "f", F_UPPER_BOUNDS, "Mean wind speed"),
+    VariableSpec(
+        "f_5m",
+        "f",
+        F_FIVE_MS_UPPER_BOUNDS,
+        "Mean wind speed (5 m/s intervals)",
+    ),
     VariableSpec("fg", "fg", FG_UPPER_BOUNDS, "Maximum wind gust"),
     VariableSpec(
         "fg_minus_f",
@@ -63,12 +66,20 @@ VARIABLES = [
         FG_MINUS_F_UPPER_BOUNDS,
         "Gust difference (fg - f)",
     ),
+    VariableSpec(
+        "gust_factor",
+        "gust_factor",
+        GUST_FACTOR_UPPER_BOUNDS,
+        "Gust factor (fg / f; f >= 3 m/s)",
+    ),
 ]
 
-SEVERITIES = {
+SAMPLES = {
     "Injury accidents": lambda data: pd.Series(True, index=data.index),
     "Serious or fatal": lambda data: data["meidsli"].le(2),
     "Fatal": lambda data: data["meidsli"].eq(1),
+    "1 vehicle": lambda data: data["vehicle_group"].eq("1 vehicle"),
+    "2 or more vehicles": lambda data: data["vehicle_group"].eq("2 or more vehicles"),
 }
 
 
@@ -79,6 +90,46 @@ def season_from_month(month: pd.Series) -> pd.Series:
     season.loc[month.isin([6, 7, 8])] = "Summer"
     season.loc[month.isin([9, 10, 11])] = "Fall"
     return season
+
+
+def count_column(variable: str, bin_label: str) -> str:
+    safe_label = bin_label.replace(">=", "ge_").replace("-", "_")
+    return f"{variable}_{safe_label}_count"
+
+
+def read_frame(path: Path, columns: list[str] | None = None) -> pd.DataFrame:
+    if path.suffix == ".parquet":
+        return pd.read_parquet(path, columns=columns)
+    return pd.read_csv(path, usecols=columns)
+
+
+def frequency_to_long(frequency: pd.DataFrame) -> pd.DataFrame:
+    if "variable" in frequency:
+        if "frequency_pct" not in frequency:
+            frequency = frequency.copy()
+            frequency["frequency_pct"] = (
+                100
+                * frequency["measurement_count"]
+                / frequency["total_measurements_in_period"]
+            )
+        return frequency
+    keys = ["station", "name", "year", "season", "period", "total_measurements_in_period"]
+    missing = set(keys) - set(frequency)
+    if missing:
+        raise ValueError(f"Frequency table is missing required columns: {sorted(missing)}")
+    rows: list[pd.DataFrame] = []
+    for spec in VARIABLES:
+        for bin_label in spec.bin_labels:
+            column = count_column(spec.variable, bin_label)
+            if column not in frequency:
+                raise ValueError(f"Frequency table is missing {column}")
+            part = frequency[keys].copy()
+            part["variable"] = spec.variable
+            part["bin_label"] = bin_label
+            part["measurement_count"] = frequency[column]
+            part["frequency_pct"] = 100 * part["measurement_count"] / part["total_measurements_in_period"]
+            rows.append(part)
+    return pd.concat(rows, ignore_index=True)
 
 
 def load_data(
@@ -93,19 +144,28 @@ def load_data(
         "weather_time_difference_minutes",
         "f",
         "fg",
+        "vehicle_count",
     ]
-    accidents = pd.read_parquet(accidents_path, columns=columns)
+    accidents = read_frame(accidents_path, columns)
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
     if start:
         accidents = accidents[accidents["timestamp"].ge(pd.Timestamp(start))]
     if end:
         accidents = accidents[accidents["timestamp"].le(pd.Timestamp(end))]
     accidents = accidents.copy()
+    accidents["vehicle_group"] = np.where(
+        accidents["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
+    )
     accidents["year"] = accidents["timestamp"].dt.year
     accidents["season"] = season_from_month(accidents["timestamp"].dt.month)
     accidents["fg_minus_f"] = (accidents["fg"] - accidents["f"]).clip(lower=0)
+    accidents["gust_factor"] = np.where(
+        accidents["f"].ge(GUST_FACTOR_MIN_MEAN_WIND),
+        accidents["fg"] / accidents["f"],
+        np.nan,
+    )
 
-    frequency = pd.read_parquet(frequency_path)
+    frequency = frequency_to_long(read_frame(frequency_path))
     frequency = frequency.rename(columns={"station": "weather_station_id"})
     frequency["weather_station_id"] = pd.to_numeric(
         frequency["weather_station_id"], errors="raise"
@@ -138,7 +198,7 @@ def one_analysis(
             max_time_difference_minutes
         )
         & accidents[spec.accident_column].notna()
-        & SEVERITIES[severity](accidents)
+        & SAMPLES[severity](accidents)
     ].copy()
     if analysis_season != "All seasons":
         scoped = scoped[scoped["season"].eq(analysis_season)].copy()
@@ -249,36 +309,28 @@ def plot_main(results: pd.DataFrame, figure_dir: Path) -> None:
         & results["severity_group"].eq("Injury accidents")
         & results["analysis_season"].eq("All seasons")
     ]
+    display_specs = [
+        next(spec for spec in VARIABLES if spec.variable == variable)
+        for variable in ("f", "fg", "fg_minus_f")
+    ]
     colors = {"f": "#287271", "fg": "#C7522A", "fg_minus_f": "#5B5F97"}
     fig, axes = plt.subplots(3, 1, figsize=(12.5, 13), constrained_layout=True)
-    for ax, spec in zip(axes, VARIABLES, strict=True):
+    for ax, spec in zip(axes, display_specs, strict=True):
         subset = data[data["variable"].eq(spec.variable)].sort_values("bin_order")
         x = np.arange(len(subset))
         y = subset["relative_accident_frequency"].to_numpy(float)
-        low = subset["ci_95_low"].to_numpy(float)
-        high = subset["ci_95_high"].to_numpy(float)
         reliable = subset["observed_accidents"].ge(20).to_numpy()
         ax.bar(x, y, color=np.where(reliable, colors[spec.variable], "#A8A8A8"))
-        ax.errorbar(
-            x[reliable],
-            y[reliable],
-            yerr=np.vstack([y[reliable] - low[reliable], high[reliable] - y[reliable]]),
-            fmt="none",
-            ecolor="#222222",
-            capsize=3,
-        )
         ax.axhline(1, color="#222222", linestyle="--", linewidth=1)
         ax.set_xticks(x, subset["weather_bin"], rotation=35, ha="right")
         ax.set_ylabel("Observed / expected")
         ax.set_title(spec.title)
         ax.grid(axis="y", alpha=0.2)
-        reliable_high = high[reliable & np.isfinite(high)]
         finite_y = y[np.isfinite(y)]
         ax.set_ylim(
             0,
             max(
                 1.5,
-                reliable_high.max(initial=1.2) * 1.12,
                 finite_y.max(initial=1.2) * 1.12,
             ),
         )
@@ -299,9 +351,13 @@ def plot_sensitivity(results: pd.DataFrame, figure_dir: Path) -> None:
         )
         & results["analysis_season"].eq("All seasons")
     ]
+    display_specs = [
+        next(spec for spec in VARIABLES if spec.variable == variable)
+        for variable in ("f", "fg", "fg_minus_f")
+    ]
     colors = {10: "#287271", 20: "#C7522A", 30: "#5B5F97"}
     fig, axes = plt.subplots(3, 1, figsize=(12.5, 13), constrained_layout=True)
-    for ax, spec in zip(axes, VARIABLES, strict=True):
+    for ax, spec in zip(axes, display_specs, strict=True):
         for radius in RADII:
             subset = data[
                 data["variable"].eq(spec.variable) & data["radius_km"].eq(radius)
@@ -372,20 +428,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Station-frequency-adjusted wind risk using cleaned 10-minute data."
     )
-    parser.add_argument("--accidents", type=Path, default=DEFAULT_ACCIDENTS)
-    parser.add_argument("--frequency", type=Path, default=DEFAULT_FREQUENCY)
-    parser.add_argument("--results", type=Path, default=DEFAULT_RESULTS)
-    parser.add_argument("--details", type=Path, default=DEFAULT_DETAILS)
-    parser.add_argument("--coverage", type=Path, default=DEFAULT_COVERAGE)
-    parser.add_argument("--notes", type=Path, default=DEFAULT_NOTES)
-    parser.add_argument("--figures", type=Path, default=DEFAULT_FIGURES)
+    parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
+    parser.add_argument("-f", "--frequency", type=Path, default=DEFAULT_FREQUENCY)
+    parser.add_argument("-r", "--results", type=Path, default=DEFAULT_RESULTS)
+    parser.add_argument("-d", "--details", type=Path, default=DEFAULT_DETAILS)
+    parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
+    parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
+    parser.add_argument("-g", "--figures", type=Path, default=DEFAULT_FIGURES)
     parser.add_argument(
         "--diagnostic-figures",
         action="store_true",
         help="Also write the four detailed diagnostic plots.",
     )
-    parser.add_argument("--start")
-    parser.add_argument("--end")
+    parser.add_argument("-s", "--start")
+    parser.add_argument("-e", "--end")
     args = parser.parse_args()
 
     accidents, frequency = load_data(
@@ -396,7 +452,7 @@ def main() -> None:
     coverage: list[dict[str, object]] = []
     for spec in VARIABLES:
         for radius in RADII:
-            for severity in SEVERITIES:
+            for severity in SAMPLES:
                 for analysis_season in ["All seasons", *SEASON_ORDER]:
                     result, detail, cover = one_analysis(
                         accidents,
@@ -410,9 +466,9 @@ def main() -> None:
                     details.append(detail)
                     coverage.append(cover)
 
-    # Tighter accident-to-observation timing is retained as a primary-gust
-    # sensitivity only. The main analysis remains the nearest observation on
-    # the 10-minute grid, whose maximum possible difference is five minutes.
+    # Tighter accident-to-observation timing is retained as a gust-only check.
+    # The main analysis remains the nearest observation on the 10-minute grid,
+    # whose maximum possible difference is five minutes.
     gust_spec = next(spec for spec in VARIABLES if spec.variable == "fg")
     for max_time in TIME_SENSITIVITY_MINUTES:
         result, detail, cover = one_analysis(
@@ -450,7 +506,7 @@ def main() -> None:
             result_table,
             args.figures,
             "severity_group",
-            list(SEVERITIES),
+            list(SAMPLES),
             "wind_risk_gust_by_severity.png",
             "Maximum wind gust results by accident severity (20 km)",
         )
@@ -493,7 +549,7 @@ included.
 
 Primary specification
 ---------------------
-- Rural injury accidents, 2007-2024
+- Rural injury accidents, 2007-2025
 - Maximum station distance: 20 km
 - Variables: f, fg and max(fg-f, 0)
 - Background controlled by station, calendar year and season

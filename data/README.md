@@ -10,31 +10,35 @@ downloads the public Road Administration MapServer/6 reference file to
 `raw/traffic/reference/roads.geojson`. It is then used to locate daily PDF
 counters from their reported `stöð` value.
 
-`raw/` contains unchanged sources. `processed/` contains only canonical analysis
-inputs or expensive reusable caches. Readable tables and figures are under
-`reports/`; superseded intermediates are recoverable under
+`raw/` contains unchanged sources. `cache/` and `processed/` contain expensive,
+rebuildable intermediate data. `analysis/` contains the small, readable canonical
+files for routine inspection and advisor review; build them with
+`python -m src.export_tables`. Readable tables and figures are under `reports/`;
+superseded intermediates are recoverable under
 `archive/data_legacy_2026-07-22/`.
 
 ## Analysis A: frequency-standardized O/E
 
 Primary inputs:
 
-- `processed/accidents/rural_injury_accidents.parquet`
-- `processed/weather/wind_frequency_station_year_season.parquet`
-- `processed/accidents/oe_station_period_bins.parquet`
+- `analysis/accidents.csv`
+- `analysis/weather_frequency.csv`
+
+`processed/accidents/oe_station_period_bins.parquet` is the generated detailed
+calculation cache, not a hand-maintained input.
 
 The primary result standardizes within weather station, calendar year, and
 meteorological season. It does not use traffic. The separately labelled traffic
-sensitivity uses annual/seasonal road-section exposure from Analysis B. Daily
-PDF traffic is a further restricted 2019-2024 sensitivity only.
+comparison uses annual/seasonal road-section exposure from Analysis B. Daily
+PDF traffic is a further restricted 2019-2024 descriptive analysis only.
 
 ## Analysis B: road-section table and figures
 
 Primary inputs/output:
 
 - `processed/traffic/annual_road_section_exposure.csv`
-- `processed/weather/wind_frequency_road_period_2007_2024.parquet`
-- `processed/traffic/road_section_wind_panel_2007_2024.parquet`
+- `processed/weather/wind_frequency_road_period_2007_2025.parquet`
+- `processed/traffic/road_section_wind_panel_2007_2025.parquet`
 
 The panel unit is road section, year, official traffic period, wind variable,
 and wind bin. `f` and `fg` are separate rows. Readable mean-wind and gust tables,
@@ -44,9 +48,9 @@ same panel.
 ## 2025 status
 
 Raw 2025 accident, injury, and vehicle files are retained in `raw/accidents/`.
-The current canonical accident tables still end in 2024. Do not label an output
-2007-2025 until the 2025 files have passed the same coordinate, rural/urban,
-road, surface, severity, and weather matching pipeline.
+The canonical accident tables include 2025 after the same coordinate,
+rural/urban, road-link, severity, and weather-matching pipeline used for the
+earlier years. Daily-counter traffic remains 2019--2024.
 
 ## Local rebuild order
 

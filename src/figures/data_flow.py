@@ -63,7 +63,7 @@ def accident_figure() -> None:
     matched = int((study["weather_station_dist_km"].le(20) & study["f"].notna() & study["fg"].notna()).sum())
     flow(
         OUT / "accident_flow.png",
-        "Accident selection, 2007–2024",
+        "Accident selection, 2007–2025",
         [
             ("Valid accident time and coordinates", valid_coordinates, ""),
             ("Rural accidents", rural, f"{count(valid_coordinates - rural)} urban"),
@@ -76,16 +76,14 @@ def accident_figure() -> None:
 def weather_figure() -> None:
     audit = pd.read_csv(WEATHER_AUDIT)
     raw = int(audit.loc[audit.metric.eq("raw_10_minute_rows"), "value"].iloc[0])
-    nonwind = int(audit.loc[audit.metric.eq("station_year_without_wind_data"), "value"].iloc[0])
     retained = int(audit.loc[audit.metric.eq("clean_wind_rows"), "value"].iloc[0])
-    excluded = raw - nonwind - retained
+    excluded = raw - retained
     flow(
         OUT / "weather_flow.png",
         "Weather-data selection, 2007–2025",
         [
             ("Raw station-time records", raw, ""),
-            ("Wind-capable station-years", raw - nonwind, f"{count(nonwind)} from station-years without wind data"),
-            ("Clean wind observations", retained, f"{count(excluded)} excluded by wind-quality rules"),
+            ("Clean wind observations", retained, f"{count(excluded)} without usable wind or excluded by wind-quality rules"),
         ],
     )
 
@@ -102,7 +100,7 @@ def traffic_figure() -> None:
             ("Road-periods with nearby wind", int(road["periods_with_wind_frequency"]), f"{count(int(road["road_section_year_traffic_periods"] - road["periods_with_wind_frequency"]))} without nearby clean wind"),
         ],
     )
-    axes[0].set_title("Annual traffic exposure: road-section sensitivity analysis", loc="left", fontsize=11, weight="bold", color=TEXT)
+    axes[0].set_title("Annual traffic exposure: road-section comparison", loc="left", fontsize=11, weight="bold", color=TEXT)
     draw_flow(
         axes[1],
         [

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 from pathlib import Path
 from zipfile import ZipFile
@@ -228,7 +229,7 @@ def coverage_summary(exposure: pd.DataFrame) -> pd.DataFrame:
     accidents["matched_annual_exposure"] = list(zip(accidents["year"], accidents["road_section_norm"]))
     accidents["matched_annual_exposure"] = accidents["matched_annual_exposure"].isin(keys)
     rows = []
-    for first_year, last_year in [(2007, 2024), (2019, 2024)]:
+    for first_year, last_year in [(2007, 2025), (2019, 2024)]:
         subset = accidents[accidents["year"].between(first_year, last_year)].copy()
         groups = {
             "all": subset,
@@ -254,14 +255,23 @@ def coverage_summary(exposure: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-i", "--input-dir", type=Path, default=RAW_DIR)
+    parser.add_argument("-o", "--output", type=Path, default=OUT_CSV)
+    parser.add_argument("-n", "--notes", type=Path, default=OUT_NOTES)
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     historical = [
         path
-        for path in HISTORICAL_RAW_DIR.glob("*")
+        for path in args.input_dir.glob("*")
         if path.suffix.lower() in {".xls", ".xlsx"}
         and re.search(r"(?:umferd|umf)_\d{4}", path.name)
     ]
-    current = [*RAW_DIR.glob("umferd_*.xlsx"), *RAW_DIR.glob("traffic_*.xlsx")]
+    current = [*args.input_dir.glob("umferd_*.xlsx"), *args.input_dir.glob("traffic_*.xlsx")]
     # Prefer the current standardized copy if the same calendar year exists in
     # both source directories (2018 is historical only in the present project).
     by_year: dict[int, Path] = {}
@@ -271,13 +281,13 @@ def main() -> None:
             by_year[year] = path
     files = [by_year[year] for year in sorted(by_year)]
     if not files:
-        raise SystemExit(f"No annual traffic workbooks found in {RAW_DIR}")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    OUT_NOTES.parent.mkdir(parents=True, exist_ok=True)
+        raise SystemExit(f"No annual traffic workbooks found in {args.input_dir}")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.notes.parent.mkdir(parents=True, exist_ok=True)
 
     exposure = pd.concat([parse_workbook(path) for path in files], ignore_index=True)
     exposure = exposure.sort_values(["year", "road_section"])
-    exposure.to_csv(OUT_CSV, index=False)
+    exposure.to_csv(args.output, index=False)
 
     yearly = (
         exposure.groupby("year", as_index=False)
@@ -292,11 +302,11 @@ def main() -> None:
     notes = [
         "Annual Road-Section Exposure Notes",
         "==================================",
-        f"Input directory: {RAW_DIR}",
+        f"Input directory: {args.input_dir}",
         f"Workbooks parsed: {len(files)}",
         f"Rows parsed: {len(exposure):,}",
         f"Unique road sections: {exposure['road_section'].nunique():,}",
-        f"Output: {OUT_CSV}",
+        f"Output: {args.output}",
         "",
         "Method:",
         "The parser reads the weighted road-number-order sheet from each annual Vegagerdin workbook.",
@@ -311,7 +321,7 @@ def main() -> None:
         "Direct accident-to-exposure coverage:",
         coverage.to_string(index=False),
     ]
-    OUT_NOTES.write_text("\n".join(notes) + "\n", encoding="utf-8")
+    args.notes.write_text("\n".join(notes) + "\n", encoding="utf-8")
     print("\n".join(notes))
 
 

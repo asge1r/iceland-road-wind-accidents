@@ -15,17 +15,24 @@ small results. Raw and processed data remain on each researcher's computer.
 | Road geography | [Road Administration MapServer](https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer) | `data/raw/traffic/reference/` | Road geometry and official start/end stations. |
 | Urban boundaries | [Statistics Iceland WFS](https://gis.is/geoserver/Hagstofan/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Hagstofan:thettbylisstadir&outputFormat=application/json) | `data/raw/accidents/` | Urban-area polygons used to classify accident coordinates. |
 
-## Canonical local files
+## Canonical analysis files
+
+`data/analysis/` is the compact layer for routine inspection, data analysis,
+and advisor review. It is generated with `python -m src.export_tables` and is
+not committed because it is derived from authorised local data deliveries.
 
 | File | Unit | Key columns used |
 |---|---|---|
-| `processed/accidents/rural_injury_accidents.parquet` | One rural injury accident | `nid`, time, coordinates, injury code, accident type, road section, station, distance, `f`, `fg`. |
-| `processed/weather/weather_10min_clean.parquet` | One station and 10-minute time | station, time, `f`, `fg`, `t`. |
-| `processed/weather/stations.csv` | One weather station | station, name, latitude, longitude, start, end. |
-| `processed/weather/wind_frequency_station_year_season.parquet` | Station, year, season, and wind interval | wind frequency denominator for O/E. |
-| `processed/traffic/annual_road_section_exposure.csv` | Road section and year | road section, length, ADU, SDU, VDU, vehicle-kilometres. |
-| `processed/traffic/daily_traffic_weather.parquet` | Counter site and date | count, coordinates, location method, matched station, distance, daytime `f` and `fg`. |
+| `analysis/accidents.csv` | One rural injury accident | identifier, time, injury code, accident-type code, vehicle count, weather-station identifier, match distance/time difference, `f`, and `fg`. Coordinates and detailed matching audit fields remain in `processed/`. |
+| `analysis/weather_frequency.csv` | Station, year, season, wind variable, and wind bin | Tidy wind-bin counts and the matching denominator used as the O/E exposure table. `unit` distinguishes m/s variables from the unitless gust factor. |
+| `analysis/stations.csv` | One weather station | station, name, latitude, longitude. |
+| `analysis/annual_traffic.csv` | Road section and year | road section, length, ADU, SDU, and VDU. |
+| `analysis/daily_traffic.csv` | Counter site and date | daily count, road section, location method, weather-station match, daytime `f`, and daytime `fg`. |
+| `analysis/daily.txt` | One counter followed by daily records | A readable, grouped view of the daily traffic file. |
+| `analysis/manifest.csv` | One analysis file | record count, source cache, and available columns. |
 
-The primary O/E analysis uses the first four files and does not use traffic.
-Annual traffic is used for the restricted road-section sensitivity. Daily PDF
-traffic is a separate 2019--2024 travel-demand diagnostic.
+The primary O/E analysis uses `accidents.csv` and
+`weather_frequency.csv`; it does not use traffic. Mean wind speed `f` is its
+primary exposure and maximum gust `fg` is secondary. The daily-traffic script
+uses `daily_traffic.csv` and `annual_traffic.csv`. Source construction and the
+separate road-section comparison read larger local caches under `processed/`.

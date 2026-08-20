@@ -22,6 +22,13 @@ The raw delivery contains station-time records from stations that do not
 measure wind, for example precipitation and radiation stations. These are not
 interpreted as missing wind observations from the wind-monitoring network.
 
+## Wind variables used in O/E analysis
+
+Mean wind speed (`f`) in 5 m/s intervals is the primary exposure. Maximum gust (`fg`) is a
+secondary exposure. The gust factor is `fg / f` and is calculated only when
+`f >= 3 m/s`; this avoids an unstable ratio in calm conditions. It is a
+descriptive secondary analysis, not a replacement for mean wind speed.
+
 ## Accident sample
 
 The prepared accident dataset retains all valid registered accidents. Analysis
@@ -33,8 +40,8 @@ deleted from the canonical data because they can be used as a comparison group.
 
 PDF direction/lane channels (`fastnr`) at the same road-section and `stöð` are
 summed to one 24-hour counter-day total. The total is not divided into hourly
-traffic. It is compared with mean wind measured from 10:00 to 21:59, using the
-transparent assumption that this period contains 95% of daily traffic.
+traffic. It is compared with mean wind measured from 10:00 to 21:59. This is a
+daily association, not an estimate of traffic during that 12-hour window.
 
 Daily traffic O/E is standardised within counter, year, month and weekday. SDU,
 VDU and derived VHDU are retained as seasonal traffic references; they do not

@@ -9,6 +9,7 @@ __pycache__/
 /data/raw/
 /data/processed/
 /data/cache/
+/data/analysis/
 /data/external/
 
 # LaTeX build files
@@ -34,24 +35,23 @@ __pycache__/
 # reports remain local.
 !/reports/main/
 !/reports/main/figures/
-!/reports/main/figures/accident_selection.png
-!/reports/main/figures/accidents.png
-!/reports/main/figures/daily_traffic_wind.png
-!/reports/main/figures/gust_risk.png
+!/reports/main/figures/accident_flow.png
+!/reports/main/figures/accident_types.png
+!/reports/main/figures/daily_traffic_by_wind.png
+!/reports/main/figures/gust_oe.png
 !/reports/main/figures/mean_wind_oe.png
-!/reports/main/figures/severity.png
-!/reports/main/figures/traffic_adjustment.png
-!/reports/main/figures/traffic_selection.png
-!/reports/main/figures/vehicles.png
-!/reports/main/figures/weather_selection.png
-!/reports/main/figures/weather_gust_frequency.png
+!/reports/main/figures/traffic_flow.png
+!/reports/main/figures/traffic_sensitivity.png
+!/reports/main/figures/vehicles_per_accident.png
+!/reports/main/figures/weather_flow.png
+!/reports/main/figures/gust_distribution.png
 !/reports/main/tables/
-!/reports/main/tables/daily_traffic_wind.csv
-!/reports/main/tables/gust_coverage.csv
-!/reports/main/tables/gust_risk.csv
+!/reports/main/tables/daily_traffic_by_wind.csv
+!/reports/main/tables/mean_wind_oe.csv
 !/reports/main/tables/road_coverage.csv
-!/reports/main/tables/weather_audit.csv
-!/reports/main/tables/weather_gust_frequency.csv
+!/reports/main/tables/weather_match_coverage.csv
+!/reports/main/tables/weather_cleaning_audit.csv
+!/reports/main/tables/final_analysis_validation.md
 !/reports/thesis/
 !/reports/thesis/draft_en.tex
 !/reports/thesis/draft_en.pdf

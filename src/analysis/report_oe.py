@@ -12,37 +12,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.weather.frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
-
-
-DEFAULT_DETAILS = Path(
-    "data/processed/accidents/oe_station_period_bins.parquet"
+from src.weather.frequency import (
+    FG_UPPER_BOUNDS,
+    F_FIVE_MS_UPPER_BOUNDS,
+    F_UPPER_BOUNDS,
+    GUST_FACTOR_UPPER_BOUNDS,
+    labels,
 )
+
+
+DEFAULT_DETAILS = Path("data/cache/oe_station_period_bins.parquet")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 ACCIDENT_MATCH_COVERAGE = Path(
     "archive/generated_diagnostics/oe/accident_weather_coverage.csv"
 )
 DEFAULT_OUTPUT_DIR = Path("reports/main/tables")
 DEFAULT_FIGURE_DIR = Path("reports/main/figures")
-DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
+DEFAULT_SUBGROUP_OUTPUT = Path("reports/working/tables/mean_wind_subgroups.csv")
+DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_WEATHER_CLEANING = Path(
     "archive/generated_diagnostics/weather_cleaning_by_year.csv"
 )
 PRIMARY_MAX_TIME_DIFFERENCE_MINUTES = 5
+PRIMARY_VARIABLE = "f_5m"
 
 VARIABLE_LABELS = {
     "f": "Mean wind speed",
+    "f_5m": "Mean wind speed (5 m/s intervals)",
     "fg": "Maximum wind gust",
     "fg_minus_f": "Maximum gust minus mean wind speed",
+    "gust_factor": "Gust factor (fg / f; f ≥ 3 m/s)",
 }
-VARIABLE_COLORS = {"f": "#287271", "fg": "#C7522A", "fg_minus_f": "#5B5F97"}
+VARIABLE_COLORS = {"f": "#287271", "f_5m": "#287271", "fg": "#C7522A", "fg_minus_f": "#5B5F97", "gust_factor": "#7B5EA7"}
 VARIABLE_XLABELS = {
     "f": "Mean wind-speed interval, f (m/s)",
+    "f_5m": "Mean wind-speed interval, f (m/s)",
     "fg": "Maximum wind-gust interval, fg (m/s)",
     "fg_minus_f": "Maximum gust minus mean wind speed, fg - f (m/s)",
+    "gust_factor": "Gust factor, fg / f",
 }
 COARSE_BINS = {
     "f": {value: value for value in labels(F_UPPER_BOUNDS)},
+    "f_5m": {value: value for value in labels(F_FIVE_MS_UPPER_BOUNDS)},
     "fg": {value: value for value in labels(FG_UPPER_BOUNDS)},
     "fg_minus_f": {
         "0-2": "0-4",
@@ -57,11 +68,14 @@ COARSE_BINS = {
         "18-20": ">=12",
         ">=20": ">=12",
     },
+    "gust_factor": {value: value for value in labels(GUST_FACTOR_UPPER_BOUNDS)},
 }
 BIN_ORDER = {
     "f": labels(F_UPPER_BOUNDS),
+    "f_5m": labels(F_FIVE_MS_UPPER_BOUNDS),
     "fg": labels(FG_UPPER_BOUNDS),
     "fg_minus_f": ["0-4", "4-8", "8-12", ">=12"],
+    "gust_factor": labels(GUST_FACTOR_UPPER_BOUNDS),
 }
 FG_THREE_MS_BINS = {value: value for value in labels(FG_UPPER_BOUNDS)}
 FG_THREE_MS_ORDER = labels(FG_UPPER_BOUNDS)
@@ -79,6 +93,12 @@ def prepare_details(path: Path) -> pd.DataFrame:
         examples = details.loc[details["coarse_bin"].isna(), ["variable", "weather_bin"]]
         raise ValueError(f"Unmapped detailed wind bins: {examples.drop_duplicates().to_dict('records')}")
     return details
+
+
+def read_accidents(path: Path, columns: list[str]) -> pd.DataFrame:
+    if path.suffix == ".parquet":
+        return pd.read_parquet(path, columns=columns)
+    return pd.read_csv(path, usecols=columns)
 
 
 def cluster_bootstrap(
@@ -220,21 +240,10 @@ def plot_one_variable(data: pd.DataFrame, variable: str, path: Path) -> None:
     subset = data[data["variable"].eq(variable)].sort_values("bin_order")
     x = np.arange(len(subset))
     y = subset["relative_accident_frequency"].to_numpy(float)
-    low = subset["bootstrap_ci_95_low"].to_numpy(float)
-    high = subset["bootstrap_ci_95_high"].to_numpy(float)
     fig, ax = plt.subplots(figsize=(14.5, 7.2), constrained_layout=True)
     sparse = subset["observed_accidents"].lt(20).to_numpy()
     colors = np.where(sparse, "#A7A7A7", VARIABLE_COLORS[variable])
     bars = ax.bar(x, y, color=colors, width=0.72)
-    ax.errorbar(
-        x,
-        y,
-        yerr=np.vstack([np.maximum(0, y - low), np.maximum(0, high - y)]),
-        fmt="none",
-        ecolor="#222222",
-        capsize=4,
-        linewidth=1.2,
-    )
     ax.axhline(1, color="#222222", linestyle="--", linewidth=1)
     display_bins = subset["coarse_bin"].str.replace(">=", "≥", regex=False)
     ax.set_xticks(x, display_bins)
@@ -242,82 +251,98 @@ def plot_one_variable(data: pd.DataFrame, variable: str, path: Path) -> None:
     ax.set_ylabel("Observed / expected accidents")
     ax.set_title(f"Accident occurrence by {VARIABLE_LABELS[variable].lower()}")
     ax.grid(axis="y", alpha=0.2)
-    plot_top = max(1.5, np.nanmax(high) * 1.18)
+    plot_top = max(1.5, np.nanmax(y) * 1.18)
     ax.set_ylim(0, plot_top)
+    for bar, count in zip(bars, subset["observed_accidents"], strict=True):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            max(bar.get_height() * 0.55, plot_top * 0.06),
+            f"n={int(count)}",
+            ha="center",
+            va="center",
+            fontsize=9,
+            color="white",
+        )
     fig.savefig(path, dpi=240)
     plt.close(fig)
 
 
-def plot_primary_gust(data: pd.DataFrame, path: Path) -> None:
-    """Plot the primary O/E result with observed and expected accident counts."""
-    subset = data[data["variable"].eq("fg")].sort_values("bin_order")
+def plot_primary(data: pd.DataFrame, path: Path) -> None:
+    """Plot the primary mean-wind O/E result with the observed count on each bar."""
+    subset = data[data["variable"].eq(PRIMARY_VARIABLE)].sort_values("bin_order")
     x = np.arange(len(subset))
     ratio = subset["relative_accident_frequency"].to_numpy(float)
-    low = subset["bootstrap_ci_95_low"].to_numpy(float)
-    high = subset["bootstrap_ci_95_high"].to_numpy(float)
     observed = subset["observed_accidents"].to_numpy(float)
-    expected = subset["expected_accidents"].to_numpy(float)
     display_bins = subset["coarse_bin"].str.replace(">=", "≥", regex=False)
-
-    figure, axes = plt.subplots(
-        2,
-        1,
-        figsize=(14.5, 9.2),
-        sharex=True,
-        gridspec_kw={"height_ratios": [2.1, 1]},
-        constrained_layout=True,
-    )
-    ratio_axis, count_axis = axes
-    ratio_axis.bar(x, ratio, color="#C7522A", width=0.72)
-    ratio_axis.errorbar(
-        x,
-        ratio,
-        yerr=np.vstack([np.maximum(0, ratio - low), np.maximum(0, high - ratio)]),
-        fmt="none",
-        ecolor="#222222",
-        capsize=4,
-        linewidth=1.2,
-        label="95% bootstrap interval",
-    )
-    ratio_axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
-    ratio_axis.set_ylabel("Observed / expected accidents (O/E)")
-    ratio_axis.set_title("Relative occurrence of rural injury accidents by maximum wind gust")
-    ratio_axis.set_ylim(0, max(1.5, np.nanmax(high) * 1.14))
-    ratio_axis.grid(axis="y", alpha=0.2)
-    ratio_axis.legend(loc="upper left", frameon=False)
-
-    width = 0.36
-    observed_bars = count_axis.bar(
-        x - width / 2,
-        observed,
-        width,
-        color="#3F6C8C",
-        label="Observed accidents",
-    )
-    count_axis.bar(
-        x + width / 2,
-        expected,
-        width,
-        color="#A8C2D1",
-        label="Expected from local gust frequency",
-    )
-    count_axis.set_ylabel("Injury accidents (n)")
-    count_axis.set_xlabel("Maximum wind-gust interval, fg (m/s)")
-    count_axis.set_xticks(x, display_bins)
-    count_axis.grid(axis="y", alpha=0.2)
-    count_axis.legend(loc="upper right", frameon=False)
-    count_axis.set_ylim(0, observed.max() * 1.14)
-    label_offset = observed.max() * 0.018
-    for bar, value in zip(observed_bars, observed, strict=True):
-        count_axis.text(
+    figure, axis = plt.subplots(figsize=(14.5, 7.2), constrained_layout=True)
+    bars = axis.bar(x, ratio, color=VARIABLE_COLORS[PRIMARY_VARIABLE], width=0.72)
+    axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+    axis.set_ylabel("Observed / expected accidents (O/E)")
+    axis.set_xlabel("Mean wind-speed interval, f (m/s)")
+    axis.set_xticks(x, display_bins)
+    axis.set_title("Relative occurrence of rural injury accidents by mean wind speed")
+    axis.grid(axis="y", alpha=0.2)
+    plot_top = max(1.5, ratio.max() * 1.18)
+    axis.set_ylim(0, plot_top)
+    for bar, value in zip(bars, observed, strict=True):
+        axis.text(
             bar.get_x() + bar.get_width() / 2,
-            value + label_offset,
+            max(bar.get_height() * 0.55, plot_top * 0.06),
             f"n={int(value)}",
             ha="center",
-            va="bottom",
-            fontsize=8,
-            color="#263238",
+            va="center",
+            fontsize=10,
+            color="white",
         )
+    figure.savefig(path, dpi=240)
+    plt.close(figure)
+
+
+def plot_mean_wind_strata(
+    data: pd.DataFrame,
+    variable: str,
+    group_column: str,
+    groups: list[str],
+    fixed_column: str,
+    fixed_value: str,
+    title: str,
+    path: Path,
+) -> None:
+    subset = data[
+        data["variable"].eq(variable)
+        & data["radius_km"].eq(20)
+        & data["max_time_difference_minutes"].eq(PRIMARY_MAX_TIME_DIFFERENCE_MINUTES)
+        & data[fixed_column].eq(fixed_value)
+        & data[group_column].isin(groups)
+    ].copy()
+    y_max = max(1.5, subset["relative_accident_frequency"].max() * 1.18)
+    rows = int(np.ceil(len(groups) / 2))
+    figure, axes = plt.subplots(rows, 2, figsize=(14.5, 5.3 * rows), sharey=True, constrained_layout=True)
+    axes = np.atleast_1d(axes).ravel()
+    for axis, group in zip(axes, groups, strict=True):
+        panel = subset[subset[group_column].eq(group)].sort_values("bin_order")
+        x = np.arange(len(panel))
+        bars = axis.bar(x, panel["relative_accident_frequency"], color=VARIABLE_COLORS[variable], width=0.72)
+        axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+        axis.set_xticks(x, panel["coarse_bin"].str.replace(">=", "≥", regex=False))
+        axis.set_title(group)
+        axis.set_ylim(0, y_max)
+        axis.grid(axis="y", alpha=0.2)
+        for bar, count in zip(bars, panel["observed_accidents"], strict=True):
+            axis.text(
+                bar.get_x() + bar.get_width() / 2,
+                max(bar.get_height() * 0.55, y_max * 0.06),
+                f"n={int(count)}",
+                ha="center",
+                va="center",
+                fontsize=8,
+                color="white",
+            )
+    for axis in axes[len(groups):]:
+        axis.set_axis_off()
+    figure.supxlabel(VARIABLE_XLABELS[variable])
+    figure.supylabel("Observed / expected accidents (O/E)")
+    figure.suptitle(title)
     figure.savefig(path, dpi=240)
     plt.close(figure)
 
@@ -359,22 +384,12 @@ def plot_distribution_comparison(data: pd.DataFrame, path: Path) -> None:
     axes[1].legend(frameon=False, ncol=2)
 
     ratio = subset["relative_accident_frequency"].to_numpy(float)
-    low = subset["bootstrap_ci_95_low"].to_numpy(float)
-    high = subset["bootstrap_ci_95_high"].to_numpy(float)
     axes[2].bar(x, ratio, color=VARIABLE_COLORS["fg"])
-    axes[2].errorbar(
-        x,
-        ratio,
-        yerr=np.vstack([np.maximum(0, ratio - low), np.maximum(0, high - ratio)]),
-        fmt="none",
-        ecolor="#222222",
-        capsize=3,
-    )
     axes[2].axhline(1, color="#222222", linestyle="--", linewidth=1)
     axes[2].set_ylabel("Observed / expected injury accidents (O/E ratio)")
     axes[2].set_title("Wind-frequency-standardized relative accident frequency")
     axes[2].set_xlabel(VARIABLE_XLABELS["fg"])
-    axes[2].set_ylim(0, max(1.5, np.nanmax(high) * 1.12))
+    axes[2].set_ylim(0, max(1.5, np.nanmax(ratio) * 1.18))
 
     for axis in axes:
         axis.set_xticks(x, labels)
@@ -383,7 +398,7 @@ def plot_distribution_comparison(data: pd.DataFrame, path: Path) -> None:
     axes[1].tick_params(labelbottom=False)
     fig.suptitle(
         "Why local wind-frequency standardization changes the interpretation\n"
-        "Rural injury accidents, 2007–2024; traffic volume not included"
+        "Rural injury accidents, 2007–2025; traffic volume not included"
     )
     fig.savefig(path, dpi=240)
     plt.close(fig)
@@ -395,9 +410,9 @@ def write_weather_coverage(
     output_path: Path,
 ) -> pd.DataFrame:
     """Write one audit table for accident matching and weather cleaning."""
-    accidents = pd.read_parquet(
+    accidents = read_accidents(
         accidents_path,
-        columns=[
+        [
             "nid",
             "weather_station_id",
             "weather_station_dist_km",
@@ -425,7 +440,7 @@ def write_weather_coverage(
     accident_row(
         "rural_injury_accidents_in_scope",
         pd.Series(True, index=accidents.index),
-        "Primary accident population, 2007-2024.",
+        "Primary accident population, 2007-2025.",
     )
     accident_row(
         "valid_wind_within_10_km",
@@ -531,24 +546,14 @@ def plot_supporting(data: pd.DataFrame, path: Path) -> None:
         subset = data[data["variable"].eq(variable)].sort_values("bin_order")
         x = np.arange(len(subset))
         y = subset["relative_accident_frequency"].to_numpy(float)
-        low = subset["bootstrap_ci_95_low"].to_numpy(float)
-        high = subset["bootstrap_ci_95_high"].to_numpy(float)
         ax.bar(x, y, color=VARIABLE_COLORS[variable], width=0.72)
-        ax.errorbar(
-            x,
-            y,
-            yerr=np.vstack([np.maximum(0, y - low), np.maximum(0, high - y)]),
-            fmt="none",
-            ecolor="#222222",
-            capsize=4,
-        )
         ax.axhline(1, color="#222222", linestyle="--", linewidth=1)
         display_bins = subset["coarse_bin"].str.replace(">=", "≥", regex=False)
         ax.set_xticks(x, display_bins)
         ax.set_ylabel("Observed / expected")
         ax.set_title(VARIABLE_LABELS[variable])
         ax.grid(axis="y", alpha=0.2)
-        ax.set_ylim(0, max(1.5, np.nanmax(high) * 1.13))
+        ax.set_ylim(0, max(1.5, np.nanmax(y) * 1.18))
     axes[-1].set_xlabel("Wind interval (m/s)")
     fig.suptitle(
         "Supporting wind measures and rural injury accidents\n"
@@ -570,8 +575,8 @@ def write_thesis_outputs(
     def format_is(value: float, digits: int = 2) -> str:
         return f"{value:.{digits}f}".replace(".", ",")
 
-    gust = primary[primary["variable"].eq("fg")].sort_values("bin_order").copy()
-    thesis = gust[
+    primary_data = primary[primary["variable"].eq(PRIMARY_VARIABLE)].sort_values("bin_order").copy()
+    thesis = primary_data[
         [
             "coarse_bin",
             "observed_accidents",
@@ -583,7 +588,7 @@ def write_thesis_outputs(
         ]
     ].rename(
         columns={
-            "coarse_bin": "wind_gust_interval_ms",
+            "coarse_bin": "mean_wind_interval_ms",
             "relative_accident_frequency": "observed_expected_ratio",
             "bootstrap_ci_95_low": "station_bootstrap_ci_95_low",
             "bootstrap_ci_95_high": "station_bootstrap_ci_95_high",
@@ -599,26 +604,50 @@ def write_thesis_outputs(
     thesis["sparse_bin_fewer_than_20_accidents"] = thesis[
         "observed_accidents"
     ].lt(20)
-    thesis.to_csv(output_dir / "gust_oe.csv", index=False)
-    display = thesis.rename(
-        columns={
-            "wind_gust_interval_ms": "Wind gust (m/s)",
-            "observed_accidents": "Observed",
-            "expected_accidents": "Expected",
-            "observed_expected_ratio": "Observed/expected",
-            "station_bootstrap_ci_95_low": "95% CI low",
-            "station_bootstrap_ci_95_high": "95% CI high",
-        }
-    )
+    thesis.to_csv(output_dir / "mean_wind_oe.csv", index=False)
+    for variable, filename, interval_column in [
+        ("f", "mean_wind_3m_oe.csv", "mean_wind_interval_ms"),
+        ("fg", "gust_oe.csv", "maximum_gust_interval_ms"),
+        ("gust_factor", "gust_factor_oe.csv", "gust_factor_interval"),
+    ]:
+        secondary = primary[primary["variable"].eq(variable)].sort_values("bin_order")[
+            [
+                "coarse_bin",
+                "observed_accidents",
+                "expected_accidents",
+                "relative_accident_frequency",
+                "bootstrap_ci_95_low",
+                "bootstrap_ci_95_high",
+                "bootstrap_probability_above_1",
+            ]
+        ].rename(
+            columns={
+                "coarse_bin": interval_column,
+                "relative_accident_frequency": "observed_expected_ratio",
+                "bootstrap_ci_95_low": "station_bootstrap_ci_95_low",
+                "bootstrap_ci_95_high": "station_bootstrap_ci_95_high",
+            }
+        )
+        secondary["expected_accidents"] = secondary["expected_accidents"].round(1)
+        for column in [
+            "observed_expected_ratio",
+            "station_bootstrap_ci_95_low",
+            "station_bootstrap_ci_95_high",
+        ]:
+            secondary[column] = secondary[column].round(2)
+        secondary["sparse_bin_fewer_than_20_accidents"] = secondary[
+            "observed_accidents"
+        ].lt(20)
+        secondary.to_csv(output_dir / filename, index=False)
     latex_lines = [
         r"\begin{tabular}{lrrrrr}",
         r"\toprule",
-        r"Wind gust (m/s) & Observed & Expected & Observed/expected & 95\% CI low & 95\% CI high \\",
+        r"Mean wind speed (m/s) & Observed & Expected & Observed/expected & 95\% CI low & 95\% CI high \\",
         r"\midrule",
     ]
     for row in thesis.itertuples(index=False):
         interval = (
-            r"$\geq 36$" if row.wind_gust_interval_ms == ">=36" else row.wind_gust_interval_ms
+            r"$\geq 25$" if row.mean_wind_interval_ms == ">=25" else row.mean_wind_interval_ms
         )
         latex_lines.append(
             f"{interval} & {int(row.observed_accidents)} & "
@@ -629,12 +658,12 @@ def write_thesis_outputs(
     latex_lines.extend([r"\bottomrule", r"\end{tabular}"])
     diagnostic_dir = Path("archive/generated_diagnostics")
     diagnostic_dir.mkdir(parents=True, exist_ok=True)
-    (diagnostic_dir / "gust_risk.tex").write_text(
+    (diagnostic_dir / "mean_wind_risk.tex").write_text(
         "\n".join(latex_lines) + "\n", encoding="utf-8"
     )
 
     primary_coverage = risk_coverage[
-        risk_coverage["variable"].eq("fg")
+        risk_coverage["variable"].eq(PRIMARY_VARIABLE)
         & risk_coverage["max_time_difference_minutes"].eq(
             PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
         )
@@ -654,7 +683,7 @@ def write_thesis_outputs(
         output_dir / "weather_match_coverage.csv", index=False
     )
 
-    high_bins = {"f": ">=24", "fg": ">=36", "fg_minus_f": ">=12"}
+    high_bins = {"f": ">=24", "f_5m": ">=25", "fg": ">=36", "fg_minus_f": ">=12", "gust_factor": ">=3"}
     sensitivity_rows = []
     for variable, coarse_bin in high_bins.items():
         selected = radius[
@@ -747,15 +776,15 @@ def write_thesis_outputs(
         diagnostic_dir / "gust_bins.csv", index=False
     )
 
-    fg_rows = gust.set_index("coarse_bin")
-    high = fg_rows.loc[">=36"]
+    primary_rows = primary_data.set_index("coarse_bin")
+    high = primary_rows.loc[">=25"]
     thesis_text = f"""# Suggested method and results text
 
 ## Method
 
-Rural injury accidents in 2007–2024 were matched to the nearest valid
+Rural injury accidents in 2007–2025 were matched to the nearest valid
 10-minute wind observation within 20 km. For each weather station, calendar
-year, and season, the observed number of accidents in each gust interval was
+year, and season, the observed number of accidents in each mean-wind interval was
 compared with the expected number based on the share of all cleaned 10-minute
 observations in that interval. The pooled ratio is therefore the observed
 accident count divided by the expected count after standardization for local
@@ -765,14 +794,15 @@ Uncertainty was estimated with a weather-station-clustered bootstrap. Stations
 were sampled with replacement 5,000 times, and all observations and accidents
 associated with a station remained together in each sample. The 95% confidence
 limits were the 2.5th and 97.5th percentiles of the bootstrap distribution.
-Maximum gust was grouped into 3 m/s intervals from 0–3 through 33–36 m/s,
-with an open-ended interval for ≥36 m/s. Mean wind used 3 m/s intervals from
-0–3 through 21–24 m/s, with an open-ended interval for ≥24 m/s.
+Mean wind is grouped into 5 m/s intervals from 0–5 through 20–25 m/s, with an
+open-ended interval for ≥25 m/s. Maximum gust is reported as a secondary
+analysis in 3 m/s intervals from 0–3 through 33–36 m/s, with an open-ended
+interval for ≥36 m/s.
 
 ## Results
 
-The curve shows the observed/expected ratio for each 3 m/s gust interval.
-The strongest overrepresentation occurred at gusts ≥36 m/s, where
+The curve shows the observed/expected ratio for each 5 m/s mean-wind interval.
+The strongest overrepresentation occurred at mean wind speed ≥25 m/s, where
 {int(high['observed_accidents'])} accidents were observed compared with
 {high['expected_accidents']:.1f} expected. The ratio was
 {high['relative_accident_frequency']:.2f} (95% station-clustered confidence
@@ -790,7 +820,7 @@ relative to wind frequency, not risk per vehicle or vehicle-kilometre. Hourly
 traffic exposure can be incorporated later without changing this primary
 weather-standardization analysis.
 """
-    (diagnostic_dir / "gust_method.md").write_text(
+    (diagnostic_dir / "mean_wind_method.md").write_text(
         thesis_text, encoding="utf-8"
     )
 
@@ -803,6 +833,7 @@ def main() -> None:
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-o", "--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("-f", "--figure-dir", type=Path, default=DEFAULT_FIGURE_DIR)
+    parser.add_argument("-g", "--subgroup-output", type=Path, default=DEFAULT_SUBGROUP_OUTPUT)
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
     parser.add_argument(
         "-w", "--weather-cleaning", type=Path, default=DEFAULT_WEATHER_CLEANING
@@ -826,6 +857,8 @@ def main() -> None:
             scenarios.append((variable, 20, severity, "All seasons"))
         for season in ["Winter", "Spring", "Summer", "Fall"]:
             scenarios.append((variable, 20, "Injury accidents", season))
+    for vehicle_group in ["1 vehicle", "2 or more vehicles"]:
+        scenarios.append(("f", 20, vehicle_group, "All seasons"))
 
     for scenario_index, (variable, radius, severity, season) in enumerate(scenarios):
         result, draws = analyse_scenario(
@@ -884,6 +917,26 @@ def main() -> None:
         )
         & all_results["severity_group"].eq("Injury accidents")
     ].copy()
+
+    subgroup = all_results[
+        all_results["variable"].eq("f")
+        & all_results["radius_km"].eq(20)
+        & all_results["max_time_difference_minutes"].eq(
+            PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
+        )
+        & (
+            (
+                all_results["severity_group"].eq("Injury accidents")
+                & all_results["analysis_season"].isin(["Winter", "Spring", "Summer", "Fall"])
+            )
+            | (
+                all_results["severity_group"].isin(["1 vehicle", "2 or more vehicles"])
+                & all_results["analysis_season"].eq("All seasons")
+            )
+        )
+    ].copy()
+    args.subgroup_output.parent.mkdir(parents=True, exist_ok=True)
+    subgroup.to_csv(args.subgroup_output, index=False)
 
     supporting_dir = Path("archive/generated_diagnostics")
     supporting_dir.mkdir(parents=True, exist_ok=True)
@@ -944,14 +997,64 @@ def main() -> None:
         args.output_dir,
     )
 
-    plot_primary_gust(
+    plot_primary(
         primary,
-        args.figure_dir / "gust_oe.png",
+        args.figure_dir / "mean_wind_oe.png",
     )
     plot_one_variable(
         primary,
         "f",
-        supporting_dir / "mean_wind_accident_frequency.png",
+        args.figure_dir / "mean_wind_3m_oe.png",
+    )
+    plot_one_variable(
+        primary,
+        "fg",
+        args.figure_dir / "gust_oe.png",
+    )
+    plot_one_variable(
+        primary,
+        "gust_factor",
+        args.figure_dir / "gust_factor_oe.png",
+    )
+    plot_mean_wind_strata(
+        all_results,
+        "f_5m",
+        "analysis_season",
+        ["Winter", "Spring", "Summer", "Fall"],
+        "severity_group",
+        "Injury accidents",
+        "Mean wind O/E by season",
+        args.figure_dir / "mean_wind_by_season_oe.png",
+    )
+    plot_mean_wind_strata(
+        all_results,
+        "f_5m",
+        "severity_group",
+        ["1 vehicle", "2 or more vehicles"],
+        "analysis_season",
+        "All seasons",
+        "Mean wind O/E by number of vehicles involved",
+        args.figure_dir / "mean_wind_by_vehicle_group_oe.png",
+    )
+    plot_mean_wind_strata(
+        all_results,
+        "fg",
+        "analysis_season",
+        ["Winter", "Spring", "Summer", "Fall"],
+        "severity_group",
+        "Injury accidents",
+        "Maximum gust O/E by season",
+        args.figure_dir / "gust_by_season_oe.png",
+    )
+    plot_mean_wind_strata(
+        all_results,
+        "fg",
+        "severity_group",
+        ["1 vehicle", "2 or more vehicles"],
+        "analysis_season",
+        "All seasons",
+        "Maximum gust O/E by number of vehicles involved",
+        args.figure_dir / "gust_by_vehicle_group_oe.png",
     )
     plot_one_variable(
         primary,
@@ -997,7 +1100,7 @@ def main() -> None:
 ============================
 
 Input: {args.details}
-Primary population: rural injury accidents, 2007-2024
+Primary population: rural injury accidents, 2007-2025
 Primary station radius: 20 km
 Bootstrap resamples: {args.bootstrap_reps:,}
 Random seed: {args.seed}
@@ -1021,8 +1124,8 @@ The bootstrap addresses station clustering but does not correct traffic exposure
 non-random weather missingness, station-to-crash spatial error or multiple testing.
 The supporting outputs compare raw accident counts with the locally expected
 distribution, test 10/20/30 km radii, 0/2/5 minute timing, serious/fatal outcomes,
-4 m/s gust bins, mean wind speed, and fg-f. None of these replaces the primary
-20 km, <=5 minute, 2 m/s maximum-gust specification.
+gust intervals, and fg-f. None of these replaces the primary 20 km, <=5 minute,
+5 m/s mean-wind specification.
 
 Primary results
 ---------------

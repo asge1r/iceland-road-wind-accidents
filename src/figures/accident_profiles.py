@@ -1,5 +1,6 @@
 """Create simple English descriptive figures for the accident data."""
 
+import argparse
 from pathlib import Path
 import textwrap
 
@@ -13,7 +14,10 @@ import pandas as pd
 
 ALL_ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
 STUDY_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
-VEHICLES = Path("data/raw/accidents/vehicles_2007_2024.txt")
+VEHICLE_SOURCES = [
+    (Path("data/raw/accidents/vehicles_2007_2024.txt"), "nid", "taeki"),
+    (Path("data/raw/accidents/vehicles_2025.txt"), "NID", "Nr. Ökutækis"),
+]
 OUT_DATA = Path("reports/main/tables/accident_characteristics.csv")
 OUT_TYPE_AUDIT = Path("archive/generated_diagnostics/accident_types.csv")
 
@@ -47,8 +51,16 @@ def broad_accident_family(code: int) -> str:
 
 
 def add_vehicle_count(study: pd.DataFrame) -> pd.DataFrame:
-    vehicles = pd.read_csv(VEHICLES, sep="\t")
-    counts = vehicles.groupby("nid")["taeki"].nunique()
+    frames = []
+    for path, identifier, vehicle in VEHICLE_SOURCES:
+        if path.exists():
+            frame = pd.read_csv(path, sep="\t", usecols=[identifier, vehicle])
+            frames.append(frame.rename(columns={identifier: "nid", vehicle: "vehicle_id"}))
+    if not frames:
+        raise FileNotFoundError("No vehicle source file found")
+    vehicles = pd.concat(frames, ignore_index=True)
+    vehicles["nid"] = pd.to_numeric(vehicles["nid"], errors="coerce")
+    counts = vehicles.dropna(subset=["nid"]).groupby("nid")["vehicle_id"].nunique()
     output = study.join(counts.rename("vehicle_count"), on="nid")
     if output["vehicle_count"].isna().any():
         raise ValueError("Some study accidents have no matching vehicle record.")
@@ -194,7 +206,18 @@ def plot_severity(severity: pd.DataFrame, family: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-a", "--accidents", type=Path, default=STUDY_ACCIDENTS)
+    parser.add_argument("-o", "--output", type=Path, default=OUT_DATA)
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    global STUDY_ACCIDENTS, OUT_DATA
+    STUDY_ACCIDENTS = args.accidents
+    OUT_DATA = args.output
     family, vehicles, severity, tidy = prepare_data()
     OUT_DATA.parent.mkdir(parents=True, exist_ok=True)
     tidy.to_csv(OUT_DATA, index=False)

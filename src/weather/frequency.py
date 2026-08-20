@@ -25,20 +25,23 @@ DEFAULT_NOTES = Path(
     "archive/generated_diagnostics/wind_frequency_notes.txt"
 )
 DEFAULT_DISTRIBUTION_CSV = Path(
-    "archive/generated_diagnostics/gust_frequency.csv"
+    "reports/main/tables/gust_factor_distribution.csv"
 )
 DEFAULT_DISTRIBUTION_FIGURE = Path(
-    "archive/generated_diagnostics/gust_frequency.png"
+    "reports/main/figures/gust_factor_distribution.png"
 )
 
 FIRST_YEAR = 2007
 LAST_YEAR = 2025
 SEASONS = np.array(["Winter", "Spring", "Summer", "Fall"])
 F_UPPER_BOUNDS = np.arange(3, 25, 3, dtype=float)
+F_FIVE_MS_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25], dtype=float)
 FG_UPPER_BOUNDS = np.arange(3, 37, 3, dtype=float)
 FG_MINUS_F_UPPER_BOUNDS = np.array(
     [2, 4, 6, 8, 10, 12, 14, 16, 18, 20], dtype=float
 )
+GUST_FACTOR_MIN_MEAN_WIND = 3.0
+GUST_FACTOR_UPPER_BOUNDS = np.array([1.25, 1.5, 1.75, 2.0, 2.5, 3.0], dtype=float)
 
 
 def season_index(month: np.ndarray) -> np.ndarray:
@@ -67,14 +70,21 @@ def station_ids(parquet_file: pq.ParquetFile, row_groups: int) -> np.ndarray:
 
 def accumulate(
     parquet_file: pq.ParquetFile, row_groups: int, stations: np.ndarray
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
     years_count = LAST_YEAR - FIRST_YEAR + 1
     group_count = len(stations) * years_count * len(SEASONS)
     totals = np.zeros(group_count, dtype=np.int64)
     f_counts = np.zeros((group_count, len(F_UPPER_BOUNDS) + 1), dtype=np.int64)
+    f_five_ms_counts = np.zeros(
+        (group_count, len(F_FIVE_MS_UPPER_BOUNDS) + 1), dtype=np.int64
+    )
     fg_counts = np.zeros((group_count, len(FG_UPPER_BOUNDS) + 1), dtype=np.int64)
     difference_counts = np.zeros(
         (group_count, len(FG_MINUS_F_UPPER_BOUNDS) + 1), dtype=np.int64
+    )
+    gust_factor_totals = np.zeros(group_count, dtype=np.int64)
+    gust_factor_counts = np.zeros(
+        (group_count, len(GUST_FACTOR_UPPER_BOUNDS) + 1), dtype=np.int64
     )
     input_rows = 0
 
@@ -100,6 +110,7 @@ def accumulate(
         )
         totals += np.bincount(group, minlength=group_count)
         f_bin = np.searchsorted(F_UPPER_BOUNDS, f, side="right")
+        f_five_ms_bin = np.searchsorted(F_FIVE_MS_UPPER_BOUNDS, f, side="right")
         fg_bin = np.searchsorted(FG_UPPER_BOUNDS, fg, side="right")
         difference_bin = np.searchsorted(
             FG_MINUS_F_UPPER_BOUNDS, np.maximum(fg - f, 0), side="right"
@@ -108,6 +119,10 @@ def accumulate(
             group * f_counts.shape[1] + f_bin,
             minlength=f_counts.size,
         ).reshape(f_counts.shape)
+        f_five_ms_counts += np.bincount(
+            group * f_five_ms_counts.shape[1] + f_five_ms_bin,
+            minlength=f_five_ms_counts.size,
+        ).reshape(f_five_ms_counts.shape)
         fg_counts += np.bincount(
             group * fg_counts.shape[1] + fg_bin,
             minlength=fg_counts.size,
@@ -116,13 +131,31 @@ def accumulate(
             group * difference_counts.shape[1] + difference_bin,
             minlength=difference_counts.size,
         ).reshape(difference_counts.shape)
+        factor_valid = f >= GUST_FACTOR_MIN_MEAN_WIND
+        factor_group = group[factor_valid]
+        factor = fg[factor_valid] / f[factor_valid]
+        gust_factor_totals += np.bincount(factor_group, minlength=group_count)
+        factor_bin = np.searchsorted(GUST_FACTOR_UPPER_BOUNDS, factor, side="right")
+        gust_factor_counts += np.bincount(
+            factor_group * gust_factor_counts.shape[1] + factor_bin,
+            minlength=gust_factor_counts.size,
+        ).reshape(gust_factor_counts.shape)
         input_rows += len(table)
         if (row_group + 1) % 25 == 0 or row_group + 1 == row_groups:
             print(
                 f"row_groups={row_group + 1}/{row_groups} rows={input_rows:,}",
                 flush=True,
             )
-    return totals, f_counts, fg_counts, difference_counts, input_rows
+    return (
+        totals,
+        f_counts,
+        f_five_ms_counts,
+        fg_counts,
+        difference_counts,
+        gust_factor_totals,
+        gust_factor_counts,
+        input_rows,
+    )
 
 
 def make_long_table(
@@ -130,15 +163,20 @@ def make_long_table(
     station_names: pd.DataFrame,
     totals: np.ndarray,
     f_counts: np.ndarray,
+    f_five_ms_counts: np.ndarray,
     fg_counts: np.ndarray,
     difference_counts: np.ndarray,
+    gust_factor_totals: np.ndarray,
+    gust_factor_counts: np.ndarray,
 ) -> pd.DataFrame:
     years_count = LAST_YEAR - FIRST_YEAR + 1
     frames: list[pd.DataFrame] = []
-    for variable, counts, upper_bounds in (
-        ("f", f_counts, F_UPPER_BOUNDS),
-        ("fg", fg_counts, FG_UPPER_BOUNDS),
-        ("fg_minus_f", difference_counts, FG_MINUS_F_UPPER_BOUNDS),
+    for variable, counts, upper_bounds, variable_totals in (
+        ("f", f_counts, F_UPPER_BOUNDS, totals),
+        ("f_5m", f_five_ms_counts, F_FIVE_MS_UPPER_BOUNDS, totals),
+        ("fg", fg_counts, FG_UPPER_BOUNDS, totals),
+        ("fg_minus_f", difference_counts, FG_MINUS_F_UPPER_BOUNDS, totals),
+        ("gust_factor", gust_factor_counts, GUST_FACTOR_UPPER_BOUNDS, gust_factor_totals),
     ):
         group, bin_index = np.nonzero(counts)
         station_index = group // (years_count * len(SEASONS))
@@ -159,7 +197,7 @@ def make_long_table(
                 "bin_lower_ms": lower_bounds[bin_index],
                 "bin_upper_ms": upper_with_infinity[bin_index],
                 "measurement_count": counts[group, bin_index],
-                "total_measurements_in_period": totals[group],
+                "total_measurements_in_period": variable_totals[group],
             }
         )
         frame["frequency_pct"] = (
@@ -208,8 +246,10 @@ def make_wide_table(long: pd.DataFrame) -> pd.DataFrame:
         f"{variable}_{label.replace('>=', 'ge_').replace('-', '_')}_pct"
         for variable, bounds in (
             ("f", F_UPPER_BOUNDS),
+            ("f_5m", F_FIVE_MS_UPPER_BOUNDS),
             ("fg", FG_UPPER_BOUNDS),
             ("fg_minus_f", FG_MINUS_F_UPPER_BOUNDS),
+            ("gust_factor", GUST_FACTOR_UPPER_BOUNDS),
         )
         for label in labels(bounds)
     ]
@@ -219,23 +259,23 @@ def make_wide_table(long: pd.DataFrame) -> pd.DataFrame:
     return result[[*index, "total_measurements_in_period", *ordered_bins]]
 
 
-def write_pooled_gust_distribution(
+def write_pooled_gust_factor_distribution(
     frequency: pd.DataFrame,
     csv_path: Path,
     figure_path: Path,
 ) -> pd.DataFrame:
-    """Plot the pooled distribution of cleaned gust observations only.
+    """Plot the pooled distribution of cleaned gust-factor observations.
 
     Each valid 10-minute observation receives equal weight. Stations with more
     valid observations therefore contribute more than stations with gaps; no
     accident counts or traffic measurements enter this calculation.
     """
-    gust = frequency[frequency["variable"].eq("fg")].copy()
+    gust_factor = frequency[frequency["variable"].eq("gust_factor")].copy()
     key = ["station", "year", "season", "bin_label"]
-    if gust.duplicated(key).any():
-        raise ValueError("Wind frequency is not unique on station/year/season/bin")
+    if gust_factor.duplicated(key).any():
+        raise ValueError("Gust-factor frequency is not unique on station/year/season/bin")
     distribution = (
-        gust.groupby(
+        gust_factor.groupby(
             ["bin_label", "bin_lower_ms", "bin_upper_ms"],
             as_index=False,
             sort=False,
@@ -252,7 +292,7 @@ def write_pooled_gust_distribution(
     distribution["frequency_pct"] = (
         100 * distribution["measurement_count"] / total
     )
-    distribution.insert(0, "wind_gust_interval_ms", distribution.pop("bin_label"))
+    distribution.insert(0, "gust_factor_interval", distribution.pop("bin_label"))
     distribution["frequency_pct"] = distribution["frequency_pct"].round(4)
 
     csv_path.parent.mkdir(parents=True, exist_ok=True)
@@ -261,18 +301,15 @@ def write_pooled_gust_distribution(
 
     x = np.arange(len(distribution))
     percentages = distribution["frequency_pct"].to_numpy(float)
-    fig, axis = plt.subplots(figsize=(14.5, 7.2), constrained_layout=True)
+    fig, axis = plt.subplots(figsize=(10.5, 5.8), constrained_layout=True)
     bars = axis.bar(x, percentages, color="#287271", width=0.72)
     axis.set_xticks(
         x,
-        distribution["wind_gust_interval_ms"].str.replace(">=", "≥", regex=False),
+        distribution["gust_factor_interval"].str.replace(">=", "≥", regex=False),
     )
-    axis.set_xlabel("Maximum wind gust, fg (m/s)")
-    axis.set_ylabel("Share of valid 10-minute observations (%)")
-    axis.set_title(
-        "Distribution of maximum wind gust across Icelandic weather stations\n"
-        "Pooled cleaned 10-minute observations, 2007–2025"
-    )
+    axis.set_xlabel("Gust factor, fg / f (unitless; f ≥ 3 m/s)")
+    axis.set_ylabel("Share of eligible 10-minute observations (%)")
+    axis.set_title("Gust-factor distribution in cleaned weather data")
     axis.grid(axis="y", alpha=0.2)
     axis.set_ylim(0, percentages.max() * 1.16)
     for bar, percentage in zip(bars, percentages, strict=True):
@@ -285,17 +322,6 @@ def write_pooled_gust_distribution(
             va="bottom",
             fontsize=8,
         )
-    axis.text(
-        0.99,
-        0.97,
-        f"Valid observations: {total:,}\n"
-        f"Weather stations: {gust['station'].nunique():,}\n"
-        "Each observation weighted equally; accidents not used",
-        transform=axis.transAxes,
-        ha="right",
-        va="top",
-        fontsize=9,
-    )
     fig.savefig(figure_path, dpi=240)
     plt.close(fig)
     return distribution
@@ -319,13 +345,13 @@ def main() -> None:
     parser.add_argument(
         "-d", "--distribution-only",
         action="store_true",
-        help="Create the weather-only pooled gust distribution from --output.",
+        help="Create the weather-only pooled gust-factor distribution from --output.",
     )
     parser.add_argument("-m", "--max-row-groups", type=int)
     args = parser.parse_args()
 
     if args.distribution_only:
-        distribution = write_pooled_gust_distribution(
+        distribution = write_pooled_gust_factor_distribution(
             pd.read_parquet(args.output),
             args.distribution_csv,
             args.distribution_figure,
@@ -345,11 +371,19 @@ def main() -> None:
     metadata = pd.read_csv(args.stations, usecols=["station", "name"]).drop_duplicates(
         "station"
     )
-    totals, f_counts, fg_counts, difference_counts, input_rows = accumulate(
-        parquet_file, row_groups, stations
-    )
+    (
+        totals,
+        f_counts,
+        f_five_ms_counts,
+        fg_counts,
+        difference_counts,
+        gust_factor_totals,
+        gust_factor_counts,
+        input_rows,
+    ) = accumulate(parquet_file, row_groups, stations)
     long = make_long_table(
-        stations, metadata, totals, f_counts, fg_counts, difference_counts
+        stations, metadata, totals, f_counts, f_five_ms_counts, fg_counts, difference_counts,
+        gust_factor_totals, gust_factor_counts,
     )
     wide = make_wide_table(long)
 
@@ -357,7 +391,7 @@ def main() -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
     long.to_parquet(args.output, index=False, compression="zstd")
     wide.to_csv(args.wide, index=False)
-    write_pooled_gust_distribution(
+    write_pooled_gust_factor_distribution(
         long, args.distribution_csv, args.distribution_figure
     )
     elapsed = time.perf_counter() - started
@@ -377,7 +411,7 @@ Seasons follow the existing project convention and use calendar year:
 - Fall: September-November
 
 Bins are left-closed and right-open. For example, 2-4 means 2 <= value < 4.
-The final bins are f >= 20 m/s, fg >= 30 m/s and fg-f >= 20 m/s. Small
+The final bins are f >= 24 m/s, f_5m >= 25 m/s, fg >= 36 m/s and fg-f >= 20 m/s. Small
 negative fg-f differences allowed by the 0.5 m/s cleaning tolerance are clipped
 to zero. Frequencies use all clean f/fg observations at the same station in that
 season and calendar year.

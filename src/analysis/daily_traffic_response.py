@@ -2,9 +2,8 @@
 
 The analytical unit is one physical traffic counter on one calendar day.  The
 input already contains a nearest usable weather-station match and daytime mean
-wind (10:00--21:59).  We assume that 95% of the reported 24-hour traffic count
-occurred in that daytime window.  This factor changes vehicle totals but cancels
-out of observed/expected ratios.
+wind (10:00--21:59). The reported 24-hour count is retained as the traffic
+outcome; it is not divided into estimated hourly traffic.
 
 Expected traffic is calculated within counter, year, month, and weekday.  Thus,
 the comparison controls directly for the local seasonal and weekly traffic
@@ -27,8 +26,8 @@ import numpy as np
 import pandas as pd
 
 
-INPUT = Path("data/processed/traffic/daily_traffic_weather.parquet")
-ANNUAL = Path("data/processed/traffic/annual_road_section_exposure.csv")
+INPUT = Path("data/analysis/daily_traffic.csv")
+ANNUAL = Path("data/analysis/annual_traffic.csv")
 DAY_PANEL = Path("data/processed/traffic/daily_traffic_wind_response.parquet")
 RESULTS = Path("reports/main/tables/daily_traffic_by_wind.csv")
 PERIOD_SUMMARY = Path("reports/main/tables/daily_traffic_period_summary.csv")
@@ -38,7 +37,6 @@ FIGURE_DETAILED = Path("reports/working/figures/daily_traffic_wind_detailed.png"
 FIGURE_PERIOD = Path("reports/working/figures/daily_traffic_wind_by_period.png")
 NOTES = Path("archive/generated_diagnostics/daily_traffic_wind_analysis_notes.md")
 
-DAYTIME_TRAFFIC_SHARE = 0.95
 F_UPPER_BOUNDS = np.arange(3, 34, 3, dtype=float)
 PERIOD_ORDER = ["VDU", "SDU", "VHDU"]
 PERIOD_MONTHS = {
@@ -74,7 +72,7 @@ def wind_labels() -> list[str]:
 def combine_high_wind_tail(panel: pd.DataFrame) -> pd.DataFrame:
     """Create the stable thesis display with a single >=24 m/s category.
 
-    The detailed 3 m/s bins remain available for diagnostic work.  The pooled
+    The detailed 3 m/s bins remain available for diagnostic work. The pooled
     tail has enough counter-days for a readable main result, whereas the
     individual 27--30 and 30--33 m/s bins are too sparse to interpret alone.
     """
@@ -125,23 +123,26 @@ def add_annual_traffic_references(panel: pd.DataFrame, annual_path: Path) -> pd.
 
 def prepare_panel(input_path: Path, annual_path: Path) -> pd.DataFrame:
     """Create the compact counter-day panel used in the wind-response analysis."""
-    source = pd.read_parquet(input_path)
+    source = (
+        pd.read_parquet(input_path)
+        if input_path.suffix == ".parquet"
+        else pd.read_csv(input_path)
+    )
     needed = [
-        "date", "year", "counter_site_id", "road_section", "station_id", "site_name",
-        "traffic_volume", "location_method", "location_is_estimated",
-        "weather_station_id", "weather_station_name", "weather_station_dist_km",
-        "f_daytime_mean", "fg_daytime_max", "observation_count",
+        "date", "counter_site_id", "road_section", "traffic_volume",
+        "location_method", "weather_station_id", "weather_station_dist_km",
+        "f_daytime_mean", "fg_daytime_max",
     ]
     missing = set(needed) - set(source.columns)
     if missing:
         raise ValueError(f"Daily traffic input is missing columns: {sorted(missing)}")
     panel = source[needed].copy()
     panel["date"] = pd.to_datetime(panel["date"])
+    panel["year"] = panel["date"].dt.year.astype("int16")
     panel["road_section"] = normalize_section(panel["road_section"])
     panel["month"] = panel["date"].dt.month.astype("int8")
     panel["weekday"] = panel["date"].dt.weekday.astype("int8")
     panel["traffic_period"] = traffic_period(panel["month"])
-    panel["estimated_daytime_traffic"] = DAYTIME_TRAFFIC_SHARE * panel["traffic_volume"]
 
     # The wind bins deliberately stop at 33 m/s. The separate daily diagnostic
     # has already excluded the identified anomalous Reykjavík station series;
@@ -162,11 +163,9 @@ def prepare_panel(input_path: Path, annual_path: Path) -> pd.DataFrame:
         baseline_median_daily_traffic=("traffic_volume", "median"),
     )
     panel = panel.merge(baseline, on=baseline_keys, how="left", validate="many_to_one")
-    panel["expected_daytime_traffic"] = (
-        DAYTIME_TRAFFIC_SHARE * panel["baseline_mean_daily_traffic"]
-    )
+    panel["expected_daily_traffic"] = panel["baseline_mean_daily_traffic"]
     panel["daily_traffic_oe"] = (
-        panel["estimated_daytime_traffic"] / panel["expected_daytime_traffic"]
+        panel["traffic_volume"] / panel["expected_daily_traffic"]
     )
     panel = add_annual_traffic_references(panel, annual_path)
     return panel
@@ -175,8 +174,8 @@ def prepare_panel(input_path: Path, annual_path: Path) -> pd.DataFrame:
 def bootstrap_ratios(data: pd.DataFrame, bins: list[str], replicates: int, seed: int) -> pd.DataFrame:
     """Counter-cluster bootstrap intervals for volume-weighted O/E traffic."""
     by_counter = data.groupby(["counter_site_id", "f_bin"], observed=True, as_index=False).agg(
-        observed=("estimated_daytime_traffic", "sum"),
-        expected=("expected_daytime_traffic", "sum"),
+        observed=("traffic_volume", "sum"),
+        expected=("expected_daily_traffic", "sum"),
     )
     counters = by_counter["counter_site_id"].drop_duplicates().to_numpy()
     rng = np.random.default_rng(seed)
@@ -206,20 +205,20 @@ def bootstrap_ratios(data: pd.DataFrame, bins: list[str], replicates: int, seed:
 
 
 def summarize(data: pd.DataFrame, *, scope: str, replicates: int, seed: int) -> pd.DataFrame:
-    """Summarize observed and expected daytime traffic in each wind bin."""
+    """Summarize observed and expected daily traffic in each wind bin."""
     data = data[data["wind_analysis_eligible"] & data["f_bin"].notna()].copy()
     categories = [str(value) for value in data["f_bin"].cat.categories]
     summary = data.groupby("f_bin", observed=True, as_index=False).agg(
         counter_days=("date", "size"),
         counters=("counter_site_id", "nunique"),
         weather_stations=("weather_station_id", "nunique"),
-        observed_daytime_vehicles=("estimated_daytime_traffic", "sum"),
-        expected_daytime_vehicles=("expected_daytime_traffic", "sum"),
+        observed_daily_vehicles=("traffic_volume", "sum"),
+        expected_daily_vehicles=("expected_daily_traffic", "sum"),
         median_daily_traffic_oe=("daily_traffic_oe", "median"),
         median_annual_period_daily_traffic=("annual_period_daily_traffic", "median"),
     )
     summary["observed_to_expected_traffic"] = (
-        summary["observed_daytime_vehicles"] / summary["expected_daytime_vehicles"]
+        summary["observed_daily_vehicles"] / summary["expected_daily_vehicles"]
     )
     summary["relative_traffic_pct"] = 100 * summary["observed_to_expected_traffic"]
     intervals = bootstrap_ratios(data, categories, replicates, seed)
@@ -227,7 +226,6 @@ def summarize(data: pd.DataFrame, *, scope: str, replicates: int, seed: int) -> 
     summary["relative_traffic_ci_95_low_pct"] = 100 * summary["oe_ci_95_low"]
     summary["relative_traffic_ci_95_high_pct"] = 100 * summary["oe_ci_95_high"]
     summary["scope"] = scope
-    summary["daytime_traffic_share_assumption"] = DAYTIME_TRAFFIC_SHARE
     return summary
 
 
@@ -266,18 +264,14 @@ def build_period_summary(panel: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_results(results: pd.DataFrame, path: Path, scope: str, title: str) -> None:
-    """Plot volume-weighted observed/expected traffic, with counter bootstrap CIs."""
+    """Plot volume-weighted observed/expected daily traffic."""
     data = results[results["scope"].eq(scope)].copy()
     x = np.arange(len(data))
     sparse = data["counters"].lt(20)
     colors = np.where(sparse, "#A8A8A8", "#287271")
     values = data["relative_traffic_pct"].to_numpy(float)
-    low = values - data["relative_traffic_ci_95_low_pct"].to_numpy(float)
-    high = data["relative_traffic_ci_95_high_pct"].to_numpy(float) - values
-
     fig, axis = plt.subplots(figsize=(11.4, 6.6))
     bars = axis.bar(x, values, width=0.72, color=colors)
-    axis.errorbar(x, values, yerr=[low, high], fmt="none", ecolor="#202020", capsize=3)
     axis.axhline(100, color="#202020", linestyle="--", linewidth=1.2)
     display_bins = data["f_bin"].astype("string").str.replace(">=", "≥", regex=False)
     axis.set_xticks(x, display_bins, rotation=0)
@@ -286,23 +280,25 @@ def plot_results(results: pd.DataFrame, path: Path, scope: str, title: str) -> N
     axis.set_title(title)
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)
-    ymax = max(112, float(data["relative_traffic_ci_95_high_pct"].max()) * 1.12)
+    ymax = max(110, float(data["relative_traffic_pct"].max()) * 1.08)
     axis.set_ylim(0, ymax)
     for bar, row in zip(bars, data.itertuples(index=False), strict=True):
         axis.text(
             bar.get_x() + bar.get_width() / 2,
-            min(ymax - 2, row.relative_traffic_pct + 1.5),
+            max(4, row.relative_traffic_pct - 3),
             f"n={row.counter_days:,}",
             ha="center",
-            va="bottom",
-            fontsize=8.5,
+            va="top",
+            fontsize=8.1,
+            color="white",
+            fontweight="bold",
         )
     fig.subplots_adjust(left=0.11, right=0.98, top=0.91, bottom=0.24)
     fig.text(
         0.5,
         0.035,
-        "Expected traffic: mean for the same counter, year, month, and weekday. "
-        "Daytime traffic is estimated as 95% of the 24-hour count; error bars are 95% counter-cluster bootstrap intervals.",
+        "Expected daily traffic: mean for the same counter, year, month, and weekday. "
+        "Wind is the mean from 10:00 to 21:59.",
         ha="center",
         fontsize=8.3,
         color="#444444",
@@ -326,10 +322,7 @@ def plot_period_results(results: pd.DataFrame, path: Path) -> None:
         x = np.arange(len(data))
         sparse = data["counters"].lt(20)
         values = data["relative_traffic_pct"].to_numpy(float)
-        low = values - data["relative_traffic_ci_95_low_pct"].to_numpy(float)
-        high = data["relative_traffic_ci_95_high_pct"].to_numpy(float) - values
         bars = axis.bar(x, values, width=0.72, color=np.where(sparse, "#A8A8A8", "#287271"))
-        axis.errorbar(x, values, yerr=[low, high], fmt="none", ecolor="#202020", capsize=3)
         axis.axhline(100, color="#202020", linestyle="--", linewidth=1.1)
         axis.set_title(titles[period], fontsize=11)
         axis.grid(axis="y", alpha=0.2)
@@ -339,7 +332,7 @@ def plot_period_results(results: pd.DataFrame, path: Path) -> None:
             axis.text(bar.get_x() + bar.get_width() / 2, min(ymax - 2, row.relative_traffic_pct + 1.2), f"n={row.counter_days:,}", ha="center", va="bottom", fontsize=7.5)
     axes[-1].set_xticks(np.arange(len(data)), data["f_bin"], rotation=0)
     axes[-1].set_xlabel("Daytime mean wind speed, 10:00–21:59 (m/s)")
-    fig.supylabel("Estimated daytime traffic relative to expected (%)")
+    fig.supylabel("Daily traffic relative to expected (%)")
     fig.supxlabel("")
     fig.text(
         0.5,
@@ -363,17 +356,15 @@ def write_notes(path: Path, panel: pd.DataFrame, results: pd.DataFrame) -> None:
 - Unit: one physical counter on one date.
 - Daily traffic rows: {len(panel):,}.
 - Rows with mean wind from 0 to <33 m/s: {len(eligible):,} ({100 * len(eligible) / len(panel):.2f}%).
-- Traffic is reported as a 24-hour count. For the daytime wind comparison,
-  estimated daytime traffic equals {DAYTIME_TRAFFIC_SHARE:.0%} of the daily count.
+- Traffic is reported as a 24-hour count. Wind is the mean from 10:00 to 21:59.
 
 ## Standardisation
 
 For each counter-day, expected traffic is the arithmetic mean daily count for
 the same counter, calendar year, month, and weekday. The reported ratio is the
-sum of observed estimated daytime vehicles divided by the sum of expected
-daytime vehicles in a wind bin. This is equivalent to comparing the observed
-share of traffic in the bin with its expected share after local calendar
-standardisation.
+sum of observed daily vehicles divided by the sum of expected daily vehicles in
+a wind bin. This compares the observed share of traffic in the bin with its
+expected share after local calendar standardisation.
 
 ## Seasonal references
 
@@ -387,7 +378,7 @@ standardisation.
 
 - `{DAY_PANEL}`: counter-day analysis data.
 - `{RESULTS}`: thesis display with the stable >=24 m/s tail.
-- `{DETAILED_RESULTS}`: retained 3 m/s-bin sensitivity output.
+- `{DETAILED_RESULTS}`: retained 3 m/s-bin diagnostic output.
 - `{PERIOD_SUMMARY}`: daily-count sample by traffic period.
 """
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -396,22 +387,22 @@ standardisation.
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build daily traffic O/E by mean wind.")
-    parser.add_argument("--input", type=Path, default=INPUT)
-    parser.add_argument("--annual", type=Path, default=ANNUAL)
-    parser.add_argument("--day-panel", type=Path, default=DAY_PANEL)
-    parser.add_argument("--results", type=Path, default=RESULTS)
-    parser.add_argument("--period-summary", type=Path, default=PERIOD_SUMMARY)
-    parser.add_argument("--figure", type=Path, default=FIGURE_ALL)
-    parser.add_argument("--detailed-results", type=Path, default=DETAILED_RESULTS)
-    parser.add_argument("--detailed-figure", type=Path, default=FIGURE_DETAILED)
+    parser.add_argument("-i", "--input", type=Path, default=INPUT)
+    parser.add_argument("-a", "--annual", type=Path, default=ANNUAL)
+    parser.add_argument("-d", "--day-panel", type=Path, default=DAY_PANEL)
+    parser.add_argument("-r", "--results", type=Path, default=RESULTS)
+    parser.add_argument("-p", "--period-summary", type=Path, default=PERIOD_SUMMARY)
+    parser.add_argument("-f", "--figure", type=Path, default=FIGURE_ALL)
+    parser.add_argument("-R", "--detailed-results", type=Path, default=DETAILED_RESULTS)
+    parser.add_argument("-F", "--detailed-figure", type=Path, default=FIGURE_DETAILED)
     parser.add_argument(
-        "--write-detailed",
+        "-w", "--write-detailed",
         action="store_true",
-        help="Also regenerate the detailed 3 m/s-bin sensitivity outputs.",
+        help="Also regenerate the detailed 3 m/s-bin diagnostic outputs.",
     )
-    parser.add_argument("--period-figure", type=Path, default=FIGURE_PERIOD)
-    parser.add_argument("--notes", type=Path, default=NOTES)
-    parser.add_argument("--bootstrap-replicates", type=int, default=1000)
+    parser.add_argument("-P", "--period-figure", type=Path, default=FIGURE_PERIOD)
+    parser.add_argument("-n", "--notes", type=Path, default=NOTES)
+    parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     args = parser.parse_args()
 
     panel = prepare_panel(args.input, args.annual)
