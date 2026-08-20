@@ -1,4 +1,4 @@
-"""Compare wind-frequency O/E with annual-traffic-standardised O/E."""
+"""Estimate rural injury-accident rates by wind interval and annual traffic."""
 
 from __future__ import annotations
 
@@ -15,10 +15,10 @@ import pandas as pd
 
 
 PANEL = Path("data/processed/traffic/road_section_wind_panel_2007_2025.parquet")
-ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
-OUTPUT = Path("reports/main/tables/traffic_adjusted_oe.csv")
-AUDIT = Path("reports/working/tables/traffic_adjusted_oe_audit.csv")
-FIGURE = Path("reports/main/figures/traffic_adjusted_oe.png")
+ACCIDENTS = Path("data/processed/accidents/rate_accidents_weather.parquet")
+OUTPUT = Path("reports/working/tables/estimated_crash_rate_by_wind.csv")
+AUDIT = Path("reports/working/tables/estimated_crash_rate_by_wind_audit.csv")
+FIGURE = Path("reports/working/figures/estimated_crash_rate_by_wind.png")
 
 PERIOD_BY_MONTH = {
     1: "VDU", 2: "VDU", 3: "VDU", 4: "VHDU", 5: "VHDU", 6: "SDU",
@@ -69,23 +69,22 @@ def load_panel(path: Path, variable: str) -> pd.DataFrame:
         * panel["frequency_pct"]
         / 100
     )
+    panel["positive_exposure"] = panel["estimated_vehicle_km"].gt(0)
     return panel
 
 
 def load_accidents(path: Path, panel: pd.DataFrame, variable: str) -> tuple[pd.DataFrame, dict[str, int]]:
     columns = [
-        "nid", "timestamp", "registered_road_section", "weather_station_id",
-        "weather_time_difference_minutes", "within_20km", "wind_available", "f", "fg",
+        "nid", "timestamp", "year", "road_section", "traffic_period",
+        "rate_weather_station_id", "weather_time_difference_minutes",
+        "rate_station_accident_distance_km", "f", "fg",
+        "vehicle_group",
     ]
     accidents = pd.read_parquet(path, columns=columns)
-    timestamp = pd.to_datetime(accidents["timestamp"], errors="coerce")
-    accidents["year"] = timestamp.dt.year
-    accidents["traffic_period"] = timestamp.dt.month.map(PERIOD_BY_MONTH)
-    accidents["road_section"] = normalize_section(accidents["registered_road_section"])
+    accidents["road_section"] = normalize_section(accidents["road_section"])
     valid = (
-        accidents["within_20km"].fillna(False)
-        & accidents["wind_available"].fillna(False)
-        & accidents["weather_time_difference_minutes"].le(5)
+        accidents["weather_time_difference_minutes"].le(5)
+        & accidents["rate_station_accident_distance_km"].le(20)
         & accidents["f"].between(0, 45, inclusive="left")
         & accidents["fg"].between(0, 65, inclusive="left")
         & accidents["fg"].add(0.5).ge(accidents["f"])
@@ -101,15 +100,18 @@ def load_accidents(path: Path, panel: pd.DataFrame, variable: str) -> tuple[pd.D
         suffixes=("_accident", "_section"),
         validate="many_to_one",
     )
-    same_station = matched["weather_station_id_accident"].eq(
-        matched["weather_station_id_section"]
+    same_station = matched["rate_weather_station_id"].eq(
+        matched["weather_station_id"]
     )
-    matched = matched[same_station].copy()
-    matched["wind_value"] = matched[variable]
+    if not same_station.all():
+        raise ValueError("Rate accidents and exposure panel do not use the same weather station")
+    wind_column = "f" if variable == "f_5m" else variable
+    matched["wind_value"] = matched[wind_column]
     return matched, {
-        "accidents_with_clean_primary_weather": int(valid.sum()),
-        "accidents_on_covered_road_section_period": int(len(same_station)),
-        "accidents_same_section_weather_station": int(same_station.sum()),
+        "rate_accidents_input": int(len(pd.read_parquet(path, columns=["nid"]))),
+        "rate_accidents_with_clean_shared_station_wind": int(valid.sum()),
+        "rate_accidents_on_annual_traffic_and_weather_coverage": int(len(matched)),
+        "shared_station_match_pct": round(100 * same_station.mean(), 1),
         "road_section_periods_with_accidents": int(
             matched[["year", "road_section", "traffic_period"]].drop_duplicates().shape[0]
         ),
@@ -117,20 +119,12 @@ def load_accidents(path: Path, panel: pd.DataFrame, variable: str) -> tuple[pd.D
 
 
 def calculate(panel: pd.DataFrame, accidents: pd.DataFrame) -> pd.DataFrame:
-    key = ["year", "road_section", "traffic_period"]
-    strata = accidents.groupby(key, as_index=False)["nid"].nunique().rename(
-        columns={"nid": "stratum_accidents"}
-    )
-    panel = panel.merge(strata, on=key, how="inner", validate="many_to_one")
     labels = (
         panel[["bin_label", "bin_lower_ms"]]
         .drop_duplicates()
         .sort_values("bin_lower_ms")
     )
     labels_list = labels["bin_label"].tolist()
-    panel["weather_expected_accidents"] = (
-        panel["stratum_accidents"] * panel["frequency_pct"] / 100
-    )
     edges = np.r_[labels["bin_lower_ms"].to_numpy(float), np.inf]
     accidents = accidents.copy()
     accidents["wind_bin"] = pd.cut(
@@ -143,9 +137,8 @@ def calculate(panel: pd.DataFrame, accidents: pd.DataFrame) -> pd.DataFrame:
     exposure = (
         panel.groupby("bin_label", as_index=False, observed=False)
         .agg(
-            weather_expected_accidents=("weather_expected_accidents", "sum"),
             estimated_vehicle_km=("estimated_vehicle_km", "sum"),
-            road_section_periods=("estimated_vehicle_km", "count"),
+            road_section_periods_with_nonzero_exposure=("positive_exposure", "sum"),
         )
     )
     result = labels.merge(exposure, on="bin_label", how="left").merge(
@@ -153,42 +146,39 @@ def calculate(panel: pd.DataFrame, accidents: pd.DataFrame) -> pd.DataFrame:
     )
     result["observed_accidents"] = result["observed_accidents"].fillna(0).astype(int)
     total_accidents = result["observed_accidents"].sum()
-    total_vehicle_km = result["estimated_vehicle_km"].sum()
-    result["traffic_expected_accidents"] = (
-        total_accidents * result["estimated_vehicle_km"] / total_vehicle_km
-    )
-    result["weather_only_oe"] = (
-        result["observed_accidents"] / result["weather_expected_accidents"]
-    )
-    result["annual_traffic_adjusted_oe"] = (
-        result["observed_accidents"] / result["traffic_expected_accidents"]
-    )
     result["rate_per_100m_vehicle_km"] = (
         result["observed_accidents"] / result["estimated_vehicle_km"] * 100_000_000
     )
+    baseline_rate = result.loc[result["bin_lower_ms"].eq(0), "rate_per_100m_vehicle_km"].iloc[0]
+    result["rate_ratio_vs_0_5_ms"] = result["rate_per_100m_vehicle_km"] / baseline_rate
     result["analysis_population"] = total_accidents
     return result
 
 
 def plot(result: pd.DataFrame, path: Path) -> None:
     x = np.arange(len(result))
-    width = 0.38
     fig, axis = plt.subplots(figsize=(11.4, 6.6))
-    axis.bar(x - width / 2, result["weather_only_oe"], width, color="#287271", label="Weather frequency only")
-    axis.bar(x + width / 2, result["annual_traffic_adjusted_oe"], width, color="#C7522A", label="Weather frequency and annual traffic")
-    axis.axhline(1, color="#202020", linestyle="--", linewidth=1.1)
+    rate = result["rate_per_100m_vehicle_km"].to_numpy(float)
+    bars = axis.bar(x, rate, color="#C7522A", width=0.72)
     axis.set_xticks(x, result["bin_label"].str.replace(">=", "≥", regex=False))
     axis.set_xlabel("Mean wind-speed interval, f (m/s)")
-    axis.set_ylabel("Observed / expected injury accidents")
-    axis.set_title("Road-section accident occurrence by mean wind speed")
+    axis.set_ylabel("Estimated injury accidents per 100 million vehicle-km")
+    axis.set_title("Estimated rural injury-accident rate by mean wind speed")
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)
-    ymax = max(1.25, float(result[["weather_only_oe", "annual_traffic_adjusted_oe"]].max().max()) * 1.22)
+    ymax = max(1.0, float(rate.max()) * 1.22)
     axis.set_ylim(0, ymax)
-    for xpos, row in zip(x, result.itertuples(index=False), strict=True):
-        axis.text(xpos, min(ymax - 0.05, max(row.weather_only_oe, row.annual_traffic_adjusted_oe) + 0.08), f"n={row.observed_accidents}", ha="center", va="bottom", fontsize=8.5)
-    axis.legend(frameon=False, loc="upper left")
-    fig.text(0.5, 0.02, "Annual traffic exposure uses ADU, SDU, VDU and a derived April-May/October-November value; traffic is allocated across wind intervals by local wind frequency.", ha="center", fontsize=8.2, color="#444444")
+    for bar, row in zip(bars, result.itertuples(index=False), strict=True):
+        axis.text(
+            bar.get_x() + bar.get_width() / 2,
+            max(bar.get_height() * 0.52, ymax * 0.06),
+            f"n={row.observed_accidents}",
+            ha="center",
+            va="center",
+            fontsize=9,
+            color="white",
+        )
+    fig.text(0.5, 0.02, "Vehicle-km use ADU, SDU, VDU and derived VHDU. Within each period, traffic is allocated across wind intervals according to local wind frequency.", ha="center", fontsize=8.2, color="#444444")
     fig.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=0.20)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=240)
@@ -199,7 +189,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-p", "--panel", type=Path, default=PANEL)
     parser.add_argument("-a", "--accidents", type=Path, default=ACCIDENTS)
-    parser.add_argument("-v", "--variable", choices=["f", "fg"], default="f")
+    parser.add_argument("-v", "--variable", choices=["f", "f_5m", "fg"], default="f_5m")
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     parser.add_argument("-u", "--audit", type=Path, default=AUDIT)
     parser.add_argument("-f", "--figure", type=Path, default=FIGURE)
@@ -207,6 +197,16 @@ def main() -> None:
     panel = load_panel(args.panel, args.variable)
     accidents, audit = load_accidents(args.accidents, panel, args.variable)
     result = calculate(panel, accidents)
+    audit.update(
+        {
+            "road_section_year_periods_with_annual_traffic_and_wind": int(
+                panel[["year", "road_section", "traffic_period"]].drop_duplicates().shape[0]
+            ),
+            "estimated_vehicle_km_all_wind_intervals": round(
+                float(result["estimated_vehicle_km"].sum()), 1
+            ),
+        }
+    )
     for path in [args.output, args.audit, args.figure]:
         path.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)

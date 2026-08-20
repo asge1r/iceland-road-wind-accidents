@@ -1,8 +1,8 @@
-"""Build the road-period cache for the restricted annual-traffic comparison.
+"""Build the road-period cache for the annual-traffic rate comparison.
 
 This script creates one local cache: road section × year × traffic period ×
-weather-station × wind interval. It performs no plotting and writes no
-thesis-facing result. The annual-traffic O/E script uses this cache later.
+weather-station × wind interval. It includes every road section with annual
+traffic, so it can provide an exposure denominator for estimated crash rates.
 """
 
 from __future__ import annotations
@@ -13,7 +13,6 @@ from pathlib import Path
 import pandas as pd
 
 from src.legacy.road_period_builder import (
-    DEFAULT_ALL_ACCIDENTS,
     DEFAULT_ANNUAL_TRAFFIC,
     DEFAULT_INJURY_ACCIDENTS,
     DEFAULT_LONG,
@@ -23,10 +22,10 @@ from src.legacy.road_period_builder import (
     DEFAULT_WEATHER,
     assign_nearest_valid_station,
     build_accident_counts,
+    build_all_annual_traffic_scope,
     build_base_table,
     build_long_table,
     build_period_wind_frequency,
-    build_section_scope,
     build_station_candidates,
     load_annual_traffic,
 )
@@ -35,7 +34,6 @@ from src.legacy.road_period_builder import (
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--annual-traffic", type=Path, default=DEFAULT_ANNUAL_TRAFFIC)
-    parser.add_argument("-A", "--all-accidents", type=Path, default=DEFAULT_ALL_ACCIDENTS)
     parser.add_argument("-i", "--injury-accidents", type=Path, default=DEFAULT_INJURY_ACCIDENTS)
     parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
     parser.add_argument("-p", "--period-wind-frequency", type=Path, default=DEFAULT_PERIOD_WIND_FREQUENCY)
@@ -47,7 +45,7 @@ def main() -> None:
     args = parser.parse_args()
 
     annual = load_annual_traffic(args.annual_traffic)
-    scope = build_section_scope(args.all_accidents, annual)
+    scope = build_all_annual_traffic_scope(annual)
     candidates = build_station_candidates(scope, args.section_midpoints, args.stations)
     counts, bin_counts, _ = build_accident_counts(args.injury_accidents, annual)
     if args.rebuild_period_wind_frequency or not args.period_wind_frequency.exists():

@@ -5,8 +5,8 @@ Run from the project root with::
     .venv/bin/python -m src.analyze
 
 The primary O/E and daily-traffic results use compact canonical inputs under
-``data/analysis``. The restricted annual-traffic comparison additionally reads
-its documented road-period cache under ``data/processed``.
+``data/analysis``. The estimated crash-rate analysis additionally reads its
+documented road-period cache under ``data/processed``.
 """
 
 import argparse
@@ -34,11 +34,14 @@ def main() -> None:
     run("src.export_tables", dry_run=args.dry_run)
     run("src.analysis.build_oe", dry_run=args.dry_run)
     run("src.analysis.report_oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
-    run("src.analysis.traffic_adjusted_oe", dry_run=args.dry_run)
+    run("src.analysis.estimated_crash_rate", dry_run=args.dry_run)
     if args.skip_daily_traffic:
         print("Skipping optional daily-counter result and traffic flow figure.")
+        run("src.analysis.stratified_crash_rate", "--skip-counter-informed", dry_run=args.dry_run)
     else:
         run("src.analysis.daily_traffic_response", dry_run=args.dry_run)
+        run("src.analysis.daily_traffic_wind_weights", dry_run=args.dry_run)
+        run("src.analysis.stratified_crash_rate", dry_run=args.dry_run)
         run("src.figures.data_flow", dry_run=args.dry_run)
     run("src.figures.accident_profiles", dry_run=args.dry_run)
     run("src.validate", dry_run=args.dry_run)

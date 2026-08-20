@@ -24,7 +24,12 @@ from pyproj import Transformer
 from scipy.stats import chi2
 from sklearn.neighbors import BallTree
 
-from src.weather.frequency import FG_UPPER_BOUNDS, F_UPPER_BOUNDS, labels
+from src.weather.frequency import (
+    FG_UPPER_BOUNDS,
+    F_FIVE_MS_UPPER_BOUNDS,
+    F_UPPER_BOUNDS,
+    labels,
+)
 
 
 DEFAULT_ANNUAL_TRAFFIC = Path(
@@ -162,6 +167,9 @@ def build_period_wind_frequency(
     f_counts = np.zeros(
         (group_count, len(F_UPPER_BOUNDS) + 1), dtype=np.int64
     )
+    f_five_ms_counts = np.zeros(
+        (group_count, len(F_FIVE_MS_UPPER_BOUNDS) + 1), dtype=np.int64
+    )
     fg_counts = np.zeros(
         (group_count, len(FG_UPPER_BOUNDS) + 1), dtype=np.int64
     )
@@ -196,10 +204,15 @@ def build_period_wind_frequency(
             )
             totals += np.bincount(group, minlength=group_count)
             f_bin = np.searchsorted(F_UPPER_BOUNDS, f, side="right")
+            f_five_ms_bin = np.searchsorted(F_FIVE_MS_UPPER_BOUNDS, f, side="right")
             fg_bin = np.searchsorted(FG_UPPER_BOUNDS, fg, side="right")
             f_counts += np.bincount(
                 group * f_counts.shape[1] + f_bin, minlength=f_counts.size
             ).reshape(f_counts.shape)
+            f_five_ms_counts += np.bincount(
+                group * f_five_ms_counts.shape[1] + f_five_ms_bin,
+                minlength=f_five_ms_counts.size,
+            ).reshape(f_five_ms_counts.shape)
             fg_counts += np.bincount(
                 group * fg_counts.shape[1] + fg_bin, minlength=fg_counts.size
             ).reshape(fg_counts.shape)
@@ -215,6 +228,7 @@ def build_period_wind_frequency(
     period_names = np.array(TRAFFIC_PERIOD_ORDER)
     for variable, counts, upper_bounds in (
         ("f", f_counts, F_UPPER_BOUNDS),
+        ("f_5m", f_five_ms_counts, F_FIVE_MS_UPPER_BOUNDS),
         ("fg", fg_counts, FG_UPPER_BOUNDS),
     ):
         group, bin_index = np.nonzero(counts)
@@ -285,6 +299,17 @@ def build_section_scope(accidents_path: Path, annual: pd.DataFrame) -> pd.DataFr
         & accidents["urban_rural"].eq("Rural")
     ].merge(keys, on=["year", "road_section"], how="inner", validate="many_to_one")
     return eligible[["road_section"]].drop_duplicates().sort_values("road_section")
+
+
+def build_all_annual_traffic_scope(annual: pd.DataFrame) -> pd.DataFrame:
+    """Return every road section represented in the annual-traffic file."""
+    return (
+        annual[["road_section"]]
+        .dropna()
+        .drop_duplicates()
+        .sort_values("road_section")
+        .reset_index(drop=True)
+    )
 
 
 def build_station_candidates(
@@ -514,13 +539,17 @@ def build_accident_counts(
     )
 
     bin_frames: list[pd.DataFrame] = []
-    for variable, upper_bounds in (("f", F_UPPER_BOUNDS), ("fg", FG_UPPER_BOUNDS)):
+    for variable, source_column, upper_bounds in (
+        ("f", "f", F_UPPER_BOUNDS),
+        ("f_5m", "f", F_FIVE_MS_UPPER_BOUNDS),
+        ("fg", "fg", FG_UPPER_BOUNDS),
+    ):
         bin_labels = labels(upper_bounds)
         edges = np.concatenate(([0.0], upper_bounds, [np.inf]))
         values = clean_wind.copy()
         values["variable"] = variable
         values["bin_label"] = pd.cut(
-            values[variable],
+            values[source_column],
             bins=edges,
             labels=bin_labels,
             right=False,
@@ -647,7 +676,7 @@ def build_long_table(
     base: pd.DataFrame, wind: pd.DataFrame, bin_counts: pd.DataFrame
 ) -> pd.DataFrame:
     wind = wind[
-        wind["year"].isin(YEARS) & wind["variable"].isin(["f", "fg"])
+        wind["year"].isin(YEARS) & wind["variable"].isin(["f", "f_5m", "fg"])
     ].copy()
     wind_columns = [
         "weather_station_id",

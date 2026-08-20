@@ -16,6 +16,8 @@ DEFAULT_MEAN_WIND = Path("reports/main/tables/mean_wind_oe.csv")
 DEFAULT_COVERAGE = Path("reports/main/tables/weather_match_coverage.csv")
 DEFAULT_SENSITIVITY = Path("archive/generated_diagnostics/gust_sensitivity.csv")
 DEFAULT_DAILY = Path("data/analysis/daily_traffic.csv")
+DEFAULT_RATE_ACCIDENTS = Path("data/processed/accidents/rate_accidents_weather.parquet")
+DEFAULT_RATE_MODEL = Path("reports/main/tables/stratified_crash_rate_ratio_by_wind.csv")
 DEFAULT_OUTPUT = Path("reports/main/tables/final_analysis_validation.md")
 
 
@@ -64,6 +66,8 @@ def validation_values(
     coverage_path: Path,
     sensitivity_path: Path,
     daily_path: Path,
+    rate_accidents_path: Path,
+    rate_model_path: Path,
 ) -> dict[str, object]:
     accidents = pd.read_parquet(accidents_path) if accidents_path.suffix == ".parquet" else pd.read_csv(accidents_path)
     require(len(accidents) > 0, "No rural injury accidents in canonical table")
@@ -115,6 +119,15 @@ def validation_values(
     require(len(daily) > 0, "No daily counter-days")
     require(daily_with_wind > 0, "No daily counter-days with wind")
 
+    rate_accidents = pd.read_parquet(rate_accidents_path)
+    require(rate_accidents["nid"].is_unique, "Rate-analysis accident IDs are not unique")
+    require(rate_accidents["weather_time_difference_minutes"].le(5).all(), "Rate-analysis weather time mismatch")
+    require(rate_accidents["rate_station_accident_distance_km"].le(20).all(), "Rate-analysis weather distance mismatch")
+    rate_model = pd.read_csv(rate_model_path)
+    require(int(rate_model["observed_accidents"].sum()) == len(rate_accidents), "Rate-model counts do not sum to matched accidents")
+    high_rate = rate_model.loc[rate_model["bin_label"].eq(">=25")].iloc[0]
+    require(float(high_rate["time_proportional_rate_ratio"]) > 1, "High-wind rate ratio is not above one")
+
     accident_types = pd.read_csv("reports/main/tables/accident_characteristics.csv")
     single = accident_types[
         accident_types["category"].eq("Single vehicle: run-off-road, rollover, fall, or other")
@@ -130,6 +143,8 @@ def validation_values(
         "radius_sensitivity": radius_sensitivity,
         "daily_rows": len(daily),
         "daily_with_wind": daily_with_wind,
+        "rate_accidents": len(rate_accidents),
+        "high_rate": high_rate,
         "single_vehicle_count": int(single["count"]),
         "single_vehicle_pct": float(single["percent"]),
     }
@@ -164,6 +179,7 @@ def write_report(values: dict[str, object], output: Path) -> None:
         "| Invalid `f`, invalid `fg`, or `fg + 0.5 < f` | 0, 0, 0 |",
         f"| Daily counter-days | {values['daily_rows']:,} |",
         f"| Daily counter-days with daytime wind | {values['daily_with_wind']:,} (95.37%) |",
+        f"| Rate-analysis accidents with shared station within 20 km and 5 minutes | {values['rate_accidents']:,} |",
         "",
         "## Primary O/E result",
         "",
@@ -172,6 +188,10 @@ def write_report(values: dict[str, object], output: Path) -> None:
         f"| >=25 m/s | {int(highest['observed_accidents'])} | {highest['expected_accidents']:.1f} | {highest['observed_expected_ratio']:.2f} | {highest['station_bootstrap_ci_95_low']:.2f}--{highest['station_bootstrap_ci_95_high']:.2f} |",
         "",
         f"Observed counts sum to {values['primary_accidents']:,}. Expected counts are rounded to one decimal in this table.",
+        "",
+        "## Stratified vehicle-kilometre result",
+        "",
+        f"The shared-station rate model retains {values['rate_accidents']:,} accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is {values['high_rate']['time_proportional_rate_ratio']:.2f} (95% CI {values['high_rate']['time_proportional_ci_95_low']:.2f}--{values['high_rate']['time_proportional_ci_95_high']:.2f}).",
         "",
         "## Distance sensitivity for fg >=36 m/s (secondary analysis)",
         "",
@@ -211,6 +231,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-s", "--sensitivity", type=Path, default=DEFAULT_SENSITIVITY)
     parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
+    parser.add_argument("-r", "--rate-accidents", type=Path, default=DEFAULT_RATE_ACCIDENTS)
+    parser.add_argument("-R", "--rate-model", type=Path, default=DEFAULT_RATE_MODEL)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args()
 
@@ -224,6 +246,8 @@ def main() -> None:
         args.coverage,
         args.sensitivity,
         args.daily,
+        args.rate_accidents,
+        args.rate_model,
     )
     write_report(values, args.output)
     print(f"Validated primary analysis; wrote {args.output}")

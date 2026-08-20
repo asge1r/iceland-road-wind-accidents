@@ -21,6 +21,7 @@ All checks below passed against the current local canonical files.
 | Invalid `f`, invalid `fg`, or `fg + 0.5 < f` | 0, 0, 0 |
 | Daily counter-days | 774,274 |
 | Daily counter-days with daytime wind | 738,424 (95.37%) |
+| Rate-analysis accidents with shared station within 20 km and 5 minutes | 4,958 |
 
 ## Primary O/E result
 
@@ -29,6 +30,10 @@ All checks below passed against the current local canonical files.
 | >=25 m/s | 16 | 5.9 | 2.70 | 0.97--5.49 |
 
 Observed counts sum to 6,192. Expected counts are rounded to one decimal in this table.
+
+## Stratified vehicle-kilometre result
+
+The shared-station rate model retains 4,958 accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is 4.52 (95% CI 2.77--7.37).
 
 ## Distance sensitivity for fg >=36 m/s (secondary analysis)
 
