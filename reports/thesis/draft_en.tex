@@ -1,0 +1,223 @@
+\documentclass[a4paper,11pt,twoside,BCOR=10mm]{scrbook}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\babelprovide[import]{icelandic}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage[pdfborder={0 0 0},hidelinks]{hyperref}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\convertcolorspec{RGB}{16,9,159}{rgb}\tmphiblue
+\definecolor{hiblue}{rgb}\tmphiblue
+\graphicspath{{../main/figures/}}
+
+\setlength{\parskip}{0.45\baselineskip}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{2em}
+\raggedbottom
+\setkomafont{captionlabel}{\itshape}
+\setkomafont{caption}{\itshape}
+\setkomafont{section}{\Large}
+\setcapwidth{\textwidth}
+\setcapindent{1em}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
+
+\def\thesisyear{2026}
+\def\thesismonth{August}
+\def\thesisauthor{Ásgeir Snær Magnússon}
+\def\thesistitle{Wind Speed and Rural Traffic Accidents in Iceland}
+\def\thesissubtitle{A Frequency-Adjusted Analysis, 2007--2025}
+\def\thesisshorttitle{Wind and Rural Traffic Accidents}
+\def\thesiscredits{30}
+\def\thesissubject{Software Engineering}
+\def\thesiskind{M.Sc.}
+\def\thesiskindformal{Master of Science}
+\def\thesisschool{School of Engineering and Natural Sciences}
+\def\thesisfaculty{Industrial Engineering, Mechanical Engineering and Computer Science}
+\def\thesisaddress{Dunhagi 5}
+\def\thesispostalcode{107}
+\def\thesistelephone{525 4000}
+\def\thesissupervisors{Kristján Jónasson \\ Guðmundur Freyr Úlfarsson}
+\def\thesisnrofsupervisors{2}
+\def\thesiscommittee{}
+\def\thesisexaminer{}
+\def\thesisISBN{}
+\def\thesisprinting{}
+\def\thesislicense{This thesis may not be copied in any form without author permission.}
+
+\newcommand{\removelinebreaks}[1]{%
+  \begingroup\def\\{}#1\endgroup}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\pagenumbering{Alph}
+
+\begin{titlepage}
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west, inner sep=0pt] at (current page.north west)
+      {\includegraphics[width=\paperwidth]{banner}};
+    \node(bottom)[shape=rectangle, fill=hiblue, minimum height=10mm,
+      minimum width=\paperwidth, anchor=south west] at (current page.south west) {};
+    \node[above=0.4cm of bottom] {\sffamily\small
+      \textcolor{hiblue}{\textbf{\MakeUppercase{Faculty of \thesisfaculty{}}}}};
+  \end{tikzpicture}
+
+  \enlargethispage{3cm}
+  \vspace*{3.5cm}
+  \begin{center}
+    \vspace*{\stretch{1.5}}
+    \huge\sffamily\bfseries \thesistitle{}
+
+    \normalfont\LARGE\sffamily \thesissubtitle{}
+
+    \vspace{\stretch{1.0}}
+    \normalfont\Large\sffamily \thesisauthor{}
+
+    \vspace*{\stretch{2.75}}
+    \thesismonth{}~\thesisyear{}
+
+    \vspace{\stretch{0.5}}
+    \normalfont\Large\sffamily \thesiskind{}~thesis \\
+    in \thesissubject{}
+  \end{center}
+
+  \newpage
+  \thispagestyle{empty}\mbox{}
+
+  \newpage
+  \thispagestyle{empty}
+  \begin{center}
+    \vspace*{\stretch{0.5}}
+    \Large\sffamily\bfseries \thesistitle{}
+
+    \normalfont\large\sffamily \thesissubtitle{}
+
+    \vspace*{\stretch{1.0}}
+    {\sffamily \thesisauthor{}}
+
+    \vspace*{\stretch{1.0}}
+    \normalsize \thesiscredits{}~ECTS thesis submitted in partial fulfillment of a \\
+    \textit{\thesiskindformal{}} degree in \thesissubject{}
+
+    \vspace*{\stretch{1.0}}
+    Supervisors \\
+    \thesissupervisors{}
+
+    \vspace*{\stretch{1.0}}
+    Faculty of \thesisfaculty{} \\
+    \thesisschool{} \\
+    University of Iceland \\
+    Reykjavik, \thesismonth{}~\thesisyear{}
+  \end{center}
+
+  \newpage
+  \thispagestyle{empty}
+  \vspace*{\fill}
+  \sffamily\removelinebreaks{\thesistitle{}} \\
+  (\sffamily\thesisshorttitle{}) \\
+  \sffamily\removelinebreaks{\thesissubtitle{}} \\
+
+  \thesiscredits{} ECTS thesis submitted in partial fulfillment of a
+  \thesiskind{} degree in \thesissubject{} \\
+
+  Faculty of \thesisfaculty{} \\
+  \thesisschool{} \\
+  University of Iceland \\
+  \thesisaddress{} \\
+  \thesispostalcode{}, Reykjavik, Iceland \\
+  Telephone: \thesistelephone{} \\
+
+  Bibliographic information: \\
+  \thesisauthor{} (\thesisyear{}). \emph{\removelinebreaks{\thesistitle{}}},
+  \thesiskind{} thesis, Faculty of \thesisfaculty{}, University of Iceland.\\
+
+  Copyright \textcopyright{} \thesisyear{} \thesisauthor{} \\
+  \thesislicense{} \\
+  Reykjavik, Iceland, \thesismonth{}~\thesisyear{}
+\end{titlepage}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{page}{5}
+\setkomafont{section}{\huge}
+
+\section*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This thesis examines whether strong mean wind speeds are disproportionately common
+when rural injury accidents occur in Iceland. Accident records, cleaned
+10-minute weather observations, urban boundaries, annual road-section traffic
+statistics, and daily counter data are combined in a documented analysis. The
+primary analysis includes 6,192 rural injury accidents from 2007--2025 with
+valid wind observations within 20 km. Within each weather station, calendar
+year, and season, observed accidents in each mean-wind interval are compared
+with the number expected from the local background frequency of that interval.
+Confidence intervals are obtained from 5,000 bootstrap samples clustered by
+weather station.
+
+The observed/expected ratio is close to one across most low and moderate wind
+intervals. At mean wind speeds of 20--25 m/s, 61 accidents were observed
+compared with 29.0 expected, giving a ratio of 2.11 (95\% station-clustered
+bootstrap interval 1.54--2.71). Maximum gust is a secondary wind measure.
+The result describes relative accident occurrence, not a causal effect or
+accident risk per vehicle. Traffic data are unavailable at the required spatial
+and temporal resolution for the full study period. The thesis documents data
+cleaning, matching, coverage and statistical analysis separately.
+
+\vfill
+\section*{Útdráttur}
+\addcontentsline{toc}{chapter}{Útdráttur}
+Ritgerðin rannsakar hvort hár meðalvindhraði sé óvenju algengur þegar
+umferðarslys með meiðslum verða í dreifbýli á Íslandi. Hún sameinar slysaskrá,
+hreinsuð tíu mínútna veðurgögn, þéttbýlismörk, árleg umferðargögn fyrir vegkafla
+og daglegar umferðartalningar. Aðalgreiningin nær til 6.192 slysa með meiðslum
+á árunum 2007--2025 sem tengjast gildri vindmælingu innan 20 km. Fyrir hverja
+veðurstöð, hvert ár og hverja árstíð er fjöldi slysa í vindbili borinn saman
+við þann fjölda sem vænta mætti miðað við staðbundna vindtíðni.
+
+Við meðalvind upp á 20--25 m/s urðu 61 slys, en 29,0 voru vænt. Hlutfall
+séðra og væntra slysa var því 2,11 (95\% bil 1,54--2,71). Vindhviður eru
+skoðaðar sem aukagreining. Niðurstaðan lýsir hlutfallslegri tíðni slysa, en
+ekki orsakaáhrifum eða áhættu á hvert ökutæki. Umferðargögn eru ekki tiltæk
+með nægilega nákvæmri staðsetningu og tímasetningu fyrir allt rannsóknartímabilið.
+
+\newpage
+\setkomafont{section}{\Large}
+\hypersetup{pageanchor=true}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter*{Abbreviations}
+\addcontentsline{toc}{chapter}{Abbreviations}
+\begin{tabularx}{\textwidth}{L{0.18\textwidth}X}
+ADU & Average annual daily traffic. \\
+SDU & Summer daily traffic, June--September. \\
+VDU & Winter daily traffic, December--March. \\
+VHDU & Spring/autumn daily traffic derived from ADU, SDU and VDU. \\
+O/E & Observed accidents divided by expected accidents. \\
+\end{tabularx}
+
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{content.tex}
+
+\appendix
+\input{appendices.tex}
+
+\end{document}

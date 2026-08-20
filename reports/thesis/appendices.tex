@@ -1,0 +1,99 @@
+\chapter{Supporting Analyses}
+
+\section{Accident Characteristics}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{vehicles_per_accident.png}
+\caption{Number of registered vehicles involved in each rural injury accident.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{accident_types_by_severity.png}
+\caption{Accident-type composition in minor-injury accidents and in the
+non-overlapping fatal-or-serious group. Percentages sum to 100 within each
+severity group.}
+\end{figure}
+
+\section{Maximum Gust O/E}
+\label{app:gust}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{gust_oe.png}
+\caption{Frequency-adjusted observed/expected accident occurrence by maximum
+wind gust. This is a supporting analysis; mean wind speed is the primary exposure.}
+\end{figure}
+
+\section{Gust Factor O/E}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{gust_factor_oe.png}
+\caption{Frequency-adjusted observed/expected accident occurrence by gust
+factor ($fg/f$). The ratio is calculated only where mean wind speed is at least
+3 m/s. This exploratory analysis does not show a clear monotonic pattern.}
+\end{figure}
+
+\section{Mean Wind Grouped in 3 m/s Intervals}
+\label{app:mean-wind-3m}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{mean_wind_3m_oe.png}
+\caption{The primary mean-wind O/E calculation presented in narrower 3 m/s
+intervals. The accident sample, weather records, matching rule, and
+standardisation are unchanged; only the grouping shown on the horizontal axis
+is different.}
+\end{figure}
+
+\section{Mean-Wind Subgroups}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{mean_wind_by_season_oe.png}
+\caption{Mean-wind O/E estimates by meteorological season. These estimates are
+shown as a descriptive subgroup analysis; high-wind bins are sparse after the
+sample is divided by season.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{mean_wind_by_vehicle_group_oe.png}
+\caption{Mean-wind O/E estimates by the number of registered vehicles involved.
+This is a descriptive subgroup analysis; it does not establish accident type or
+vehicle count as an explanatory variable.}
+\end{figure}
+
+\section{Maximum-Gust Subgroups}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{gust_by_season_oe.png}
+\caption{Maximum-gust O/E estimates by meteorological season. The high-gust
+cells are sparse after the sample is divided, so the panels are descriptive.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{gust_by_vehicle_group_oe.png}
+\caption{Maximum-gust O/E estimates by the number of registered vehicles
+involved. This is a descriptive subgroup analysis.}
+\end{figure}
+
+\section{Daily-Counter Validation}
+
+\begin{table}[H]
+\centering
+\caption{Consistency of observed daily PDF traffic with official ADU}
+\begin{tabularx}{\textwidth}{Xrrrr}
+\toprule
+Scope & \(N\) & Median & P10--P90 & \(r_{\log}\) \\
+\midrule
+All exact matches & 2,328 & 0.975 & 0.245--1.115 & 0.942 \\
+At least 300 observed days & 1,906 & 0.984 & 0.240--1.063 & 0.940 \\
+At least 300 days, one counter per section & 1,122 & 1.000 & 0.925--1.112 & 0.993 \\
+\bottomrule
+\end{tabularx}
+\end{table}
