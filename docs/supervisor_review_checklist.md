@@ -2,7 +2,7 @@
 
 This checklist links the agreed thesis requirements to the files that implement
 them. It is intended to make review quick: the main result, the inputs and the
-steps that create it can each be checked without opening large cache files.
+steps that create it can each be checked without opening large intermediate files.
 
 | Review point | Implemented approach | Where to inspect |
 |---|---|---|

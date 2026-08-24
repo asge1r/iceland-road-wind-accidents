@@ -30,9 +30,9 @@ not committed because it is derived from authorised local data deliveries.
 | `analysis/rate_model.csv` | Road section, year, traffic period, and mean-wind interval | The 24,048 rows that contain information for the conditional Poisson model: estimated vehicle-kilometres and injury-accident counts. All-zero accident strata are not retained because they contribute no information to this conditional model. |
 | `analysis/traffic_rate_summary.csv` | Traffic period and mean-wind interval | 18 rows: total estimated vehicle-kilometres and observed accidents for the descriptive accident-per-vehicle-km table. |
 | `analysis/selection_summary.csv` | Dataset-selection step | Eight counts used to draw the accident and traffic selection figures. |
-| `analysis/daily_traffic.csv` | Counter site and date | daily count, weather-station match, daytime mean `f`, and daytime mean `fg`. |
+| `analysis/daily_traffic.csv` | Counter site and date | daily count and matched daytime mean `f` and `fg`. |
 | `analysis/daily.txt` | One counter followed by daily records | A readable, grouped view of the daily traffic file. |
-| `analysis/manifest.csv` | One analysis file | record count, preparation source, and available columns. |
+| `analysis/manifest.csv` | One analysis file | record count, available columns, and a short description. |
 
 The primary O/E analysis uses `accidents.csv`, `weather_frequency.csv`, and
 the generated `oe_station_bins.csv`; it does not use traffic. Mean wind speed

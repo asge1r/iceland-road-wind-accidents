@@ -1,4 +1,4 @@
-"""Export small, readable canonical analysis files from local caches."""
+"""Export small, readable canonical analysis files from prepared local data."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ PERIOD_MONTHS = {
 
 def read_table(path: Path) -> pd.DataFrame:
     if not path.exists():
-        raise FileNotFoundError(f"Missing required cache: {path}")
+        raise FileNotFoundError(f"Missing required prepared file: {path}")
     return pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
 
 
@@ -97,7 +97,7 @@ def export_annual_traffic(output: Path) -> tuple[int, list[str]]:
     return write_csv(source[columns], output / "annual_traffic.csv"), columns
 
 
-def export_rate_tables(output: Path) -> list[tuple[str, int, str, list[str]]]:
+def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
     """Write the two compact CSV inputs used by the vehicle-kilometre results.
 
     ``traffic_rate_summary.csv`` retains all valid road exposure, aggregated to
@@ -219,14 +219,12 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, str, list[str]]]:
     )
     return [
         (
-            "rate_model.csv", model_count,
-            "traffic/road_period.parquet + accidents/rate.parquet",
-            list(model.columns),
+            "rate_model.csv", model_count, list(model.columns),
+            "Road-period wind exposure and matched accidents for the rate model.",
         ),
         (
-            "traffic_rate_summary.csv", summary_count,
-            "traffic/road_period.parquet + accidents/rate.parquet",
-            list(summary.columns),
+            "traffic_rate_summary.csv", summary_count, list(summary.columns),
+            "Vehicle-kilometres and injury accidents by traffic period and wind interval.",
         ),
     ]
 
@@ -288,9 +286,7 @@ def display_number(value: object, decimals: int = 1) -> str:
 def write_daily_text(source: pd.DataFrame, output: Path) -> None:
     lines: list[str] = []
     for counter, group in source.groupby("counter_site_id", sort=True):
-        first = group.iloc[0]
-        station = display_number(first.get("weather_station_id"), 0)
-        lines.extend([f"counter: {counter}", f"weather-station: {station}", "date traffic f-mean-m-s fg-mean-m-s"])
+        lines.extend([f"counter: {counter}", "date traffic f-mean-m-s fg-mean-m-s"])
         for row in group.itertuples(index=False):
             date = pd.Timestamp(row.date).date().isoformat()
             lines.append(f"{date} {display_number(row.traffic_volume, 0)} {display_number(row.f_daytime_mean)} {display_number(row.fg_daytime_mean)}")
@@ -304,14 +300,14 @@ def export_daily_traffic(output: Path) -> tuple[int, list[str]] | None:
         return None
     source = read_table(path).rename(columns={"station_id": "road_station_m"})
     text_columns = [
-        "date", "counter_site_id", "traffic_volume", "weather_station_id",
-        "weather_station_dist_km", "f_daytime_mean", "fg_daytime_mean",
+        "date", "counter_site_id", "traffic_volume", "f_daytime_mean",
+        "fg_daytime_mean",
     ]
     text_columns = [column for column in text_columns if column in source]
     readable = source[text_columns].sort_values(["counter_site_id", "date"])
     csv_columns = [
-        "date", "counter_site_id", "traffic_volume", "weather_station_id",
-        "weather_station_dist_km", "f_daytime_mean", "fg_daytime_mean",
+        "date", "counter_site_id", "traffic_volume", "f_daytime_mean",
+        "fg_daytime_mean",
     ]
     csv_columns = [column for column in csv_columns if column in readable]
     daily = readable[csv_columns].rename(
@@ -322,9 +318,6 @@ def export_daily_traffic(output: Path) -> tuple[int, list[str]] | None:
             "fg_daytime_mean": "fg_mean",
         }
     )
-    daily["weather_station_id"] = pd.to_numeric(
-        daily["weather_station_id"], errors="coerce"
-    ).astype("Int64")
     if "traffic" in daily:
         daily["traffic"] = daily["traffic"].round().astype("Int64")
     count = write_csv(daily, output / "daily_traffic.csv")
@@ -337,7 +330,7 @@ def write_readme(output: Path, daily_present: bool) -> None:
         "`daily.txt` is a human-readable counter-by-counter companion generated "
         "from the same source table as `daily_traffic.csv`."
         if daily_present
-        else "Daily traffic files are added when the local daily-PDF cache is available."
+        else "Daily traffic files are added when the local daily PDF data are available."
     )
     accidents = pd.read_csv(output / "accidents.csv", usecols=["timestamp"])
     years = pd.to_datetime(accidents["timestamp"], errors="coerce").dt.year.dropna()
@@ -355,16 +348,16 @@ they can be opened and checked directly. Do not edit them by hand.
 - `rate_model.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson rate model.
 - `traffic_rate_summary.csv`: 18 aggregated traffic-exposure rows used for the descriptive accident-per-vehicle-km table.
 - `selection_summary.csv`: counts for the accident and traffic selection figures.
-- `daily_traffic.csv`: one daily counter total with matched daytime mean wind, gust, and weather-station distance, 2019–2024.
+- `daily_traffic.csv`: one daily counter total with matched daytime mean wind and gust, 2019–2024.
 - {daily_text}
 - `oe_station_bins.csv`: station-season O/E calculation rows, generated by `src.analysis.build_oe` and used by the figure script.
-- `manifest.csv`: row counts, origin and column lists.
+- `manifest.csv`: row counts, columns, and a short description of each analysis file.
 """
     (output / "README.md").write_text(text, encoding="utf-8")
 
 
-def write_manifest(output: Path, entries: list[tuple[str, int, str, list[str]]]) -> None:
-    manifest = pd.DataFrame(entries, columns=["file", "records", "source_cache", "columns"])
+def write_manifest(output: Path, entries: list[tuple[str, int, list[str], str]]) -> None:
+    manifest = pd.DataFrame(entries, columns=["file", "records", "columns", "description"])
     manifest["columns"] = manifest["columns"].str.join(", ")
     manifest.to_csv(output / "manifest.csv", index=False)
 
@@ -374,20 +367,28 @@ def main() -> None:
     parser.add_argument("-o", "--output", type=Path, default=Path("data/analysis"), help="Output directory.")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
-    entries: list[tuple[str, int, str, list[str]]] = []
-    for filename, source, exporter in [("accidents.csv", "accidents/rural_injury.parquet", export_accidents), ("weather_frequency.csv", "weather/frequency.parquet", export_frequency), ("stations.csv", "../raw/weather/stations.csv", export_stations), ("annual_traffic.csv", "traffic/annual.csv", export_annual_traffic)]:
+    entries: list[tuple[str, int, list[str], str]] = []
+    for filename, description, exporter in [
+        ("accidents.csv", "Rural injury accidents with matched mean wind and gust.", export_accidents),
+        ("weather_frequency.csv", "Station-season wind frequencies used as the O/E denominator.", export_frequency),
+        ("stations.csv", "Weather-station identifiers, names, and coordinates.", export_stations),
+        ("annual_traffic.csv", "Annual road-section traffic volumes and lengths.", export_annual_traffic),
+    ]:
         records, columns = exporter(args.output)
-        entries.append((filename, records, source, columns))
+        entries.append((filename, records, columns, description))
     entries.extend(export_rate_tables(args.output))
     records, columns = export_selection_summary(args.output)
-    entries.append(("selection_summary.csv", records, "prepared accident and traffic tables", columns))
+    entries.append(("selection_summary.csv", records, columns, "Counts used in data-selection figures."))
     daily = export_daily_traffic(args.output)
     if daily:
         records, columns = daily
-        entries.extend([("daily_traffic.csv", records, "traffic/daily_weather.parquet", columns), ("daily.txt", records, "traffic/daily_weather.parquet", ["counter metadata", "date", "traffic", "daytime wind"])])
+        entries.extend([
+            ("daily_traffic.csv", records, columns, "Daily counter totals with daytime mean wind and gust."),
+            ("daily.txt", records, ["counter", "date", "traffic", "daytime wind"], "Human-readable daily counter records."),
+        ])
     write_readme(args.output, daily is not None)
-    entries.append(("README.md", 0, "export_tables.py", ["file descriptions", "rebuild instruction"]))
-    entries.append(("manifest.csv", len(entries) + 1, "export_tables.py", ["file", "records", "source_cache", "columns"]))
+    entries.append(("README.md", 0, ["file descriptions", "rebuild instruction"], "Description of the analysis data layer."))
+    entries.append(("manifest.csv", len(entries) + 1, ["file", "records", "columns", "description"], "Inventory of the analysis data files."))
     write_manifest(args.output, entries)
     print(f"Wrote {len(entries)} canonical files to {args.output}")
 

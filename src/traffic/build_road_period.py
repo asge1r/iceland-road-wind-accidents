@@ -1,6 +1,6 @@
-"""Build the road-period cache for the annual-traffic rate comparison.
+"""Build road-period data for the annual-traffic rate comparison.
 
-This script creates one local cache: road section × year × traffic period ×
+This script creates one prepared table: road section × year × traffic period ×
 weather-station × wind interval. It includes every road section with annual
 traffic, so it can provide an exposure denominator for estimated crash rates.
 """
@@ -63,10 +63,10 @@ def main() -> None:
         counts,
         pd.DataFrame(columns=["year", "road_section"]),
     )
-    cache = build_long_table(base, wind, bin_counts)
+    road_period = build_long_table(base, wind, bin_counts)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    cache.to_parquet(args.output, index=False, compression="zstd")
-    print(f"road_period_rows={len(cache):,}")
+    road_period.to_parquet(args.output, index=False, compression="zstd")
+    print(f"road_period_rows={len(road_period):,}")
     print(f"wrote={args.output}")
 
 

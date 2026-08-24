@@ -38,8 +38,8 @@ DEFAULT_MIDPOINTS = Path("data/raw/traffic/reference/road_section_midpoints.csv"
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
 DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury.parquet")
-DEFAULT_WEATHER_CACHE = Path(
-    "data/processed/traffic/daily_cache.parquet"
+DEFAULT_WEATHER_MATCH = Path(
+    "data/processed/traffic/daily_match.parquet"
 )
 DEFAULT_OUTPUT = Path("data/processed/traffic/daily_weather.parquet")
 DEFAULT_SUMMARY = Path("reports/working/tables/daily_traffic_diagnostic.csv")
@@ -334,7 +334,7 @@ def aggregate_daily_weather(
     return weather, diagnostics
 
 
-def build_weather_cache(
+def build_weather_match_data(
     weather_path: Path,
     daily: pd.DataFrame,
     stations_path: Path,
@@ -942,7 +942,7 @@ def main() -> None:
     parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
     parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
     parser.add_argument("-A", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
-    parser.add_argument("-W", "--weather-cache", type=Path, default=DEFAULT_WEATHER_CACHE)
+    parser.add_argument("-W", "--weather-match", type=Path, default=DEFAULT_WEATHER_MATCH)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("-S", "--summary", type=Path, default=DEFAULT_SUMMARY)
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
@@ -956,7 +956,7 @@ def main() -> None:
     parser.add_argument("-Y", "--end-year", type=int, default=2024)
     parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("-g", "--max-row-groups", type=int)
-    parser.add_argument("-r", "--rebuild-weather-cache", action="store_true")
+    parser.add_argument("-r", "--rebuild-weather-match", action="store_true")
     parser.add_argument("-p", "--plot-only", action="store_true")
     args = parser.parse_args()
 
@@ -969,11 +969,11 @@ def main() -> None:
     started = time.perf_counter()
     daily = read_daily(args.daily, args.start_year, args.end_year)
     diagnostics: dict[str, int] = {}
-    cache_usable = args.weather_cache.exists() and not args.rebuild_weather_cache
-    if cache_usable:
-        weather = pd.read_parquet(args.weather_cache)
+    match_usable = args.weather_match.exists() and not args.rebuild_weather_match
+    if match_usable:
+        weather = pd.read_parquet(args.weather_match)
         weather["date"] = pd.to_datetime(weather["date"])
-        cache_usable = (
+        match_usable = (
             "weather_match_method" in weather.columns
             and weather["weather_match_method"].eq(
                 "nearest_valid_station_to_counter_or_midpoint_within_20km"
@@ -982,8 +982,8 @@ def main() -> None:
             and weather["date"].dt.year.min() <= args.start_year
             and weather["date"].dt.year.max() >= args.end_year
         )
-    if not cache_usable:
-        weather, diagnostics = build_weather_cache(
+    if not match_usable:
+        weather, diagnostics = build_weather_match_data(
             args.weather,
             daily,
             args.stations,
@@ -992,8 +992,8 @@ def main() -> None:
             args.max_row_groups,
         )
         if args.max_row_groups is None:
-            args.weather_cache.parent.mkdir(parents=True, exist_ok=True)
-            weather.to_parquet(args.weather_cache, index=False, compression="zstd")
+            args.weather_match.parent.mkdir(parents=True, exist_ok=True)
+            weather.to_parquet(args.weather_match, index=False, compression="zstd")
     weather = weather[
         weather["date"].dt.year.between(args.start_year, args.end_year)
     ].copy()

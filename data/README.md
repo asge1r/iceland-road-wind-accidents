@@ -2,7 +2,7 @@
 
 The repository contains code and documentation, not authorised data. Put source
 deliveries in `data/raw/`; do not edit them after receipt. `src.prepare` writes
-temporary files to `data/processed/` and the named, readable analysis inputs to
+intermediate preparation files to `data/processed/` and the named, readable analysis inputs to
 `data/analysis/`.
 
 ## Required source files
@@ -47,7 +47,7 @@ Use `data/analysis/` for normal work:
 - `accidents.csv` and `weather_frequency.csv` for the primary O/E result;
 - `rate_model.csv` and `traffic_rate_summary.csv` for annual-traffic results;
 - `daily_traffic.csv` and `daily.txt` for the optional daily-counter result;
-- `manifest.csv` for each file's source and columns.
+- `manifest.csv` for each file's record count, columns and description.
 
 The large weather and road-period Parquet files in `processed/` are only
-temporary preparation material. They are not read by `src.analyze`.
+intermediate preparation material. They are not read by `src.analyze`.

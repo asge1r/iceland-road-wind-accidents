@@ -19,7 +19,7 @@ CORE_PREPARE_STEPS = [
     "src.traffic.annual",
     "src.accidents.match_weather",
     "src.weather.frequency",
-    "src.traffic.build_road_period_cache",
+    "src.traffic.build_road_period",
     "src.traffic.match_rate_accident_weather",
 ]
 
@@ -28,7 +28,8 @@ DAILY_TRAFFIC_STEPS = [
     "src.traffic.download_roads",
     "src.traffic.locate_counters",
     "src.traffic.daily_weather_match",
-    "src.traffic.daily_traffic_quality",
+    "src.tables.daily_quality",
+    "src.figures.daily_quality",
 ]
 
 

@@ -17,7 +17,7 @@ from src.traffic import daily_traffic_tools as tools
 DEFAULT_DAILY = Path("data/processed/traffic/daily.parquet")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
-DEFAULT_CACHE = Path("data/processed/traffic/daily_cache.parquet")
+DEFAULT_CACHE = Path("data/processed/traffic/daily_match.parquet")
 DEFAULT_OUTPUT = Path("data/processed/traffic/daily_weather.parquet")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/daily_traffic_coverage.csv")
 
@@ -26,22 +26,22 @@ def match_weather(
     daily_path: Path,
     stations_path: Path,
     weather_path: Path,
-    cache_path: Path,
+    match_path: Path,
     output_path: Path,
     coverage_path: Path,
     start_year: int,
     end_year: int,
-    rebuild_cache: bool,
+    rebuild_match: bool,
     max_row_groups: int | None,
 ) -> None:
     """Write the canonical counter-day weather match and its coverage audit."""
     daily = tools.read_daily(daily_path, start_year, end_year)
     diagnostics: dict[str, int] = {}
-    cache_usable = cache_path.exists() and not rebuild_cache
-    if cache_usable:
-        weather = pd.read_parquet(cache_path)
+    match_usable = match_path.exists() and not rebuild_match
+    if match_usable:
+        weather = pd.read_parquet(match_path)
         weather["date"] = pd.to_datetime(weather["date"])
-        cache_usable = (
+        match_usable = (
             "weather_match_method" in weather.columns
             and weather["weather_match_method"].eq(
                 "nearest_valid_station_to_counter_or_midpoint_within_20km"
@@ -50,8 +50,8 @@ def match_weather(
             and weather["date"].dt.year.min() <= start_year
             and weather["date"].dt.year.max() >= end_year
         )
-    if not cache_usable:
-        weather, diagnostics = tools.build_weather_cache(
+    if not match_usable:
+        weather, diagnostics = tools.build_weather_match_data(
             weather_path,
             daily,
             stations_path,
@@ -60,8 +60,8 @@ def match_weather(
             max_row_groups,
         )
         if max_row_groups is None:
-            cache_path.parent.mkdir(parents=True, exist_ok=True)
-            weather.to_parquet(cache_path, index=False, compression="zstd")
+            match_path.parent.mkdir(parents=True, exist_ok=True)
+            weather.to_parquet(match_path, index=False, compression="zstd")
 
     weather = weather[weather["date"].dt.year.between(start_year, end_year)].copy()
     excluded_station = weather["weather_station_id"].isin(
@@ -113,24 +113,24 @@ def main() -> None:
     parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
     parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
     parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
-    parser.add_argument("-c", "--weather-cache", type=Path, default=DEFAULT_CACHE)
+    parser.add_argument("-m", "--weather-match", type=Path, default=DEFAULT_CACHE)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("-v", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-y", "--start-year", type=int, default=2019)
     parser.add_argument("-Y", "--end-year", type=int, default=2024)
-    parser.add_argument("-r", "--rebuild-weather-cache", action="store_true")
+    parser.add_argument("-r", "--rebuild-weather-match", action="store_true")
     parser.add_argument("-g", "--max-row-groups", type=int)
     args = parser.parse_args()
     match_weather(
         args.daily,
         args.stations,
         args.weather,
-        args.weather_cache,
+        args.weather_match,
         args.output,
         args.coverage,
         args.start_year,
         args.end_year,
-        args.rebuild_weather_cache,
+        args.rebuild_weather_match,
         args.max_row_groups,
     )
 

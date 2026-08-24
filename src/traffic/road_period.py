@@ -1647,8 +1647,8 @@ def main() -> None:
     parser.add_argument("-r", "--rebuild-period-wind-frequency", action="store_true")
     parser.add_argument("-m", "--max-weather-row-groups", type=int)
     parser.add_argument(
-        "-K", "--cache-only", action="store_true",
-        help="Write only the road-period cache required by the annual-traffic comparison.",
+        "-K", "--prepared-only", action="store_true",
+        help="Write only the prepared road-period data required by the annual-traffic comparison.",
     )
     parser.add_argument("-u", "--surface", type=Path, default=DEFAULT_SURFACE)
     parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
@@ -1716,7 +1716,7 @@ def main() -> None:
     )
     base = build_base_table(assigned_panel, counts, surface)
     long = build_long_table(base, wind, bin_counts)
-    if args.cache_only:
+    if args.prepared_only:
         args.long_output.parent.mkdir(parents=True, exist_ok=True)
         long.to_parquet(args.long_output, index=False, compression="zstd")
         print(f"road_period_rows={len(long):,}")
