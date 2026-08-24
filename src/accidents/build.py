@@ -18,8 +18,8 @@ VEHICLE_SOURCES = [
     (Path("data/raw/accidents/vehicles_2007_2024.txt"), "nid", "taeki"),
     (Path("data/raw/accidents/vehicles_2025.txt"), "NID", "Nr. Ökutækis"),
 ]
-DEFAULT_OUTPUT = Path("data/processed/accidents/all_accidents_enriched.parquet")
-DEFAULT_RURAL_INJURY = Path("data/processed/accidents/rural_injury_accidents_base.parquet")
+DEFAULT_OUTPUT = Path("data/processed/accidents/all.parquet")
+DEFAULT_RURAL_INJURY = Path("data/processed/accidents/rural_injury_base.parquet")
 
 
 def read_accident_file(path: Path, newer_format: bool) -> pd.DataFrame:

@@ -33,13 +33,13 @@ from src.weather.frequency import (
 
 
 DEFAULT_ANNUAL_TRAFFIC = Path(
-    "data/processed/traffic/annual_road_section_exposure.csv"
+    "data/processed/traffic/annual.csv"
 )
-DEFAULT_ALL_ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
-DEFAULT_INJURY_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
-DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
+DEFAULT_ALL_ACCIDENTS = Path("data/processed/accidents/all.parquet")
+DEFAULT_INJURY_ACCIDENTS = Path("data/processed/accidents/rural_injury.parquet")
+DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
 DEFAULT_PERIOD_WIND_FREQUENCY = Path(
-    "data/processed/weather/wind_frequency_road_period_2007_2025.parquet"
+    "data/processed/weather/road_period_frequency.parquet"
 )
 DEFAULT_SURFACE = Path("data/raw/traffic/reference/road_surface_history.csv")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
@@ -49,7 +49,7 @@ DEFAULT_SECTION_MIDPOINTS = Path(
 DEFAULT_ROAD_GEOMETRIES = Path(
     "data/raw/traffic/reference/road_sections.parquet"
 )
-DEFAULT_LONG = Path("data/processed/traffic/road_section_wind_panel_2007_2025.parquet")
+DEFAULT_LONG = Path("data/processed/traffic/road_period.parquet")
 DEFAULT_WIDE = Path("reports/working/tables/road_wind_full.csv")
 DEFAULT_ACCIDENT_ROWS = Path(
     "archive/generated_diagnostics/road_wind_accident_rows.csv"

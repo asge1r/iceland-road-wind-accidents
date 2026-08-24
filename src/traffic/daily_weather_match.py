@@ -14,11 +14,11 @@ import pandas as pd
 from src.traffic import daily_traffic_tools as tools
 
 
-DEFAULT_DAILY = Path("data/processed/traffic/daily_traffic.parquet")
+DEFAULT_DAILY = Path("data/processed/traffic/daily.parquet")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
-DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
-DEFAULT_CACHE = Path("data/processed/traffic/daily_weather_cache.parquet")
-DEFAULT_OUTPUT = Path("data/processed/traffic/daily_traffic_weather.parquet")
+DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
+DEFAULT_CACHE = Path("data/processed/traffic/daily_cache.parquet")
+DEFAULT_OUTPUT = Path("data/processed/traffic/daily_weather.parquet")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/daily_traffic_coverage.csv")
 
 

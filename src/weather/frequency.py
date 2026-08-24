@@ -15,11 +15,9 @@ import pandas as pd
 import pyarrow.parquet as pq
 
 
-DEFAULT_INPUT = Path("data/processed/weather/weather_10min_clean.parquet")
+DEFAULT_INPUT = Path("data/processed/weather/weather.parquet")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
-DEFAULT_OUTPUT = Path(
-    "data/processed/weather/wind_frequency_station_year_season.parquet"
-)
+DEFAULT_OUTPUT = Path("data/processed/weather/frequency.parquet")
 DEFAULT_WIDE = Path("archive/generated_diagnostics/wind_frequency_readable.csv")
 DEFAULT_NOTES = Path(
     "archive/generated_diagnostics/wind_frequency_notes.txt"

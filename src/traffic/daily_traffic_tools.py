@@ -29,19 +29,19 @@ from src.weather.frequency import FG_UPPER_BOUNDS, labels
 
 
 DEFAULT_DAILY = Path(
-    "data/processed/traffic/daily_traffic.parquet"
+    "data/processed/traffic/daily.parquet"
 )
 DEFAULT_ANNUAL = Path(
-    "data/processed/traffic/annual_road_section_exposure.csv"
+    "data/processed/traffic/annual.csv"
 )
 DEFAULT_MIDPOINTS = Path("data/raw/traffic/reference/road_section_midpoints.csv")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
-DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
-DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
+DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
+DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury.parquet")
 DEFAULT_WEATHER_CACHE = Path(
-    "data/processed/traffic/daily_weather_cache.parquet"
+    "data/processed/traffic/daily_cache.parquet"
 )
-DEFAULT_OUTPUT = Path("data/processed/traffic/daily_traffic_weather.parquet")
+DEFAULT_OUTPUT = Path("data/processed/traffic/daily_weather.parquet")
 DEFAULT_SUMMARY = Path("reports/working/tables/daily_traffic_diagnostic.csv")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/daily_traffic_coverage.csv")
 DEFAULT_ADU_VALIDATION = Path(

@@ -20,7 +20,7 @@ import pandas as pd
 
 
 LAYER_URL = "https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer/4/query"
-DAILY = Path("data/processed/traffic/daily_traffic.parquet")
+DAILY = Path("data/processed/traffic/daily.parquet")
 ROADS = Path("data/raw/traffic/reference/roads.geojson")
 OUTPUT = Path("data/processed/traffic/daily_counter_station_validation.csv")
 TOLERANCE_M = 10

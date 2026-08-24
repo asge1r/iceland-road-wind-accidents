@@ -34,7 +34,7 @@ def days_in_traffic_period(year: int, traffic_period: str) -> int:
 
 
 def export_accidents(output: Path) -> tuple[int, list[str]]:
-    source = read_table(ROOT / "accidents/rural_injury_accidents.parquet").copy()
+    source = read_table(ROOT / "accidents/rural_injury.parquet").copy()
     source = source.rename(columns={"nid": "id"})
     source["weather_station_id"] = pd.to_numeric(
         source["weather_station_id"], errors="coerce"
@@ -56,7 +56,7 @@ def export_accidents(output: Path) -> tuple[int, list[str]]:
 
 
 def export_frequency(output: Path) -> tuple[int, list[str]]:
-    source = read_table(ROOT / "weather/wind_frequency_station_year_season.parquet").copy()
+    source = read_table(ROOT / "weather/frequency.parquet").copy()
     source = source[source["variable"].isin(["f", "fg", "gust_factor"])].copy()
     source["unit"] = source["variable"].map({"f": "m/s", "fg": "m/s", "gust_factor": "ratio"})
     group = ["station", "season", "variable", "bin_label", "unit"]
@@ -92,7 +92,7 @@ def export_stations(output: Path) -> tuple[int, list[str]]:
 
 
 def export_annual_traffic(output: Path) -> tuple[int, list[str]]:
-    source = pd.read_csv(ROOT / "traffic/annual_road_section_exposure.csv", low_memory=False)
+    source = pd.read_csv(ROOT / "traffic/annual.csv", low_memory=False)
     columns = [column for column in ["year", "road_section", "section_length_km", "adu", "sdu", "vdu"] if column in source]
     return write_csv(source[columns], output / "annual_traffic.csv"), columns
 
@@ -106,8 +106,8 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, str, list[str]]]:
     occurred; all-zero strata do not contribute information to a conditional
     Poisson model.
     """
-    panel_path = ROOT / "traffic/road_section_wind_panel_2007_2025.parquet"
-    accident_path = ROOT / "accidents/rate_accidents_weather.parquet"
+    panel_path = ROOT / "traffic/road_period.parquet"
+    accident_path = ROOT / "accidents/rate.parquet"
     panel_columns = [
         "year", "road_section", "traffic_period", "weather_station_id", "variable",
         "bin_label", "bin_lower_ms", "frequency_pct", "wind_frequency_available",
@@ -220,12 +220,12 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, str, list[str]]]:
     return [
         (
             "rate_model.csv", model_count,
-            "traffic/road_section_wind_panel_2007_2025.parquet + accidents/rate_accidents_weather.parquet",
+            "traffic/road_period.parquet + accidents/rate.parquet",
             list(model.columns),
         ),
         (
             "traffic_rate_summary.csv", summary_count,
-            "traffic/road_section_wind_panel_2007_2025.parquet + accidents/rate_accidents_weather.parquet",
+            "traffic/road_period.parquet + accidents/rate.parquet",
             list(summary.columns),
         ),
     ]
@@ -233,8 +233,8 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, str, list[str]]]:
 
 def export_selection_summary(output: Path) -> tuple[int, list[str]]:
     """Write the small count table used for the three data-selection figures."""
-    all_accidents = read_table(ROOT / "accidents/all_accidents_enriched.parquet")
-    study = read_table(ROOT / "accidents/rural_injury_accidents.parquet")
+    all_accidents = read_table(ROOT / "accidents/all.parquet")
+    study = read_table(ROOT / "accidents/rural_injury.parquet")
     valid_coordinates = int(all_accidents["urban_rural"].ne("Unknown").sum())
     rural = int(all_accidents["urban_rural"].eq("Rural").sum())
     primary = int(
@@ -245,7 +245,7 @@ def export_selection_summary(output: Path) -> tuple[int, list[str]]:
             & study["fg"].notna()
         ).sum()
     )
-    panel = read_table(ROOT / "traffic/road_section_wind_panel_2007_2025.parquet")
+    panel = read_table(ROOT / "traffic/road_period.parquet")
     annual_total = int(panel[["year", "road_section", "traffic_period"]].drop_duplicates().shape[0])
     annual_wind = panel[
         panel["variable"].eq("f_5m")
@@ -255,7 +255,7 @@ def export_selection_summary(output: Path) -> tuple[int, list[str]]:
     annual_wind = int(
         annual_wind[["year", "road_section", "traffic_period"]].drop_duplicates().shape[0]
     )
-    daily_path = ROOT / "traffic/daily_traffic_weather.parquet"
+    daily_path = ROOT / "traffic/daily_weather.parquet"
     if daily_path.exists():
         daily = read_table(daily_path)
         daily_total = len(daily)
@@ -299,7 +299,7 @@ def write_daily_text(source: pd.DataFrame, output: Path) -> None:
 
 
 def export_daily_traffic(output: Path) -> tuple[int, list[str]] | None:
-    path = ROOT / "traffic/daily_traffic_weather.parquet"
+    path = ROOT / "traffic/daily_weather.parquet"
     if not path.exists():
         return None
     source = read_table(path).rename(columns={"station_id": "road_station_m"})
@@ -375,7 +375,7 @@ def main() -> None:
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     entries: list[tuple[str, int, str, list[str]]] = []
-    for filename, source, exporter in [("accidents.csv", "accidents/rural_injury_accidents.parquet", export_accidents), ("weather_frequency.csv", "weather/wind_frequency_station_year_season.parquet", export_frequency), ("stations.csv", "../raw/weather/stations.csv", export_stations), ("annual_traffic.csv", "traffic/annual_road_section_exposure.csv", export_annual_traffic)]:
+    for filename, source, exporter in [("accidents.csv", "accidents/rural_injury.parquet", export_accidents), ("weather_frequency.csv", "weather/frequency.parquet", export_frequency), ("stations.csv", "../raw/weather/stations.csv", export_stations), ("annual_traffic.csv", "traffic/annual.csv", export_annual_traffic)]:
         records, columns = exporter(args.output)
         entries.append((filename, records, source, columns))
     entries.extend(export_rate_tables(args.output))
@@ -384,7 +384,7 @@ def main() -> None:
     daily = export_daily_traffic(args.output)
     if daily:
         records, columns = daily
-        entries.extend([("daily_traffic.csv", records, "traffic/daily_traffic_weather.parquet", columns), ("daily.txt", records, "traffic/daily_traffic_weather.parquet", ["counter metadata", "date", "traffic", "daytime wind"])])
+        entries.extend([("daily_traffic.csv", records, "traffic/daily_weather.parquet", columns), ("daily.txt", records, "traffic/daily_weather.parquet", ["counter metadata", "date", "traffic", "daytime wind"])])
     write_readme(args.output, daily is not None)
     entries.append(("README.md", 0, "export_tables.py", ["file descriptions", "rebuild instruction"]))
     entries.append(("manifest.csv", len(entries) + 1, "export_tables.py", ["file", "records", "source_cache", "columns"]))

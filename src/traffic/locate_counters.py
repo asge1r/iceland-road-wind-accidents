@@ -12,9 +12,9 @@ import pandas as pd
 from pyproj import Transformer
 
 ROADS = Path("data/raw/traffic/reference/roads.geojson")
-COUNTS = Path("data/processed/traffic/daily_counts.parquet")
-OUTPUT = Path("data/processed/traffic/daily_traffic.parquet")
-LOCATIONS = Path("data/processed/traffic/daily_locations.csv")
+COUNTS = Path("data/processed/traffic/daily_raw.parquet")
+OUTPUT = Path("data/processed/traffic/daily.parquet")
+LOCATIONS = Path("data/processed/traffic/locations.csv")
 
 
 def geometry_sequences(geometry: dict[str, object]) -> list[list[list[float]]]:

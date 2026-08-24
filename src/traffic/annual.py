@@ -14,7 +14,7 @@ import pandas as pd
 RAW_DIR = Path("data/raw/traffic/annual")
 HISTORICAL_RAW_DIR = RAW_DIR
 OUT_DIR = Path("data/processed/traffic")
-OUT_CSV = OUT_DIR / "annual_road_section_exposure.csv"
+OUT_CSV = OUT_DIR / "annual.csv"
 OUT_NOTES = Path("archive/generated_diagnostics/annual_traffic_notes.txt")
 
 NS = {
@@ -218,7 +218,7 @@ def parse_workbook(path: Path) -> pd.DataFrame:
 
 
 def coverage_summary(exposure: pd.DataFrame) -> pd.DataFrame:
-    accidents = pd.read_parquet("data/processed/accidents/all_accidents_enriched.parquet").copy()
+    accidents = pd.read_parquet("data/processed/accidents/all.parquet").copy()
     accidents["date"] = pd.to_datetime(accidents["date"], errors="coerce")
     accidents["year"] = accidents["date"].dt.year
     accidents["meidsli_num"] = pd.to_numeric(accidents["meidsli"], errors="coerce")

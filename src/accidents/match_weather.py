@@ -12,11 +12,11 @@ import pyarrow.parquet as pq
 from sklearn.neighbors import BallTree
 
 
-DEFAULT_ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
-DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
+DEFAULT_ACCIDENTS = Path("data/processed/accidents/all.parquet")
+DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_OUTPUT = Path(
-    "data/processed/accidents/rural_injury_accidents.parquet"
+    "data/processed/accidents/rural_injury.parquet"
 )
 DEFAULT_COVERAGE = Path(
     "archive/generated_diagnostics/oe/accident_weather_coverage.csv"

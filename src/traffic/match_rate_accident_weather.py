@@ -12,11 +12,11 @@ import pyarrow.parquet as pq
 from src.accidents.match_weather import read_candidate_weather, select_best
 
 
-PANEL = Path("data/processed/traffic/road_section_wind_panel_2007_2025.parquet")
-ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
-WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
+PANEL = Path("data/processed/traffic/road_period.parquet")
+ACCIDENTS = Path("data/processed/accidents/rural_injury.parquet")
+WEATHER = Path("data/processed/weather/weather.parquet")
 STATIONS = Path("data/raw/weather/stations.csv")
-OUTPUT = Path("data/processed/accidents/rate_accidents_weather.parquet")
+OUTPUT = Path("data/processed/accidents/rate.parquet")
 AUDIT = Path("reports/working/tables/rate_accident_weather_audit.csv")
 
 PERIOD_BY_MONTH = {

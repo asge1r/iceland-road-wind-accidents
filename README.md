@@ -30,7 +30,7 @@ the authorised source deliveries transparent and reproducible.
 ## Working data
 
 - `data/raw/weather/weather_10min_raw.parquet`: raw continuous 10-minute weather observations.
-- `data/processed/weather/weather_10min_clean.parquet` is the only very large
+- `data/processed/weather/weather.parquet` is the only very large
   temporary file: the 211.5 million cleaned 10-minute observations. It is used
   while creating the CSV frequency table, never by `src.analyze`.
 - `data/analysis/accidents.csv` and `weather_frequency.csv` are the complete

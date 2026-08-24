@@ -14,8 +14,8 @@ import pandas as pd
 from src.traffic import daily_traffic_tools as tools
 
 
-DEFAULT_INPUT = Path("data/processed/traffic/daily_traffic_weather.parquet")
-DEFAULT_ANNUAL = Path("data/processed/traffic/annual_road_section_exposure.csv")
+DEFAULT_INPUT = Path("data/processed/traffic/daily_weather.parquet")
+DEFAULT_ANNUAL = Path("data/processed/traffic/annual.csv")
 DEFAULT_SUMMARY = Path("reports/working/tables/daily_traffic_diagnostic.csv")
 DEFAULT_VALIDATION = Path("archive/generated_diagnostics/daily_traffic_adu_validation.csv")
 DEFAULT_ADU_SUMMARY = Path("archive/generated_diagnostics/daily_traffic_adu_summary.csv")
