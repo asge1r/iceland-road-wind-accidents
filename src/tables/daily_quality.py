@@ -1,4 +1,4 @@
-"""Create quality-control outputs for matched daily traffic counter data.
+"""Write quality-control tables for matched daily traffic counter data.
 
 The outputs document counter coverage and agreement with annual ADU. They do
 not estimate accident risk and are separate from the daily traffic result.
@@ -19,8 +19,6 @@ DEFAULT_ANNUAL = Path("data/processed/traffic/annual.csv")
 DEFAULT_SUMMARY = Path("reports/working/tables/daily_traffic_diagnostic.csv")
 DEFAULT_VALIDATION = Path("archive/generated_diagnostics/daily_traffic_adu_validation.csv")
 DEFAULT_ADU_SUMMARY = Path("archive/generated_diagnostics/daily_traffic_adu_summary.csv")
-DEFAULT_ADU_FIGURE = Path("reports/working/traffic_validation.png")
-DEFAULT_FIGURE = Path("reports/working/daily_traffic_diagnostic.png")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/daily_traffic_notes.md")
 
 
@@ -68,8 +66,6 @@ def main() -> None:
     parser.add_argument("-s", "--summary", type=Path, default=DEFAULT_SUMMARY)
     parser.add_argument("-v", "--adu-validation", type=Path, default=DEFAULT_VALIDATION)
     parser.add_argument("-u", "--adu-summary", type=Path, default=DEFAULT_ADU_SUMMARY)
-    parser.add_argument("-f", "--adu-figure", type=Path, default=DEFAULT_ADU_FIGURE)
-    parser.add_argument("-o", "--output-figure", type=Path, default=DEFAULT_FIGURE)
     parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
     parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     args = parser.parse_args()
@@ -81,15 +77,11 @@ def main() -> None:
         args.summary,
         args.adu_validation,
         args.adu_summary,
-        args.adu_figure,
-        args.output_figure,
     ]:
         path.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(args.summary, index=False)
     validation.to_csv(args.adu_validation, index=False)
     adu_summary.to_csv(args.adu_summary, index=False)
-    tools.plot_wind_summary(summary, args.output_figure)
-    tools.plot_adu_validation(validation, args.adu_figure)
     write_notes(args.notes, panel, summary, adu_summary)
     print(adu_summary.to_string(index=False))
     print(f"wrote={args.summary}")

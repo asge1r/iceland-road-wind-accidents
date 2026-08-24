@@ -111,11 +111,12 @@ def validation_values(
     high_rate = rate_model.loc[rate_model["bin_label"].eq(">=25")].iloc[0]
     require(float(high_rate["time_proportional_rate_ratio"]) > 1, "High-wind rate ratio is not above one")
 
-    accident_types = pd.read_csv("reports/main/tables/accident_characteristics.csv")
-    single = accident_types[
-        accident_types["category"].eq("Single vehicle: run-off-road, rollover, fall, or other")
-        & accident_types["dimension"].eq("accident_family")
-    ].iloc[0]
+    from src.figures.accident_profiles import broad_accident_family
+
+    families = accidents["tegohapps"].map(broad_accident_family)
+    single_count = int(
+        families.eq("Single vehicle: run-off-road, rollover, fall, or other").sum()
+    )
     return {
         "primary_accidents": primary_accidents,
         "study_accidents": len(accidents),
@@ -128,8 +129,8 @@ def validation_values(
         "daily_with_wind": daily_with_wind,
         "rate_accidents": int(rate_input["injury_accidents"].sum()),
         "high_rate": high_rate,
-        "single_vehicle_count": int(single["count"]),
-        "single_vehicle_pct": float(single["percent"]),
+        "single_vehicle_count": single_count,
+        "single_vehicle_pct": 100 * single_count / len(accidents),
     }
 
 

@@ -13,8 +13,6 @@ import pandas as pd
 
 
 STUDY_ACCIDENTS = Path("data/analysis/accidents.csv")
-OUT_DATA = Path("reports/main/tables/accident_characteristics.csv")
-OUT_TYPE_AUDIT = Path("archive/generated_diagnostics/accident_types.csv")
 
 BLUE = "#547A99"
 GREEN = "#4F8068"
@@ -189,19 +187,14 @@ def plot_severity(severity: pd.DataFrame, family: pd.DataFrame) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--accidents", type=Path, default=STUDY_ACCIDENTS)
-    parser.add_argument("-o", "--output", type=Path, default=OUT_DATA)
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    global STUDY_ACCIDENTS, OUT_DATA
+    global STUDY_ACCIDENTS
     STUDY_ACCIDENTS = args.accidents
-    OUT_DATA = args.output
     family, vehicles, severity, tidy = prepare_data()
-    OUT_DATA.parent.mkdir(parents=True, exist_ok=True)
-    tidy.to_csv(OUT_DATA, index=False)
-    severity.to_csv(OUT_TYPE_AUDIT, index=False)
     plot_accident_families(family)
     plot_vehicles(vehicles)
     plot_severity(severity, family)

@@ -1,4 +1,4 @@
-"""Create the main figure, thesis table, and station-clustered intervals."""
+"""Create O/E result tables with station-clustered bootstrap intervals."""
 
 from __future__ import annotations
 
@@ -26,7 +26,6 @@ ACCIDENT_MATCH_COVERAGE = Path(
     "archive/generated_diagnostics/oe/accident_weather_coverage.csv"
 )
 DEFAULT_OUTPUT_DIR = Path("reports/main/tables")
-DEFAULT_FIGURE_DIR = Path("reports/main/figures")
 DEFAULT_SUBGROUP_OUTPUT = Path("reports/working/tables/mean_wind_subgroups.csv")
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_WEATHER_CLEANING = Path(
@@ -808,7 +807,6 @@ def main() -> None:
     parser.add_argument("-d", "--details", type=Path, default=DEFAULT_DETAILS)
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-o", "--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("-f", "--figure-dir", type=Path, default=DEFAULT_FIGURE_DIR)
     parser.add_argument("-g", "--subgroup-output", type=Path, default=DEFAULT_SUBGROUP_OUTPUT)
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
     parser.add_argument(
@@ -819,7 +817,6 @@ def main() -> None:
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    args.figure_dir.mkdir(parents=True, exist_ok=True)
     details = prepare_details(args.details)
     coverage = pd.read_csv(args.coverage)
     results: list[pd.DataFrame] = []
@@ -865,6 +862,7 @@ def main() -> None:
             primary_draws.append(draws)
 
     all_results = pd.concat(results, ignore_index=True)
+    all_results.to_csv(args.output_dir / "oe_results.csv", index=False)
     primary = all_results[
         all_results["radius_km"].eq(20)
         & all_results["max_time_difference_minutes"].eq(
@@ -954,65 +952,6 @@ def main() -> None:
         time_sensitivity,
         bin_width_sensitivity,
         args.output_dir,
-    )
-
-    plot_primary(
-        primary,
-        args.figure_dir / "mean_wind_oe.png",
-    )
-    plot_one_variable(
-        primary,
-        "fg",
-        args.figure_dir / "gust_oe.png",
-    )
-    plot_one_variable(
-        primary,
-        "gust_factor",
-        args.figure_dir / "gust_factor_oe.png",
-    )
-    plot_mean_wind_strata(
-        all_results,
-        "f",
-        "analysis_season",
-        ["Winter", "Spring", "Summer", "Fall"],
-        "severity_group",
-        "Injury accidents",
-        "Mean wind O/E by season",
-        args.figure_dir / "mean_wind_by_season_oe.png",
-    )
-    plot_mean_wind_strata(
-        all_results,
-        "f",
-        "severity_group",
-        ["1 vehicle", "2 or more vehicles"],
-        "analysis_season",
-        "All seasons",
-        "Mean wind O/E by number of vehicles involved",
-        args.figure_dir / "mean_wind_by_vehicle_group_oe.png",
-    )
-    plot_mean_wind_strata(
-        all_results,
-        "fg",
-        "analysis_season",
-        ["Winter", "Spring", "Summer", "Fall"],
-        "severity_group",
-        "Injury accidents",
-        "Maximum gust O/E by season",
-        args.figure_dir / "gust_by_season_oe.png",
-    )
-    plot_mean_wind_strata(
-        all_results,
-        "fg",
-        "severity_group",
-        ["1 vehicle", "2 or more vehicles"],
-        "analysis_season",
-        "All seasons",
-        "Maximum gust O/E by number of vehicles involved",
-        args.figure_dir / "gust_by_vehicle_group_oe.png",
-    )
-    plot_distribution_comparison(
-        primary,
-        supporting_dir / "wind_gust_distribution_and_standardization.png",
     )
 
     gust_distribution = primary[primary["variable"].eq("fg")].copy()

@@ -1,4 +1,4 @@
-"""Estimate within-road/year/period wind-rate ratios from a compact CSV file."""
+"""Write within-road/year/period wind-rate ratio tables from a compact CSV file."""
 
 from __future__ import annotations
 
@@ -16,7 +16,6 @@ from statsmodels.discrete.conditional_models import ConditionalPoisson
 
 INPUT = Path("data/analysis/rate_model.csv")
 OUTPUT = Path("reports/main/tables/stratified_crash_rate_ratio_by_wind.csv")
-FIGURE = Path("reports/main/figures/stratified_crash_rate_ratio_by_wind.png")
 
 COUNT_COLUMN = {
     "all": "injury_accidents",
@@ -129,7 +128,6 @@ def main() -> None:
     )
     parser.add_argument("-g", "--vehicle-group", choices=list(COUNT_COLUMN), default="all")
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
-    parser.add_argument("-f", "--figure", type=Path, default=FIGURE)
     args = parser.parse_args()
     data = prepare_data(pd.read_csv(args.input), args.traffic_period, args.vehicle_group)
     if data.empty:
@@ -140,17 +138,6 @@ def main() -> None:
     result["analysis_vehicle_group"] = args.vehicle_group
     args.output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)
-    scope = []
-    if args.traffic_period == "official":
-        scope.append("official VDU + SDU periods")
-    elif args.traffic_period != "all":
-        scope.append(args.traffic_period.upper())
-    if args.vehicle_group != "all":
-        scope.append("one vehicle" if args.vehicle_group == "one" else "two or more vehicles")
-    title = "Estimated rural injury-accident rate ratio by mean wind speed"
-    if scope:
-        title += " (" + ", ".join(scope) + ")"
-    plot(result, args.figure, title)
     print(result.to_string(index=False))
 
 

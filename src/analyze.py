@@ -32,13 +32,22 @@ def main() -> None:
     parser.add_argument("-n", "--dry-run", action="store_true")
     args = parser.parse_args()
     run("src.analysis.build_oe", dry_run=args.dry_run)
-    run("src.analysis.report_oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
-    run("src.analysis.estimated_crash_rate", dry_run=args.dry_run)
-    run("src.analysis.stratified_crash_rate", dry_run=args.dry_run)
+    run("src.tables.oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
+    run("src.figures.oe", dry_run=args.dry_run)
+    run("src.figures.gust_factor", dry_run=args.dry_run)
+    run("src.tables.estimated_rate", dry_run=args.dry_run)
+    run("src.figures.estimated_rate", dry_run=args.dry_run)
+    run("src.tables.rate", dry_run=args.dry_run)
+    run("src.figures.rate", dry_run=args.dry_run)
     run(
-        "src.analysis.stratified_crash_rate", "--traffic-period", "official",
+        "src.tables.rate", "--traffic-period", "official",
         "--output", "reports/working/tables/stratified_crash_rate_ratio_official_traffic.csv",
-        "--figure", "reports/working/figures/stratified_crash_rate_ratio_official_traffic.png",
+        dry_run=args.dry_run,
+    )
+    run(
+        "src.figures.rate",
+        "--input", "reports/working/tables/stratified_crash_rate_ratio_official_traffic.csv",
+        "--output", "reports/working/figures/stratified_crash_rate_ratio_official_traffic.png",
         dry_run=args.dry_run,
     )
     run("src.analysis.compare_traffic_scopes", dry_run=args.dry_run)
@@ -47,7 +56,8 @@ def main() -> None:
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
         print(f"Skipping optional daily-counter result: {reason}.")
     else:
-        run("src.analysis.daily_traffic_response", dry_run=args.dry_run)
+        run("src.tables.daily_traffic", dry_run=args.dry_run)
+        run("src.figures.daily_traffic", dry_run=args.dry_run)
     run("src.figures.data_flow", dry_run=args.dry_run)
     run("src.figures.accident_profiles", dry_run=args.dry_run)
     run("src.validate", dry_run=args.dry_run)

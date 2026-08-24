@@ -1,4 +1,4 @@
-"""Estimate rural injury-accident rates from the compact traffic CSV summary."""
+"""Write rural injury-accident rate tables from the compact traffic CSV summary."""
 
 from __future__ import annotations
 
@@ -16,7 +16,6 @@ import pandas as pd
 INPUT = Path("data/analysis/traffic_rate_summary.csv")
 OUTPUT = Path("reports/working/tables/estimated_crash_rate_by_wind.csv")
 AUDIT = Path("reports/working/tables/estimated_crash_rate_by_wind_audit.csv")
-FIGURE = Path("reports/working/figures/estimated_crash_rate_by_wind.png")
 
 
 def select_periods(data: pd.DataFrame, traffic_period: str) -> pd.DataFrame:
@@ -82,7 +81,6 @@ def main() -> None:
     )
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     parser.add_argument("-a", "--audit", type=Path, default=AUDIT)
-    parser.add_argument("-f", "--figure", type=Path, default=FIGURE)
     args = parser.parse_args()
     source = pd.read_csv(args.input)
     required = {"traffic_period", "wind_bin", "wind_bin_lower_ms", "estimated_vehicle_km", "injury_accidents"}
@@ -96,11 +94,10 @@ def main() -> None:
         "observed_accidents": int(result["observed_accidents"].sum()),
         "estimated_vehicle_km": float(result["estimated_vehicle_km"].sum()),
     }])
-    for path in [args.output, args.audit, args.figure]:
+    for path in [args.output, args.audit]:
         path.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)
     audit.to_csv(args.audit, index=False)
-    plot(result, args.figure)
     print(result.to_string(index=False))
     print(audit.to_string(index=False))
 

@@ -1,4 +1,4 @@
-"""Build a transparent daily-traffic response analysis by mean wind speed.
+"""Build daily-traffic response tables by mean wind speed.
 
 The analytical unit is one physical traffic counter on one calendar day.  The
 input already contains a nearest usable weather-station match and daytime mean
@@ -26,11 +26,6 @@ import pandas as pd
 INPUT = Path("data/analysis/daily_traffic.csv")
 RESULTS = Path("reports/main/tables/daily_traffic_by_wind.csv")
 PERIOD_SUMMARY = Path("reports/main/tables/daily_traffic_period_summary.csv")
-FIGURE_ALL = Path("reports/main/figures/daily_traffic_by_wind.png")
-DETAILED_RESULTS = Path("reports/working/tables/daily_traffic_wind_detailed.csv")
-FIGURE_DETAILED = Path("reports/working/figures/daily_traffic_wind_detailed.png")
-FIGURE_PERIOD = Path("reports/working/figures/daily_traffic_wind_by_period.png")
-NOTES = Path("archive/generated_diagnostics/daily_traffic_wind_analysis_notes.md")
 
 F_EDGES = np.array([0, 5, 10, 15, 20, 25, np.inf], dtype=float)
 F_LABELS = ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"]
@@ -56,15 +51,17 @@ def prepare_panel(input_path: Path) -> pd.DataFrame:
         raise ValueError(f"Analysis input must be a CSV file: {input_path}")
     source = pd.read_csv(input_path)
     needed = [
-        "date", "counter_id", "traffic", "weather_station_id", "f_mean", "fg_mean",
+        "date", "counter_id", "traffic", "f_mean",
     ]
     missing = set(needed) - set(source.columns)
     if missing:
         raise ValueError(f"Daily traffic input is missing columns: {sorted(missing)}")
     panel = source[needed].copy()
-    panel = panel.rename(
-        columns={"counter_id": "counter_site_id", "traffic": "traffic_volume", "f_mean": "f_daytime_mean", "fg_mean": "fg_daytime_mean"}
-    )
+    panel = panel.rename(columns={
+        "counter_id": "counter_site_id",
+        "traffic": "traffic_volume",
+        "f_mean": "f_daytime_mean",
+    })
     panel["date"] = pd.to_datetime(panel["date"])
     panel["year"] = panel["date"].dt.year.astype("int16")
     panel["month"] = panel["date"].dt.month.astype("int8")
@@ -134,7 +131,6 @@ def summarize(data: pd.DataFrame, *, scope: str, replicates: int, seed: int) -> 
     summary = data.groupby("f_bin", observed=True, as_index=False).agg(
         counter_days=("date", "size"),
         counters=("counter_site_id", "nunique"),
-        weather_stations=("weather_station_id", "nunique"),
         observed_daily_vehicles=("traffic_volume", "sum"),
         expected_daily_vehicles=("expected_daily_traffic", "sum"),
         median_daily_traffic_oe=("daily_traffic_oe", "median"),
@@ -174,7 +170,6 @@ def build_period_summary(panel: pd.DataFrame) -> pd.DataFrame:
         .agg(
             counter_days=("date", "size"),
             counters=("counter_site_id", "nunique"),
-            weather_stations=("weather_station_id", "nunique"),
             mean_daily_traffic=("traffic_volume", "mean"),
             median_daily_traffic=("traffic_volume", "median"),
         )
@@ -306,36 +301,16 @@ def main() -> None:
     parser.add_argument("-i", "--input", type=Path, default=INPUT)
     parser.add_argument("-r", "--results", type=Path, default=RESULTS)
     parser.add_argument("-p", "--period-summary", type=Path, default=PERIOD_SUMMARY)
-    parser.add_argument("-f", "--figure", type=Path, default=FIGURE_ALL)
-    parser.add_argument("-R", "--detailed-results", type=Path, default=DETAILED_RESULTS)
-    parser.add_argument("-F", "--detailed-figure", type=Path, default=FIGURE_DETAILED)
-    parser.add_argument(
-        "-w", "--write-detailed",
-        action="store_true",
-        help="Also regenerate period-specific diagnostic outputs.",
-    )
-    parser.add_argument("-P", "--period-figure", type=Path, default=FIGURE_PERIOD)
-    parser.add_argument("-n", "--notes", type=Path, default=NOTES)
     parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     args = parser.parse_args()
 
     panel = prepare_panel(args.input)
     results = build_results(panel, args.bootstrap_replicates)
     period_summary = build_period_summary(panel)
-    paths = [args.results, args.period_summary, args.figure, args.notes]
-    if args.write_detailed:
-        paths.extend([args.detailed_results, args.detailed_figure, args.period_figure])
-    for path in paths:
+    for path in [args.results, args.period_summary]:
         path.parent.mkdir(parents=True, exist_ok=True)
     results.to_csv(args.results, index=False)
     period_summary.to_csv(args.period_summary, index=False)
-    plot_results(results, args.figure, "All periods", "Daily traffic relative to expected traffic by mean wind speed")
-    if args.write_detailed:
-        detailed_results = build_results(panel, args.bootstrap_replicates)
-        detailed_results.to_csv(args.detailed_results, index=False)
-        plot_results(detailed_results, args.detailed_figure, "All periods", "Daily traffic by mean wind speed")
-        plot_period_results(detailed_results, args.period_figure)
-    write_notes(args.notes, panel, results)
     print(period_summary.to_string(index=False))
     print(results[results["scope"].eq("All periods")].to_string(index=False))
 

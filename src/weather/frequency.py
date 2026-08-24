@@ -22,19 +22,13 @@ DEFAULT_WIDE = Path("archive/generated_diagnostics/wind_frequency_readable.csv")
 DEFAULT_NOTES = Path(
     "archive/generated_diagnostics/wind_frequency_notes.txt"
 )
-DEFAULT_DISTRIBUTION_CSV = Path(
-    "reports/main/tables/gust_factor_distribution.csv"
-)
-DEFAULT_DISTRIBUTION_FIGURE = Path(
-    "reports/main/figures/gust_factor_distribution.png"
-)
 
 FIRST_YEAR = 2007
 LAST_YEAR = 2025
 SEASONS = np.array(["Winter", "Spring", "Summer", "Fall"])
 F_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25], dtype=float)
-# The annual-traffic cache retains this internal label to distinguish its
-# five-metre mean-wind rows from a legacy three-metre cache column. Its public
+# The annual-traffic preparation retains this internal label to distinguish its
+# five-metre mean-wind rows from a legacy three-metre column. Its public
 # output is always described as mean wind speed, `f`.
 F_FIVE_MS_UPPER_BOUNDS = F_UPPER_BOUNDS
 FG_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25, 30, 35], dtype=float)
@@ -308,31 +302,8 @@ def main() -> None:
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("-w", "--wide", type=Path, default=DEFAULT_WIDE)
     parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
-    parser.add_argument(
-        "-c", "--distribution-csv", type=Path, default=DEFAULT_DISTRIBUTION_CSV
-    )
-    parser.add_argument(
-        "-f", "--distribution-figure", type=Path, default=DEFAULT_DISTRIBUTION_FIGURE
-    )
-    parser.add_argument(
-        "-d", "--distribution-only",
-        action="store_true",
-        help="Create the weather-only pooled gust-factor distribution from --output.",
-    )
     parser.add_argument("-m", "--max-row-groups", type=int)
     args = parser.parse_args()
-
-    if args.distribution_only:
-        distribution = write_pooled_gust_factor_distribution(
-            pd.read_parquet(args.output),
-            args.distribution_csv,
-            args.distribution_figure,
-        )
-        print(
-            f"wrote={args.distribution_figure}; bins={len(distribution):,}; "
-            f"observations={distribution['measurement_count'].sum():,}"
-        )
-        return
 
     started = time.perf_counter()
     parquet_file = pq.ParquetFile(args.input)
@@ -361,9 +332,6 @@ def main() -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
     long.to_parquet(args.output, index=False, compression="zstd")
     wide.to_csv(args.wide, index=False)
-    write_pooled_gust_factor_distribution(
-        long, args.distribution_csv, args.distribution_figure
-    )
     elapsed = time.perf_counter() - started
     notes = f"""Wind frequency by station and season
 ====================================
