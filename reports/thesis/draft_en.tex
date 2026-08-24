@@ -11,7 +11,7 @@
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{float}
-\usepackage{caption}
+\usepackage[format=plain,labelformat=simple,labelsep=colon]{caption}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{url}
@@ -32,8 +32,7 @@
 \setkomafont{captionlabel}{\itshape}
 \setkomafont{caption}{\itshape}
 \setkomafont{section}{\Large}
-\setcapwidth{\textwidth}
-\setcapindent{1em}
+\captionsetup{width=\textwidth,indent=1em}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
 
 \def\thesisyear{2026}
@@ -163,16 +162,17 @@ when rural injury accidents occur in Iceland. Accident records, cleaned
 10-minute weather observations, urban boundaries, annual road-section traffic
 statistics, and daily counter data are combined in a documented analysis. The
 primary analysis includes 6,192 rural injury accidents from 2007--2025 with
-valid wind observations within 20 km. Within each weather station, calendar
-year, and season, observed accidents in each mean-wind interval are compared
-with the number expected from the local background frequency of that interval.
+valid wind observations within 20 km. Within each weather station and
+meteorological season, observed accidents in each mean-wind interval are
+compared with the number expected from the local background frequency of that
+interval, pooled across 2007--2025.
 Confidence intervals are obtained from 5,000 bootstrap samples clustered by
 weather station.
 
 The observed/expected ratio is close to one across most low and moderate wind
 intervals. At mean wind speeds of 20--25 m/s, 61 accidents were observed
 compared with 29.0 expected, giving a ratio of 2.11 (95\% station-clustered
-bootstrap interval 1.54--2.71). Maximum gust is a secondary wind measure.
+bootstrap interval 1.54--2.73). Maximum gust is a secondary wind measure.
 The result describes relative accident occurrence, not a causal effect or
 accident risk per vehicle. Traffic data are unavailable at the required spatial
 and temporal resolution for the full study period. The thesis documents data

@@ -34,53 +34,35 @@ frequency, and estimates uncertainty by weather-station-clustered bootstrap.
 The figures and tables can be regenerated from documented scripts
 \cite{peng2011}.
 
-\chapter{Data and Analysis Files}
+\chapter{Data Sources and Analysis Files}
 
 \section{Source Websites and Downloaded Data}
 
-The source websites and the downloaded content are listed explicitly here so
-that the origin of every analytical variable can be audited. Accident records
-were supplied as tab-separated exports from Samgöngustofa; its public accident
-register description and statistics page are available at
-\url{https://www.samgongustofa.is/umferd/tolfraedi/umferdarslys/}
-\cite{samgongustofaAccidents}. Ten-minute observations and station metadata
-were obtained from the Icelandic Meteorological Office data service at
-\url{https://api.vedur.is/weather/} \cite{vedurApi}. Annual traffic workbooks
-and daily counter reports were downloaded from the Vegagerðin traffic pages at
-\url{https://www.vegagerdin.is/samgongukerfid/vegakerfid/umferdartolur} and
-\url{https://umferd.vegagerdin.is/} \cite{vegagerdinTraffic}. Urban polygons
-were downloaded from the Statistics Iceland WFS endpoint
-\url{https://gis.is/geoserver/Hagstofan/ows}. Current counter locations and
-road-section geometry were obtained from the Vegagerðin ArcGIS layers
-\url{https://vegasja.vegagerdin.is/arcgis/rest/services/data/}.
+Table~\ref{tab:sources} lists the downloaded source data. The identifiers in
+the first column are used in Table~\ref{tab:pipeline}. The source
+documentation is cited in the bibliography \cite{samgongustofaAccidents,vedurApi,vegagerdinTraffic,hagstofaThettbyli}.
 
 \begin{table}[H]
 \centering
-\scriptsize
-\caption{Source websites and downloaded datasets. The source identifiers are used in Table~\ref{tab:pipeline}. The primary study period is 2007--2025.}
+\small
+\renewcommand{\arraystretch}{1.12}
+\caption{Downloaded source data. The primary study period is 2007--2025.}
 \label{tab:sources}
-\begin{tabularx}{\textwidth}{L{0.10\textwidth}L{0.18\textwidth}L{0.18\textwidth}L{0.15\textwidth}X}
+\begin{tabularx}{\textwidth}{L{0.09\textwidth}L{0.23\textwidth}L{0.34\textwidth}X}
 \toprule
-ID & Website & Downloaded dataset & Records and period & Fields used \\
+ID & Source website & Downloaded data & Records and period \\
 \midrule
-ACC & Samgöngustofa accident register & Accident events and road links &
-126,607 events, 2007--2025; 126,610 road links, 2007--2025 &
-\texttt{nid}, date, time, coordinates, \texttt{meidsli}, \texttt{tegohapps}, and registered road section. \\
-IMO & Icelandic Meteorological Office API & Ten-minute weather and station metadata &
-226,580,952 observations, 2007--2025; 771 station-history records &
-station, time, mean wind \texttt{f}, maximum gust \texttt{fg}, and station coordinates. \\
-IRCA-A & Vegagerðin traffic workbooks & Annual road-section traffic &
-33,757 section-years, 2000--2025 &
-year, road section, length, \texttt{ADU}, \texttt{SDU}, and \texttt{VDU}. \\
-IRCA-D & Vegagerðin counter reports & Daily counter channels &
-1,033,659 channel-days, 2019--2024 &
-date, counter identifier, road section, reported station, direction/lane channel, and count. \\
-IRCA-R & Vegagerðin MapServer & Counter locations and road geometry &
-Current register and network reference &
-counter identifier, coordinates, road section, station range, and geometry. \\
-SI & Statistics Iceland WFS & Urban-area polygons &
-97 polygons, 2020--2024 publication &
-polygon geometry and locality identifiers used for rural classification. \\
+ACC & Samgöngustofa &
+Accident events and road links &
+126,607 events and 126,610 road links, 2007--2025 \\
+IMO & Icelandic Meteorological Office &
+Ten-minute weather observations and station metadata &
+226,580,952 observations and 771 station-history records, 2007--2025 \\
+VGD-A, VGD-D, VGD-R & Vegagerðin &
+Annual road traffic, daily counter reports, counter locations, and road geometry &
+33,757 section-years, 2000--2025; 1,033,659 counter channel-days, 2019--2024 \\
+SI & Statistics Iceland & Urban-area polygons &
+97 polygons, 2020--2024 publication \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -121,27 +103,33 @@ carried into the analytical files.
 
 \begin{table}[H]
 \centering
-\scriptsize
-\caption{Processing pipeline and analysis files. The compact files in \texttt{data/analysis/} are the routine inspection and core-analysis inputs.}
+\small
+\renewcommand{\arraystretch}{1.12}
+\caption{Compact analysis files and statistical outputs. Larger processed files are rebuilt from the source data and are not used for routine inspection.}
 \label{tab:pipeline}
-\begin{tabularx}{\textwidth}{L{0.16\textwidth}L{0.16\textwidth}L{0.20\textwidth}L{0.13\textwidth}X}
+\begin{tabularx}{\textwidth}{L{0.22\textwidth}L{0.15\textwidth}L{0.37\textwidth}X}
 \toprule
-Step & Inputs & Output file & Records and period & Purpose and fields used \\
+File & Built from & Retained content & Records and period \\
 \midrule
-Accident preparation and match & ACC, SI, IMO & \path{analysis/accidents.csv} &
-6,414 events, 2007--2025 & Rural injury events with \texttt{nid}, time, \texttt{meidsli}, \texttt{tegohapps}, vehicle count, matched station, distance, time difference, \texttt{f}, and \texttt{fg}. \\
-Wind cleaning & IMO & \path{processed/weather/weather\_10min\_clean.parquet} &
-211,497,897 observations, 2007--2025 & Applies the fixed wind-quality rules before any frequency calculation. Fields: station, time, \texttt{f}, and \texttt{fg}. \\
-Wind-frequency table & Clean weather, IMO station metadata & \path{analysis/weather\_frequency.csv} &
-646,209 station-year-season-bin rows, 2007--2025 & Counts each wind bin and its denominator using station, year, season, variable, bin, and measurement count. \\
-Annual traffic & IRCA-A & \path{analysis/annual\_traffic.csv} &
-33,757 section-years, 2000--2025 & Standardises road section, length, ADU, SDU, and VDU. \\
-Daily counter traffic & IRCA-D, IRCA-R, clean weather & \path{analysis/daily\_traffic.csv} &
-774,274 counter-days, 2019--2024 & Daily count, road section, location method, matched station and distance, daytime \texttt{f} and \texttt{fg}. \\
-Primary O/E & Accident and frequency files & \path{mean\_wind\_oe.csv} &
-6 wind bins, 2007--2025 & Observed and expected accidents by 5 m/s mean-wind bin, standardised within station, year, and season. \\
-Stratified crash-rate ratio & Road-period cache, shared-station accidents, and daily traffic factors & \path{stratified\_crash\_rate\_ratio\_by\_wind.csv} &
-6 wind bins; 4,958 accidents, 2007--2025 & Compares estimated accident rates within road section, year, and traffic period using vehicle-kilometres as an offset. \\
+\path{accidents.csv} & ACC, SI, IMO &
+\texttt{id}, time, injury code, accident type, vehicle count, matched station, distance, time difference, \texttt{f}, and \texttt{fg} &
+6,414 events, 2007--2025 \\
+\path{weather_frequency.csv} & IMO &
+station, season, wind variable, wind interval, and background observation count &
+24,778 station-season-interval rows pooled across 2007--2025 \\
+\path{annual_traffic.csv} & VGD-A &
+road section, length, ADU, SDU, and VDU &
+33,757 section-years, 2000--2025 \\
+\path{daily_traffic.csv} & VGD-D, IMO &
+counter, date, 24-hour count, matched station and distance, daytime mean \texttt{f}, and daytime mean \texttt{fg} &
+774,274 counter-days, 2019--2024 \\
+\path{mean_wind_oe.csv} & Accident and frequency files &
+observed accidents, expected accidents, O/E, and bootstrap interval by wind interval &
+Six intervals, 2007--2025 \\
+\path{stratified_crash_rate_ratio_by_wind.csv} &
+Road-period exposure and shared-station accidents &
+observed accidents and rate ratios with model intervals by wind interval &
+6 intervals; 4,958 accidents, 2007--2025 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -260,6 +248,26 @@ covers June--September and VDU covers December--March. These files can be linked
 to accidents with a registered road-section code, but exact matching is much
 narrower than the weather matching.
 
+\begin{table}[H]
+\centering
+\small
+\caption{Traffic periods used in the annual-traffic analysis.}
+\label{tab:traffic-periods}
+\begin{tabularx}{0.82\textwidth}{L{0.17\textwidth}L{0.34\textwidth}X}
+\toprule
+Period & Months & Daily traffic reference \\
+\midrule
+VDU & December--March & Official winter daily traffic \\
+SDU & June--September & Official summer daily traffic \\
+VHDU & April--May and October--November & Derived from ADU after the VDU and SDU totals have been removed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Thus, spring is April--May and autumn is October--November in the traffic
+analysis. VHDU is a transparent residual estimate, rather than an additional
+official traffic measure.
+
 Daily traffic counts extracted from Vegagerðin reports cover 2019--2024. They
 describe observed traffic at counter sites and are useful for measuring travel
 demand during windy days. They do not provide hourly vehicle-kilometres at every
@@ -268,7 +276,9 @@ report identifies a counter by road section and \emph{stöð} (road station). Th
 annual road files provide the corresponding section start and end stations
 (\texttt{Bst} and \texttt{Est}), which permit a counter position to be
 interpolated along the section geometry when an official counter coordinate is
-not available.
+not available. They are therefore used only as a supplementary description of
+whether travel demand changes on windy days; they are not part of the primary
+O/E denominator.
 
 \begin{figure}[H]
 \centering
@@ -284,10 +294,12 @@ The repository groups the code into weather, accident, traffic, and analysis
 modules. The weather module cleans observations, the accident module performs
 the weather match, and the analysis module produces O/E estimates, bootstrap
 intervals, road-section results, and the daily counter diagnostic.
-The repository README identifies the individual programs. The reported results
-can be regenerated with
+The repository README identifies the individual programs. After the authorised
+source deliveries have been placed locally, the reported results can be
+regenerated with
 
 \begin{verbatim}
+.venv/bin/python -m src.prepare --stage prepare
 .venv/bin/python -m src.analyze
 \end{verbatim}
 
@@ -299,12 +311,12 @@ Figures are generated by the analysis scripts and are not manually edited.
 
 Mean wind speed \texttt{f} is the pre-specified primary exposure and is divided
 into 5 m/s intervals. Maximum gust \texttt{fg} is retained as a supporting
-analysis. Each accident is compared with
-the mean-wind distribution at its matched weather station in the same calendar year
-and season. The expected count in a mean-wind interval is therefore based on how
-often that interval occurred locally, rather than on a national wind average.
+analysis. Each accident is compared with the mean-wind distribution at its
+matched weather station in the same meteorological season, pooled across all
+study years. The expected count in a mean-wind interval is therefore based on
+how often that interval occurred locally, rather than on a national wind average.
 
-Let \(g\) identify a weather station, calendar year, and meteorological season.
+Let \(g\) identify a weather station and meteorological season.
 Let \(A_{jg}\) be the number of accidents in mean-wind interval \(j\) and group \(g\),
 and let \(A_g=\sum_j A_{jg}\). From all clean 10-minute observations, let
 \(T_{jg}\) be the number in interval \(j\) and \(T_g\) the total in group \(g\).
@@ -325,12 +337,12 @@ R_j=
 
 A value of one means that the accident share equals the local time share of the
 mean-wind interval. A value above one means that accidents are over-represented in
-that interval. Standardisation within station, year, and season prevents windy
+that interval. Standardisation within station and season prevents windy
 stations or seasons from dominating solely because their wind distributions
 differ.
 
 Uncertainty is estimated with 5,000 weather-station-clustered bootstrap
-replicates. Stations are sampled with replacement, while all years, seasons,
+replicates. Stations are sampled with replacement, while all seasons,
 weather observations, and accidents associated with a sampled station remain
 together. The reported interval is the 2.5th to 97.5th percentile of the
 bootstrap distribution.
@@ -393,14 +405,9 @@ The exponentiated coefficient \(\exp(\beta_j)\) is the estimated rate ratio
 relative to 0--5 m/s within otherwise identical road-section--year--period
 strata.
 
-The daily counter analysis provides a separate, counter-informed allocation.
-For wind interval \(j\), its traffic factor is the observed-to-typical daily
-traffic ratio in that interval, divided by the corresponding ratio at 0--5 m/s.
-Within each road-section--year--period stratum, \(V_{kj}\) is multiplied by
-this factor and then rescaled so that the stratum's total annual
-vehicle-kilometres are unchanged. Thus, it changes only the assumed allocation
-of traffic across wind intervals; it is not a direct observation of
-vehicle-kilometres at each 10-minute weather measurement.
+The daily counter analysis is kept separate from the vehicle-kilometre model.
+It describes whether traffic at selected counters is lower on windier days; it
+does not directly observe vehicle-kilometres in each 10-minute wind interval.
 
 \section{Observed Daily Traffic Diagnostic}
 
@@ -420,8 +427,7 @@ I_{cd}=100\times
 An index below 100 indicates fewer counted vehicles than usual for that local
 calendar context. For each wind interval, the observed-to-expected traffic
 ratio is aggregated across counter-days and expressed relative to the 0--5 m/s
-ratio. This is the factor used in the counter-informed allocation above. It
-describes the participating counter sites rather than national traffic. The
+ratio. It describes the participating counter sites rather than national traffic. The
 24-hour traffic count is not converted into hourly traffic. Mean wind is
 calculated from clean observations between 10:00 and 21:59, so this is a daily
 association rather than an estimate of traffic in that window.
@@ -496,69 +502,42 @@ supporting results rather than drawn on the figure.}
 Ratios are close to one across most low and moderate intervals. The plotted
 ratios increase from 15 m/s. At mean wind speeds of 20--25 m/s, 61 accidents
 were observed compared with 29.0 expected. The O/E ratio is 2.11, with a
-station-clustered interval of 1.54--2.71. At mean wind speeds of at least
-25 m/s, 16 accidents were observed compared with 5.9 expected (O/E 2.70;
-95\% interval 0.97--5.49). The upper tail contains few accidents, so the
-results describe a broad pattern rather than precise thresholds.
+station-clustered interval of 1.54--2.73. At mean wind speeds of at least
+25 m/s, 16 accidents were observed compared with 6.4 expected (O/E 2.49;
+95\% interval 0.86--5.37). This interval includes one and is too imprecise to
+support a separate conclusion at 25 m/s or above. The more informative upper
+mean-wind result is the 20--25 m/s interval.
 
-The same accidents, weather records, matching rule, and O/E calculation can
-also be grouped into 3 m/s intervals. That presentation is included in
-Appendix~\ref{app:mean-wind-3m}. The wider 5 m/s grouping is used in the main
-figure because it gives a direct, readable description of the high-wind pattern
-without implying that the bin boundaries are physical thresholds.
+The 5 m/s grouping is used throughout because it gives a direct, readable
+description of the upper wind intervals without implying that the boundaries
+are physical thresholds.
 
 Maximum gust is a secondary measure. Its O/E pattern rises more strongly in
-the highest gust intervals; at gusts of at least 36 m/s, 25 accidents were
-observed compared with 4.2 expected (O/E 5.99; 95\% interval 3.62--8.80).
+the highest gust intervals; at gusts of at least 35 m/s, 28 accidents were
+observed compared with 5.5 expected (O/E 5.06; 95\% interval 2.94--7.57).
 This result is reported as supporting evidence, not as a replacement for the
 mean-wind primary analysis.
 
 \begin{table}[H]
 \centering
 \small
-\caption{Highest-gust result under three station-distance rules}
+\caption{Highest-gust result under three weather-station distance rules}
 \label{tab:radius-comparison}
 \begin{tabular}{rrrrr}
 \toprule
-Maximum distance & Matched accidents & Observed at $\geq36$ & O/E & 95\% interval \\
+Maximum distance & Matched accidents & Observed at $\geq35$ & O/E & 95\% interval \\
 \midrule
-10 km & 4,858 & 25 & 7.14 & 4.35--10.43 \\
-20 km (primary) & 6,192 & 25 & 5.99 & 3.62--8.80 \\
-30 km & 6,399 & 26 & 5.89 & 3.54--8.68 \\
+10 km & 4,858 & 28 & 6.12 & 3.58--9.26 \\
+20 km (primary) & 6,192 & 28 & 5.06 & 2.94--7.57 \\
+30 km & 6,399 & 29 & 5.00 & 2.95--7.45 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Maximum Gust as a Supporting Analysis}
 
-Maximum gust is examined with the same station, year, and season
+Maximum gust is examined with the same station and season
 standardisation. The gust O/E figure is provided in Appendix~\ref{app:gust}.
-
-\section{Estimated Accident Rates per Vehicle-Kilometre}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{stratified_crash_rate_ratio_by_wind.png}
-\caption{Estimated rural injury-accident rate ratios relative to 0--5 m/s.
-The model compares wind intervals within the same road section, year, and
-traffic period. Grey bars allocate seasonal traffic in proportion to local
-10-minute wind frequency. Orange bars use the observed daily-counter traffic
-pattern as an additional allocation factor. Labels show observed accidents.}
-\label{fig:stratified-crash-rate}
-\end{figure}
-
-The stratified model includes 4,958 accidents in 4,004 informative
-road-section--year--period strata. Relative to 0--5 m/s, the estimated rate
-ratio is 1.59 (95\% CI 1.36--1.86) at 15--20 m/s, 2.36 (1.76--3.16) at
-20--25 m/s, and 4.52 (2.77--7.37) at at least 25 m/s. The time-proportional
-allocation assumes that traffic within a period follows local wind frequency.
-
-Daily counters show lower traffic on windier days. Relative to 0--5 m/s,
-the daily traffic factors are 0.86 at 15--20 m/s, 0.75 at 20--25 m/s, and
-0.62 at at least 25 m/s. Applying these factors before allocating annual
-vehicle-kilometres raises the corresponding rate ratios to 1.85, 3.16, and
-7.09. This second allocation is a supporting comparison: its wind measure is a
-daytime daily mean, whereas the rate model uses 10-minute wind observations.
 
 \section{Descriptive Subgroups}
 
@@ -573,50 +552,23 @@ surface history describes road construction rather than the wet, icy, or dry
 condition at the accident time. Presenting either comparison now would be
 misleading.
 
-\section{Daily Traffic During Wind}
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{daily_traffic_by_wind.png}
-\caption{Vehicles counted per day relative to a typical day at the same
-counter, year, month, and weekday. The labels show the number of counter-days.
-Daytime mean wind is calculated from 10:00 to 21:59.}
-\label{fig:daily-traffic}
-\end{figure}
-
-The daily counter dataset contains 1,033,659 directional daily records.
-Directional channels at the same physical counter site are summed, while
-separate counter sites on the same road section remain separate. This produces
-774,274 counter-days from 476 sites. Usable daytime wind is available for
-738,424 counter-days (95.37\%). Traffic remains close to its local typical
-level below 9 m/s and declines at higher mean wind speeds. This pattern is
-consistent with lower travel demand during strong wind. It does not estimate
-national traffic or traffic at the time of each accident.
-At mean daytime wind speeds of at least 24 m/s, the observed count is 62.6\%
-of the expected count for a typical day at the same counter, year, month, and
-weekday. This upper interval contains 294 counter-days at 105 counters, so it
-is supporting descriptive evidence rather than a replacement for the primary
-O/E denominator.
-
 \chapter{Discussion}
 
 \section{Interpretation}
 
 Strong mean wind is over-represented at the times of rural injury accidents
 relative to its local frequency. The comparison is standardised within
-weather station, calendar year, and season, and uncertainty is clustered by
+weather station and season, and uncertainty is clustered by
 station. The result describes association rather than a per-vehicle causal
 effect. Moderate wind intervals fluctuate around one, while several upper
 intervals contain few accidents.
 
 Traffic remains important for interpretation. The primary curve cannot separate
-risk per vehicle from the number of vehicles exposed. In the traffic analysis,
-rate ratios increase after comparison within road section, year, and traffic
-period. Daily counters show lower traffic during strong wind, and the
-counter-informed allocation strengthens the high-wind pattern. These results
-make it less likely that the main O/E pattern is explained by increased travel
-during severe wind. The available traffic data are still too limited for a
-directly observed national per-vehicle rate.
+risk per vehicle from the number of vehicles exposed. The annual-traffic and
+daily-counter analyses are therefore reported in the appendix as supporting
+work. They indicate lower traffic during strong wind, but their temporal and
+spatial coverage is not sufficient to make them a final national estimate of
+accident risk per vehicle-kilometre.
 
 \section{Strengths}
 
@@ -640,12 +592,16 @@ and result clear.
   observed at the accident minute. It aligns accident weather and exposure to
   the same station, but excludes accidents for which that station is farther
   than 20 km from the accident.
-  \item The counter-informed allocation uses 2019--2024 daily traffic and
-  daytime daily mean wind. It supports the direction of the adjustment, but it
-  is not a direct measurement of vehicle-kilometres in each 10-minute wind bin.
+  \item Daily counter data cover 2019--2024 and use daytime daily mean wind.
+  They are a descriptive check, not a direct measurement of
+  vehicle-kilometres in each 10-minute wind bin.
   \item Daily traffic counts cover selected counter sites. Multiple counters
   can represent different directions, lanes, or locations; retaining counters
   separately avoids double counting but does not provide national coverage.
+  \item Estimated rates are restricted to rural injury accidents on linked
+  road sections. They should not be compared directly with broad national or
+  international accident rates unless the outcome and vehicle-kilometre
+  denominator are defined in the same way.
   \item The highest wind intervals contain relatively few accidents. Several
   intervals and comparison results are shown, so individual estimates in
   the upper tail should be interpreted with caution.
@@ -671,17 +627,17 @@ more value than additional models based on the current information.
 This thesis examines wind speed and rural injury accidents in Iceland. Of 6,414
 accidents from 2007--2025, 6,192 were matched to a valid wind observation
 within 20 km. After standardisation for local mean-wind frequency within
-station, year, and season, accidents were over-represented at mean wind speeds
+station and season, accidents were over-represented at mean wind speeds
 of 20--25 m/s: 61 were observed compared with 29.0 expected, giving an O/E
-ratio of 2.11 with a 95\% station-clustered interval of 1.54--2.71. The
+ratio of 2.11 with a 95\% station-clustered interval of 1.54--2.73. The
 secondary gust analysis shows a stronger upper-tail pattern.
 
-Daily counter traffic falls during strong wind, and the stratified
-vehicle-kilometre rate ratio also rises at higher mean wind speeds. Neither
-traffic source provides complete hourly exposure for the full study period. The
-evidence therefore shows an association between strong wind and higher relative
-occurrence of rural injury accidents. Better linked hourly traffic data are
-required to estimate directly observed road risk per vehicle.
+The available annual-traffic and daily-counter data provide useful supporting
+work, but neither source gives complete hourly exposure for the full study
+period. The principal conclusion is therefore an association between strong
+mean wind and higher relative occurrence of rural injury accidents. Better
+linked hourly traffic data are required to estimate directly observed road risk
+per vehicle.
 
 \begin{thebibliography}{8}
 

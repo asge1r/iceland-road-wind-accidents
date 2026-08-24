@@ -36,18 +36,6 @@ factor ($fg/f$). The ratio is calculated only where mean wind speed is at least
 3 m/s. This exploratory analysis does not show a clear monotonic pattern.}
 \end{figure}
 
-\section{Mean Wind Grouped in 3 m/s Intervals}
-\label{app:mean-wind-3m}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{mean_wind_3m_oe.png}
-\caption{The primary mean-wind O/E calculation presented in narrower 3 m/s
-intervals. The accident sample, weather records, matching rule, and
-standardisation are unchanged; only the grouping shown on the horizontal axis
-is different.}
-\end{figure}
-
 \section{Mean-Wind Subgroups}
 
 \begin{figure}[H]
@@ -84,6 +72,15 @@ involved. This is a descriptive subgroup analysis.}
 
 \section{Daily-Counter Validation}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{daily_traffic_by_wind.png}
+\caption{Vehicles counted per day relative to a typical day at the same
+counter, year, month, and weekday. Labels show counter-days. Daytime mean wind
+is calculated from 10:00 to 21:59. This is a supporting description of selected
+counter sites, not national traffic exposure.}
+\end{figure}
+
 \begin{table}[H]
 \centering
 \caption{Consistency of observed daily PDF traffic with official ADU}
@@ -100,29 +97,61 @@ At least 300 days, one counter per section & 1,122 & 1.000 & 0.925--1.112 & 0.99
 
 \section{Stratified Vehicle-Kilometre Model}
 
-Table~\ref{tab:traffic-model-intervals} gives the intervals omitted from the
-bar chart. The time-proportional allocation is the principal traffic result.
-The counter-informed allocation is a supporting comparison because it uses
-daily daytime mean wind from selected counters in 2019--2024.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{stratified_crash_rate_ratio_by_wind.png}
+\caption{Estimated rural injury-accident rate ratios relative to 0--5 m/s.
+The model compares wind intervals within the same road section, year, and
+traffic period. Traffic is allocated within a period in proportion to local
+10-minute wind frequency. Labels show observed accidents.}
+\end{figure}
+
+Table~\ref{tab:estimated-rate} gives absolute estimated rates for the
+all-period model. Table~\ref{tab:traffic-scope} compares the all-period model
+with a model restricted to official VDU and SDU traffic periods. The latter
+excludes April--May and October--November, for which VHDU is derived from ADU,
+SDU and VDU.
 
 \begin{table}[H]
 \centering
 \footnotesize
-\caption{Conditional Poisson rate ratios relative to 0--5 m/s}
-\label{tab:traffic-model-intervals}
-\begin{tabular}{lrrr}
+\setlength{\tabcolsep}{4pt}
+\caption{Estimated rural injury-accident rate by mean wind speed, all traffic periods}
+\label{tab:estimated-rate}
+\begin{tabular}{lrr}
 \toprule
-Mean wind & Accidents & Time-proportional ratio (95\% CI) & Counter-informed ratio (95\% CI) \\
+Mean wind & Accidents & Estimated accidents per 100 million vehicle-km \\
 \midrule
-0--5 & 2,435 & 1.00 (reference) & 1.00 (reference) \\
-5--10 & 1,706 & 1.10 (1.03--1.17) & 1.12 (1.05--1.19) \\
-10--15 & 570 & 1.11 (1.01--1.22) & 1.18 (1.08--1.30) \\
-15--20 & 182 & 1.59 (1.36--1.86) & 1.85 (1.58--2.16) \\
-20--25 & 48 & 2.36 (1.76--3.16) & 3.16 (2.36--4.23) \\
-$\geq25$ & 17 & 4.52 (2.77--7.37) & 7.09 (4.33--11.63) \\
+0--5 & 2,435 & 8.5 \\
+5--10 & 1,706 & 13.2 \\
+10--15 & 570 & 16.4 \\
+15--20 & 182 & 27.3 \\
+20--25 & 48 & 43.0 \\
+$\geq25$ & 17 & 57.2 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Conditional rate ratios in the upper mean-wind intervals: all periods versus official VDU and SDU periods only}
+\label{tab:traffic-scope}
+\begin{tabular}{lrr}
+\toprule
+Mean wind & All periods & Official VDU+SDU only \\
+\midrule
+15--20 & 1.59 (1.36--1.86), $n=182$ & 1.67 (1.39--2.01), $n=131$ \\
+20--25 & 2.36 (1.76--3.16), $n=48$ & 1.82 (1.23--2.69), $n=28$ \\
+$\geq25$ & 4.52 (2.77--7.37), $n=17$ & 2.61 (1.25--5.47), $n=7$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two models agree that the rate ratio is higher from 15 m/s. The upper
+intervals differ because the official-only comparison excludes VHDU and has
+few accidents. This comparison is retained to show the dependence of the
+estimated rate on the traffic-period assumption.
 
 The vehicle-group and seasonal versions were also estimated. They are not
 shown as figures because the upper intervals are too sparse for a balanced
