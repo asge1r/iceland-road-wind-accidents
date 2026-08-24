@@ -84,9 +84,9 @@ def create_figure(summary: pd.DataFrame, output: Path) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-i", "--input", type=Path, default=DEFAULT_INPUT)
+    parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
     create_figure(pd.read_csv(args.input), args.output)
     print(f"Wrote {args.output}")
