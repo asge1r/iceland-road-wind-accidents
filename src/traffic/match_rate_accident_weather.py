@@ -15,13 +15,9 @@ from src.accidents.match_weather import read_candidate_weather, select_best
 PANEL = Path("data/processed/traffic/road_section_wind_panel_2007_2025.parquet")
 ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
 WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
-STATIONS = Path("data/processed/weather/stations.csv")
+STATIONS = Path("data/raw/weather/stations.csv")
 OUTPUT = Path("data/processed/accidents/rate_accidents_weather.parquet")
 AUDIT = Path("reports/working/tables/rate_accident_weather_audit.csv")
-VEHICLE_SOURCES = [
-    (Path("data/raw/accidents/vehicles_2007_2024.txt"), "nid", "taeki"),
-    (Path("data/raw/accidents/vehicles_2025.txt"), "NID", "Nr. Ökutækis"),
-]
 
 PERIOD_BY_MONTH = {
     1: "VDU", 2: "VDU", 3: "VDU", 4: "VHDU", 5: "VHDU", 6: "SDU",
@@ -69,7 +65,7 @@ def load_road_station_panel(path: Path) -> pd.DataFrame:
 
 
 def load_accidents(path: Path) -> pd.DataFrame:
-    columns = ["nid", "timestamp", "registered_road_section", "lat", "lon"]
+    columns = ["nid", "timestamp", "registered_road_section", "lat", "lon", "vehicle_count"]
     accidents = pd.read_parquet(path, columns=columns)
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"], errors="coerce")
     accidents["year"] = accidents["timestamp"].dt.year
@@ -100,26 +96,6 @@ def build_candidates(accidents: pd.DataFrame) -> pd.DataFrame:
             "weather_time_difference_minutes",
         ],
     )
-
-
-def add_vehicle_count(accidents: pd.DataFrame) -> pd.DataFrame:
-    frames = []
-    for path, identifier, vehicle in VEHICLE_SOURCES:
-        if path.exists():
-            source = pd.read_csv(path, sep="\t", usecols=[identifier, vehicle])
-            frames.append(source.rename(columns={identifier: "nid", vehicle: "vehicle_id"}))
-    if not frames:
-        accidents["vehicle_count"] = pd.NA
-        accidents["vehicle_group"] = pd.NA
-        return accidents
-    vehicles = pd.concat(frames, ignore_index=True)
-    vehicles["nid"] = pd.to_numeric(vehicles["nid"], errors="coerce")
-    counts = vehicles.dropna(subset=["nid"]).groupby("nid")["vehicle_id"].nunique()
-    accidents = accidents.join(counts.rename("vehicle_count"), on="nid")
-    accidents["vehicle_group"] = np.where(
-        accidents["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
-    )
-    return accidents
 
 
 def main() -> None:
@@ -174,7 +150,9 @@ def main() -> None:
         & output["fg"].add(0.5).ge(output["f"])
     )
     output = output[valid_wind].copy()
-    output = add_vehicle_count(output)
+    output["vehicle_group"] = np.where(
+        output["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
+    )
     keep = [
         "nid", "timestamp", "year", "road_section", "traffic_period",
         "rate_weather_station_id", "rate_weather_time", "weather_time_difference_minutes",

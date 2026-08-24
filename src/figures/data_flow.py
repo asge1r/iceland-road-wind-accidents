@@ -12,11 +12,8 @@ import pandas as pd
 
 
 OUT = Path("reports/main/figures")
-ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
-STUDY = Path("data/processed/accidents/rural_injury_accidents.parquet")
+SELECTION = Path("data/analysis/selection_summary.csv")
 WEATHER_AUDIT = Path("reports/main/tables/weather_cleaning_audit.csv")
-ROAD_COVERAGE = Path("reports/main/tables/road_coverage.csv")
-DAILY_TRAFFIC = Path("data/processed/traffic/daily_traffic_weather.parquet")
 
 KEEP = "#5F8F78"
 DROP = "#C96A5B"
@@ -56,19 +53,19 @@ def flow(path: Path, title: str, boxes: list[tuple[str, int, str]]) -> None:
 
 
 def accident_figure() -> None:
-    all_accidents = pd.read_parquet(ACCIDENTS)
-    study = pd.read_parquet(STUDY)
-    valid_coordinates = int(all_accidents["urban_rural"].ne("Unknown").sum())
-    rural = int(all_accidents["urban_rural"].eq("Rural").sum())
-    matched = int((study["weather_station_dist_km"].le(20) & study["f"].notna() & study["fg"].notna()).sum())
+    summary = pd.read_csv(SELECTION).set_index(["dataset", "step"])["records"]
+    valid_coordinates = int(summary.loc[("accidents", "valid_time_and_coordinates")])
+    rural = int(summary.loc[("accidents", "rural_accidents")])
+    study = int(summary.loc[("accidents", "rural_injury_accidents")])
+    matched = int(summary.loc[("accidents", "primary_wind_oe_sample")])
     flow(
         OUT / "accident_flow.png",
         "Accident selection, 2007–2025",
         [
             ("Valid accident time and coordinates", valid_coordinates, ""),
             ("Rural accidents", rural, f"{count(valid_coordinates - rural)} urban"),
-            ("Rural injury accidents", len(study), f"{count(rural - len(study))} damage-only"),
-            ("Primary wind O/E sample", matched, f"{count(len(study) - matched)} without wind match within 20 km"),
+            ("Rural injury accidents", study, f"{count(rural - study)} damage-only"),
+            ("Primary wind O/E sample", matched, f"{count(study - matched)} without wind match within 20 km"),
         ],
     )
 
@@ -105,23 +102,25 @@ def weather_figure() -> None:
 
 
 def traffic_figure() -> None:
-    road = pd.read_csv(ROAD_COVERAGE).set_index("metric")["value"]
-    daily = pd.read_parquet(DAILY_TRAFFIC)
-    daily_wind = int(daily["f_daytime_mean"].notna().sum())
+    summary = pd.read_csv(SELECTION).set_index(["dataset", "step"])["records"]
+    annual_total = int(summary.loc[("annual_traffic", "road_section_year_periods")])
+    annual_wind = int(summary.loc[("annual_traffic", "road_periods_with_wind")])
+    daily_total = int(summary.loc[("daily_traffic", "counter_days")])
+    daily_wind = int(summary.loc[("daily_traffic", "counter_days_with_daytime_wind")])
     figure, axes = plt.subplots(2, 1, figsize=(10.5, 6.2), constrained_layout=True)
     draw_flow(
         axes[0],
         [
-            ("Annual road-period records", int(road["road_section_year_traffic_periods"]), ""),
-            ("Road-periods with nearby wind", int(road["periods_with_wind_frequency"]), f"{count(int(road["road_section_year_traffic_periods"] - road["periods_with_wind_frequency"]))} without nearby clean wind"),
+            ("Annual road-period records", annual_total, ""),
+            ("Road-periods with nearby wind", annual_wind, f"{count(annual_total - annual_wind)} without nearby clean wind"),
         ],
     )
     axes[0].set_title("Annual traffic exposure: road-section comparison", loc="left", fontsize=11, weight="bold", color=TEXT)
     draw_flow(
         axes[1],
         [
-            ("Daily counter-days, 2019–2024", len(daily), ""),
-            ("Daily counter-days with daytime wind", daily_wind, f"{count(len(daily) - daily_wind)} without daytime wind"),
+            ("Daily counter-days, 2019–2024", daily_total, ""),
+            ("Daily counter-days with daytime wind", daily_wind, f"{count(daily_total - daily_wind)} without daytime wind"),
         ],
     )
     axes[1].set_title("Daily counter traffic: travel-demand diagnostic", loc="left", fontsize=11, weight="bold", color=TEXT)

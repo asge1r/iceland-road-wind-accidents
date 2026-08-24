@@ -1,6 +1,6 @@
 """Download official road-section geometry for daily-counter locations.
 
-The Icelandic Road and Coastal Administration MapServer/6 layer supplies road
+The Vegagerðin MapServer/6 layer supplies road
 geometry and the official start/end road stations.  The downloaded GeoJSON is
 an unchanged local reference input, not a processed analysis output.
 """
@@ -60,7 +60,7 @@ def download() -> dict[str, object]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
     roads = download()
     args.output.parent.mkdir(parents=True, exist_ok=True)

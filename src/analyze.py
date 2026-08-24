@@ -4,12 +4,12 @@ Run from the project root with::
 
     .venv/bin/python -m src.analyze
 
-The primary O/E and daily-traffic results use compact canonical inputs under
-``data/analysis``. The estimated crash-rate analysis additionally reads its
-documented road-period cache under ``data/processed``.
+All results use compact canonical CSV inputs under ``data/analysis``. Run
+``src.prepare`` first when source data or preparation rules have changed.
 """
 
 import argparse
+from pathlib import Path
 import subprocess
 import sys
 
@@ -27,22 +27,28 @@ def main() -> None:
     parser.add_argument("-b", "--bootstrap-reps", type=int, default=5000)
     parser.add_argument(
         "-D", "--skip-daily-traffic", action="store_true",
-        help="Skip the optional daily-counter result and its traffic flow figure.",
+        help="Skip the optional daily-counter result.",
     )
     parser.add_argument("-n", "--dry-run", action="store_true")
     args = parser.parse_args()
-    run("src.export_tables", dry_run=args.dry_run)
     run("src.analysis.build_oe", dry_run=args.dry_run)
     run("src.analysis.report_oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
     run("src.analysis.estimated_crash_rate", dry_run=args.dry_run)
-    if args.skip_daily_traffic:
-        print("Skipping optional daily-counter result and traffic flow figure.")
-        run("src.analysis.stratified_crash_rate", "--skip-counter-informed", dry_run=args.dry_run)
+    run("src.analysis.stratified_crash_rate", dry_run=args.dry_run)
+    run(
+        "src.analysis.stratified_crash_rate", "--traffic-period", "official",
+        "--output", "reports/working/tables/stratified_crash_rate_ratio_official_traffic.csv",
+        "--figure", "reports/working/figures/stratified_crash_rate_ratio_official_traffic.png",
+        dry_run=args.dry_run,
+    )
+    run("src.analysis.compare_traffic_scopes", dry_run=args.dry_run)
+    daily_path = Path("data/analysis/daily_traffic.csv")
+    if args.skip_daily_traffic or not daily_path.exists():
+        reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
+        print(f"Skipping optional daily-counter result: {reason}.")
     else:
         run("src.analysis.daily_traffic_response", dry_run=args.dry_run)
-        run("src.analysis.daily_traffic_wind_weights", dry_run=args.dry_run)
-        run("src.analysis.stratified_crash_rate", dry_run=args.dry_run)
-        run("src.figures.data_flow", dry_run=args.dry_run)
+    run("src.figures.data_flow", dry_run=args.dry_run)
     run("src.figures.accident_profiles", dry_run=args.dry_run)
     run("src.validate", dry_run=args.dry_run)
 

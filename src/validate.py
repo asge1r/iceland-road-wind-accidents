@@ -7,16 +7,15 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
-DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
+DEFAULT_WEATHER_AUDIT = Path("archive/generated_diagnostics/weather_cleaning_by_year.csv")
 DEFAULT_MEAN_WIND = Path("reports/main/tables/mean_wind_oe.csv")
 DEFAULT_COVERAGE = Path("reports/main/tables/weather_match_coverage.csv")
 DEFAULT_SENSITIVITY = Path("archive/generated_diagnostics/gust_sensitivity.csv")
 DEFAULT_DAILY = Path("data/analysis/daily_traffic.csv")
-DEFAULT_RATE_ACCIDENTS = Path("data/processed/accidents/rate_accidents_weather.parquet")
+DEFAULT_RATE_INPUT = Path("data/analysis/rate_model.csv")
 DEFAULT_RATE_MODEL = Path("reports/main/tables/stratified_crash_rate_ratio_by_wind.csv")
 DEFAULT_OUTPUT = Path("reports/main/tables/final_analysis_validation.md")
 
@@ -26,65 +25,45 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
-def weather_checks(path: Path) -> dict[str, float | int]:
-    parquet = pq.ParquetFile(path)
-    rows = 0
-    invalid_f = 0
-    invalid_fg = 0
-    invalid_relation = 0
-    min_f = np.inf
-    max_f = -np.inf
-    min_fg = np.inf
-    max_fg = -np.inf
-    for batch in parquet.iter_batches(batch_size=1_000_000, columns=["f", "fg"]):
-        f = batch.column(0).to_numpy(zero_copy_only=False)
-        fg = batch.column(1).to_numpy(zero_copy_only=False)
-        rows += len(f)
-        invalid_f += int(np.count_nonzero((f < 0) | (f >= 45)))
-        invalid_fg += int(np.count_nonzero((fg < 0) | (fg >= 65)))
-        invalid_relation += int(np.count_nonzero(fg + 0.5 < f))
-        min_f = min(min_f, float(np.min(f)))
-        max_f = max(max_f, float(np.max(f)))
-        min_fg = min(min_fg, float(np.min(fg)))
-        max_fg = max(max_fg, float(np.max(fg)))
-    require(invalid_f == 0, f"Weather has {invalid_f:,} invalid f values")
-    require(invalid_fg == 0, f"Weather has {invalid_fg:,} invalid fg values")
-    require(invalid_relation == 0, f"Weather has {invalid_relation:,} fg < f values")
+def weather_checks(path: Path) -> dict[str, int]:
+    audit = pd.read_csv(path)
+    total = audit[audit["year"].astype(str).eq("total")]
+    require(len(total) == 1, "Weather audit must contain one total row")
+    row = total.iloc[0]
+    require(int(row["clean_wind_rows"]) > 0, "No clean wind observations in weather audit")
     return {
-        "rows": rows,
-        "min_f": min_f,
-        "max_f": max_f,
-        "min_fg": min_fg,
-        "max_fg": max_fg,
+        "input_rows": int(row["input_rows"]),
+        "clean_rows": int(row["clean_wind_rows"]),
+        "excluded_rows": int(row["excluded_rows"]),
     }
 
 
 def validation_values(
     accidents_path: Path,
-    weather_path: Path,
+    weather_audit_path: Path,
     mean_wind_path: Path,
     coverage_path: Path,
     sensitivity_path: Path,
     daily_path: Path,
-    rate_accidents_path: Path,
+    rate_input_path: Path,
     rate_model_path: Path,
 ) -> dict[str, object]:
-    accidents = pd.read_parquet(accidents_path) if accidents_path.suffix == ".parquet" else pd.read_csv(accidents_path)
+    if accidents_path.suffix != ".csv":
+        raise ValueError(f"Analysis input must be a CSV file: {accidents_path}")
+    accidents = pd.read_csv(accidents_path)
     require(len(accidents) > 0, "No rural injury accidents in canonical table")
-    require(accidents["nid"].is_unique, "Study accident IDs are not unique")
+    require(accidents["id"].is_unique, "Study accident IDs are not unique")
     accident_year = pd.to_datetime(accidents["timestamp"], errors="coerce").dt.year
     study_period = f"{int(accident_year.min())}--{int(accident_year.max())}"
     primary_mask = (
         accidents["weather_station_dist_km"].le(20)
         & accidents["weather_time_difference_minutes"].le(5)
         & accidents["f"].notna()
-        & accidents["f"].notna()
     )
     primary_accidents = int(primary_mask.sum())
     require(primary_accidents > 0, "No primary weather matches")
 
-    weather = weather_checks(weather_path)
-    require(weather["rows"] > 0, "No clean weather observations")
+    weather = weather_checks(weather_audit_path)
 
     mean_wind = pd.read_csv(mean_wind_path)
     require(int(mean_wind["observed_accidents"].sum()) == primary_accidents, "Observed mean-wind counts do not sum to primary sample")
@@ -105,26 +84,30 @@ def validation_values(
     radius_sensitivity = sensitivity[
         sensitivity["comparison"].eq("station_radius")
         & sensitivity["variable"].eq("fg")
-        & sensitivity["wind_interval_ms"].eq(">=36")
+        & sensitivity["wind_interval_ms"].eq(">=35")
     ].set_index("level")
     for level in ["10 km", "20 km", "30 km"]:
         require(level in radius_sensitivity.index, f"Missing gust distance result for {level}")
 
-    daily = (
-        pd.read_parquet(daily_path, columns=["f_daytime_mean"])
-        if daily_path.suffix == ".parquet"
-        else pd.read_csv(daily_path, usecols=["f_daytime_mean"])
-    )
-    daily_with_wind = int(daily["f_daytime_mean"].notna().sum())
-    require(len(daily) > 0, "No daily counter-days")
-    require(daily_with_wind > 0, "No daily counter-days with wind")
+    daily_rows: int | None = None
+    daily_with_wind: int | None = None
+    if daily_path.exists():
+        if daily_path.suffix != ".csv":
+            raise ValueError(f"Analysis input must be a CSV file: {daily_path}")
+        daily = pd.read_csv(daily_path, usecols=["f_mean"])
+        daily_rows = len(daily)
+        daily_with_wind = int(daily["f_mean"].notna().sum())
+        require(daily_rows > 0, "No daily counter-days")
+        require(daily_with_wind > 0, "No daily counter-days with wind")
 
-    rate_accidents = pd.read_parquet(rate_accidents_path)
-    require(rate_accidents["nid"].is_unique, "Rate-analysis accident IDs are not unique")
-    require(rate_accidents["weather_time_difference_minutes"].le(5).all(), "Rate-analysis weather time mismatch")
-    require(rate_accidents["rate_station_accident_distance_km"].le(20).all(), "Rate-analysis weather distance mismatch")
+    rate_input = pd.read_csv(rate_input_path)
+    required_rate_columns = {"injury_accidents", "estimated_vehicle_km"}
+    require(required_rate_columns <= set(rate_input), "Rate-model input is incomplete")
     rate_model = pd.read_csv(rate_model_path)
-    require(int(rate_model["observed_accidents"].sum()) == len(rate_accidents), "Rate-model counts do not sum to matched accidents")
+    require(
+        int(rate_model["observed_accidents"].sum()) == int(rate_input["injury_accidents"].sum()),
+        "Rate-model counts do not sum to the compact rate-model input",
+    )
     high_rate = rate_model.loc[rate_model["bin_label"].eq(">=25")].iloc[0]
     require(float(high_rate["time_proportional_rate_ratio"]) > 1, "High-wind rate ratio is not above one")
 
@@ -141,9 +124,9 @@ def validation_values(
         "highest": highest,
         "coverage": coverage,
         "radius_sensitivity": radius_sensitivity,
-        "daily_rows": len(daily),
+        "daily_rows": daily_rows,
         "daily_with_wind": daily_with_wind,
-        "rate_accidents": len(rate_accidents),
+        "rate_accidents": int(rate_input["injury_accidents"].sum()),
         "high_rate": high_rate,
         "single_vehicle_count": int(single["count"]),
         "single_vehicle_pct": float(single["percent"]),
@@ -165,7 +148,7 @@ def write_report(values: dict[str, object], output: Path) -> None:
         f"- Population: {values['study_accidents']:,} rural injury accidents, {values['study_period']}.",
         f"- Primary weather match: {values['primary_accidents']:,} accidents within 20 km and 5 minutes.",
         "- Primary exposure: mean wind speed (`f`) in 5 m/s intervals.",
-        "- Standardisation: weather station, calendar year, and season.",
+        "- Standardisation: weather station and season; weather frequency is pooled across 2007--2025.",
         "- Uncertainty: 5,000 weather-station-clustered bootstrap samples.",
         "",
         "## Data checks",
@@ -173,31 +156,43 @@ def write_report(values: dict[str, object], output: Path) -> None:
         "| Check | Result |",
         "|---|---:|",
         f"| Unique accident identifiers | {values['study_accidents']:,} / {values['study_accidents']:,} |",
-        f"| Clean weather observations scanned | {weather['rows']:,} |",
-        f"| `f` range | {weather['min_f']:.3f} to {weather['max_f']:.3f} m/s |",
-        f"| `fg` range | {weather['min_fg']:.3f} to {weather['max_fg']:.3f} m/s |",
-        "| Invalid `f`, invalid `fg`, or `fg + 0.5 < f` | 0, 0, 0 |",
-        f"| Daily counter-days | {values['daily_rows']:,} |",
-        f"| Daily counter-days with daytime wind | {values['daily_with_wind']:,} (95.37%) |",
+        f"| Raw weather observations | {weather['input_rows']:,} |",
+        f"| Clean weather observations retained | {weather['clean_rows']:,} |",
+        f"| Weather observations excluded by fixed rules | {weather['excluded_rows']:,} |",
         f"| Rate-analysis accidents with shared station within 20 km and 5 minutes | {values['rate_accidents']:,} |",
-        "",
-        "## Primary O/E result",
-        "",
-        "| Mean wind-speed interval | Observed | Expected | O/E | 95% interval |",
-        "|---|---:|---:|---:|---:|",
-        f"| >=25 m/s | {int(highest['observed_accidents'])} | {highest['expected_accidents']:.1f} | {highest['observed_expected_ratio']:.2f} | {highest['station_bootstrap_ci_95_low']:.2f}--{highest['station_bootstrap_ci_95_high']:.2f} |",
-        "",
-        f"Observed counts sum to {values['primary_accidents']:,}. Expected counts are rounded to one decimal in this table.",
-        "",
-        "## Stratified vehicle-kilometre result",
-        "",
-        f"The shared-station rate model retains {values['rate_accidents']:,} accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is {values['high_rate']['time_proportional_rate_ratio']:.2f} (95% CI {values['high_rate']['time_proportional_ci_95_low']:.2f}--{values['high_rate']['time_proportional_ci_95_high']:.2f}).",
-        "",
-        "## Distance sensitivity for fg >=36 m/s (secondary analysis)",
-        "",
-        "| Maximum distance | Matched accidents | O/E | 95% interval |",
-        "|---|---:|---:|---:|",
     ]
+    if values["daily_rows"] is None:
+        lines.append("| Daily counter-days | Optional daily PDF data were not prepared locally |")
+    else:
+        daily_pct = 100 * values["daily_with_wind"] / values["daily_rows"]
+        lines.extend(
+            [
+                f"| Daily counter-days | {values['daily_rows']:,} |",
+                f"| Daily counter-days with daytime wind | {values['daily_with_wind']:,} ({daily_pct:.2f}%) |",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## Primary O/E result",
+            "",
+            "| Mean wind-speed interval | Observed | Expected | O/E | 95% interval |",
+            "|---|---:|---:|---:|---:|",
+            f"| >=25 m/s | {int(highest['observed_accidents'])} | {highest['expected_accidents']:.1f} | {highest['observed_expected_ratio']:.2f} | {highest['station_bootstrap_ci_95_low']:.2f}--{highest['station_bootstrap_ci_95_high']:.2f} |",
+            "",
+            f"Observed counts sum to {values['primary_accidents']:,}. Expected counts are rounded to one decimal in this table.",
+            "The >=25 m/s O/E interval includes one; this sparse upper bin is descriptive rather than a separate precise result.",
+            "",
+            "## Stratified vehicle-kilometre result",
+            "",
+            f"The shared-station rate model retains {values['rate_accidents']:,} accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is {values['high_rate']['time_proportional_rate_ratio']:.2f} (95% CI {values['high_rate']['time_proportional_ci_95_low']:.2f}--{values['high_rate']['time_proportional_ci_95_high']:.2f}).",
+            "",
+            "## Weather-station distance comparison for fg >=35 m/s (secondary analysis)",
+            "",
+            "| Maximum distance | Matched accidents | O/E | 95% interval |",
+            "|---|---:|---:|---:|",
+        ]
+    )
     for level in ["10 km", "20 km", "30 km"]:
         radius = int(level.split()[0])
         row = radius_sensitivity.loc[level]
@@ -226,12 +221,12 @@ def write_report(values: dict[str, object], output: Path) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
-    parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
+    parser.add_argument("-w", "--weather-audit", type=Path, default=DEFAULT_WEATHER_AUDIT)
     parser.add_argument("-m", "--mean-wind", type=Path, default=DEFAULT_MEAN_WIND)
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-s", "--sensitivity", type=Path, default=DEFAULT_SENSITIVITY)
     parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
-    parser.add_argument("-r", "--rate-accidents", type=Path, default=DEFAULT_RATE_ACCIDENTS)
+    parser.add_argument("-r", "--rate-input", type=Path, default=DEFAULT_RATE_INPUT)
     parser.add_argument("-R", "--rate-model", type=Path, default=DEFAULT_RATE_MODEL)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args()
@@ -241,12 +236,12 @@ def main() -> None:
     args = parse_args()
     values = validation_values(
         args.accidents,
-        args.weather,
+        args.weather_audit,
         args.mean_wind,
         args.coverage,
         args.sensitivity,
         args.daily,
-        args.rate_accidents,
+        args.rate_input,
         args.rate_model,
     )
     write_report(values, args.output)

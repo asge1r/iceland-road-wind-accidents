@@ -42,7 +42,7 @@ DEFAULT_PERIOD_WIND_FREQUENCY = Path(
     "data/processed/weather/wind_frequency_road_period_2007_2025.parquet"
 )
 DEFAULT_SURFACE = Path("data/raw/traffic/reference/road_surface_history.csv")
-DEFAULT_STATIONS = Path("data/processed/weather/stations.csv")
+DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_SECTION_MIDPOINTS = Path(
     "data/raw/traffic/reference/road_section_midpoints.csv"
 )
@@ -56,7 +56,7 @@ DEFAULT_ACCIDENT_ROWS = Path(
 )
 DEFAULT_MEAN_WIND_TABLE = Path("reports/working/tables/road_wind_mean_full.csv")
 DEFAULT_GUST_TABLE = Path("reports/working/tables/road_wind_gust_full.csv")
-DEFAULT_COVERAGE = Path("reports/main/tables/road_coverage.csv")
+DEFAULT_COVERAGE = Path("reports/working/tables/road_coverage.csv")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/road_notes.txt")
 DEFAULT_FIGURE = Path(
     "archive/generated_diagnostics/road_summary.png"

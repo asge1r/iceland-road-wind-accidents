@@ -14,6 +14,10 @@ from src.accidents.urban import SEVERITY_LABELS, classify_accidents, load_urban_
 RAW_2007_2024 = Path("data/raw/accidents/accidents_2007_2024.txt")
 RAW_2025 = Path("data/raw/accidents/accidents_2025.txt")
 RAW_ROAD_LINKS = Path("data/raw/accidents/road_links_2007_2025.txt")
+VEHICLE_SOURCES = [
+    (Path("data/raw/accidents/vehicles_2007_2024.txt"), "nid", "taeki"),
+    (Path("data/raw/accidents/vehicles_2025.txt"), "NID", "Nr. Ökutækis"),
+]
 DEFAULT_OUTPUT = Path("data/processed/accidents/all_accidents_enriched.parquet")
 DEFAULT_RURAL_INJURY = Path("data/processed/accidents/rural_injury_accidents_base.parquet")
 
@@ -72,12 +76,28 @@ def add_road_links(accidents: pd.DataFrame, links_path: Path) -> pd.DataFrame:
     return accidents.merge(links, on="nid", how="left", validate="one_to_one")
 
 
+def add_vehicle_count(accidents: pd.DataFrame) -> pd.DataFrame:
+    frames = []
+    for path, identifier, vehicle in VEHICLE_SOURCES:
+        if path.exists():
+            source = pd.read_csv(path, sep="\t", usecols=[identifier, vehicle])
+            frames.append(source.rename(columns={identifier: "nid", vehicle: "vehicle_id"}))
+    if not frames:
+        raise FileNotFoundError("No supplied vehicle data file was found")
+    vehicles = pd.concat(frames, ignore_index=True)
+    vehicles["nid"] = pd.to_numeric(vehicles["nid"], errors="coerce")
+    counts = vehicles.dropna(subset=["nid"]).groupby("nid")["vehicle_id"].nunique()
+    output = accidents.join(counts.rename("vehicle_count"), on="nid")
+    output["vehicle_count"] = output["vehicle_count"].astype("Int64")
+    return output
+
+
 def prepare(include_2025: bool, output: Path, rural_output: Path) -> None:
     frames = [read_accident_file(RAW_2007_2024, newer_format=False)]
     if include_2025:
         frames.append(read_accident_file(RAW_2025, newer_format=True))
     accidents = pd.concat(frames, ignore_index=True).drop_duplicates("nid", keep="last")
-    accidents = add_road_links(add_coordinates(accidents), RAW_ROAD_LINKS)
+    accidents = add_vehicle_count(add_road_links(add_coordinates(accidents), RAW_ROAD_LINKS))
     accidents = classify_accidents(accidents, load_urban_features())
     accidents["date"] = accidents["timestamp"].dt.date.astype(str)
     accidents["hour"] = accidents["timestamp"].dt.hour.astype("Int64")

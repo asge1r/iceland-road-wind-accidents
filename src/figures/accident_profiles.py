@@ -12,12 +12,7 @@ import numpy as np
 import pandas as pd
 
 
-ALL_ACCIDENTS = Path("data/processed/accidents/all_accidents_enriched.parquet")
-STUDY_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
-VEHICLE_SOURCES = [
-    (Path("data/raw/accidents/vehicles_2007_2024.txt"), "nid", "taeki"),
-    (Path("data/raw/accidents/vehicles_2025.txt"), "NID", "Nr. Ökutækis"),
-]
+STUDY_ACCIDENTS = Path("data/analysis/accidents.csv")
 OUT_DATA = Path("reports/main/tables/accident_characteristics.csv")
 OUT_TYPE_AUDIT = Path("archive/generated_diagnostics/accident_types.csv")
 
@@ -50,28 +45,13 @@ def broad_accident_family(code: int) -> str:
     return "Unclassified"
 
 
-def add_vehicle_count(study: pd.DataFrame) -> pd.DataFrame:
-    frames = []
-    for path, identifier, vehicle in VEHICLE_SOURCES:
-        if path.exists():
-            frame = pd.read_csv(path, sep="\t", usecols=[identifier, vehicle])
-            frames.append(frame.rename(columns={identifier: "nid", vehicle: "vehicle_id"}))
-    if not frames:
-        raise FileNotFoundError("No vehicle source file found")
-    vehicles = pd.concat(frames, ignore_index=True)
-    vehicles["nid"] = pd.to_numeric(vehicles["nid"], errors="coerce")
-    counts = vehicles.dropna(subset=["nid"]).groupby("nid")["vehicle_id"].nunique()
-    output = study.join(counts.rename("vehicle_count"), on="nid")
-    if output["vehicle_count"].isna().any():
-        raise ValueError("Some study accidents have no matching vehicle record.")
-    output["vehicle_group"] = output["vehicle_count"].map(
+def prepare_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    study = pd.read_csv(STUDY_ACCIDENTS)
+    if study["vehicle_count"].isna().any():
+        raise ValueError("Some study accidents have no prepared vehicle count.")
+    study["vehicle_group"] = study["vehicle_count"].map(
         lambda n: "1 vehicle" if n == 1 else ("2 vehicles" if n == 2 else "3 or more")
     )
-    return output
-
-
-def prepare_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    study = add_vehicle_count(pd.read_parquet(STUDY_ACCIDENTS))
     study["accident_family"] = study["tegohapps"].map(broad_accident_family)
     study["severity_group"] = np.where(
         study["meidsli"].le(2), "Fatal or serious", "Minor injury"
@@ -79,7 +59,7 @@ def prepare_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFra
 
     family = (
         study.groupby("accident_family", as_index=False)
-        .agg(count=("nid", "size"))
+        .agg(count=("id", "size"))
         .sort_values("count", ascending=False)
     )
     family["percent"] = 100 * family["count"] / len(study)
@@ -95,7 +75,7 @@ def prepare_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFra
 
     severity = (
         study.groupby(["accident_family", "severity_group"], as_index=False)
-        .agg(count=("nid", "size"))
+        .agg(count=("id", "size"))
     )
     severity["group_total"] = severity.groupby("severity_group")["count"].transform("sum")
     severity["percent"] = 100 * severity["count"] / severity["group_total"]

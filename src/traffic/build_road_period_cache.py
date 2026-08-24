@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.legacy.road_period_builder import (
+from src.traffic.road_period import (
     DEFAULT_ANNUAL_TRAFFIC,
     DEFAULT_INJURY_ACCIDENTS,
     DEFAULT_LONG,

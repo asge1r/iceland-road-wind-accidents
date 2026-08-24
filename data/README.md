@@ -1,73 +1,53 @@
 # Local data map
 
-This repository intentionally does not include raw or processed data. To run
-the pipeline after cloning, obtain the authorised source deliveries and place
-them in the paths below. No script alters a file in `data/raw/`; generated
-files are written under `data/processed/` or `archive/` and are ignored by Git.
+The repository contains code and documentation, not authorised data. Put source
+deliveries in `data/raw/`; do not edit them after receipt. `src.prepare` writes
+temporary files to `data/processed/` and the named, readable analysis inputs to
+`data/analysis/`.
 
-`src.traffic.download_roads` is the exception to manual retrieval: it
-downloads the public Road Administration MapServer/6 reference file to
-`raw/traffic/reference/roads.geojson`. It is then used to locate daily PDF
-counters from their reported `stöð` value.
+## Required source files
 
-`raw/` contains unchanged sources. `cache/` and `processed/` contain expensive,
-rebuildable intermediate data. `analysis/` contains the small, readable canonical
-files for routine inspection and advisor review; build them with
-`python -m src.export_tables`. Readable tables and figures are under `reports/`;
-superseded intermediates are recoverable under
-`archive/data_legacy_2026-07-22/`.
+| Source family | Required local path | Used by |
+|---|---|---|
+| Accident register | `raw/accidents/accidents_2007_2024.txt`; `accidents_2025.txt`; `road_links_2007_2025.txt`; `vehicles_2007_2024.txt`; `vehicles_2025.txt` | `src.accidents.build` |
+| Urban boundaries | `raw/accidents/urban_boundaries_2020_2024.geojson` | `src.accidents.build` |
+| Ten-minute weather | `raw/weather/weather_10min_raw.parquet` | `src.weather.clean` |
+| Station reference | `raw/weather/stations.csv` | Weather matching and frequency scripts |
+| Annual traffic | `raw/traffic/annual/*.xls` and `*.xlsx` | `src.traffic.annual` |
+| Road-section midpoints | `raw/traffic/reference/road_section_midpoints.csv` | Annual-traffic preparation |
+| Daily traffic, optional | `raw/traffic/daily_pdf/*.pdf` | Daily-counter preparation |
+| Road geometry, optional | `raw/traffic/reference/roads.geojson` | Daily-counter locations |
 
-## Analysis A: frequency-standardized O/E
+`src.traffic.download_roads` obtains the public `roads.geojson` reference from
+the Vegagerðin MapServer. It is the one documented exception to manual source
+placement.
 
-Primary inputs:
-
-- `analysis/accidents.csv`
-- `analysis/weather_frequency.csv`
-
-`processed/accidents/oe_station_period_bins.parquet` is the generated detailed
-calculation cache, not a hand-maintained input.
-
-The primary result standardizes within weather station, calendar year, and
-meteorological season. It does not use traffic. The separately labelled traffic
-comparison uses annual/seasonal road-section exposure from Analysis B. Daily
-PDF traffic is a further restricted 2019-2024 descriptive analysis only.
-
-## Analysis B: road-section table and figures
-
-Primary inputs/output:
-
-- `processed/traffic/annual_road_section_exposure.csv`
-- `processed/weather/wind_frequency_road_period_2007_2025.parquet`
-- `processed/traffic/road_section_wind_panel_2007_2025.parquet`
-
-The panel unit is road section, year, official traffic period, wind variable,
-and wind bin. `f` and `fg` are separate rows. Readable mean-wind and gust tables,
-traffic-adjusted rates, and figures are generated under `reports/` from this
-same panel.
-
-## 2025 status
-
-Raw 2025 accident, injury, and vehicle files are retained in `raw/accidents/`.
-The canonical accident tables include 2025 after the same coordinate,
-rural/urban, road-link, severity, and weather-matching pipeline used for the
-earlier years. Daily-counter traffic remains 2019--2024.
-
-## Local rebuild order
-
-From the project root, run:
+## Rebuild commands
 
 ```bash
 .venv/bin/python -m src.prepare --stage prepare
 .venv/bin/python -m src.analyze
 ```
 
-The first command needs the accident, weather, annual-traffic and station
-source deliveries. The daily-PDF workflow is optional and deliberately
-separate because those PDFs are not available in every local copy:
+Add daily traffic only when its PDF deliveries are present:
 
 ```bash
 .venv/bin/python -m src.prepare --stage prepare --daily-traffic
 ```
 
-Git supplies the documented methods; each authorised user supplies the data
-locally and regenerates the processed tables and figures.
+The first command creates the CSV files described in
+[`../docs/pipeline.md`](../docs/pipeline.md). The second command reads those
+CSV files and creates tables and figures. If daily PDFs are absent,
+`src.analyze` skips the optional daily-counter result automatically.
+
+## What to inspect
+
+Use `data/analysis/` for normal work:
+
+- `accidents.csv` and `weather_frequency.csv` for the primary O/E result;
+- `rate_model.csv` and `traffic_rate_summary.csv` for annual-traffic results;
+- `daily_traffic.csv` and `daily.txt` for the optional daily-counter result;
+- `manifest.csv` for each file's source and columns.
+
+The large weather and road-period Parquet files in `processed/` are only
+temporary preparation material. They are not read by `src.analyze`.

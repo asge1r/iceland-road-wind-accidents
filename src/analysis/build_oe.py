@@ -15,9 +15,7 @@ import pandas as pd
 from scipy.stats import chi2
 
 from src.weather.frequency import (
-    FG_MINUS_F_UPPER_BOUNDS,
     FG_UPPER_BOUNDS,
-    F_FIVE_MS_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
     GUST_FACTOR_MIN_MEAN_WIND,
     GUST_FACTOR_UPPER_BOUNDS,
@@ -28,7 +26,7 @@ from src.weather.frequency import (
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_FREQUENCY = Path("data/analysis/weather_frequency.csv")
 DEFAULT_RESULTS = Path("archive/generated_diagnostics/oe/detailed_results.csv")
-DEFAULT_DETAILS = Path("data/cache/oe_station_period_bins.parquet")
+DEFAULT_DETAILS = Path("data/analysis/oe_station_bins.csv")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/oe/calculation_notes.txt")
 DEFAULT_FIGURES = Path("archive/generated_diagnostics/figures")
@@ -53,19 +51,7 @@ class VariableSpec:
 
 VARIABLES = [
     VariableSpec("f", "f", F_UPPER_BOUNDS, "Mean wind speed"),
-    VariableSpec(
-        "f_5m",
-        "f",
-        F_FIVE_MS_UPPER_BOUNDS,
-        "Mean wind speed (5 m/s intervals)",
-    ),
     VariableSpec("fg", "fg", FG_UPPER_BOUNDS, "Maximum wind gust"),
-    VariableSpec(
-        "fg_minus_f",
-        "fg_minus_f",
-        FG_MINUS_F_UPPER_BOUNDS,
-        "Gust difference (fg - f)",
-    ),
     VariableSpec(
         "gust_factor",
         "gust_factor",
@@ -85,10 +71,10 @@ SAMPLES = {
 
 def season_from_month(month: pd.Series) -> pd.Series:
     season = pd.Series(index=month.index, dtype="object")
-    season.loc[month.isin([12, 1, 2])] = "Winter"
-    season.loc[month.isin([3, 4, 5])] = "Spring"
-    season.loc[month.isin([6, 7, 8])] = "Summer"
-    season.loc[month.isin([9, 10, 11])] = "Fall"
+    season.loc[month.isin([12, 1, 2, 3])] = "Winter"
+    season.loc[month.isin([4, 5])] = "Spring"
+    season.loc[month.isin([6, 7, 8, 9])] = "Summer"
+    season.loc[month.isin([10, 11])] = "Fall"
     return season
 
 
@@ -98,8 +84,8 @@ def count_column(variable: str, bin_label: str) -> str:
 
 
 def read_frame(path: Path, columns: list[str] | None = None) -> pd.DataFrame:
-    if path.suffix == ".parquet":
-        return pd.read_parquet(path, columns=columns)
+    if path.suffix != ".csv":
+        raise ValueError(f"Analysis input must be a CSV file: {path}")
     return pd.read_csv(path, usecols=columns)
 
 
@@ -136,7 +122,7 @@ def load_data(
     accidents_path: Path, frequency_path: Path, start: str | None, end: str | None
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     columns = [
-        "nid",
+        "id",
         "timestamp",
         "meidsli",
         "weather_station_id",
@@ -158,7 +144,6 @@ def load_data(
     )
     accidents["year"] = accidents["timestamp"].dt.year
     accidents["season"] = season_from_month(accidents["timestamp"].dt.month)
-    accidents["fg_minus_f"] = (accidents["fg"] - accidents["f"]).clip(lower=0)
     accidents["gust_factor"] = np.where(
         accidents["f"].ge(GUST_FACTOR_MIN_MEAN_WIND),
         accidents["fg"] / accidents["f"],
@@ -213,15 +198,15 @@ def one_analysis(
     )
     scoped = scoped.dropna(subset=["weather_bin"])
 
-    group_columns = ["weather_station_id", "year", "season"]
+    group_columns = ["weather_station_id", "season"]
     group_totals = (
-        scoped.groupby(group_columns, observed=False)["nid"]
+        scoped.groupby(group_columns, observed=False)["id"]
         .nunique()
         .rename("group_accidents")
         .reset_index()
     )
     observed = (
-        scoped.groupby([*group_columns, "weather_bin"], observed=False)["nid"]
+        scoped.groupby([*group_columns, "weather_bin"], observed=False)["id"]
         .nunique()
         .rename("observed_accidents")
         .reset_index()
@@ -283,8 +268,8 @@ def one_analysis(
     )
 
     analysed_ids = details[group_columns].drop_duplicates().merge(
-        scoped[["nid", *group_columns]], on=group_columns, how="inner"
-    )["nid"].nunique()
+        scoped[["id", *group_columns]], on=group_columns, how="inner"
+    )["id"].nunique()
     coverage = {
         "variable": spec.variable,
         "radius_km": radius,
@@ -311,16 +296,15 @@ def plot_main(results: pd.DataFrame, figure_dir: Path) -> None:
     ]
     display_specs = [
         next(spec for spec in VARIABLES if spec.variable == variable)
-        for variable in ("f", "fg", "fg_minus_f")
+        for variable in ("f", "fg", "gust_factor")
     ]
-    colors = {"f": "#287271", "fg": "#C7522A", "fg_minus_f": "#5B5F97"}
+    colors = {"f": "#287271", "fg": "#C7522A", "gust_factor": "#5B5F97"}
     fig, axes = plt.subplots(3, 1, figsize=(12.5, 13), constrained_layout=True)
     for ax, spec in zip(axes, display_specs, strict=True):
         subset = data[data["variable"].eq(spec.variable)].sort_values("bin_order")
         x = np.arange(len(subset))
         y = subset["relative_accident_frequency"].to_numpy(float)
-        reliable = subset["observed_accidents"].ge(20).to_numpy()
-        ax.bar(x, y, color=np.where(reliable, colors[spec.variable], "#A8A8A8"))
+        ax.bar(x, y, color=colors[spec.variable])
         ax.axhline(1, color="#222222", linestyle="--", linewidth=1)
         ax.set_xticks(x, subset["weather_bin"], rotation=35, ha="right")
         ax.set_ylabel("Observed / expected")
@@ -337,7 +321,7 @@ def plot_main(results: pd.DataFrame, figure_dir: Path) -> None:
     axes[-1].set_xlabel("Wind interval (m/s)")
     fig.suptitle(
         "Rural injury accidents relative to station-specific 10-minute wind frequency\n"
-        "20 km radius; gray bins contain fewer than 20 accidents"
+        "20 km radius; labels in the thesis figures show observed accidents"
     )
     fig.savefig(figure_dir / "wind_risk_overview.png", dpi=240)
     plt.close(fig)
@@ -353,7 +337,7 @@ def plot_sensitivity(results: pd.DataFrame, figure_dir: Path) -> None:
     ]
     display_specs = [
         next(spec for spec in VARIABLES if spec.variable == variable)
-        for variable in ("f", "fg", "fg_minus_f")
+        for variable in ("f", "fg", "gust_factor")
     ]
     colors = {10: "#287271", 20: "#C7522A", 30: "#5B5F97"}
     fig, axes = plt.subplots(3, 1, figsize=(12.5, 13), constrained_layout=True)
@@ -447,37 +431,27 @@ def main() -> None:
     accidents, frequency = load_data(
         args.accidents, args.frequency, args.start, args.end
     )
+    specs = {spec.variable: spec for spec in VARIABLES}
+    scenarios: list[tuple[str, int, str, str, int]] = []
+    for variable in specs:
+        scenarios.extend((variable, radius, "Injury accidents", "All seasons", 5) for radius in RADII)
+        scenarios.extend((variable, 20, severity, "All seasons", 5) for severity in ["Serious or fatal", "Fatal"])
+        scenarios.extend((variable, 20, "Injury accidents", season, 5) for season in SEASON_ORDER)
+    for variable in ["f", "fg"]:
+        scenarios.extend((variable, 20, group, "All seasons", 5) for group in ["1 vehicle", "2 or more vehicles"])
+    scenarios.extend(("fg", 20, "Injury accidents", "All seasons", minutes) for minutes in TIME_SENSITIVITY_MINUTES)
+
     results: list[pd.DataFrame] = []
     details: list[pd.DataFrame] = []
     coverage: list[dict[str, object]] = []
-    for spec in VARIABLES:
-        for radius in RADII:
-            for severity in SAMPLES:
-                for analysis_season in ["All seasons", *SEASON_ORDER]:
-                    result, detail, cover = one_analysis(
-                        accidents,
-                        frequency,
-                        spec,
-                        radius,
-                        severity,
-                        analysis_season,
-                    )
-                    results.append(result)
-                    details.append(detail)
-                    coverage.append(cover)
-
-    # Tighter accident-to-observation timing is retained as a gust-only check.
-    # The main analysis remains the nearest observation on the 10-minute grid,
-    # whose maximum possible difference is five minutes.
-    gust_spec = next(spec for spec in VARIABLES if spec.variable == "fg")
-    for max_time in TIME_SENSITIVITY_MINUTES:
+    for variable, radius, severity, analysis_season, max_time in scenarios:
         result, detail, cover = one_analysis(
             accidents,
             frequency,
-            gust_spec,
-            20,
-            "Injury accidents",
-            "All seasons",
+            specs[variable],
+            radius,
+            severity,
+            analysis_season,
             max_time_difference_minutes=max_time,
         )
         results.append(result)
@@ -496,7 +470,7 @@ def main() -> None:
     for path in (args.results, args.details, args.coverage, args.notes):
         path.parent.mkdir(parents=True, exist_ok=True)
     result_table.to_csv(args.results, index=False)
-    detail_table.to_parquet(args.details, index=False, compression="zstd")
+    detail_table.to_csv(args.details, index=False)
     coverage_table.to_csv(args.coverage, index=False)
     if args.diagnostic_figures:
         args.figures.mkdir(parents=True, exist_ok=True)
@@ -536,7 +510,7 @@ Accidents in input scope: {len(accidents):,}
 
 Method
 ------
-Within each weather-station/year/season group, observed accident counts in each
+Within each weather-station/season group, observed accident counts in each
 wind interval are compared with expected counts based on the fraction of all clean
 10-minute measurements in that interval. Results are then aggregated:
 
@@ -551,8 +525,8 @@ Primary specification
 ---------------------
 - Rural injury accidents, 2007-2025
 - Maximum station distance: 20 km
-- Variables: f, fg and max(fg-f, 0)
-- Background controlled by station, calendar year and season
+- Variables: f, fg and gust factor (fg / f where f >= 3 m/s)
+- Background controlled by station and season, pooled over 2007-2025
 - Exact Poisson 95% intervals; bins with fewer than 20 accidents marked sparse
 
 Validation
@@ -574,7 +548,6 @@ Limitations
 - The wind-quality rules are 0 <= f < 45 m/s and 0 <= fg < 65 m/s. Negative
   values and values at or above either upper bound are excluded and reported
   in the weather-cleaning audit.
-  rules and are reported explicitly in the coverage table.
 """
     args.notes.write_text(notes, encoding="utf-8")
     print(f"wrote={args.results} rows={len(result_table):,}")

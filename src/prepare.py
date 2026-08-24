@@ -27,7 +27,8 @@ DAILY_TRAFFIC_STEPS = [
     "src.traffic.daily",
     "src.traffic.download_roads",
     "src.traffic.locate_counters",
-    "src.analysis.match_daily_weather",
+    "src.traffic.daily_weather_match",
+    "src.traffic.daily_traffic_quality",
 ]
 
 

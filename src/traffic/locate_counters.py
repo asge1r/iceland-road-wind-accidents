@@ -104,13 +104,18 @@ def locate_with_official_geometry(daily: pd.DataFrame, roads_path: Path) -> pd.D
     return pd.DataFrame(rows)
 
 
-def locate() -> None:
+def locate(
+    roads_path: Path,
+    counts_path: Path,
+    output_path: Path,
+    locations_path: Path,
+) -> None:
     """Write locations from the official geometry; do not infer a fallback."""
-    daily = pd.read_parquet(COUNTS)
-    if not ROADS.exists():
-        raise FileNotFoundError(f"Missing {ROADS}; first run src.traffic.download_roads.")
+    daily = pd.read_parquet(counts_path)
+    if not roads_path.exists():
+        raise FileNotFoundError(f"Missing {roads_path}; first run src.traffic.download_roads.")
 
-    direct = locate_with_official_geometry(daily, ROADS)
+    direct = locate_with_official_geometry(daily, roads_path)
     if direct.empty:
         raise RuntimeError("No daily counters could be located from the official road geometry.")
     output = daily.merge(direct, on=["year", "counter_site_id"], how="left", validate="many_to_one")
@@ -119,12 +124,12 @@ def locate() -> None:
     output["location_method"] = output["location_method"].fillna("location_unavailable")
     output["location_is_estimated"] = output["location_is_estimated"].fillna(True)
     output = output.sort_values(["counter_site_id", "date"])
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    output.to_parquet(OUTPUT, index=False, compression="zstd")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output.to_parquet(output_path, index=False, compression="zstd")
     location_columns = [column for column in output.columns if column not in daily.columns]
     output[["year", "counter_site_id", *location_columns]].drop_duplicates(
         ["year", "counter_site_id"]
-    ).to_csv(LOCATIONS, index=False)
+    ).to_csv(locations_path, index=False)
     print(
         f"Wrote {len(output):,} counter-days; official PDF-station geometry used for "
         f"{len(direct):,}/{daily[['year', 'counter_site_id']].drop_duplicates().shape[0]:,} counter-site years."
@@ -133,8 +138,12 @@ def locate() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.parse_args()
-    locate()
+    parser.add_argument("-r", "--roads", type=Path, default=ROADS)
+    parser.add_argument("-i", "--input", type=Path, default=COUNTS)
+    parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
+    parser.add_argument("-l", "--locations", type=Path, default=LOCATIONS)
+    args = parser.parse_args()
+    locate(args.roads, args.input, args.output, args.locations)
 
 
 if __name__ == "__main__":

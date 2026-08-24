@@ -1,4 +1,4 @@
-"""Calculate wind frequency by station, year, season, and 3 m/s interval."""
+"""Calculate seasonal wind frequencies by station using the final thesis bins."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import pyarrow.parquet as pq
 
 
 DEFAULT_INPUT = Path("data/processed/weather/weather_10min_clean.parquet")
-DEFAULT_STATIONS = Path("data/processed/weather/stations.csv")
+DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_OUTPUT = Path(
     "data/processed/weather/wind_frequency_station_year_season.parquet"
 )
@@ -34,22 +34,22 @@ DEFAULT_DISTRIBUTION_FIGURE = Path(
 FIRST_YEAR = 2007
 LAST_YEAR = 2025
 SEASONS = np.array(["Winter", "Spring", "Summer", "Fall"])
-F_UPPER_BOUNDS = np.arange(3, 25, 3, dtype=float)
-F_FIVE_MS_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25], dtype=float)
-FG_UPPER_BOUNDS = np.arange(3, 37, 3, dtype=float)
-FG_MINUS_F_UPPER_BOUNDS = np.array(
-    [2, 4, 6, 8, 10, 12, 14, 16, 18, 20], dtype=float
-)
+F_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25], dtype=float)
+# The annual-traffic cache retains this internal label to distinguish its
+# five-metre mean-wind rows from a legacy three-metre cache column. Its public
+# output is always described as mean wind speed, `f`.
+F_FIVE_MS_UPPER_BOUNDS = F_UPPER_BOUNDS
+FG_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25, 30, 35], dtype=float)
 GUST_FACTOR_MIN_MEAN_WIND = 3.0
-GUST_FACTOR_UPPER_BOUNDS = np.array([1.25, 1.5, 1.75, 2.0, 2.5, 3.0], dtype=float)
+GUST_FACTOR_UPPER_BOUNDS = np.array([1.2, 1.4, 1.6, 1.8, 2.0], dtype=float)
 
 
 def season_index(month: np.ndarray) -> np.ndarray:
     result = np.empty(len(month), dtype=np.int8)
-    result[np.isin(month, [12, 1, 2])] = 0
-    result[np.isin(month, [3, 4, 5])] = 1
-    result[np.isin(month, [6, 7, 8])] = 2
-    result[np.isin(month, [9, 10, 11])] = 3
+    result[np.isin(month, [12, 1, 2, 3])] = 0
+    result[np.isin(month, [4, 5])] = 1
+    result[np.isin(month, [6, 7, 8, 9])] = 2
+    result[np.isin(month, [10, 11])] = 3
     return result
 
 
@@ -70,18 +70,12 @@ def station_ids(parquet_file: pq.ParquetFile, row_groups: int) -> np.ndarray:
 
 def accumulate(
     parquet_file: pq.ParquetFile, row_groups: int, stations: np.ndarray
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
     years_count = LAST_YEAR - FIRST_YEAR + 1
     group_count = len(stations) * years_count * len(SEASONS)
     totals = np.zeros(group_count, dtype=np.int64)
     f_counts = np.zeros((group_count, len(F_UPPER_BOUNDS) + 1), dtype=np.int64)
-    f_five_ms_counts = np.zeros(
-        (group_count, len(F_FIVE_MS_UPPER_BOUNDS) + 1), dtype=np.int64
-    )
     fg_counts = np.zeros((group_count, len(FG_UPPER_BOUNDS) + 1), dtype=np.int64)
-    difference_counts = np.zeros(
-        (group_count, len(FG_MINUS_F_UPPER_BOUNDS) + 1), dtype=np.int64
-    )
     gust_factor_totals = np.zeros(group_count, dtype=np.int64)
     gust_factor_counts = np.zeros(
         (group_count, len(GUST_FACTOR_UPPER_BOUNDS) + 1), dtype=np.int64
@@ -110,27 +104,15 @@ def accumulate(
         )
         totals += np.bincount(group, minlength=group_count)
         f_bin = np.searchsorted(F_UPPER_BOUNDS, f, side="right")
-        f_five_ms_bin = np.searchsorted(F_FIVE_MS_UPPER_BOUNDS, f, side="right")
         fg_bin = np.searchsorted(FG_UPPER_BOUNDS, fg, side="right")
-        difference_bin = np.searchsorted(
-            FG_MINUS_F_UPPER_BOUNDS, np.maximum(fg - f, 0), side="right"
-        )
         f_counts += np.bincount(
             group * f_counts.shape[1] + f_bin,
             minlength=f_counts.size,
         ).reshape(f_counts.shape)
-        f_five_ms_counts += np.bincount(
-            group * f_five_ms_counts.shape[1] + f_five_ms_bin,
-            minlength=f_five_ms_counts.size,
-        ).reshape(f_five_ms_counts.shape)
         fg_counts += np.bincount(
             group * fg_counts.shape[1] + fg_bin,
             minlength=fg_counts.size,
         ).reshape(fg_counts.shape)
-        difference_counts += np.bincount(
-            group * difference_counts.shape[1] + difference_bin,
-            minlength=difference_counts.size,
-        ).reshape(difference_counts.shape)
         factor_valid = f >= GUST_FACTOR_MIN_MEAN_WIND
         factor_group = group[factor_valid]
         factor = fg[factor_valid] / f[factor_valid]
@@ -149,9 +131,7 @@ def accumulate(
     return (
         totals,
         f_counts,
-        f_five_ms_counts,
         fg_counts,
-        difference_counts,
         gust_factor_totals,
         gust_factor_counts,
         input_rows,
@@ -163,9 +143,7 @@ def make_long_table(
     station_names: pd.DataFrame,
     totals: np.ndarray,
     f_counts: np.ndarray,
-    f_five_ms_counts: np.ndarray,
     fg_counts: np.ndarray,
-    difference_counts: np.ndarray,
     gust_factor_totals: np.ndarray,
     gust_factor_counts: np.ndarray,
 ) -> pd.DataFrame:
@@ -173,9 +151,7 @@ def make_long_table(
     frames: list[pd.DataFrame] = []
     for variable, counts, upper_bounds, variable_totals in (
         ("f", f_counts, F_UPPER_BOUNDS, totals),
-        ("f_5m", f_five_ms_counts, F_FIVE_MS_UPPER_BOUNDS, totals),
         ("fg", fg_counts, FG_UPPER_BOUNDS, totals),
-        ("fg_minus_f", difference_counts, FG_MINUS_F_UPPER_BOUNDS, totals),
         ("gust_factor", gust_factor_counts, GUST_FACTOR_UPPER_BOUNDS, gust_factor_totals),
     ):
         group, bin_index = np.nonzero(counts)
@@ -246,9 +222,7 @@ def make_wide_table(long: pd.DataFrame) -> pd.DataFrame:
         f"{variable}_{label.replace('>=', 'ge_').replace('-', '_')}_pct"
         for variable, bounds in (
             ("f", F_UPPER_BOUNDS),
-            ("f_5m", F_FIVE_MS_UPPER_BOUNDS),
             ("fg", FG_UPPER_BOUNDS),
-            ("fg_minus_f", FG_MINUS_F_UPPER_BOUNDS),
             ("gust_factor", GUST_FACTOR_UPPER_BOUNDS),
         )
         for label in labels(bounds)
@@ -374,15 +348,13 @@ def main() -> None:
     (
         totals,
         f_counts,
-        f_five_ms_counts,
         fg_counts,
-        difference_counts,
         gust_factor_totals,
         gust_factor_counts,
         input_rows,
     ) = accumulate(parquet_file, row_groups, stations)
     long = make_long_table(
-        stations, metadata, totals, f_counts, f_five_ms_counts, fg_counts, difference_counts,
+        stations, metadata, totals, f_counts, fg_counts,
         gust_factor_totals, gust_factor_counts,
     )
     wide = make_wide_table(long)
@@ -404,17 +376,16 @@ Input rows aggregated: {input_rows:,}
 Stations represented: {len(stations):,}
 Station-season-year periods represented: {len(wide):,}
 
-Seasons follow the existing project convention and use calendar year:
-- Winter: December-February
-- Spring: March-May
-- Summer: June-August
-- Fall: September-November
+Seasons use the traffic-period-compatible calendar definition:
+- Winter: December-March
+- Spring: April-May
+- Summer: June-September
+- Fall: October-November
 
 Bins are left-closed and right-open. For example, 2-4 means 2 <= value < 4.
-The final bins are f >= 24 m/s, f_5m >= 25 m/s, fg >= 36 m/s and fg-f >= 20 m/s. Small
-negative fg-f differences allowed by the 0.5 m/s cleaning tolerance are clipped
-to zero. Frequencies use all clean f/fg observations at the same station in that
-season and calendar year.
+The final bins are f >= 25 m/s, fg >= 35 m/s and gust factor >= 2.0.
+Frequencies use all clean f/fg observations at the same station in that season
+and calendar year.
 
 The long Parquet table contains counts and percentages and is intended for analysis.
 The wide CSV mirrors the example layout in todo.md and is intended for inspection.

@@ -22,7 +22,13 @@ OUT_METADATA = Path("archive/generated_diagnostics/daily_counter_metadata_2019_2
 OUT_NOTES = Path("archive/generated_diagnostics/traffic_pdf_2019_2024_notes.txt")
 
 
-def extract() -> None:
+def extract(
+    pdf_directory: Path,
+    counts_output: Path,
+    channels_output: Path,
+    metadata_output: Path,
+    notes_output: Path,
+) -> None:
     """Parse available PDF years and write the canonical counter-day count file."""
     parsed_frames: list[pd.DataFrame] = []
     metadata_frames: list[pd.DataFrame] = []
@@ -30,7 +36,7 @@ def extract() -> None:
     missing_years: list[int] = []
 
     for year in sorted(pdf_parser.PDF_CANDIDATES):
-        path = pdf_parser.resolve_pdf(year)
+        path = pdf_parser.resolve_pdf(year, pdf_directory)
         if path is None:
             missing_years.append(year)
             continue
@@ -53,13 +59,13 @@ def extract() -> None:
     if counter_days.duplicated(["counter_site_id", "date"]).any():
         raise ValueError("Daily-count output is not unique on physical counter and date.")
 
-    OUT_COUNTS.parent.mkdir(parents=True, exist_ok=True)
-    OUT_CHANNELS.parent.mkdir(parents=True, exist_ok=True)
-    OUT_METADATA.parent.mkdir(parents=True, exist_ok=True)
-    channels.to_csv(OUT_CHANNELS, index=False)
-    counter_days[count_columns].to_parquet(OUT_COUNTS, index=False, compression="zstd")
+    counts_output.parent.mkdir(parents=True, exist_ok=True)
+    channels_output.parent.mkdir(parents=True, exist_ok=True)
+    metadata_output.parent.mkdir(parents=True, exist_ok=True)
+    channels.to_csv(channels_output, index=False)
+    counter_days[count_columns].to_parquet(counts_output, index=False, compression="zstd")
     pd.concat(metadata_frames, ignore_index=True).drop_duplicates().to_csv(
-        OUT_METADATA, index=False
+        metadata_output, index=False
     )
 
     notes = [
@@ -72,17 +78,28 @@ def extract() -> None:
         f"Channel rows retained for audit: {len(channels):,}",
         f"Physical counter-day rows: {len(counter_days):,}",
         f"Physical counter sites: {counter_days['counter_site_id'].nunique():,}",
-        f"Output: {OUT_COUNTS}",
+        f"Output: {counts_output}",
     ]
-    OUT_NOTES.parent.mkdir(parents=True, exist_ok=True)
-    OUT_NOTES.write_text("\n".join(notes) + "\n", encoding="utf-8")
+    notes_output.parent.mkdir(parents=True, exist_ok=True)
+    notes_output.write_text("\n".join(notes) + "\n", encoding="utf-8")
     print("\n".join(notes))
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.parse_args()
-    extract()
+    parser.add_argument("-i", "--input-directory", type=Path, default=pdf_parser.PDF_DIRECTORY)
+    parser.add_argument("-o", "--output", type=Path, default=OUT_COUNTS)
+    parser.add_argument("-c", "--channels-output", type=Path, default=OUT_CHANNELS)
+    parser.add_argument("-m", "--metadata-output", type=Path, default=OUT_METADATA)
+    parser.add_argument("-n", "--notes-output", type=Path, default=OUT_NOTES)
+    args = parser.parse_args()
+    extract(
+        args.input_directory,
+        args.output,
+        args.channels_output,
+        args.metadata_output,
+        args.notes_output,
+    )
 
 
 if __name__ == "__main__":

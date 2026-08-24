@@ -1,4 +1,4 @@
-"""Validate daily PDF traffic and analyse how traffic changes with wind.
+"""Shared functions for daily-counter weather matching and quality control.
 
 The unit of observation is one counter on one date. This avoids summing
 different counters located on the same road section. Weather is represented by
@@ -6,7 +6,7 @@ the nearest clean station to the counter location (official where available,
 otherwise interpolated from the PDF road station). The 24-hour
 daily traffic total is never divided into hourly values. It is paired with
 daytime weather summaries (10:00-21:59), so this supports a day-level
-sensitivity analysis but cannot estimate traffic at each wind hour.
+supplementary analysis but cannot estimate traffic at each wind hour.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ DEFAULT_ANNUAL = Path(
     "data/processed/traffic/annual_road_section_exposure.csv"
 )
 DEFAULT_MIDPOINTS = Path("data/raw/traffic/reference/road_section_midpoints.csv")
-DEFAULT_STATIONS = Path("data/processed/weather/stations.csv")
+DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather_10min_clean.parquet")
 DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury_accidents.parquet")
 DEFAULT_WEATHER_CACHE = Path(
@@ -54,9 +54,6 @@ DEFAULT_ADU_FIGURE = Path("reports/working/traffic_validation.png")
 DEFAULT_FIGURE = Path("reports/working/daily_traffic_diagnostic.png")
 DEFAULT_ADJUSTMENT = Path(
     "archive/generated_diagnostics/daily_traffic_adjustment_comparison.csv"
-)
-DEFAULT_ADJUSTMENT_FIGURE = Path(
-    "archive/generated_diagnostics/daily_traffic_adjustment_comparison.png"
 )
 DEFAULT_NOTES = Path("archive/generated_diagnostics/daily_traffic_notes.md")
 
@@ -302,8 +299,8 @@ def aggregate_daily_weather(
                 "weather_station_id": station[keep].astype(int),
                 "date": timestamp[keep].astype("datetime64[D]"),
                 "f_sum": f,
+                "fg_sum": fg,
                 "observation_count": 1,
-                "fg_daytime_max": fg,
             }
         )
         partials.append(
@@ -311,8 +308,8 @@ def aggregate_daily_weather(
                 ["weather_station_id", "date"], as_index=False
             ).agg(
                 f_sum=("f_sum", "sum"),
+                fg_sum=("fg_sum", "sum"),
                 observation_count=("observation_count", "sum"),
-                fg_daytime_max=("fg_daytime_max", "max"),
             )
         )
 
@@ -323,11 +320,12 @@ def aggregate_daily_weather(
         ["weather_station_id", "date"], as_index=False
     ).agg(
         f_sum=("f_sum", "sum"),
+        fg_sum=("fg_sum", "sum"),
         observation_count=("observation_count", "sum"),
-        fg_daytime_max=("fg_daytime_max", "max"),
     )
     weather["f_daytime_mean"] = weather["f_sum"] / weather["observation_count"]
-    weather = weather.drop(columns="f_sum")
+    weather["fg_daytime_mean"] = weather["fg_sum"] / weather["observation_count"]
+    weather = weather.drop(columns=["f_sum", "fg_sum"])
     diagnostics = {
         "weather_row_groups_considered": total_groups,
         "weather_row_groups_scanned": scanned,
@@ -451,7 +449,7 @@ def build_wind_summary(panel: pd.DataFrame, replicates: int) -> pd.DataFrame:
     frames: list[pd.DataFrame] = []
     specs = [
         ("f_daytime_mean", DAILY_F_UPPER_BOUNDS),
-        ("fg_daytime_max", FG_UPPER_BOUNDS),
+        ("fg_daytime_mean", FG_UPPER_BOUNDS),
     ]
     for variable, upper_bounds in specs:
         data = panel.dropna(subset=[variable, "traffic_index"]).copy()
@@ -695,7 +693,7 @@ def build_adjustment_comparison(
     ).agg(
         traffic_volume=("traffic_volume", "median"),
         f_daytime_mean=("f_daytime_mean", "first"),
-        fg_daytime_max=("fg_daytime_max", "first"),
+        fg_daytime_mean=("fg_daytime_mean", "first"),
         counters=("counter_site_id", "nunique"),
     )
     accidents = pd.read_parquet(
@@ -724,7 +722,7 @@ def build_adjustment_comparison(
     frames = []
     for variable, bounds in [
         ("f_daytime_mean", DAILY_F_UPPER_BOUNDS),
-        ("fg_daytime_max", FG_UPPER_BOUNDS),
+        ("fg_daytime_mean", FG_UPPER_BOUNDS),
     ]:
         data = section_day.dropna(
             subset=[variable, "traffic_volume"]
@@ -786,7 +784,7 @@ def build_adjustment_comparison(
 
 
 def plot_adjustment_comparison(result: pd.DataFrame, path: Path) -> None:
-    data = result[result["variable"].eq("fg_daytime_max")].sort_values(
+    data = result[result["variable"].eq("fg_daytime_mean")].sort_values(
         "bin_order"
     )
     x = np.arange(len(data))
@@ -862,10 +860,10 @@ def write_notes(
     elapsed: float,
 ) -> None:
     high_f = panel[panel["f_daytime_mean"].ge(20)]["traffic_index"].median()
-    high_fg = panel[panel["fg_daytime_max"].ge(30)]["traffic_index"].median()
+    high_fg = panel[panel["fg_daytime_mean"].ge(30)]["traffic_index"].median()
     represented = int(
         adjustment.loc[
-            adjustment["variable"].eq("fg_daytime_max"), "observed_accidents"
+            adjustment["variable"].eq("fg_daytime_mean"), "observed_accidents"
         ].sum()
     )
     adu_table = adu_summary.to_string(index=False)
@@ -903,7 +901,7 @@ cover only one location or direction within a road section.
 ## Correct use
 
 Daily counts are useful for testing whether travel demand falls during windy
-days and for a restricted daily accident-exposure sensitivity analysis. ADU,
+days and for a restricted daily accident-exposure comparison. ADU,
 SDU, and VDU remain preferable for complete road-section context and annual or
 seasonal vehicle-kilometres. Daily counts should not be inserted directly into
 the primary 10-minute accident-time curve because daily maximum wind, counter
@@ -916,14 +914,14 @@ coverage, and accident-time wind have different units and coverage.
   midpoint; three counter sites have no usable location.
 - A zero can represent no traffic, a road closure, or a counter fault. Zero
   days are retained in the main behavioural description and must be checked in
-  a zero-excluded sensitivity analysis before making a causal interpretation.
+  a zero-excluded comparison before making a causal interpretation.
 - Several counters can occur on one road section. Counter-day analyses retain
   counters separately; the accident comparison uses the median across counters
   on a section-day rather than summing them.
 - Calendar normalization controls counter, year, month, and weekday but not
   holidays, road closures, precipitation, visibility, or other storm effects.
 - The daily accident comparison is not the primary 10-minute risk curve and
-  should be labelled as a sensitivity analysis.
+  should be labelled as a supplementary analysis.
 
 ## Coverage
 
@@ -938,31 +936,28 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Validate daily traffic against ADU and analyse traffic by wind."
     )
-    parser.add_argument("--daily", type=Path, default=DEFAULT_DAILY)
-    parser.add_argument("--annual", type=Path, default=DEFAULT_ANNUAL)
-    parser.add_argument("--midpoints", type=Path, default=DEFAULT_MIDPOINTS)
-    parser.add_argument("--stations", type=Path, default=DEFAULT_STATIONS)
-    parser.add_argument("--weather", type=Path, default=DEFAULT_WEATHER)
-    parser.add_argument("--accidents", type=Path, default=DEFAULT_ACCIDENTS)
-    parser.add_argument("--weather-cache", type=Path, default=DEFAULT_WEATHER_CACHE)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--summary", type=Path, default=DEFAULT_SUMMARY)
-    parser.add_argument("--coverage", type=Path, default=DEFAULT_COVERAGE)
-    parser.add_argument("--adu-validation", type=Path, default=DEFAULT_ADU_VALIDATION)
-    parser.add_argument("--adu-summary", type=Path, default=DEFAULT_ADU_SUMMARY)
-    parser.add_argument("--adu-figure", type=Path, default=DEFAULT_ADU_FIGURE)
-    parser.add_argument("--figure", type=Path, default=DEFAULT_FIGURE)
-    parser.add_argument("--adjustment", type=Path, default=DEFAULT_ADJUSTMENT)
-    parser.add_argument(
-        "--adjustment-figure", type=Path, default=DEFAULT_ADJUSTMENT_FIGURE
-    )
-    parser.add_argument("--notes", type=Path, default=DEFAULT_NOTES)
-    parser.add_argument("--start-year", type=int, default=2019)
-    parser.add_argument("--end-year", type=int, default=2024)
-    parser.add_argument("--bootstrap-replicates", type=int, default=1000)
-    parser.add_argument("--max-row-groups", type=int)
-    parser.add_argument("--rebuild-weather-cache", action="store_true")
-    parser.add_argument("--plot-only", action="store_true")
+    parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
+    parser.add_argument("-a", "--annual", type=Path, default=DEFAULT_ANNUAL)
+    parser.add_argument("-m", "--midpoints", type=Path, default=DEFAULT_MIDPOINTS)
+    parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
+    parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
+    parser.add_argument("-A", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
+    parser.add_argument("-W", "--weather-cache", type=Path, default=DEFAULT_WEATHER_CACHE)
+    parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("-S", "--summary", type=Path, default=DEFAULT_SUMMARY)
+    parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
+    parser.add_argument("-v", "--adu-validation", type=Path, default=DEFAULT_ADU_VALIDATION)
+    parser.add_argument("-u", "--adu-summary", type=Path, default=DEFAULT_ADU_SUMMARY)
+    parser.add_argument("-F", "--adu-figure", type=Path, default=DEFAULT_ADU_FIGURE)
+    parser.add_argument("-f", "--figure", type=Path, default=DEFAULT_FIGURE)
+    parser.add_argument("-j", "--adjustment", type=Path, default=DEFAULT_ADJUSTMENT)
+    parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
+    parser.add_argument("-y", "--start-year", type=int, default=2019)
+    parser.add_argument("-Y", "--end-year", type=int, default=2024)
+    parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
+    parser.add_argument("-g", "--max-row-groups", type=int)
+    parser.add_argument("-r", "--rebuild-weather-cache", action="store_true")
+    parser.add_argument("-p", "--plot-only", action="store_true")
     args = parser.parse_args()
 
     if args.plot_only:
@@ -1063,7 +1058,6 @@ def main() -> None:
         args.adu_figure,
         args.figure,
         args.adjustment,
-        args.adjustment_figure,
         args.notes,
     ]:
         path.parent.mkdir(parents=True, exist_ok=True)

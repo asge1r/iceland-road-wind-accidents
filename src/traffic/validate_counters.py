@@ -60,8 +60,8 @@ def query(site: tuple[str, str, int, float, float, tuple[int, ...]]) -> dict[str
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--daily", type=Path, default=DAILY)
-    parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("-d", "--daily", type=Path, default=DAILY)
+    parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
     daily = pd.read_parquet(args.daily)
     roads = json.loads(ROADS.read_text(encoding="utf-8"))["features"]

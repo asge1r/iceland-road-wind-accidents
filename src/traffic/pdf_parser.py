@@ -35,9 +35,9 @@ class TextItem:
     text: str
 
 
-def resolve_pdf(year: int) -> Path | None:
+def resolve_pdf(year: int, directory: Path = PDF_DIRECTORY) -> Path | None:
     """Return the expected local PDF for a year, or ``None`` when unavailable."""
-    path = PDF_DIRECTORY / PDF_CANDIDATES[year]
+    path = directory / PDF_CANDIDATES[year]
     return path if path.exists() else None
 
 

@@ -8,8 +8,9 @@ python -m src.analyze
 python -m src.validate
 ```
 
-- `prepare.py`: raw source data to local processed files.
-- `analyze.py`: processed files to the retained tables and figures.
+- `prepare.py`: raw source data to temporary local working files and then to
+  the named CSV files in `data/analysis/`.
+- `analyze.py`: `data/analysis/*.csv` to the retained tables and figures.
 - `validate.py`: fixed checks for the final primary O/E analysis.
 
 The folders below contain the small steps called by the entry points:
@@ -22,3 +23,9 @@ The folders below contain the small steps called by the entry points:
 
 Every script has `-h` for its own inputs and outputs. `docs/pipeline.md`
 describes the relationship between scripts, data, and outputs.
+
+Only preparation scripts read source deliveries or Parquet working files.
+Every script called by `src.analyze` reads `data/analysis/*.csv` or small CSV
+results produced earlier in that same run. The only exception is the optional
+counter-coordinate quality check, which intentionally queries the official
+road reference rather than producing a thesis result.

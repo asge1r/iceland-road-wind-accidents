@@ -7,15 +7,12 @@ outcome; it is not divided into estimated hourly traffic.
 
 Expected traffic is calculated within counter, year, month, and weekday.  Thus,
 the comparison controls directly for the local seasonal and weekly traffic
-pattern.  VDU, SDU, and the ADU-derived spring/autumn value (VHDU) are
-retained as transparent annual traffic references, not used to replace observed
-daily counts.
+pattern. Traffic periods are retained only for descriptive seasonal summaries.
 """
 
 from __future__ import annotations
 
 import argparse
-import calendar
 from pathlib import Path
 
 import matplotlib
@@ -27,8 +24,6 @@ import pandas as pd
 
 
 INPUT = Path("data/analysis/daily_traffic.csv")
-ANNUAL = Path("data/analysis/annual_traffic.csv")
-DAY_PANEL = Path("data/processed/traffic/daily_traffic_wind_response.parquet")
 RESULTS = Path("reports/main/tables/daily_traffic_by_wind.csv")
 PERIOD_SUMMARY = Path("reports/main/tables/daily_traffic_period_summary.csv")
 FIGURE_ALL = Path("reports/main/figures/daily_traffic_by_wind.png")
@@ -37,18 +32,14 @@ FIGURE_DETAILED = Path("reports/working/figures/daily_traffic_wind_detailed.png"
 FIGURE_PERIOD = Path("reports/working/figures/daily_traffic_wind_by_period.png")
 NOTES = Path("archive/generated_diagnostics/daily_traffic_wind_analysis_notes.md")
 
-F_UPPER_BOUNDS = np.arange(3, 34, 3, dtype=float)
+F_EDGES = np.array([0, 5, 10, 15, 20, 25, np.inf], dtype=float)
+F_LABELS = ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"]
 PERIOD_ORDER = ["VDU", "SDU", "VHDU"]
 PERIOD_MONTHS = {
     "VDU": [12, 1, 2, 3],
     "SDU": [6, 7, 8, 9],
     "VHDU": [4, 5, 10, 11],
 }
-
-
-def normalize_section(values: pd.Series) -> pd.Series:
-    """Return lower-case road-section identifiers suitable for joins."""
-    return values.astype("string").str.strip().str.lower()
 
 
 def traffic_period(month: pd.Series) -> pd.Series:
@@ -59,99 +50,32 @@ def traffic_period(month: pd.Series) -> pd.Series:
     return pd.Categorical(result, categories=PERIOD_ORDER, ordered=True)
 
 
-def period_days(year: int, period: str) -> int:
-    """Count calendar days in a traffic period for one calendar year."""
-    return sum(calendar.monthrange(int(year), month)[1] for month in PERIOD_MONTHS[period])
-
-
-def wind_labels() -> list[str]:
-    lower = np.concatenate(([0.0], F_UPPER_BOUNDS[:-1]))
-    return [f"{int(lo)}-{int(hi)}" for lo, hi in zip(lower, F_UPPER_BOUNDS, strict=True)]
-
-
-def combine_high_wind_tail(panel: pd.DataFrame) -> pd.DataFrame:
-    """Create the stable thesis display with a single >=24 m/s category.
-
-    The detailed 3 m/s bins remain available for diagnostic work. The pooled
-    tail has enough counter-days for a readable main result, whereas the
-    individual 27--30 and 30--33 m/s bins are too sparse to interpret alone.
-    """
-    output = panel.copy()
-    display_labels = ["0-3", "3-6", "6-9", "9-12", "12-15", "15-18", "18-21", "21-24", ">=24"]
-    output["f_bin"] = output["f_bin"].astype("string").replace(
-        {"24-27": ">=24", "27-30": ">=24", "30-33": ">=24"}
-    )
-    output["f_bin"] = pd.Categorical(output["f_bin"], categories=display_labels, ordered=True)
-    return output
-
-
-def add_annual_traffic_references(panel: pd.DataFrame, annual_path: Path) -> pd.DataFrame:
-    """Attach official SDU/VDU and a day-weighted derived VHDU reference."""
-    annual = pd.read_csv(
-        annual_path,
-        usecols=["year", "road_section", "adu", "sdu", "vdu"],
-    )
-    annual["road_section"] = normalize_section(annual["road_section"])
-    annual = annual.drop_duplicates(["year", "road_section"])
-    year_days = annual["year"].map(lambda value: 366 if calendar.isleap(int(value)) else 365)
-    sdu_days = annual["year"].map(lambda value: period_days(int(value), "SDU"))
-    vdu_days = annual["year"].map(lambda value: period_days(int(value), "VDU"))
-    other_days = year_days - sdu_days - vdu_days
-    annual["other_daily_traffic_derived"] = (
-        annual["adu"] * year_days - annual["sdu"] * sdu_days - annual["vdu"] * vdu_days
-    ) / other_days
-    annual.loc[annual["other_daily_traffic_derived"].le(0), "other_daily_traffic_derived"] = np.nan
-
-    output = panel.merge(
-        annual,
-        on=["year", "road_section"],
-        how="left",
-        validate="many_to_one",
-    )
-    output["annual_period_daily_traffic"] = np.select(
-        [output["traffic_period"].eq("VDU"), output["traffic_period"].eq("SDU")],
-        [output["vdu"], output["sdu"]],
-        default=output["other_daily_traffic_derived"],
-    )
-    output["annual_period_traffic_method"] = np.where(
-        output["traffic_period"].eq("VHDU"),
-        "ADU-derived VHDU (Apr-May, Oct-Nov)",
-        "Official seasonal daily traffic",
-    )
-    return output
-
-
-def prepare_panel(input_path: Path, annual_path: Path) -> pd.DataFrame:
+def prepare_panel(input_path: Path) -> pd.DataFrame:
     """Create the compact counter-day panel used in the wind-response analysis."""
-    source = (
-        pd.read_parquet(input_path)
-        if input_path.suffix == ".parquet"
-        else pd.read_csv(input_path)
-    )
+    if input_path.suffix != ".csv":
+        raise ValueError(f"Analysis input must be a CSV file: {input_path}")
+    source = pd.read_csv(input_path)
     needed = [
-        "date", "counter_site_id", "road_section", "traffic_volume",
-        "location_method", "weather_station_id", "weather_station_dist_km",
-        "f_daytime_mean", "fg_daytime_max",
+        "date", "counter_id", "traffic", "weather_station_id", "f_mean", "fg_mean",
     ]
     missing = set(needed) - set(source.columns)
     if missing:
         raise ValueError(f"Daily traffic input is missing columns: {sorted(missing)}")
     panel = source[needed].copy()
+    panel = panel.rename(
+        columns={"counter_id": "counter_site_id", "traffic": "traffic_volume", "f_mean": "f_daytime_mean", "fg_mean": "fg_daytime_mean"}
+    )
     panel["date"] = pd.to_datetime(panel["date"])
     panel["year"] = panel["date"].dt.year.astype("int16")
-    panel["road_section"] = normalize_section(panel["road_section"])
     panel["month"] = panel["date"].dt.month.astype("int8")
     panel["weekday"] = panel["date"].dt.weekday.astype("int8")
     panel["traffic_period"] = traffic_period(panel["month"])
 
-    # The wind bins deliberately stop at 33 m/s. The separate daily diagnostic
-    # has already excluded the identified anomalous Reykjavík station series;
-    # only five counter-days remain at >=33 m/s and they are outside the display.
-    panel["wind_analysis_eligible"] = panel["f_daytime_mean"].between(0, 33, inclusive="left")
+    panel["wind_analysis_eligible"] = panel["f_daytime_mean"].between(0, 45, inclusive="left")
     panel["f_bin"] = pd.cut(
         panel["f_daytime_mean"],
-        bins=np.concatenate(([0.0], F_UPPER_BOUNDS)),
-        labels=wind_labels(),
+        bins=F_EDGES,
+        labels=F_LABELS,
         right=False,
         include_lowest=True,
         ordered=True,
@@ -167,7 +91,6 @@ def prepare_panel(input_path: Path, annual_path: Path) -> pd.DataFrame:
     panel["daily_traffic_oe"] = (
         panel["traffic_volume"] / panel["expected_daily_traffic"]
     )
-    panel = add_annual_traffic_references(panel, annual_path)
     return panel
 
 
@@ -215,7 +138,6 @@ def summarize(data: pd.DataFrame, *, scope: str, replicates: int, seed: int) -> 
         observed_daily_vehicles=("traffic_volume", "sum"),
         expected_daily_vehicles=("expected_daily_traffic", "sum"),
         median_daily_traffic_oe=("daily_traffic_oe", "median"),
-        median_annual_period_daily_traffic=("annual_period_daily_traffic", "median"),
     )
     summary["observed_to_expected_traffic"] = (
         summary["observed_daily_vehicles"] / summary["expected_daily_vehicles"]
@@ -245,19 +167,16 @@ def build_results(panel: pd.DataFrame, replicates: int) -> pd.DataFrame:
 
 
 def build_period_summary(panel: pd.DataFrame) -> pd.DataFrame:
-    """Describe the daily-count sample and its annual traffic reference by period."""
+    """Describe the daily-count sample by traffic period."""
     data = panel[panel["wind_analysis_eligible"]].copy()
     return (
         data.groupby("traffic_period", observed=True, as_index=False)
         .agg(
             counter_days=("date", "size"),
             counters=("counter_site_id", "nunique"),
-            road_sections=("road_section", "nunique"),
             weather_stations=("weather_station_id", "nunique"),
             mean_daily_traffic=("traffic_volume", "mean"),
             median_daily_traffic=("traffic_volume", "median"),
-            median_annual_period_daily_traffic=("annual_period_daily_traffic", "median"),
-            annual_reference_coverage_pct=("annual_period_daily_traffic", lambda x: 100 * x.notna().mean()),
         )
         .sort_values("traffic_period")
     )
@@ -355,7 +274,7 @@ def write_notes(path: Path, panel: pd.DataFrame, results: pd.DataFrame) -> None:
 
 - Unit: one physical counter on one date.
 - Daily traffic rows: {len(panel):,}.
-- Rows with mean wind from 0 to <33 m/s: {len(eligible):,} ({100 * len(eligible) / len(panel):.2f}%).
+- Rows with mean wind from 0 to <45 m/s: {len(eligible):,} ({100 * len(eligible) / len(panel):.2f}%).
 - Traffic is reported as a 24-hour count. Wind is the mean from 10:00 to 21:59.
 
 ## Standardisation
@@ -366,19 +285,16 @@ sum of observed daily vehicles divided by the sum of expected daily vehicles in
 a wind bin. This compares the observed share of traffic in the bin with its
 expected share after local calendar standardisation.
 
-## Seasonal references
+## Seasons
 
-- VDU: December--March; official VDU daily traffic.
-- SDU: June--September; official SDU daily traffic.
-- VHDU: April--May and October--November; day-weighted residual derived from
-  ADU, SDU, and VDU. It is retained as a reference column, not substituted for
-  observed daily traffic.
+- VDU: December--March.
+- SDU: June--September.
+- VHDU: April--May and October--November.
 
 ## Outputs
 
-- `{DAY_PANEL}`: counter-day analysis data.
-- `{RESULTS}`: thesis display with the stable >=24 m/s tail.
-- `{DETAILED_RESULTS}`: retained 3 m/s-bin diagnostic output.
+- `{RESULTS}`: thesis display with the stable >=25 m/s tail.
+- `{DETAILED_RESULTS}`: the same analysis data retained for inspection.
 - `{PERIOD_SUMMARY}`: daily-count sample by traffic period.
 """
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -388,8 +304,6 @@ expected share after local calendar standardisation.
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build daily traffic O/E by mean wind.")
     parser.add_argument("-i", "--input", type=Path, default=INPUT)
-    parser.add_argument("-a", "--annual", type=Path, default=ANNUAL)
-    parser.add_argument("-d", "--day-panel", type=Path, default=DAY_PANEL)
     parser.add_argument("-r", "--results", type=Path, default=RESULTS)
     parser.add_argument("-p", "--period-summary", type=Path, default=PERIOD_SUMMARY)
     parser.add_argument("-f", "--figure", type=Path, default=FIGURE_ALL)
@@ -398,29 +312,28 @@ def main() -> None:
     parser.add_argument(
         "-w", "--write-detailed",
         action="store_true",
-        help="Also regenerate the detailed 3 m/s-bin diagnostic outputs.",
+        help="Also regenerate period-specific diagnostic outputs.",
     )
     parser.add_argument("-P", "--period-figure", type=Path, default=FIGURE_PERIOD)
     parser.add_argument("-n", "--notes", type=Path, default=NOTES)
     parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     args = parser.parse_args()
 
-    panel = prepare_panel(args.input, args.annual)
-    results = build_results(combine_high_wind_tail(panel), args.bootstrap_replicates)
+    panel = prepare_panel(args.input)
+    results = build_results(panel, args.bootstrap_replicates)
     period_summary = build_period_summary(panel)
-    paths = [args.day_panel, args.results, args.period_summary, args.figure, args.notes]
+    paths = [args.results, args.period_summary, args.figure, args.notes]
     if args.write_detailed:
         paths.extend([args.detailed_results, args.detailed_figure, args.period_figure])
     for path in paths:
         path.parent.mkdir(parents=True, exist_ok=True)
-    panel.to_parquet(args.day_panel, index=False, compression="zstd")
     results.to_csv(args.results, index=False)
     period_summary.to_csv(args.period_summary, index=False)
     plot_results(results, args.figure, "All periods", "Daily traffic relative to expected traffic by mean wind speed")
     if args.write_detailed:
         detailed_results = build_results(panel, args.bootstrap_replicates)
         detailed_results.to_csv(args.detailed_results, index=False)
-        plot_results(detailed_results, args.detailed_figure, "All periods", "Daily traffic: detailed 3 m/s wind bins")
+        plot_results(detailed_results, args.detailed_figure, "All periods", "Daily traffic by mean wind speed")
         plot_period_results(detailed_results, args.period_figure)
     write_notes(args.notes, panel, results)
     print(period_summary.to_string(index=False))

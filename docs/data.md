@@ -24,15 +24,20 @@ not committed because it is derived from authorised local data deliveries.
 | File | Unit | Key columns used |
 |---|---|---|
 | `analysis/accidents.csv` | One rural injury accident | identifier, time, injury code, accident-type code, vehicle count, weather-station identifier, match distance/time difference, `f`, and `fg`. Coordinates and detailed matching audit fields remain in `processed/`. |
-| `analysis/weather_frequency.csv` | Station, year, season, wind variable, and wind bin | Tidy wind-bin counts and the matching denominator used as the O/E exposure table. `unit` distinguishes m/s variables from the unitless gust factor. |
+| `analysis/weather_frequency.csv` | Station, season, wind variable, and wind bin | Tidy wind-bin counts pooled across 2007--2025 and used as the O/E exposure table. `unit` distinguishes m/s variables from the unitless gust factor. |
 | `analysis/stations.csv` | One weather station | station, name, latitude, longitude. |
 | `analysis/annual_traffic.csv` | Road section and year | road section, length, ADU, SDU, and VDU. |
-| `analysis/daily_traffic.csv` | Counter site and date | daily count, road section, location method, weather-station match, daytime `f`, and daytime `fg`. |
+| `analysis/rate_model.csv` | Road section, year, traffic period, and mean-wind interval | The 24,048 rows that contain information for the conditional Poisson model: estimated vehicle-kilometres and injury-accident counts. All-zero accident strata are not retained because they contribute no information to this conditional model. |
+| `analysis/traffic_rate_summary.csv` | Traffic period and mean-wind interval | 18 rows: total estimated vehicle-kilometres and observed accidents for the descriptive accident-per-vehicle-km table. |
+| `analysis/selection_summary.csv` | Dataset-selection step | Eight counts used to draw the accident and traffic selection figures. |
+| `analysis/daily_traffic.csv` | Counter site and date | daily count, weather-station match, daytime mean `f`, and daytime mean `fg`. |
 | `analysis/daily.txt` | One counter followed by daily records | A readable, grouped view of the daily traffic file. |
-| `analysis/manifest.csv` | One analysis file | record count, source cache, and available columns. |
+| `analysis/manifest.csv` | One analysis file | record count, preparation source, and available columns. |
 
-The primary O/E analysis uses `accidents.csv` and
-`weather_frequency.csv`; it does not use traffic. Mean wind speed `f` is its
-primary exposure and maximum gust `fg` is secondary. The daily-traffic script
-uses `daily_traffic.csv` and `annual_traffic.csv`. Source construction and the
-separate road-section comparison read larger local caches under `processed/`.
+The primary O/E analysis uses `accidents.csv`, `weather_frequency.csv`, and
+the generated `oe_station_bins.csv`; it does not use traffic. Mean wind speed
+`f` is its primary exposure and maximum gust `fg` is secondary. The daily
+traffic script uses `daily_traffic.csv`. The vehicle-kilometre scripts use
+`rate_model.csv` and `traffic_rate_summary.csv`. Therefore the ordinary
+analysis stage reads only files in `data/analysis/`, not `data/raw/` or
+`data/processed/`.

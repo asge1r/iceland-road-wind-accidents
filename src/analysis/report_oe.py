@@ -14,14 +14,13 @@ import pandas as pd
 
 from src.weather.frequency import (
     FG_UPPER_BOUNDS,
-    F_FIVE_MS_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
     GUST_FACTOR_UPPER_BOUNDS,
     labels,
 )
 
 
-DEFAULT_DETAILS = Path("data/cache/oe_station_period_bins.parquet")
+DEFAULT_DETAILS = Path("data/analysis/oe_station_bins.csv")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 ACCIDENT_MATCH_COVERAGE = Path(
     "archive/generated_diagnostics/oe/accident_weather_coverage.csv"
@@ -34,55 +33,33 @@ DEFAULT_WEATHER_CLEANING = Path(
     "archive/generated_diagnostics/weather_cleaning_by_year.csv"
 )
 PRIMARY_MAX_TIME_DIFFERENCE_MINUTES = 5
-PRIMARY_VARIABLE = "f_5m"
+PRIMARY_VARIABLE = "f"
 
 VARIABLE_LABELS = {
     "f": "Mean wind speed",
-    "f_5m": "Mean wind speed (5 m/s intervals)",
     "fg": "Maximum wind gust",
-    "fg_minus_f": "Maximum gust minus mean wind speed",
     "gust_factor": "Gust factor (fg / f; f ≥ 3 m/s)",
 }
-VARIABLE_COLORS = {"f": "#287271", "f_5m": "#287271", "fg": "#C7522A", "fg_minus_f": "#5B5F97", "gust_factor": "#7B5EA7"}
+VARIABLE_COLORS = {"f": "#287271", "fg": "#C7522A", "gust_factor": "#7B5EA7"}
 VARIABLE_XLABELS = {
     "f": "Mean wind-speed interval, f (m/s)",
-    "f_5m": "Mean wind-speed interval, f (m/s)",
     "fg": "Maximum wind-gust interval, fg (m/s)",
-    "fg_minus_f": "Maximum gust minus mean wind speed, fg - f (m/s)",
     "gust_factor": "Gust factor, fg / f",
 }
 COARSE_BINS = {
     "f": {value: value for value in labels(F_UPPER_BOUNDS)},
-    "f_5m": {value: value for value in labels(F_FIVE_MS_UPPER_BOUNDS)},
     "fg": {value: value for value in labels(FG_UPPER_BOUNDS)},
-    "fg_minus_f": {
-        "0-2": "0-4",
-        "2-4": "0-4",
-        "4-6": "4-8",
-        "6-8": "4-8",
-        "8-10": "8-12",
-        "10-12": "8-12",
-        "12-14": ">=12",
-        "14-16": ">=12",
-        "16-18": ">=12",
-        "18-20": ">=12",
-        ">=20": ">=12",
-    },
     "gust_factor": {value: value for value in labels(GUST_FACTOR_UPPER_BOUNDS)},
 }
 BIN_ORDER = {
     "f": labels(F_UPPER_BOUNDS),
-    "f_5m": labels(F_FIVE_MS_UPPER_BOUNDS),
     "fg": labels(FG_UPPER_BOUNDS),
-    "fg_minus_f": ["0-4", "4-8", "8-12", ">=12"],
     "gust_factor": labels(GUST_FACTOR_UPPER_BOUNDS),
 }
-FG_THREE_MS_BINS = {value: value for value in labels(FG_UPPER_BOUNDS)}
-FG_THREE_MS_ORDER = labels(FG_UPPER_BOUNDS)
 
 
 def prepare_details(path: Path) -> pd.DataFrame:
-    details = pd.read_parquet(path)
+    details = pd.read_csv(path)
     if "max_time_difference_minutes" not in details:
         details["max_time_difference_minutes"] = PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
     details["coarse_bin"] = pd.NA
@@ -96,8 +73,8 @@ def prepare_details(path: Path) -> pd.DataFrame:
 
 
 def read_accidents(path: Path, columns: list[str]) -> pd.DataFrame:
-    if path.suffix == ".parquet":
-        return pd.read_parquet(path, columns=columns)
+    if path.suffix != ".csv":
+        raise ValueError(f"Analysis input must be a CSV file: {path}")
     return pd.read_csv(path, usecols=columns)
 
 
@@ -413,7 +390,7 @@ def write_weather_coverage(
     accidents = read_accidents(
         accidents_path,
         [
-            "nid",
+            "id",
             "weather_station_id",
             "weather_station_dist_km",
             "weather_time_difference_minutes",
@@ -542,7 +519,7 @@ def write_weather_coverage(
 
 def plot_supporting(data: pd.DataFrame, path: Path) -> None:
     fig, axes = plt.subplots(2, 1, figsize=(10.8, 10.5), constrained_layout=True)
-    for ax, variable in zip(axes, ["f", "fg_minus_f"], strict=True):
+    for ax, variable in zip(axes, ["f", "fg"], strict=True):
         subset = data[data["variable"].eq(variable)].sort_values("bin_order")
         x = np.arange(len(subset))
         y = subset["relative_accident_frequency"].to_numpy(float)
@@ -606,7 +583,6 @@ def write_thesis_outputs(
     ].lt(20)
     thesis.to_csv(output_dir / "mean_wind_oe.csv", index=False)
     for variable, filename, interval_column in [
-        ("f", "mean_wind_3m_oe.csv", "mean_wind_interval_ms"),
         ("fg", "gust_oe.csv", "maximum_gust_interval_ms"),
         ("gust_factor", "gust_factor_oe.csv", "gust_factor_interval"),
     ]:
@@ -683,7 +659,7 @@ def write_thesis_outputs(
         output_dir / "weather_match_coverage.csv", index=False
     )
 
-    high_bins = {"f": ">=24", "f_5m": ">=25", "fg": ">=36", "fg_minus_f": ">=12", "gust_factor": ">=3"}
+    high_bins = {"f": ">=25", "fg": ">=35", "gust_factor": ">=2"}
     sensitivity_rows = []
     for variable, coarse_bin in high_bins.items():
         selected = radius[
@@ -722,7 +698,7 @@ def write_thesis_outputs(
             )
     selected_time = time_sensitivity[
         time_sensitivity["variable"].eq("fg")
-        & time_sensitivity["coarse_bin"].eq(">=36")
+        & time_sensitivity["coarse_bin"].eq(">=35")
     ]
     for row in selected_time.itertuples():
         sensitivity_rows.append(
@@ -730,7 +706,7 @@ def write_thesis_outputs(
                 "comparison": "maximum_time_difference",
                 "level": f"<= {row.max_time_difference_minutes:g} minutes",
                 "variable": "fg",
-                "wind_interval_ms": ">=36",
+                "wind_interval_ms": ">=35",
                 "observed_accidents": row.observed_accidents,
                 "observed_expected_ratio": row.relative_accident_frequency,
                 "station_bootstrap_ci_95_low": row.bootstrap_ci_95_low,
@@ -783,8 +759,8 @@ def write_thesis_outputs(
 ## Method
 
 Rural injury accidents in 2007–2025 were matched to the nearest valid
-10-minute wind observation within 20 km. For each weather station, calendar
-year, and season, the observed number of accidents in each mean-wind interval was
+10-minute wind observation within 20 km. For each weather station and season,
+the observed number of accidents in each mean-wind interval was
 compared with the expected number based on the share of all cleaned 10-minute
 observations in that interval. The pooled ratio is therefore the observed
 accident count divided by the expected count after standardization for local
@@ -796,8 +772,8 @@ associated with a station remained together in each sample. The 95% confidence
 limits were the 2.5th and 97.5th percentiles of the bootstrap distribution.
 Mean wind is grouped into 5 m/s intervals from 0–5 through 20–25 m/s, with an
 open-ended interval for ≥25 m/s. Maximum gust is reported as a secondary
-analysis in 3 m/s intervals from 0–3 through 33–36 m/s, with an open-ended
-interval for ≥36 m/s.
+analysis in 5 m/s intervals from 0–5 through 30–35 m/s, with an open-ended
+interval for ≥35 m/s.
 
 ## Results
 
@@ -858,7 +834,7 @@ def main() -> None:
         for season in ["Winter", "Spring", "Summer", "Fall"]:
             scenarios.append((variable, 20, "Injury accidents", season))
     for vehicle_group in ["1 vehicle", "2 or more vehicles"]:
-        for variable in ["f_5m", "fg"]:
+        for variable in ["f", "fg"]:
             scenarios.append((variable, 20, vehicle_group, "All seasons"))
 
     for scenario_index, (variable, radius, severity, season) in enumerate(scenarios):
@@ -920,7 +896,7 @@ def main() -> None:
     ].copy()
 
     subgroup = all_results[
-        all_results["variable"].isin(["f_5m", "fg"])
+        all_results["variable"].isin(["f", "fg"])
         & all_results["radius_km"].eq(20)
         & all_results["max_time_difference_minutes"].eq(
             PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
@@ -968,25 +944,7 @@ def main() -> None:
     time_results.append(primary[primary["variable"].eq("fg")].copy())
     time_sensitivity = pd.concat(time_results, ignore_index=True)
 
-    bin_width_sensitivity, _ = analyse_scenario(
-        details,
-        "fg",
-        20,
-        "Injury accidents",
-        "All seasons",
-        args.bootstrap_reps,
-        args.seed + 200,
-        max_time_difference_minutes=PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
-        bin_mapping=FG_THREE_MS_BINS,
-        bin_order=FG_THREE_MS_ORDER,
-    )
-    # A different bin width must retain exactly the current primary sample.
-    # Do not hard-code an old accident count: valid weather cleaning rules can
-    # legitimately change the matched sample while preserving this invariant.
-    primary_fg_total = int(
-        primary.loc[primary["variable"].eq("fg"), "observed_accidents"].sum()
-    )
-    validate_totals(bin_width_sensitivity, primary_fg_total)
+    bin_width_sensitivity = primary[primary["variable"].eq("fg")].copy()
 
     write_thesis_outputs(
         primary,
@@ -1004,11 +962,6 @@ def main() -> None:
     )
     plot_one_variable(
         primary,
-        "f",
-        args.figure_dir / "mean_wind_3m_oe.png",
-    )
-    plot_one_variable(
-        primary,
         "fg",
         args.figure_dir / "gust_oe.png",
     )
@@ -1019,7 +972,7 @@ def main() -> None:
     )
     plot_mean_wind_strata(
         all_results,
-        "f_5m",
+        "f",
         "analysis_season",
         ["Winter", "Spring", "Summer", "Fall"],
         "severity_group",
@@ -1029,7 +982,7 @@ def main() -> None:
     )
     plot_mean_wind_strata(
         all_results,
-        "f_5m",
+        "f",
         "severity_group",
         ["1 vehicle", "2 or more vehicles"],
         "analysis_season",
@@ -1056,11 +1009,6 @@ def main() -> None:
         "All seasons",
         "Maximum gust O/E by number of vehicles involved",
         args.figure_dir / "gust_by_vehicle_group_oe.png",
-    )
-    plot_one_variable(
-        primary,
-        "fg_minus_f",
-        Path("archive/generated_diagnostics/gust_variability_accident_frequency.png"),
     )
     plot_distribution_comparison(
         primary,
@@ -1110,12 +1058,13 @@ Coarse bins
 -----------
 - f: {', '.join(BIN_ORDER['f'])} m/s
 - fg: {', '.join(BIN_ORDER['fg'])} m/s
-- fg-f: {', '.join(BIN_ORDER['fg_minus_f'])} m/s
+- gust factor: {', '.join(BIN_ORDER['gust_factor'])}
 
 The point estimate remains observed accidents divided by expected accidents after
-standardizing the background frequency within station, calendar year and season.
+standardizing the background frequency within station and season across the
+pooled 2007--2025 study period.
 For uncertainty, entire weather stations are sampled with replacement. Every
-station/year/season/bin contribution belonging to a sampled station is retained,
+station/season/bin contribution belonging to a sampled station is retained,
 so spatial clustering and repeated accidents assigned to the same station remain
 together. The 2.5th and 97.5th percentiles of the bootstrap distribution form the
 95% interval. The seed makes the result reproducible.
@@ -1125,7 +1074,7 @@ The bootstrap addresses station clustering but does not correct traffic exposure
 non-random weather missingness, station-to-crash spatial error or multiple testing.
 The supporting outputs compare raw accident counts with the locally expected
 distribution, test 10/20/30 km radii, 0/2/5 minute timing, serious/fatal outcomes,
-gust intervals, and fg-f. None of these replaces the primary 20 km, <=5 minute,
+gust intervals, and gust factor. None of these replaces the primary 20 km, <=5 minute,
 5 m/s mean-wind specification.
 
 Primary results

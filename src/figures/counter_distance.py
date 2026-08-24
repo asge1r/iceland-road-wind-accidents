@@ -18,9 +18,9 @@ import numpy as np
 import pandas as pd
 
 
-INPUT = Path("data/processed/traffic/daily_traffic_weather.parquet")
-TABLE = Path("reports/main/tables/counter_weather_distance.csv")
-FIGURE = Path("reports/main/figures/counter_weather_distance.png")
+INPUT = Path("data/analysis/daily_traffic.csv")
+TABLE = Path("reports/working/tables/counter_weather_distance.csv")
+FIGURE = Path("reports/working/figures/counter_weather_distance.png")
 
 BIN_EDGES = list(range(0, 22, 2))
 BIN_LABELS = [f"{lower}–<{upper}" for lower, upper in zip(BIN_EDGES[:-2], BIN_EDGES[1:-1], strict=True)] + ["18–20"]
@@ -28,10 +28,8 @@ BIN_LABELS = [f"{lower}–<{upper}" for lower, upper in zip(BIN_EDGES[:-2], BIN_
 
 def prepare_counter_distances(path: Path) -> tuple[pd.DataFrame, int]:
     """Return the representative weather-match distance for each counter."""
-    data = pd.read_parquet(
-        path,
-        columns=["counter_site_id", "weather_station_dist_km"],
-    )
+    data = pd.read_csv(path, usecols=["counter_id", "weather_station_dist_km"])
+    data = data.rename(columns={"counter_id": "counter_site_id"})
     total_counters = data["counter_site_id"].nunique()
     data["weather_station_dist_km"] = pd.to_numeric(
         data["weather_station_dist_km"], errors="coerce"
@@ -91,9 +89,9 @@ def plot(summary: pd.DataFrame, distances: pd.DataFrame, total_counters: int, pa
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Plot daily counter-to-weather-station distances.")
-    parser.add_argument("--input", type=Path, default=INPUT)
-    parser.add_argument("--table", type=Path, default=TABLE)
-    parser.add_argument("--figure", type=Path, default=FIGURE)
+    parser.add_argument("-i", "--input", type=Path, default=INPUT)
+    parser.add_argument("-t", "--table", type=Path, default=TABLE)
+    parser.add_argument("-o", "--output", "--figure", dest="figure", type=Path, default=FIGURE)
     args = parser.parse_args()
 
     distances, total_counters = prepare_counter_distances(args.input)

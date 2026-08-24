@@ -17,37 +17,33 @@ the authorised source deliveries transparent and reproducible.
 
 - `data/raw/{accidents,weather,traffic}/`: unchanged source and reference data
   downloaded or supplied locally; never committed.
-- `data/processed/{accidents,weather,traffic}/`: reproducible local cleaning
-  products and analysis caches; never committed.
+- `data/processed/{accidents,weather,traffic}/`: reproducible local working
+  products used only during preparation; never committed.
+- `data/analysis/`: the readable CSV inputs used by every routine analysis
+  script; never committed because they derive from authorised local data.
 - `docs/`: source inventory, variables and fixed analysis rules.
 - `archive/`: local diagnostics and superseded material; not version controlled.
 - `src/`: documented preparation, matching and analysis programs.
 - `reports/main/`: supervisor-ready and thesis-ready outputs.
 - `reports/thesis/`: the current English thesis draft.
 
-## Core Data
+## Working data
 
 - `data/raw/weather/weather_10min_raw.parquet`: raw continuous 10-minute weather observations.
-- `data/processed/weather/weather_10min_clean.parquet`: cleaned `f`, `fg`, and `t`, with
-  `0 <= f < 45 m/s`, `0 <= fg < 65 m/s`, and frozen all-zero sensor runs removed.
-- `data/processed/accidents/rural_injury_accidents.parquet`: all 6,414 study
-  accidents with location, road, weather and nullable annual-traffic fields.
-- `data/processed/accidents/accidents.csv`: readable CSV export of the same
-  6,414 accidents.
-- `data/processed/weather/wind_frequency_station_year_season.parquet`: wind
-  frequency denominator for analysis A.
-- `data/processed/accidents/oe_station_period_bins.parquet`: canonical
-  station-period O/E input for analysis A and its clustered bootstrap.
-- `data/processed/traffic/road_section_wind_panel_2007_2025.parquet`: local
-  cache for the annual-traffic rate comparison across all annual-traffic road
-  sections with qualifying weather coverage
-  by road section, year, official traffic period, wind variable, and wind
-  interval. VDU uses December-March; SDU uses June-September; the four remaining
-  months use a day-weighted traffic residual derived from ADU, SDU, and VDU.
+- `data/processed/weather/weather_10min_clean.parquet` is the only very large
+  temporary file: the 211.5 million cleaned 10-minute observations. It is used
+  while creating the CSV frequency table, never by `src.analyze`.
+- `data/analysis/accidents.csv` and `weather_frequency.csv` are the complete
+  inputs to the primary O/E analysis.
+- `data/analysis/rate_model.csv` is the 1.2 MB, 24,048-row input to the
+  within-road/year/period rate model.
+- `data/analysis/traffic_rate_summary.csv` is an 18-row exposure table for the
+  descriptive accidents-per-vehicle-km result.
+- `data/analysis/daily_traffic.csv` is the optional counter-day traffic input.
 - `reports/main/figures/stratified_crash_rate_ratio_by_wind.png`: estimated
   within-road-section injury-accident rate ratios by 5 m/s mean-wind interval.
-  It reports both time-proportional traffic allocation and a daily-counter-
-  informed allocation.
+  It reports time-proportional annual-traffic allocation across local wind
+  frequency intervals.
 
 ## Rebuild the results
 
@@ -94,6 +90,6 @@ the six PDFs and weather-station metadata.
 
 - Rural injury accidents, 2007-2025.
 - Nearest valid 10-minute weather observation within 20 km.
-- Expected accidents standardized by weather station, calendar year, and season.
+- Expected accidents standardized by weather station and season, with weather frequency pooled across 2007--2025.
 - Mean wind speed (`f`) is the primary exposure; maximum wind gust (`fg`) is secondary.
 - Results describe associations and are not causal estimates.
