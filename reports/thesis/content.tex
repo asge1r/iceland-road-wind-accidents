@@ -101,38 +101,61 @@ carried into the analytical files.
 \end{tabularx}
 \end{table}
 
+Table~\ref{tab:pipeline} summarises the preparation and analysis flow. It
+lists the principal inputs and outputs only. The full list of diagnostic files
+and command-line options is maintained with the code repository.
+
+\begin{landscape}
 \begin{table}[H]
 \centering
 \small
-\renewcommand{\arraystretch}{1.12}
-\caption{Compact analysis files and statistical outputs. Larger processed files are rebuilt from the source data and are not used for routine inspection.}
+\renewcommand{\arraystretch}{1.20}
+\caption{Data pipeline. Paths are relative to the project data directory. ACC, IMO, VGD and SI are defined in Table~\ref{tab:sources}.}
 \label{tab:pipeline}
-\begin{tabularx}{\textwidth}{L{0.22\textwidth}L{0.15\textwidth}L{0.37\textwidth}X}
+\begin{tabularx}{\linewidth}{L{0.20\linewidth}L{0.28\linewidth}L{0.25\linewidth}X}
 \toprule
-File & Built from & Retained content & Records and period \\
+Script & Input & Output & Description \\
 \midrule
-\path{accidents.csv} & ACC, SI, IMO &
-\texttt{id}, time, injury code, accident type, vehicle count, matched station, distance, time difference, \texttt{f}, and \texttt{fg} &
-6,414 events, 2007--2025 \\
-\path{weather_frequency.csv} & IMO &
-station, season, wind variable, wind interval, and background observation count &
-24,778 station-season-interval rows pooled across 2007--2025 \\
-\path{annual_traffic.csv} & VGD-A &
-road section, length, ADU, SDU, and VDU &
-33,757 section-years, 2000--2025 \\
-\path{daily_traffic.csv} & VGD-D, IMO &
-counter, date, 24-hour count, matched station and distance, daytime mean \texttt{f}, and daytime mean \texttt{fg} &
-774,274 counter-days, 2019--2024 \\
-\path{mean_wind_oe.csv} & Accident and frequency files &
-observed accidents, expected accidents, O/E, and bootstrap interval by wind interval &
-Six intervals, 2007--2025 \\
-\path{stratified_crash_rate_ratio_by_wind.csv} &
-Road-period exposure and shared-station accidents &
-observed accidents and rate ratios with model intervals by wind interval &
-6 intervals; 4,958 accidents, 2007--2025 \\
+\texttt{accidents/build.py} &
+\shortstack[l]{\texttt{raw/accidents/*.txt}\\\texttt{raw/accidents/urban\_boundaries.geojson}} &
+\shortstack[l]{\texttt{processed/accidents/all.parquet}\\\texttt{processed/accidents/rural\_injury\_base.parquet}} &
+Creates one record per accident and selects rural injury accidents before weather matching. \\
+\texttt{weather/clean.py} &
+\texttt{raw/weather/*.parquet} &
+\texttt{processed/weather/weather.parquet} &
+Applies the fixed wind-quality rules to ten-minute weather observations. \\
+\texttt{weather/frequency.py} &
+\shortstack[l]{\texttt{processed/weather/weather.parquet}\\\texttt{raw/weather/stations.csv}} &
+\texttt{processed/weather/frequency.parquet} &
+Counts mean wind, maximum gust and gust-factor observations by station and season. \\
+\texttt{traffic/annual.py} &
+\texttt{raw/traffic/annual/*.xls*} &
+\texttt{processed/traffic/annual.csv} &
+Standardises road section, length, ADU, SDU and VDU. \\
+\texttt{accidents/match\_weather.py} &
+\shortstack[l]{\texttt{processed/accidents/all.parquet}\\\texttt{processed/weather/weather.parquet}\\\texttt{raw/weather/stations.csv}} &
+\texttt{processed/accidents/rural\_injury.parquet} &
+Matches each rural injury accident to the nearest valid weather observation. \\
+\shortstack[l]{\texttt{traffic/build\_road\_period.py}\\\texttt{traffic/match\_rate\_accident\_weather.py}} &
+\shortstack[l]{Annual traffic, rural injury accidents,\\weather, stations and road midpoints} &
+\shortstack[l]{\texttt{processed/traffic/road\_period.parquet}\\\texttt{processed/accidents/rate.parquet}} &
+Creates road-period traffic exposure and matching accident data for the vehicle-kilometre analysis. \\
+\shortstack[l]{\texttt{traffic/daily.py}\\\texttt{traffic/locate\_counters.py}\\\texttt{traffic/daily\_weather\_match.py}} &
+\shortstack[l]{Daily counter reports, road geometry,\\weather and station reference} &
+\texttt{processed/traffic/daily\_weather.parquet} &
+Creates daily counter totals and matches usable counter-days to daytime mean wind and maximum gust. \\
+\texttt{export\_tables.py} &
+Prepared accident, weather and traffic data &
+\shortstack[l]{\texttt{analysis/*.csv}\\\texttt{analysis/daily.txt}} &
+Writes the small, readable files used for inspection and statistical analysis. \\
+\shortstack[l]{\texttt{tables/oe.py}\\\texttt{figures/oe.py}} &
+\shortstack[l]{\texttt{analysis/accidents.csv}\\\texttt{analysis/weather\_frequency.csv}} &
+O/E table and figures &
+Calculates and presents accident occurrence adjusted for local wind frequency. \\
 \bottomrule
 \end{tabularx}
 \end{table}
+\end{landscape}
 
 \section{Accident Data}
 

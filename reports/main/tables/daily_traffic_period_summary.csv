@@ -1,4 +1,4 @@
-traffic_period,counter_days,counters,weather_stations,mean_daily_traffic,median_daily_traffic
-VDU,240505,465,191,4065.043566661816,645.0
-SDU,249944,460,171,5217.486188906315,1701.0
-VHDU,247975,465,181,4607.17707026918,952.0
+traffic_period,counter_days,counters,mean_daily_traffic,median_daily_traffic
+VDU,240505,465,4065.043566661816,645.0
+SDU,249944,460,5217.486188906315,1701.0
+VHDU,247975,465,4607.17707026918,952.0
