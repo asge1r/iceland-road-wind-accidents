@@ -15,10 +15,6 @@ import argparse
 from pathlib import Path
 import time
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
@@ -50,8 +46,6 @@ DEFAULT_ADU_VALIDATION = Path(
 DEFAULT_ADU_SUMMARY = Path(
     "archive/generated_diagnostics/daily_traffic_adu_summary.csv"
 )
-DEFAULT_ADU_FIGURE = Path("reports/working/traffic_validation.png")
-DEFAULT_FIGURE = Path("reports/working/daily_traffic_diagnostic.png")
 DEFAULT_ADJUSTMENT = Path(
     "archive/generated_diagnostics/daily_traffic_adjustment_comparison.csv"
 )
@@ -508,68 +502,6 @@ def build_wind_summary(panel: pd.DataFrame, replicates: int) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
-def plot_wind_summary(summary: pd.DataFrame, path: Path) -> None:
-    """Show the relative number of vehicles counted by daily mean wind.
-
-    Absolute counter volumes cannot be pooled because counters represent roads
-    with very different traffic levels. Each counter-day is therefore divided
-    by the median for the same counter, year, month, and weekday. A value of 70
-    means 30% fewer vehicles were counted than on a typical comparable day; it
-    is not a national count of people or vehicles.
-    """
-    data = summary[summary["variable"].eq("f_daytime_mean")].sort_values(
-        "bin_order"
-    )
-    x = np.arange(len(data))
-    sparse = data["counters"].fillna(0).lt(20)
-    colors = np.where(sparse, "#A8A8A8", "#287271")
-
-    fig, axis = plt.subplots(figsize=(11.2, 6.6))
-    bars = axis.bar(x, data["traffic_index_median"], color=colors, width=0.72)
-    lower = data["traffic_index_median"] - data["ci_95_low"]
-    upper = data["ci_95_high"] - data["traffic_index_median"]
-    axis.errorbar(
-        x,
-        data["traffic_index_median"],
-        yerr=[lower, upper],
-        fmt="none",
-        ecolor="#202020",
-        capsize=3,
-    )
-    axis.axhline(100, color="#202020", linestyle="--", linewidth=1.2)
-    axis.set_xticks(x, data["bin"], rotation=0, ha="center")
-    axis.set_ylabel("Vehicles counted relative to a typical day (%)")
-    axis.set_xlabel("Daytime mean wind speed, 10:00–21:59 (m/s)")
-    axis.set_title("Daily traffic by mean wind speed")
-    axis.grid(axis="y", alpha=0.2)
-    axis.set_axisbelow(True)
-    axis.set_ylim(0, max(112, float(data["ci_95_high"].max()) + 8))
-    for bar, row in zip(bars, data.itertuples(index=False), strict=True):
-        if pd.isna(row.traffic_index_median):
-            continue
-        axis.text(
-            bar.get_x() + bar.get_width() / 2,
-            row.traffic_index_median + 1.5,
-            f"n={row.counter_days:,}",
-            ha="center",
-            va="bottom",
-            fontsize=8.5,
-        )
-    fig.subplots_adjust(left=0.10, right=0.98, top=0.92, bottom=0.24)
-    fig.text(
-        0.5,
-        0.035,
-        "Baseline: median for the same counter, year, month, and weekday. "
-        "Bars show the median across counters; error bars are 95% counter-cluster bootstrap intervals.",
-        ha="center",
-        fontsize=8.5,
-        color="#444444",
-    )
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=240)
-    plt.close(fig)
-
-
 def build_adu_validation(
     daily: pd.DataFrame, annual_path: Path
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -637,51 +569,6 @@ def build_adu_validation(
             }
         )
     return result, pd.DataFrame(summaries)
-
-
-def plot_adu_validation(validation: pd.DataFrame, path: Path) -> None:
-    data = validation[
-        validation["adu"].gt(0)
-        & validation["observed_daily_mean"].gt(0)
-        & validation["near_complete_year"]
-        & validation["single_counter_section"]
-    ].copy()
-    fig, axis = plt.subplots(figsize=(9, 7.5), constrained_layout=True)
-    axis.scatter(
-        data["adu"],
-        data["observed_daily_mean"],
-        color="#287271",
-        alpha=0.55,
-        s=24,
-    )
-    low = min(data["adu"].min(), data["observed_daily_mean"].min())
-    high = max(data["adu"].max(), data["observed_daily_mean"].max())
-    axis.plot([low, high], [low, high], color="#202020", linestyle="--", linewidth=1)
-    axis.set_xscale("log")
-    axis.set_yscale("log")
-    axis.set_xlabel("Annual average daily traffic, ADU")
-    axis.set_ylabel("Mean observed daily PDF traffic")
-    axis.set_title("Daily traffic compared with official ADU")
-    axis.grid(alpha=0.2)
-    median_ratio = data["mean_to_adu_ratio"].median()
-    log_correlation = np.log(data["adu"]).corr(
-        np.log(data["observed_daily_mean"])
-    )
-    axis.text(
-        0.02,
-        0.98,
-        f"At least 300 observed days; one counter per road section\n"
-        f"n = {len(data):,} counter-years\n"
-        f"Median observed / ADU = {median_ratio:.3f}\n"
-        f"Log correlation = {log_correlation:.3f}\n"
-        "Dashed line: equal values",
-        transform=axis.transAxes,
-        va="top",
-        fontsize=10,
-    )
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=240)
-    plt.close(fig)
 
 
 def build_adjustment_comparison(
@@ -783,73 +670,6 @@ def build_adjustment_comparison(
     return pd.concat(frames, ignore_index=True)
 
 
-def plot_adjustment_comparison(result: pd.DataFrame, path: Path) -> None:
-    data = result[result["variable"].eq("fg_daytime_mean")].sort_values(
-        "bin_order"
-    )
-    x = np.arange(len(data))
-    width = 0.38
-    fig, axis = plt.subplots(figsize=(13, 7.5), constrained_layout=True)
-    bars_without = axis.bar(
-        x - width / 2,
-        data["ratio_without_daily_traffic"],
-        width,
-        label="Adjusted for observed section-days",
-        color="#287271",
-    )
-    bars_with = axis.bar(
-        x + width / 2,
-        data["ratio_with_daily_traffic"],
-        width,
-        label="Adjusted for observed daily traffic",
-        color="#C7522A",
-    )
-    for positions, ratio, suffix in (
-        (x - width / 2, data["ratio_without_daily_traffic"], "without_daily_traffic"),
-        (x + width / 2, data["ratio_with_daily_traffic"], "with_daily_traffic"),
-    ):
-        lower = ratio - data[f"ci_95_low_{suffix}"]
-        upper = data[f"ci_95_high_{suffix}"] - ratio
-        axis.errorbar(
-            positions,
-            ratio,
-            yerr=[lower, upper],
-            fmt="none",
-            ecolor="#202020",
-            capsize=2,
-            linewidth=0.8,
-        )
-    for position, count, first, second in zip(
-        x,
-        data["observed_accidents"],
-        bars_without,
-        bars_with,
-        strict=True,
-    ):
-        axis.text(
-            position,
-            max(first.get_height(), second.get_height()) + 0.05,
-            f"n={int(count)}",
-            ha="center",
-            va="bottom",
-            fontsize=8,
-        )
-    axis.axhline(1, color="#202020", linestyle="--", linewidth=1)
-    axis.set_xticks(x, data["bin"], rotation=35, ha="right")
-    axis.set_xlabel("Maximum daytime wind-gust interval, fg (m/s; 10:00–21:59)")
-    axis.set_ylabel("Observed / expected injury accidents (O/E ratio)")
-    represented_accidents = int(data["observed_accidents"].sum())
-    axis.set_title(
-        "Daily accident comparison with and without traffic exposure\n"
-        f"Exact Poisson 95% intervals; same {represented_accidents:,} accidents in both estimates"
-    )
-    axis.legend(frameon=False)
-    axis.grid(axis="y", alpha=0.2)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=240)
-    plt.close(fig)
-
-
 def write_notes(
     path: Path,
     daily: pd.DataFrame,
@@ -948,8 +768,6 @@ def main() -> None:
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-v", "--adu-validation", type=Path, default=DEFAULT_ADU_VALIDATION)
     parser.add_argument("-u", "--adu-summary", type=Path, default=DEFAULT_ADU_SUMMARY)
-    parser.add_argument("-F", "--adu-figure", type=Path, default=DEFAULT_ADU_FIGURE)
-    parser.add_argument("-f", "--figure", type=Path, default=DEFAULT_FIGURE)
     parser.add_argument("-j", "--adjustment", type=Path, default=DEFAULT_ADJUSTMENT)
     parser.add_argument("-n", "--notes", type=Path, default=DEFAULT_NOTES)
     parser.add_argument("-y", "--start-year", type=int, default=2019)
@@ -957,14 +775,7 @@ def main() -> None:
     parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("-g", "--max-row-groups", type=int)
     parser.add_argument("-r", "--rebuild-weather-match", action="store_true")
-    parser.add_argument("-p", "--plot-only", action="store_true")
     args = parser.parse_args()
-
-    if args.plot_only:
-        plot_wind_summary(pd.read_csv(args.summary), args.figure)
-        plot_adu_validation(pd.read_csv(args.adu_validation), args.adu_figure)
-        print("redrew daily traffic figures")
-        return
 
     started = time.perf_counter()
     daily = read_daily(args.daily, args.start_year, args.end_year)
@@ -1055,8 +866,6 @@ def main() -> None:
         args.coverage,
         args.adu_validation,
         args.adu_summary,
-        args.adu_figure,
-        args.figure,
         args.adjustment,
         args.notes,
     ]:
@@ -1067,8 +876,6 @@ def main() -> None:
     validation.to_csv(args.adu_validation, index=False)
     adu_summary.to_csv(args.adu_summary, index=False)
     adjustment.to_csv(args.adjustment, index=False)
-    plot_wind_summary(summary, args.figure)
-    plot_adu_validation(validation, args.adu_figure)
     # Retain the audit table, but do not promote the daily O/E comparison to a
     # figure: its daily wind definition is too easy to confuse with the primary
     # accident-time O/E analysis.

@@ -5,18 +5,90 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from src.tables.oe import (
     PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
-    plot_mean_wind_strata,
-    plot_one_variable,
-    plot_primary,
+    PRIMARY_VARIABLE,
+    VARIABLE_COLORS,
+    VARIABLE_LABELS,
+    VARIABLE_XLABELS,
 )
 
 
 DEFAULT_INPUT = Path("reports/main/tables/oe_results.csv")
 DEFAULT_OUTPUT = Path("reports/main/figures")
+
+
+def plot_one_variable(data: pd.DataFrame, variable: str, path: Path) -> None:
+    subset = data[data["variable"].eq(variable)].sort_values("bin_order")
+    x = np.arange(len(subset))
+    values = subset["relative_accident_frequency"].to_numpy(float)
+    figure, axis = plt.subplots(figsize=(14.5, 7.2), constrained_layout=True)
+    bars = axis.bar(x, values, color=np.where(subset["observed_accidents"].lt(20), "#A7A7A7", VARIABLE_COLORS[variable]), width=0.72)
+    axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+    axis.set_xticks(x, subset["coarse_bin"].str.replace(">=", "≥", regex=False))
+    axis.set_xlabel(VARIABLE_XLABELS[variable])
+    axis.set_ylabel("Observed / expected accidents")
+    axis.set_title(f"Accident occurrence by {VARIABLE_LABELS[variable].lower()}")
+    axis.grid(axis="y", alpha=0.2)
+    top = max(1.5, np.nanmax(values) * 1.18)
+    axis.set_ylim(0, top)
+    for bar, count in zip(bars, subset["observed_accidents"], strict=True):
+        axis.text(bar.get_x() + bar.get_width() / 2, max(bar.get_height() * 0.55, top * 0.06), f"n={int(count)}", ha="center", va="center", fontsize=9, color="white")
+    figure.savefig(path, dpi=240)
+    plt.close(figure)
+
+
+def plot_primary(data: pd.DataFrame, path: Path) -> None:
+    subset = data[data["variable"].eq(PRIMARY_VARIABLE)].sort_values("bin_order")
+    x = np.arange(len(subset))
+    ratio = subset["relative_accident_frequency"].to_numpy(float)
+    figure, axis = plt.subplots(figsize=(14.5, 7.2), constrained_layout=True)
+    bars = axis.bar(x, ratio, color=VARIABLE_COLORS[PRIMARY_VARIABLE], width=0.72)
+    axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+    axis.set_ylabel("Observed / expected accidents (O/E)")
+    axis.set_xlabel("Mean wind-speed interval, f (m/s)")
+    axis.set_xticks(x, subset["coarse_bin"].str.replace(">=", "≥", regex=False))
+    axis.set_title("Relative occurrence of rural injury accidents by mean wind speed")
+    axis.grid(axis="y", alpha=0.2)
+    top = max(1.5, ratio.max() * 1.18)
+    axis.set_ylim(0, top)
+    for bar, count in zip(bars, subset["observed_accidents"], strict=True):
+        axis.text(bar.get_x() + bar.get_width() / 2, max(bar.get_height() * 0.55, top * 0.06), f"n={int(count)}", ha="center", va="center", fontsize=10, color="white")
+    figure.savefig(path, dpi=240)
+    plt.close(figure)
+
+
+def plot_mean_wind_strata(data: pd.DataFrame, variable: str, group_column: str, groups: list[str], fixed_column: str, fixed_value: str, title: str, path: Path) -> None:
+    subset = data[data["variable"].eq(variable) & data["radius_km"].eq(20) & data["max_time_difference_minutes"].eq(PRIMARY_MAX_TIME_DIFFERENCE_MINUTES) & data[fixed_column].eq(fixed_value) & data[group_column].isin(groups)].copy()
+    top = max(1.5, subset["relative_accident_frequency"].max() * 1.18)
+    rows = int(np.ceil(len(groups) / 2))
+    figure, axes = plt.subplots(rows, 2, figsize=(14.5, 5.3 * rows), sharey=True, constrained_layout=True)
+    axes = np.atleast_1d(axes).ravel()
+    for axis, group in zip(axes, groups, strict=True):
+        panel = subset[subset[group_column].eq(group)].sort_values("bin_order")
+        x = np.arange(len(panel))
+        bars = axis.bar(x, panel["relative_accident_frequency"], color=VARIABLE_COLORS[variable], width=0.72)
+        axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+        axis.set_xticks(x, panel["coarse_bin"].str.replace(">=", "≥", regex=False))
+        axis.set_title(group)
+        axis.set_ylim(0, top)
+        axis.grid(axis="y", alpha=0.2)
+        for bar, count in zip(bars, panel["observed_accidents"], strict=True):
+            axis.text(bar.get_x() + bar.get_width() / 2, max(bar.get_height() * 0.55, top * 0.06), f"n={int(count)}", ha="center", va="center", fontsize=8, color="white")
+    for axis in axes[len(groups):]:
+        axis.set_axis_off()
+    figure.supxlabel(VARIABLE_XLABELS[variable])
+    figure.supylabel("Observed / expected accidents (O/E)")
+    figure.suptitle(title)
+    figure.savefig(path, dpi=240)
+    plt.close(figure)
 
 
 def primary_rows(results: pd.DataFrame) -> pd.DataFrame:
