@@ -9,7 +9,7 @@ small results. Raw and processed data remain on each researcher's computer.
 | Data family | Provider | Local directory | Contents used |
 |---|---|---|---|
 | Accidents | Icelandic Transport Authority / national accident register | `data/raw/accidents/` | Accident time, coordinates, injury code, accident type, vehicle count, and road link. |
-| Weather | [Icelandic Met Office API](https://api.vedur.is/weather/observations/aws/raw/10min) | `data/raw/weather/` | Ten-minute station, time, mean wind (`f`), maximum gust (`fg`), and temperature (`t`). |
+| Weather | [Icelandic Met Office API](https://api.vedur.is/weather/observations/aws/raw/10min) | `data/raw/weather/` | Ten-minute station, time, mean wind (`f`), reported wind gust (`fg`), and temperature (`t`). |
 | Annual traffic | [Icelandic Road and Coastal Administration](https://www.vegagerdin.is/vegakerfid/umferd-og-slys/umferd) | `data/raw/traffic/annual/` | Road section, start/end station, length, ADU, SDU, VDU, and vehicle-kilometres. |
 | Daily traffic | Icelandic Road and Coastal Administration counter PDFs | `data/raw/traffic/daily_pdf/` | Date, road section, reported station (`stöð`), direction/lane channel, and daily count. |
 | Road geography | [Road Administration MapServer](https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer) | `data/raw/traffic/reference/` | Road geometry and official start/end stations. |
@@ -23,21 +23,32 @@ not committed because it is derived from authorised local data deliveries.
 
 | File | Unit | Key columns used |
 |---|---|---|
-| `analysis/accidents.csv` | One rural injury accident | identifier, time, injury code, accident-type code, vehicle count, weather-station identifier, match distance/time difference, `f`, and `fg`. Coordinates and detailed matching audit fields remain in `processed/`. |
-| `analysis/weather_frequency.csv` | Station, season, wind variable, and wind bin | Tidy wind-bin counts pooled across 2007--2025 and used as the O/E exposure table. `unit` distinguishes m/s variables from the unitless gust factor. |
-| `analysis/stations.csv` | One weather station | station, name, latitude, longitude. |
+| `analysis/accidents.csv` | One rural injury accident | `id`, time, coordinates, outcome fields, road section, hour, weekday, meteorological season, and VDU/SDU/VHDU traffic period. |
+| `analysis/accident_conditions.csv` | One rural injury accident | Independent wind and temperature matches, match distances and time differences, solar elevation, and estimated daylight class. |
+| `analysis/weather_frequency.csv` | Station, season, variable, and interval | Tidy wind and temperature counts pooled across 2007--2025. `unit` distinguishes m/s, degrees Celsius, and the unitless gust factor. |
+| `analysis/case_control.csv` | Accident or matched control time | Same-station, same-hour, same-weekday wind and temperature samples within month and year. |
 | `analysis/annual_traffic.csv` | Road section and year | road section, length, ADU, SDU, and VDU. |
-| `analysis/rate_model.csv` | Road section, year, traffic period, and mean-wind interval | The 24,048 rows that contain information for the conditional Poisson model: estimated vehicle-kilometres and injury-accident counts. All-zero accident strata are not retained because they contribute no information to this conditional model. |
-| `analysis/traffic_rate_summary.csv` | Traffic period and mean-wind interval | 18 rows: total estimated vehicle-kilometres and observed accidents for the descriptive accident-per-vehicle-km table. |
+| `analysis/conditional_poisson_input.csv` | Road section, year, traffic period, and mean-wind interval | Positive-exposure rows from strata with at least one accident. All-zero accident strata do not contribute information to the conditional Poisson model. |
+| `analysis/traffic_exposure_full.csv` | Traffic period and mean-wind interval | 18 rows containing exposure from every eligible road section and the associated accidents for the descriptive accident-per-vehicle-km table. Its exposure universe is intentionally broader than the conditional-model input. |
 | `analysis/selection_summary.csv` | Dataset-selection step | Eight counts used to draw the accident and traffic selection figures. |
-| `analysis/daily_traffic.csv` | Counter site and date | daily count and matched daytime mean `f` and `fg`. |
-| `analysis/daily.txt` | One counter followed by daily records | A readable, grouped view of the daily traffic file. |
+| `analysis/daily_traffic.csv` | Counter site and date | Daily count, wind summaries, and full-day observation counts in six mean-wind intervals. |
+| `analysis/daily_counter_locations.csv` | Counter site and year | Road section and geometry-interpolated coordinates used by selected-counter rate analyses. |
 | `analysis/manifest.csv` | One analysis file | record count, available columns, and a short description. |
 
-The primary O/E analysis uses `accidents.csv`, `weather_frequency.csv`, and
-the generated `oe_station_bins.csv`; it does not use traffic. Mean wind speed
-`f` is its primary exposure and maximum gust `fg` is secondary. The daily
-traffic script uses `daily_traffic.csv`. The vehicle-kilometre scripts use
-`rate_model.csv` and `traffic_rate_summary.csv`. Therefore the ordinary
+The accident deliveries call their record key `nid` or `NID`. Preparation
+renames that field to `id` but preserves its original values. These values are
+stable source record keys used to join the event, road-link, and vehicle files;
+they are therefore not replaced by row numbers such as 1, 2, 3, which would
+change when records were sorted or filtered. The source field `flokkur2` is not
+used by the analysis and is not retained in prepared or analysis files.
+
+The primary O/E analysis joins `accidents.csv` to `accident_conditions.csv` by
+`id` and uses `weather_frequency.csv`; it
+does not use traffic. It writes the intermediate O/E calculation table to
+`reports/working/tables/oe_station_bins.csv`. Mean wind speed
+`f` is its primary exposure and matched-time wind gust `fg` is secondary. The daily
+traffic scripts use `daily_traffic.csv`; the direct daily-rate sensitivity also
+uses `daily_counter_locations.csv`. The vehicle-kilometre scripts use
+`conditional_poisson_input.csv` and `traffic_exposure_full.csv`. Therefore the ordinary
 analysis stage reads only files in `data/analysis/`, not `data/raw/` or
 `data/processed/`.

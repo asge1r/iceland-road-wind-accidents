@@ -2,7 +2,7 @@
 
 This is the first half of the daily-traffic pipeline.  It reads the PDF files,
 keeps the individual direction/lane channels for audit, and writes exactly one
-row per physical counter site and date to ``daily_raw.parquet``.  It does
+row per physical counter site and date to ``daily_raw.csv``. It does
 not assign coordinates or weather.
 """
 
@@ -16,7 +16,7 @@ import pandas as pd
 from src.traffic import pdf_parser
 
 
-OUT_COUNTS = Path("data/processed/traffic/daily_raw.parquet")
+OUT_COUNTS = Path("data/processed/traffic/daily_raw.csv")
 OUT_CHANNELS = Path("archive/generated_diagnostics/daily_traffic_channels_2019_2024.csv")
 OUT_METADATA = Path("archive/generated_diagnostics/daily_counter_metadata_2019_2024.csv")
 OUT_NOTES = Path("archive/generated_diagnostics/traffic_pdf_2019_2024_notes.txt")
@@ -63,7 +63,7 @@ def extract(
     channels_output.parent.mkdir(parents=True, exist_ok=True)
     metadata_output.parent.mkdir(parents=True, exist_ok=True)
     channels.to_csv(channels_output, index=False)
-    counter_days[count_columns].to_parquet(counts_output, index=False, compression="zstd")
+    counter_days[count_columns].to_csv(counts_output, index=False)
     pd.concat(metadata_frames, ignore_index=True).drop_duplicates().to_csv(
         metadata_output, index=False
     )

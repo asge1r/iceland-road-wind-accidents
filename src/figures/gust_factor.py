@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.figures.common import interval_labels
+
 
 DEFAULT_INPUT = Path("data/analysis/weather_frequency.csv")
 DEFAULT_OUTPUT = Path("reports/main/figures/gust_factor_distribution.png")
@@ -36,7 +38,7 @@ def main() -> None:
     x = np.arange(len(data))
     figure, axis = plt.subplots(figsize=(10.5, 5.8), constrained_layout=True)
     bars = axis.bar(x, data["share_pct"], color="#287271", width=0.72)
-    axis.set_xticks(x, data["bin_label"].astype("string").str.replace(">=", "≥", regex=False))
+    axis.set_xticks(x, interval_labels(data["bin_label"]))
     axis.set_xlabel("Gust factor, fg / f (unitless; f ≥ 3 m/s)")
     axis.set_ylabel("Share of eligible 10-minute observations (%)")
     axis.set_title("Gust-factor distribution in cleaned weather data")

@@ -11,14 +11,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.traffic import daily_traffic_tools as tools
+from src.traffic import daily_tools as tools
 
 
-DEFAULT_DAILY = Path("data/processed/traffic/daily.parquet")
+DEFAULT_DAILY = Path("data/processed/traffic/daily.csv")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
-DEFAULT_CACHE = Path("data/processed/traffic/daily_match.parquet")
-DEFAULT_OUTPUT = Path("data/processed/traffic/daily_weather.parquet")
+DEFAULT_WEATHER_MATCH = Path("data/processed/traffic/daily_match.parquet")
+DEFAULT_OUTPUT = Path("data/processed/traffic/daily_weather.csv")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/daily_traffic_coverage.csv")
 
 
@@ -44,7 +44,7 @@ def match_weather(
         match_usable = (
             "weather_match_method" in weather.columns
             and weather["weather_match_method"].eq(
-                "nearest_valid_station_to_counter_or_midpoint_within_20km"
+                "nearest_valid_station_to_interpolated_counter_within_20km"
             ).all()
             and "counter_site_id" in weather.columns
             and weather["date"].dt.year.min() <= start_year
@@ -88,8 +88,13 @@ def match_weather(
                 "counters": panel["counter_site_id"].nunique(),
                 "road_sections": panel["road_section"].nunique(),
                 "counter_days_with_location": int(panel["location_lat"].notna().sum()),
-                "counter_days_with_official_location": int(
-                    ((~panel["location_is_estimated"]) & panel["location_lat"].notna()).sum()
+                "counter_days_with_official_road_geometry": int(
+                    (
+                        panel["location_method"].eq(
+                            "station_interpolated_from_official_road_geometry"
+                        )
+                        & panel["location_lat"].notna()
+                    ).sum()
                 ),
                 "counter_days_with_weather_station_match": int(
                     panel["has_counter_location_weather_match"].sum()
@@ -102,7 +107,16 @@ def match_weather(
     )
     for path in [output_path, coverage_path]:
         path.parent.mkdir(parents=True, exist_ok=True)
-    panel.to_parquet(output_path, index=False, compression="zstd")
+    output_columns = [
+        "date", "year", "counter_site_id", "road_section", "traffic_volume",
+        "f_daytime_mean", "fg_daytime_mean", "f_full_day_mean", "fg_full_day_mean",
+        "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
+        "f_full_bin_10_15_count", "f_full_bin_15_20_count",
+        "f_full_bin_20_25_count", "f_full_bin_ge25_count",
+        "traffic_index",
+        "weather_station_dist_km",
+    ]
+    panel[output_columns].to_csv(output_path, index=False)
     coverage.to_csv(coverage_path, index=False)
     print(coverage.to_string(index=False))
     print(f"wrote={output_path}")
@@ -113,7 +127,7 @@ def main() -> None:
     parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
     parser.add_argument("-s", "--stations", type=Path, default=DEFAULT_STATIONS)
     parser.add_argument("-w", "--weather", type=Path, default=DEFAULT_WEATHER)
-    parser.add_argument("-m", "--weather-match", type=Path, default=DEFAULT_CACHE)
+    parser.add_argument("-m", "--weather-match", type=Path, default=DEFAULT_WEATHER_MATCH)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("-v", "--coverage", type=Path, default=DEFAULT_COVERAGE)
     parser.add_argument("-y", "--start-year", type=int, default=2019)

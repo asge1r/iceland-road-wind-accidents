@@ -1,7 +1,7 @@
 # Local data map
 
 The repository contains code and documentation, not authorised data. Put source
-deliveries in `data/raw/`; do not edit them after receipt. `src.prepare` writes
+deliveries in `data/raw/`; do not edit them after receipt. `src/prepare.py` writes
 intermediate preparation files to `data/processed/` and the named, readable analysis inputs to
 `data/analysis/`.
 
@@ -9,16 +9,17 @@ intermediate preparation files to `data/processed/` and the named, readable anal
 
 | Source family | Required local path | Used by |
 |---|---|---|
-| Accident register | `raw/accidents/accidents_2007_2024.txt`; `accidents_2025.txt`; `road_links_2007_2025.txt`; `vehicles_2007_2024.txt`; `vehicles_2025.txt` | `src.accidents.build` |
-| Urban boundaries | `raw/accidents/urban_boundaries_2020_2024.geojson` | `src.accidents.build` |
-| Ten-minute weather | `raw/weather/weather_10min_raw.parquet` | `src.weather.clean` |
+| Accident register | `raw/accidents/accidents_2007_2024.txt`; `accidents_2025.txt`; `road_links_2007_2025.txt`; `vehicles_2007_2024.txt`; `vehicles_2025.txt` | `src/accidents/build.py` |
+| Urban boundaries | `raw/accidents/urban_boundaries_2020_2024.geojson` | `src/accidents/build.py` |
+| Ten-minute weather | `raw/weather/weather_10min_raw.parquet` | `src/weather/clean.py` |
 | Station reference | `raw/weather/stations.csv` | Weather matching and frequency scripts |
-| Annual traffic | `raw/traffic/annual/*.xls` and `*.xlsx` | `src.traffic.annual` |
-| Road-section midpoints | `raw/traffic/reference/road_section_midpoints.csv` | Annual-traffic preparation |
+| Annual traffic | `raw/traffic/annual/*.xls` and `*.xlsx` | `src/traffic/annual.py` |
+| Road-section midpoints | `raw/traffic/reference/road_section_midpoints.csv` | `src/traffic/build_road_period.py` |
+| Road geometry fallback | `raw/traffic/reference/road_sections.parquet` | `src/traffic/build_road_period.py`, only when a required midpoint is absent |
 | Daily traffic, optional | `raw/traffic/daily_pdf/*.pdf` | Daily-counter preparation |
 | Road geometry, optional | `raw/traffic/reference/roads.geojson` | Daily-counter locations |
 
-`src.traffic.download_roads` obtains the public `roads.geojson` reference from
+`src/traffic/download_roads.py` obtains the public `roads.geojson` reference from
 the Vegagerðin MapServer. It is the one documented exception to manual source
 placement.
 
@@ -38,16 +39,19 @@ Add daily traffic only when its PDF deliveries are present:
 The first command creates the CSV files described in
 [`../docs/pipeline.md`](../docs/pipeline.md). The second command reads those
 CSV files and creates tables and figures. If daily PDFs are absent,
-`src.analyze` skips the optional daily-counter result automatically.
+`src/analyze.py` skips the optional daily-counter result automatically.
 
 ## What to inspect
 
 Use `data/analysis/` for normal work:
 
-- `accidents.csv` and `weather_frequency.csv` for the primary O/E result;
-- `rate_model.csv` and `traffic_rate_summary.csv` for annual-traffic results;
-- `daily_traffic.csv` and `daily.txt` for the optional daily-counter result;
+- `accidents.csv`, `accident_conditions.csv`, and `weather_frequency.csv` for O/E results;
+- `case_control.csv` for the time-stratified conditional logistic models;
+- `conditional_poisson_input.csv` and `traffic_exposure_full.csv` for annual-traffic results;
+- `daily_traffic.csv` for the sustained-wind and allocated daily-counter results;
+- `daily_counter_locations.csv` for selected-counter rate analyses;
 - `manifest.csv` for each file's record count, columns and description.
 
-The large weather and road-period Parquet files in `processed/` are only
-intermediate preparation material. They are not read by `src.analyze`.
+The large clean-weather Parquet file and optional daily matching Parquet files
+in `processed/` are only intermediate preparation material. They are not read
+by `src/analyze.py`.

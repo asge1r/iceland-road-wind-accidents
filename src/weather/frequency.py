@@ -6,10 +6,6 @@ import argparse
 import time
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
@@ -17,7 +13,12 @@ import pyarrow.parquet as pq
 
 DEFAULT_INPUT = Path("data/processed/weather/weather.parquet")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
-DEFAULT_OUTPUT = Path("data/processed/weather/frequency.parquet")
+DEFAULT_OUTPUT = Path("data/processed/weather/frequency.csv")
+
+OUTPUT_COLUMNS = [
+    "station", "year", "season", "variable", "bin_label", "bin_lower_value",
+    "measurement_count", "total_measurements_in_period",
+]
 DEFAULT_WIDE = Path("archive/generated_diagnostics/wind_frequency_readable.csv")
 DEFAULT_NOTES = Path(
     "archive/generated_diagnostics/wind_frequency_notes.txt"
@@ -34,6 +35,11 @@ F_FIVE_MS_UPPER_BOUNDS = F_UPPER_BOUNDS
 FG_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25, 30, 35], dtype=float)
 GUST_FACTOR_MIN_MEAN_WIND = 3.0
 GUST_FACTOR_UPPER_BOUNDS = np.array([1.2, 1.4, 1.6, 1.8, 2.0], dtype=float)
+TEMPERATURE_THRESHOLDS = np.array([-9, -6, -3, 0, 3, 6, 9, 12, 15, 18], dtype=float)
+TEMPERATURE_LABELS = [
+    "<-9", "-9--6", "-6--3", "-3-0", "0-3", "3-6",
+    "6-9", "9-12", "12-15", "15-18", ">=18",
+]
 
 
 def season_index(month: np.ndarray) -> np.ndarray:
@@ -62,7 +68,7 @@ def station_ids(parquet_file: pq.ParquetFile, row_groups: int) -> np.ndarray:
 
 def accumulate(
     parquet_file: pq.ParquetFile, row_groups: int, stations: np.ndarray
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
     years_count = LAST_YEAR - FIRST_YEAR + 1
     group_count = len(stations) * years_count * len(SEASONS)
     totals = np.zeros(group_count, dtype=np.int64)
@@ -72,16 +78,21 @@ def accumulate(
     gust_factor_counts = np.zeros(
         (group_count, len(GUST_FACTOR_UPPER_BOUNDS) + 1), dtype=np.int64
     )
+    temperature_totals = np.zeros(group_count, dtype=np.int64)
+    temperature_counts = np.zeros(
+        (group_count, len(TEMPERATURE_THRESHOLDS) + 1), dtype=np.int64
+    )
     input_rows = 0
 
     for row_group in range(row_groups):
         table = parquet_file.read_row_group(
-            row_group, columns=["station", "time", "f", "fg"]
+            row_group, columns=["station", "time", "f", "fg", "t"]
         )
         station = table.column("station").to_numpy()
         timestamp = table.column("time").to_numpy().astype("datetime64[us]")
         f = table.column("f").to_numpy()
         fg = table.column("fg").to_numpy()
+        temperature = table.column("t").to_numpy()
 
         month_value = timestamp.astype("datetime64[M]").astype(np.int64)
         year = timestamp.astype("datetime64[Y]").astype(np.int64) + 1970
@@ -114,6 +125,22 @@ def accumulate(
             factor_group * gust_factor_counts.shape[1] + factor_bin,
             minlength=gust_factor_counts.size,
         ).reshape(gust_factor_counts.shape)
+        temperature_valid = (
+            np.isfinite(temperature)
+            & (temperature >= -30.0)
+            & (temperature <= 30.0)
+        )
+        temperature_group = group[temperature_valid]
+        temperature_totals += np.bincount(
+            temperature_group, minlength=group_count
+        )
+        temperature_bin = np.searchsorted(
+            TEMPERATURE_THRESHOLDS, temperature[temperature_valid], side="right"
+        )
+        temperature_counts += np.bincount(
+            temperature_group * temperature_counts.shape[1] + temperature_bin,
+            minlength=temperature_counts.size,
+        ).reshape(temperature_counts.shape)
         input_rows += len(table)
         if (row_group + 1) % 25 == 0 or row_group + 1 == row_groups:
             print(
@@ -126,6 +153,8 @@ def accumulate(
         fg_counts,
         gust_factor_totals,
         gust_factor_counts,
+        temperature_totals,
+        temperature_counts,
         input_rows,
     )
 
@@ -138,22 +167,23 @@ def make_long_table(
     fg_counts: np.ndarray,
     gust_factor_totals: np.ndarray,
     gust_factor_counts: np.ndarray,
+    temperature_totals: np.ndarray,
+    temperature_counts: np.ndarray,
 ) -> pd.DataFrame:
     years_count = LAST_YEAR - FIRST_YEAR + 1
     frames: list[pd.DataFrame] = []
-    for variable, counts, upper_bounds, variable_totals in (
-        ("f", f_counts, F_UPPER_BOUNDS, totals),
-        ("fg", fg_counts, FG_UPPER_BOUNDS, totals),
-        ("gust_factor", gust_factor_counts, GUST_FACTOR_UPPER_BOUNDS, gust_factor_totals),
+    for variable, counts, bin_labels, lower_bounds, upper_bounds, variable_totals in (
+        ("f", f_counts, labels(F_UPPER_BOUNDS), np.concatenate(([0.0], F_UPPER_BOUNDS)), np.concatenate((F_UPPER_BOUNDS, [np.inf])), totals),
+        ("fg", fg_counts, labels(FG_UPPER_BOUNDS), np.concatenate(([0.0], FG_UPPER_BOUNDS)), np.concatenate((FG_UPPER_BOUNDS, [np.inf])), totals),
+        ("gust_factor", gust_factor_counts, labels(GUST_FACTOR_UPPER_BOUNDS), np.concatenate(([0.0], GUST_FACTOR_UPPER_BOUNDS)), np.concatenate((GUST_FACTOR_UPPER_BOUNDS, [np.inf])), gust_factor_totals),
+        ("temperature", temperature_counts, TEMPERATURE_LABELS, np.concatenate(([-np.inf], TEMPERATURE_THRESHOLDS)), np.concatenate((TEMPERATURE_THRESHOLDS, [np.inf])), temperature_totals),
     ):
         group, bin_index = np.nonzero(counts)
         station_index = group // (years_count * len(SEASONS))
         remainder = group % (years_count * len(SEASONS))
         year = FIRST_YEAR + remainder // len(SEASONS)
         season = SEASONS[remainder % len(SEASONS)]
-        bin_labels = np.array(labels(upper_bounds))
-        lower_bounds = np.concatenate(([0.0], upper_bounds))
-        upper_with_infinity = np.concatenate((upper_bounds, [np.inf]))
+        bin_labels = np.array(bin_labels)
         frame = pd.DataFrame(
             {
                 "station": stations[station_index],
@@ -162,8 +192,8 @@ def make_long_table(
                 "period": np.char.add(np.char.add(season.astype(str), " "), year.astype(str)),
                 "variable": variable,
                 "bin_label": bin_labels[bin_index],
-                "bin_lower_ms": lower_bounds[bin_index],
-                "bin_upper_ms": upper_with_infinity[bin_index],
+                "bin_lower_value": lower_bounds[bin_index],
+                "bin_upper_value": upper_bounds[bin_index],
                 "measurement_count": counts[group, bin_index],
                 "total_measurements_in_period": variable_totals[group],
             }
@@ -183,13 +213,13 @@ def make_long_table(
             "period",
             "variable",
             "bin_label",
-            "bin_lower_ms",
-            "bin_upper_ms",
+            "bin_lower_value",
+            "bin_upper_value",
             "measurement_count",
             "total_measurements_in_period",
             "frequency_pct",
         ]
-    ].sort_values(["station", "year", "season", "variable", "bin_lower_ms"])
+    ].sort_values(["station", "year", "season", "variable", "bin_lower_value"])
 
 
 def make_wide_table(long: pd.DataFrame) -> pd.DataFrame:
@@ -216,81 +246,14 @@ def make_wide_table(long: pd.DataFrame) -> pd.DataFrame:
             ("f", F_UPPER_BOUNDS),
             ("fg", FG_UPPER_BOUNDS),
             ("gust_factor", GUST_FACTOR_UPPER_BOUNDS),
+            ("temperature", TEMPERATURE_THRESHOLDS),
         )
-        for label in labels(bounds)
+        for label in (TEMPERATURE_LABELS if variable == "temperature" else labels(bounds))
     ]
     for column in ordered_bins:
         if column not in result:
             result[column] = 0.0
     return result[[*index, "total_measurements_in_period", *ordered_bins]]
-
-
-def write_pooled_gust_factor_distribution(
-    frequency: pd.DataFrame,
-    csv_path: Path,
-    figure_path: Path,
-) -> pd.DataFrame:
-    """Plot the pooled distribution of cleaned gust-factor observations.
-
-    Each valid 10-minute observation receives equal weight. Stations with more
-    valid observations therefore contribute more than stations with gaps; no
-    accident counts or traffic measurements enter this calculation.
-    """
-    gust_factor = frequency[frequency["variable"].eq("gust_factor")].copy()
-    key = ["station", "year", "season", "bin_label"]
-    if gust_factor.duplicated(key).any():
-        raise ValueError("Gust-factor frequency is not unique on station/year/season/bin")
-    distribution = (
-        gust_factor.groupby(
-            ["bin_label", "bin_lower_ms", "bin_upper_ms"],
-            as_index=False,
-            sort=False,
-        )
-        .agg(
-            measurement_count=("measurement_count", "sum"),
-            stations_contributing=("station", "nunique"),
-            first_year=("year", "min"),
-            last_year=("year", "max"),
-        )
-        .sort_values("bin_lower_ms")
-    )
-    total = int(distribution["measurement_count"].sum())
-    distribution["frequency_pct"] = (
-        100 * distribution["measurement_count"] / total
-    )
-    distribution.insert(0, "gust_factor_interval", distribution.pop("bin_label"))
-    distribution["frequency_pct"] = distribution["frequency_pct"].round(4)
-
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    figure_path.parent.mkdir(parents=True, exist_ok=True)
-    distribution.to_csv(csv_path, index=False)
-
-    x = np.arange(len(distribution))
-    percentages = distribution["frequency_pct"].to_numpy(float)
-    fig, axis = plt.subplots(figsize=(10.5, 5.8), constrained_layout=True)
-    bars = axis.bar(x, percentages, color="#287271", width=0.72)
-    axis.set_xticks(
-        x,
-        distribution["gust_factor_interval"].str.replace(">=", "≥", regex=False),
-    )
-    axis.set_xlabel("Gust factor, fg / f (unitless; f ≥ 3 m/s)")
-    axis.set_ylabel("Share of eligible 10-minute observations (%)")
-    axis.set_title("Gust-factor distribution in cleaned weather data")
-    axis.grid(axis="y", alpha=0.2)
-    axis.set_ylim(0, percentages.max() * 1.16)
-    for bar, percentage in zip(bars, percentages, strict=True):
-        label = f"{percentage:.2f}%" if percentage < 1 else f"{percentage:.1f}%"
-        axis.text(
-            bar.get_x() + bar.get_width() / 2,
-            percentage + percentages.max() * 0.018,
-            label,
-            ha="center",
-            va="bottom",
-            fontsize=8,
-        )
-    fig.savefig(figure_path, dpi=240)
-    plt.close(fig)
-    return distribution
 
 
 def main() -> None:
@@ -320,17 +283,23 @@ def main() -> None:
         fg_counts,
         gust_factor_totals,
         gust_factor_counts,
+        temperature_totals,
+        temperature_counts,
         input_rows,
     ) = accumulate(parquet_file, row_groups, stations)
     long = make_long_table(
         stations, metadata, totals, f_counts, fg_counts,
-        gust_factor_totals, gust_factor_counts,
+        gust_factor_totals, gust_factor_counts, temperature_totals,
+        temperature_counts,
     )
     wide = make_wide_table(long)
 
     for path in (args.output, args.wide, args.notes):
         path.parent.mkdir(parents=True, exist_ok=True)
-    long.to_parquet(args.output, index=False, compression="zstd")
+    missing = set(OUTPUT_COLUMNS) - set(long.columns)
+    if missing:
+        raise ValueError(f"Frequency output is missing columns: {sorted(missing)}")
+    long[OUTPUT_COLUMNS].to_csv(args.output, index=False)
     wide.to_csv(args.wide, index=False)
     elapsed = time.perf_counter() - started
     notes = f"""Wind frequency by station and season
