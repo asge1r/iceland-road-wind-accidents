@@ -19,6 +19,7 @@ from src.tables.oe import (
     VARIABLE_LABELS,
     VARIABLE_XLABELS,
 )
+from src.figures.common import interval_labels
 
 
 DEFAULT_INPUT = Path("reports/main/tables/oe_results.csv")
@@ -32,7 +33,7 @@ def plot_one_variable(data: pd.DataFrame, variable: str, path: Path) -> None:
     figure, axis = plt.subplots(figsize=(14.5, 7.2), constrained_layout=True)
     bars = axis.bar(x, values, color=np.where(subset["observed_accidents"].lt(20), "#A7A7A7", VARIABLE_COLORS[variable]), width=0.72)
     axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
-    axis.set_xticks(x, subset["coarse_bin"].str.replace(">=", "≥", regex=False))
+    axis.set_xticks(x, interval_labels(subset["coarse_bin"]))
     axis.set_xlabel(VARIABLE_XLABELS[variable])
     axis.set_ylabel("Observed / expected accidents")
     axis.set_title(f"Accident occurrence by {VARIABLE_LABELS[variable].lower()}")
@@ -54,7 +55,7 @@ def plot_primary(data: pd.DataFrame, path: Path) -> None:
     axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
     axis.set_ylabel("Observed / expected accidents (O/E)")
     axis.set_xlabel("Mean wind-speed interval, f (m/s)")
-    axis.set_xticks(x, subset["coarse_bin"].str.replace(">=", "≥", regex=False))
+    axis.set_xticks(x, interval_labels(subset["coarse_bin"]))
     axis.set_title("Relative occurrence of rural injury accidents by mean wind speed")
     axis.grid(axis="y", alpha=0.2)
     top = max(1.5, ratio.max() * 1.18)
@@ -67,6 +68,27 @@ def plot_primary(data: pd.DataFrame, path: Path) -> None:
 
 def plot_mean_wind_strata(data: pd.DataFrame, variable: str, group_column: str, groups: list[str], fixed_column: str, fixed_value: str, title: str, path: Path) -> None:
     subset = data[data["variable"].eq(variable) & data["radius_km"].eq(20) & data["max_time_difference_minutes"].eq(PRIMARY_MAX_TIME_DIFFERENCE_MINUTES) & data[fixed_column].eq(fixed_value) & data[group_column].isin(groups)].copy()
+    upper_mapping = (
+        {"20-25": ">=20", ">=25": ">=20"}
+        if variable == "f"
+        else {"25-30": ">=25", "30-35": ">=25", ">=35": ">=25"}
+    )
+    subset["display_bin"] = subset["coarse_bin"].replace(upper_mapping)
+    display_order = (
+        ["0-5", "5-10", "10-15", "15-20", ">=20"]
+        if variable == "f"
+        else ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"]
+    )
+    subset = subset.groupby([group_column, "display_bin"], as_index=False).agg(
+        observed_accidents=("observed_accidents", "sum"),
+        expected_accidents=("expected_accidents", "sum"),
+    )
+    subset["relative_accident_frequency"] = (
+        subset["observed_accidents"] / subset["expected_accidents"]
+    )
+    subset["bin_order"] = subset["display_bin"].map(
+        {label: index for index, label in enumerate(display_order)}
+    )
     top = max(1.5, subset["relative_accident_frequency"].max() * 1.18)
     rows = int(np.ceil(len(groups) / 2))
     figure, axes = plt.subplots(rows, 2, figsize=(14.5, 5.3 * rows), sharey=True, constrained_layout=True)
@@ -74,9 +96,19 @@ def plot_mean_wind_strata(data: pd.DataFrame, variable: str, group_column: str, 
     for axis, group in zip(axes, groups, strict=True):
         panel = subset[subset[group_column].eq(group)].sort_values("bin_order")
         x = np.arange(len(panel))
-        bars = axis.bar(x, panel["relative_accident_frequency"], color=VARIABLE_COLORS[variable], width=0.72)
+        colors = np.where(
+            panel["observed_accidents"].lt(20),
+            "#A7A7A7",
+            VARIABLE_COLORS[variable],
+        )
+        bars = axis.bar(
+            x,
+            panel["relative_accident_frequency"],
+            color=colors,
+            width=0.72,
+        )
         axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
-        axis.set_xticks(x, panel["coarse_bin"].str.replace(">=", "≥", regex=False))
+        axis.set_xticks(x, interval_labels(panel["display_bin"]))
         axis.set_title(group)
         axis.set_ylim(0, top)
         axis.grid(axis="y", alpha=0.2)
@@ -114,6 +146,7 @@ def main() -> None:
     plot_primary(primary, args.output / "mean_wind_oe.png")
     plot_one_variable(primary, "fg", args.output / "gust_oe.png")
     plot_one_variable(primary, "gust_factor", args.output / "gust_factor_oe.png")
+    plot_one_variable(primary, "temperature", args.output / "temperature_oe.png")
     plot_mean_wind_strata(
         results,
         "f",
@@ -141,7 +174,7 @@ def main() -> None:
         ["Winter", "Spring", "Summer", "Fall"],
         "severity_group",
         "Injury accidents",
-        "Maximum gust O/E by season",
+        "Matched-time wind-gust O/E by season",
         args.output / "gust_by_season_oe.png",
     )
     plot_mean_wind_strata(
@@ -151,7 +184,7 @@ def main() -> None:
         ["1 vehicle", "2 or more vehicles"],
         "analysis_season",
         "All seasons",
-        "Maximum gust O/E by number of vehicles involved",
+        "Matched-time wind-gust O/E by number of vehicles involved",
         args.output / "gust_by_vehicle_group_oe.png",
     )
     print(f"wrote O/E figures to {args.output}")

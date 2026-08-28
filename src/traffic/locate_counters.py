@@ -12,8 +12,8 @@ import pandas as pd
 from pyproj import Transformer
 
 ROADS = Path("data/raw/traffic/reference/roads.geojson")
-COUNTS = Path("data/processed/traffic/daily_raw.parquet")
-OUTPUT = Path("data/processed/traffic/daily.parquet")
+COUNTS = Path("data/processed/traffic/daily_raw.csv")
+OUTPUT = Path("data/processed/traffic/daily.csv")
 LOCATIONS = Path("data/processed/traffic/locations.csv")
 
 
@@ -111,7 +111,7 @@ def locate(
     locations_path: Path,
 ) -> None:
     """Write locations from the official geometry; do not infer a fallback."""
-    daily = pd.read_parquet(counts_path)
+    daily = pd.read_csv(counts_path, low_memory=False)
     if not roads_path.exists():
         raise FileNotFoundError(f"Missing {roads_path}; first run src.traffic.download_roads.")
 
@@ -122,14 +122,19 @@ def locate(
     for column in ["location_x_3057", "location_y_3057", "location_lon", "location_lat"]:
         output[column] = output[column].astype(float)
     output["location_method"] = output["location_method"].fillna("location_unavailable")
-    output["location_is_estimated"] = output["location_is_estimated"].fillna(True)
+    output["location_is_estimated"] = output["location_is_estimated"].astype("boolean").fillna(True)
     output = output.sort_values(["counter_site_id", "date"])
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output.to_parquet(output_path, index=False, compression="zstd")
     location_columns = [column for column in output.columns if column not in daily.columns]
     output[["year", "counter_site_id", *location_columns]].drop_duplicates(
         ["year", "counter_site_id"]
     ).to_csv(locations_path, index=False)
+    daily_columns = [
+        "date", "year", "counter_site_id", "station_id", "road_section",
+        "traffic_volume",
+        "location_lat", "location_lon", "location_method", "location_is_estimated",
+    ]
+    output[daily_columns].to_csv(output_path, index=False)
     print(
         f"Wrote {len(output):,} counter-days; official PDF-station geometry used for "
         f"{len(direct):,}/{daily[['year', 'counter_site_id']].drop_duplicates().shape[0]:,} counter-site years."

@@ -1,4 +1,4 @@
-maximum_gust_interval_ms,observed_accidents,expected_accidents,observed_expected_ratio,station_bootstrap_ci_95_low,station_bootstrap_ci_95_high,bootstrap_probability_above_1,sparse_bin_fewer_than_20_accidents
+gust_interval_ms,observed_accidents,expected_accidents,observed_expected_ratio,station_bootstrap_ci_95_low,station_bootstrap_ci_95_high,bootstrap_probability_above_1,sparse_bin_fewer_than_20_accidents
 0-5,1965,2195.2,0.9,0.86,0.93,0.0,False
 5-10,2166,2077.0,1.04,1.0,1.09,0.976,False
 10-15,1184,1181.2,1.0,0.94,1.06,0.524,False

@@ -1,0 +1,10 @@
+metric,section_years,interpretation
+section_years,22982,Rows in the 2007–2025 annual-traffic study period.
+road_sections,1722,Distinct registered road sections.
+nonpositive_section_length,0,Excluded from vehicle-kilometre exposure.
+nonpositive_adu,0,Source values requiring exclusion from annual exposure.
+nonpositive_sdu,0,Source values requiring exclusion from SDU exposure.
+nonpositive_vdu,1509,Source values requiring exclusion from VDU exposure.
+nonpositive_derived_vhdu,552,Residual VHDU values excluded from exposure.
+sdu_below_vdu,406,Descriptive source check; not automatically invalid.
+adu_outside_sdu_vdu_range,260,Descriptive source check; seasonal averages need not bracket ADU.

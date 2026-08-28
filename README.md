@@ -7,11 +7,10 @@ intervals.
 
 ## Repository scope
 
-This GitHub repository contains **code and documentation only**. Raw data,
-processed data, diagnostics, and generated figures stay on each researcher's
-computer and are excluded by `.gitignore`. This prevents large copies of the
-same data from being committed, while keeping the entire transformation from
-the authorised source deliveries transparent and reproducible.
+This GitHub repository contains the analysis code, documentation, thesis draft,
+and the small tables and figures needed to inspect the reported results. Raw
+data, processed data, canonical analysis CSV files, and working diagnostics
+remain local and are excluded by `.gitignore`.
 
 ## Directory structure
 
@@ -24,7 +23,7 @@ the authorised source deliveries transparent and reproducible.
 - `docs/`: source inventory, variables and fixed analysis rules.
 - `archive/`: local diagnostics and superseded material; not version controlled.
 - `src/`: documented preparation, matching and analysis programs.
-- `reports/main/`: supervisor-ready and thesis-ready outputs.
+- `reports/main/`: retained tables and figures used in the thesis.
 - `reports/thesis/`: the current English thesis draft.
 
 ## Working data
@@ -35,12 +34,13 @@ the authorised source deliveries transparent and reproducible.
   while creating the CSV frequency table, never by `src.analyze`.
 - `data/analysis/accidents.csv` and `weather_frequency.csv` are the complete
   inputs to the primary O/E analysis.
-- `data/analysis/rate_model.csv` is the 1.2 MB, 24,048-row input to the
+- `data/analysis/conditional_poisson_input.csv` is the compact, positive-exposure input to the
   within-road/year/period rate model.
-- `data/analysis/traffic_rate_summary.csv` is an 18-row exposure table for the
+- `data/analysis/traffic_exposure_full.csv` is an 18-row exposure table for the
   descriptive accidents-per-vehicle-km result.
-- `data/analysis/daily_traffic.csv` is the optional counter-day traffic input.
-- `reports/main/figures/stratified_crash_rate_ratio_by_wind.png`: estimated
+- `data/analysis/daily_traffic.csv` and `daily_counter_locations.csv` are the
+  compact inputs for the sustained-wind and allocated daily-counter analyses.
+- `reports/main/figures/conditional_poisson_rate_ratio_by_wind.png`: estimated
   within-road-section injury-accident rate ratios by 5 m/s mean-wind interval.
   It reports time-proportional annual-traffic allocation across local wind
   frequency intervals.
@@ -91,5 +91,6 @@ the six PDFs and weather-station metadata.
 - Rural injury accidents, 2007-2025.
 - Nearest valid 10-minute weather observation within 20 km.
 - Expected accidents standardized by weather station and season, with weather frequency pooled across 2007--2025.
-- Mean wind speed (`f`) is the primary exposure; maximum wind gust (`fg`) is secondary.
+- Mean wind speed (`f`) is primary; wind gust (`fg`) from the observation
+  matched to the accident time is secondary.
 - Results describe associations and are not causal estimates.

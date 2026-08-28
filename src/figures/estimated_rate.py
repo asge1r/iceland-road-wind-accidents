@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.figures.common import interval_labels
+
 DEFAULT_INPUT = Path("reports/working/tables/estimated_crash_rate_by_wind.csv")
 DEFAULT_OUTPUT = Path("reports/working/figures/estimated_crash_rate_by_wind.png")
 
@@ -21,7 +23,7 @@ def plot(result: pd.DataFrame, path: Path) -> None:
     rate = result["rate_per_100m_vehicle_km"].to_numpy(float)
     figure, axis = plt.subplots(figsize=(11.4, 6.6))
     bars = axis.bar(x, rate, color="#C7522A", width=0.72)
-    axis.set_xticks(x, result["wind_bin"].str.replace(">=", "≥", regex=False))
+    axis.set_xticks(x, interval_labels(result["wind_bin"]))
     axis.set_xlabel("Mean wind-speed interval, f (m/s)")
     axis.set_ylabel("Estimated injury accidents per 100 million vehicle-km")
     axis.set_title("Estimated rural injury-accident rate by mean wind speed")

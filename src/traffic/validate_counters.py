@@ -20,7 +20,8 @@ import pandas as pd
 
 
 LAYER_URL = "https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer/4/query"
-DAILY = Path("data/processed/traffic/daily.parquet")
+DAILY = Path("data/processed/traffic/daily.csv")
+LOCATIONS = Path("data/processed/traffic/locations.csv")
 ROADS = Path("data/raw/traffic/reference/roads.geojson")
 OUTPUT = Path("data/processed/traffic/daily_counter_station_validation.csv")
 TOLERANCE_M = 10
@@ -61,17 +62,31 @@ def query(site: tuple[str, str, int, float, float, tuple[int, ...]]) -> dict[str
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-d", "--daily", type=Path, default=DAILY)
+    parser.add_argument("-l", "--locations", type=Path, default=LOCATIONS)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
-    daily = pd.read_parquet(args.daily)
+    daily = pd.read_csv(args.daily, low_memory=False)
+    locations = pd.read_csv(args.locations, low_memory=False)
+    sites = daily[["year", "counter_site_id", "road_section", "station_id"]].drop_duplicates()
+    sites = sites.merge(
+        locations[
+            [
+                "year", "counter_site_id", "location_method",
+                "location_x_3057", "location_y_3057",
+            ]
+        ],
+        on=["year", "counter_site_id"],
+        how="left",
+        validate="one_to_one",
+    )
     roads = json.loads(ROADS.read_text(encoding="utf-8"))["features"]
     section_ids: dict[str, set[int]] = {}
     for feature in roads:
         properties = feature["properties"]
         key = f"{properties['NRVEGUR']}-{str(properties['NRKAFLI']).lower()}"
         section_ids.setdefault(key, set()).add(int(properties["IDKAFLI"]))
-    sites = daily.loc[
-        daily["location_method"].eq("station_interpolated_from_official_road_geometry"),
+    sites = sites.loc[
+        sites["location_method"].eq("station_interpolated_from_official_road_geometry"),
         ["road_section", "station_id", "location_x_3057", "location_y_3057"],
     ].drop_duplicates()
     tasks = []

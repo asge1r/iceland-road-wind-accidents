@@ -217,44 +217,6 @@ def parse_workbook(path: Path) -> pd.DataFrame:
     return pd.DataFrame(records).drop_duplicates(["year", "road_section"])
 
 
-def coverage_summary(exposure: pd.DataFrame) -> pd.DataFrame:
-    accidents = pd.read_parquet("data/processed/accidents/all.parquet").copy()
-    accidents["date"] = pd.to_datetime(accidents["date"], errors="coerce")
-    accidents["year"] = accidents["date"].dt.year
-    accidents["meidsli_num"] = pd.to_numeric(accidents["meidsli"], errors="coerce")
-    accidents["injury"] = accidents["meidsli_num"].lt(4)
-    accidents["serious_or_fatal"] = accidents["meidsli_num"].le(2)
-    accidents["road_section_norm"] = accidents["registered_road_section"].astype(str).str.strip().str.lower()
-    keys = set(zip(exposure["year"], exposure["road_section"].str.lower()))
-    accidents["matched_annual_exposure"] = list(zip(accidents["year"], accidents["road_section_norm"]))
-    accidents["matched_annual_exposure"] = accidents["matched_annual_exposure"].isin(keys)
-    rows = []
-    for first_year, last_year in [(2007, 2025), (2019, 2024)]:
-        subset = accidents[accidents["year"].between(first_year, last_year)].copy()
-        groups = {
-            "all": subset,
-            "rural_all": subset[subset["urban_rural"].eq("Rural")],
-            "rural_injury": subset[subset["urban_rural"].eq("Rural") & subset["injury"]],
-            "rural_serious_or_fatal": subset[subset["urban_rural"].eq("Rural") & subset["serious_or_fatal"]],
-            "rural_injury_nonurban_code": subset[
-                subset["urban_rural"].eq("Rural") & subset["injury"] & subset["is_registered_urban_code"].eq(False)
-            ],
-        }
-        for group, data in groups.items():
-            matched = int(data["matched_annual_exposure"].sum())
-            rows.append(
-                {
-                    "period": f"{first_year}-{last_year}",
-                    "group": group,
-                    "accidents": len(data),
-                    "matched_accidents": matched,
-                    "matched_pct": 100 * matched / len(data) if len(data) else 0,
-                    "unique_registered_sections": data["road_section_norm"].nunique(),
-                }
-            )
-    return pd.DataFrame(rows)
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--input-dir", type=Path, default=RAW_DIR)
@@ -298,7 +260,6 @@ def main() -> None:
             adu_max=("adu", "max"),
         )
     )
-    coverage = coverage_summary(exposure)
     notes = [
         "Annual Road-Section Exposure Notes",
         "==================================",
@@ -312,14 +273,11 @@ def main() -> None:
         "The parser reads the weighted road-number-order sheet from each annual Vegagerdin workbook.",
         "It extracts Vegnr, Kaflanr, road names, section endpoints, section length, ADU, SDU, VDU,",
         "and thousand vehicle-kilometres. The road-section key is normalised as Vegnr-Kaflanr,",
-        "matching the registered_road_section field supplied with the accident NID road-number data.",
+        "matching the registered_road_section field supplied with the accident road-link data.",
         "SDU covers June-September. VDU covers December-March.",
         "",
         "Yearly exposure coverage:",
         yearly.to_string(index=False),
-        "",
-        "Direct accident-to-exposure coverage:",
-        coverage.to_string(index=False),
     ]
     args.notes.write_text("\n".join(notes) + "\n", encoding="utf-8")
     print("\n".join(notes))

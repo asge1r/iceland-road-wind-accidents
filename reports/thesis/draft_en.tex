@@ -10,8 +10,8 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
+\usepackage{colortbl}
 \usepackage{float}
-\usepackage{pdflscape}
 \usepackage[format=plain,labelformat=simple,labelsep=colon]{caption}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -22,6 +22,7 @@
 \usepackage[pdfborder={0 0 0},hidelinks]{hyperref}
 
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\grayhline}{\arrayrulecolor{gray!40}\hline\arrayrulecolor{black}}
 \convertcolorspec{RGB}{16,9,159}{rgb}\tmphiblue
 \definecolor{hiblue}{rgb}\tmphiblue
 \graphicspath{{../main/figures/}}
@@ -35,6 +36,11 @@
 \setkomafont{section}{\Large}
 \captionsetup{width=\textwidth,indent=1em}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
+\hypersetup{
+  pdftitle={Wind Speed and Rural Traffic Accidents in Iceland},
+  pdfauthor={Ásgeir Snær Magnússon},
+  pdfsubject={M.Sc. thesis in Software Engineering}
+}
 
 \def\thesisyear{2026}
 \def\thesismonth{August}
@@ -173,10 +179,11 @@ weather station.
 The observed/expected ratio is close to one across most low and moderate wind
 intervals. At mean wind speeds of 20--25 m/s, 61 accidents were observed
 compared with 29.0 expected, giving a ratio of 2.11 (95\% station-clustered
-bootstrap interval 1.54--2.73). Maximum gust is a secondary wind measure.
+bootstrap interval 1.54--2.73). Wind gust at the matched accident time is a
+secondary wind measure.
 The result describes relative accident occurrence, not a causal effect or
-accident risk per vehicle. Traffic data are unavailable at the required spatial
-and temporal resolution for the full study period. The thesis documents data
+accident risk per vehicle. Complete hourly traffic exposure is unavailable at
+the required spatial and temporal resolution for the full study period. The thesis documents data
 cleaning, matching, coverage and statistical analysis separately.
 
 \vfill
@@ -187,11 +194,12 @@ umferðarslys með meiðslum verða í dreifbýli á Íslandi. Hún sameinar sly
 hreinsuð tíu mínútna veðurgögn, þéttbýlismörk, árleg umferðargögn fyrir vegkafla
 og daglegar umferðartalningar. Aðalgreiningin nær til 6.192 slysa með meiðslum
 á árunum 2007--2025 sem tengjast gildri vindmælingu innan 20 km. Fyrir hverja
-veðurstöð, hvert ár og hverja árstíð er fjöldi slysa í vindbili borinn saman
-við þann fjölda sem vænta mætti miðað við staðbundna vindtíðni.
+veðurstöð og hverja árstíð er fjöldi slysa í vindbili borinn saman við
+þann fjölda sem vænta mætti miðað við staðbundna vindtíðni sem er safnað
+yfir öll ár rannsóknartímabilsins.
 
 Við meðalvind upp á 20--25 m/s urðu 61 slys, en 29,0 voru vænt. Hlutfall
-séðra og væntra slysa var því 2,11 (95\% bil 1,54--2,71). Vindhviður eru
+séðra og væntra slysa var því 2,11 (95\% bil 1,54--2,73). Vindhviður eru
 skoðaðar sem aukagreining. Niðurstaðan lýsir hlutfallslegri tíðni slysa, en
 ekki orsakaáhrifum eða áhættu á hvert ökutæki. Umferðargögn eru ekki tiltæk
 með nægilega nákvæmri staðsetningu og tímasetningu fyrir allt rannsóknartímabilið.

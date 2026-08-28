@@ -8,8 +8,8 @@ from pathlib import Path
 import pandas as pd
 
 
-INPUT = Path("data/analysis/traffic_rate_summary.csv")
-OUTPUT = Path("reports/working/tables/estimated_crash_rate_by_wind.csv")
+INPUT = Path("data/analysis/traffic_exposure_full.csv")
+OUTPUT = Path("reports/main/tables/crash_rate_per_vehicle_km_by_wind.csv")
 AUDIT = Path("reports/working/tables/estimated_crash_rate_by_wind_audit.csv")
 
 

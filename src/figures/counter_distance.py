@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 
-INPUT = Path("data/processed/traffic/daily_weather.parquet")
+INPUT = Path("data/processed/traffic/daily_weather.csv")
 FIGURE = Path("reports/working/figures/counter_weather_distance.png")
 
 BIN_EDGES = list(range(0, 22, 2))
@@ -27,8 +27,8 @@ BIN_LABELS = [f"{lower}–<{upper}" for lower, upper in zip(BIN_EDGES[:-2], BIN_
 
 def prepare_counter_distances(path: Path) -> tuple[pd.DataFrame, int]:
     """Return the representative weather-match distance for each counter."""
-    data = pd.read_parquet(
-        path, columns=["counter_site_id", "weather_station_dist_km"]
+    data = pd.read_csv(
+        path, usecols=["counter_site_id", "weather_station_dist_km"]
     )
     total_counters = data["counter_site_id"].nunique()
     data["weather_station_dist_km"] = pd.to_numeric(

@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.figures.common import interval_labels
+
 
 DEFAULT_SUMMARY = Path("reports/working/tables/daily_traffic_diagnostic.csv")
 DEFAULT_VALIDATION = Path("archive/generated_diagnostics/daily_traffic_adu_validation.csv")
@@ -26,7 +28,7 @@ def plot_wind_summary(summary: pd.DataFrame, path: Path) -> None:
     bars = axis.bar(x, data["traffic_index_median"], color=np.where(data["counters"].fillna(0).lt(20), "#A8A8A8", "#287271"), width=0.72)
     axis.errorbar(x, data["traffic_index_median"], yerr=[data["traffic_index_median"] - data["ci_95_low"], data["ci_95_high"] - data["traffic_index_median"]], fmt="none", ecolor="#202020", capsize=3)
     axis.axhline(100, color="#202020", linestyle="--", linewidth=1.2)
-    axis.set_xticks(x, data["bin"], rotation=0, ha="center")
+    axis.set_xticks(x, interval_labels(data["bin"]), rotation=0, ha="center")
     axis.set_ylabel("Vehicles counted relative to a typical day (%)")
     axis.set_xlabel("Daytime mean wind speed, 10:00–21:59 (m/s)")
     axis.set_title("Daily traffic by mean wind speed")

@@ -12,11 +12,11 @@ import pyarrow.parquet as pq
 from sklearn.neighbors import BallTree
 
 
-DEFAULT_ACCIDENTS = Path("data/processed/accidents/all.parquet")
+DEFAULT_ACCIDENTS = Path("data/processed/accidents/all.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
 DEFAULT_STATIONS = Path("data/raw/weather/stations.csv")
 DEFAULT_OUTPUT = Path(
-    "data/processed/accidents/rural_injury.parquet"
+    "data/processed/accidents/rural_injury.csv"
 )
 DEFAULT_COVERAGE = Path(
     "archive/generated_diagnostics/oe/accident_weather_coverage.csv"
@@ -32,10 +32,20 @@ PRIMARY_DISTANCE_KM = 20.0
 SENSITIVITY_DISTANCE_KM = 30.0
 TIME_TOLERANCE_MINUTES = 5.0
 EARTH_RADIUS_KM = 6371.0
+MIN_TEMPERATURE_C = -30.0
+MAX_TEMPERATURE_C = 30.0
+
+OUTPUT_COLUMNS = [
+    "id", "timestamp", "lat", "lon", "meidsli", "tegohapps",
+    "vehicle_count", "registered_road_section", "weather_station_id",
+    "weather_station_dist_km", "weather_time_difference_minutes", "f", "fg",
+    "temp_station_id", "temp_distance_km", "temp_time_diff_min", "temperature_c",
+    "within_20km", "wind_available",
+]
 
 
 def load_accidents(path: Path, start: str, end: str) -> pd.DataFrame:
-    accidents = pd.read_parquet(path)
+    accidents = pd.read_csv(path, low_memory=False)
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
     accidents["meidsli"] = pd.to_numeric(accidents["meidsli"], errors="coerce")
     scope = (
@@ -200,10 +210,60 @@ def select_best(candidates: pd.DataFrame, weather: pd.DataFrame) -> pd.DataFrame
     )
 
 
+def select_best_temperature(
+    candidates: pd.DataFrame, weather: pd.DataFrame
+) -> pd.DataFrame:
+    """Select temperature independently because the wind station may lack it."""
+    valid_weather = weather[
+        weather["t"].between(
+            MIN_TEMPERATURE_C, MAX_TEMPERATURE_C, inclusive="both"
+        )
+    ]
+    primary_candidates = candidates[
+        candidates["weather_station_dist_km"].le(PRIMARY_DISTANCE_KM)
+    ]
+    available = primary_candidates.merge(
+        valid_weather,
+        on=["weather_station_id", "weather_time"],
+        how="inner",
+        validate="many_to_one",
+    )
+    best = (
+        available.sort_values(
+            [
+                "acc_index",
+                "weather_station_dist_km",
+                "weather_time_difference_minutes",
+                "weather_station_id",
+                "weather_time",
+            ]
+        )
+        .drop_duplicates("acc_index", keep="first")
+        .reset_index(drop=True)
+    )
+    return best[
+        [
+            "acc_index",
+            "weather_station_id",
+            "weather_station_dist_km",
+            "weather_time_difference_minutes",
+            "t",
+        ]
+    ].rename(
+        columns={
+            "weather_station_id": "temp_station_id",
+            "weather_station_dist_km": "temp_distance_km",
+            "weather_time_difference_minutes": "temp_time_diff_min",
+            "t": "temperature_c",
+        }
+    )
+
+
 def assemble_output(
     accidents: pd.DataFrame,
     stations: pd.DataFrame,
     best: pd.DataFrame,
+    best_temperature: pd.DataFrame,
     has_station_within_30: np.ndarray,
 ) -> pd.DataFrame:
     station_names = stations[["station", "name"]].rename(
@@ -213,11 +273,13 @@ def assemble_output(
         station_names, on="weather_station_id", how="left", validate="many_to_one"
     )
     output = accidents.reset_index().merge(
-        best, on="acc_index", how="left", validate="one_to_one"
+        best.drop(columns="t"), on="acc_index", how="left", validate="one_to_one"
+    ).merge(
+        best_temperature, on="acc_index", how="left", validate="one_to_one"
     )
     output["has_weather_station_within_30km"] = has_station_within_30
     output["wind_available"] = output["f"].notna() & output["fg"].notna()
-    output["temperature_available"] = output["t"].notna()
+    output["temperature_available"] = output["temperature_c"].notna()
     output["within_20km"] = output["weather_station_dist_km"].le(
         PRIMARY_DISTANCE_KM
     )
@@ -236,7 +298,7 @@ def assemble_output(
         ],
         default="no_valid_wind_within_30km",
     )
-    return output.drop(columns="acc_index").sort_values(["timestamp", "nid"])
+    return output.drop(columns="acc_index").sort_values(["timestamp", "id"])
 
 
 def coverage_tables(output: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -252,7 +314,7 @@ def coverage_tables(output: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
                 "wind_coverage_pct": 100 * matched / total,
                 "matched_with_temperature": int(
                     (
-                        output["weather_station_dist_km"].le(distance)
+                        output["temp_distance_km"].le(distance)
                         & output["temperature_available"]
                     ).sum()
                 ),
@@ -267,13 +329,13 @@ def coverage_tables(output: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
             matched_20km=annual["weather_station_dist_km"].le(20),
             matched_30km=annual["weather_station_dist_km"].le(30),
             temperature_20km=(
-                annual["weather_station_dist_km"].le(20)
+                annual["temp_distance_km"].le(20)
                 & annual["temperature_available"]
             ),
         )
         .groupby("year", as_index=False)
         .agg(
-            scope_accidents=("nid", "size"),
+            scope_accidents=("id", "size"),
             matched_10km=("matched_10km", "sum"),
             matched_20km=("matched_20km", "sum"),
             matched_30km=("matched_30km", "sum"),
@@ -318,18 +380,29 @@ def main() -> None:
     candidates, has_station_within_30 = build_candidates(accidents, stations)
     weather = read_candidate_weather(weather_file, candidates)
     best = select_best(candidates, weather)
-    output = assemble_output(accidents, stations, best, has_station_within_30)
+    best_temperature = select_best_temperature(candidates, weather)
+    output = assemble_output(
+        accidents, stations, best, best_temperature, has_station_within_30
+    )
     coverage, annual = coverage_tables(output)
 
-    if len(output) != len(accidents) or output["nid"].duplicated().any():
+    if len(output) != len(accidents) or output["id"].duplicated().any():
         raise SystemExit("Output failed one-row-per-accident validation")
     primary = output["within_20km"]
     if output.loc[primary, ["f", "fg"]].isna().any().any():
         raise SystemExit("A primary match is missing wind data")
+    valid_temperature = output["temperature_c"].notna()
+    if not output.loc[valid_temperature, "temperature_c"].between(
+        MIN_TEMPERATURE_C, MAX_TEMPERATURE_C
+    ).all():
+        raise SystemExit("A temperature match is outside the fixed QC range")
 
     for path in (args.output, args.coverage, args.by_year, args.notes):
         path.parent.mkdir(parents=True, exist_ok=True)
-    output.to_parquet(args.output, index=False, compression="zstd")
+    missing = set(OUTPUT_COLUMNS) - set(output.columns)
+    if missing:
+        raise ValueError(f"Matched accident output is missing columns: {sorted(missing)}")
+    output[OUTPUT_COLUMNS].to_csv(args.output, index=False)
     coverage.to_csv(args.coverage, index=False)
     annual.to_csv(args.by_year, index=False)
     elapsed = time.perf_counter() - started
@@ -348,8 +421,10 @@ Method
 - Select the geographically nearest station with clean f and fg, then break ties by
   time difference, station number and measurement time.
 - The primary radius is 20 km; 30 km is retained only for sensitivity analysis.
-- Temperature comes from the selected wind station and may be missing. A wind match is
-  not discarded solely because temperature is unavailable.
+- Wind and temperature are selected independently. Each uses the nearest station with
+  a valid observation at an eligible time. Their station IDs may therefore differ.
+- Temperature is retained only from -30 through 30 degrees C. A wind match is not
+  discarded solely because temperature is unavailable.
 - All scoped accidents remain in the output, including unmatched accidents, with a
   match_status value explaining the result.
 - Weather stations excluded because coordinates were unavailable: {sorted(missing_station_ids)}
@@ -358,8 +433,8 @@ Validation
 ----------
 - Scoped accidents: {len(accidents):,}
 - Output rows: {len(output):,}
-- Unique nid values: {output['nid'].nunique():,}
-- Duplicate nid values: {int(output['nid'].duplicated().sum()):,}
+- Unique source accident IDs: {output['id'].nunique():,}
+- Duplicate source accident IDs: {int(output['id'].duplicated().sum()):,}
 
 Coverage
 --------

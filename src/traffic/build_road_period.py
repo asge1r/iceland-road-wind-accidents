@@ -31,6 +31,22 @@ from src.traffic.road_period import (
 )
 
 
+OUTPUT_COLUMNS = [
+    "year",
+    "road_section",
+    "traffic_period",
+    "weather_station_id",
+    "weather_station_distance_km",
+    "section_length_km",
+    "traffic_reference_daily_volume",
+    "variable",
+    "bin_label",
+    "bin_lower_ms",
+    "frequency_pct",
+    "wind_frequency_available",
+]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--annual-traffic", type=Path, default=DEFAULT_ANNUAL_TRAFFIC)
@@ -56,16 +72,18 @@ def main() -> None:
             max_row_groups=args.max_weather_row_groups,
         )
     else:
-        wind = pd.read_parquet(args.period_wind_frequency)
+        wind = pd.read_csv(args.period_wind_frequency)
     assigned = assign_nearest_valid_station(annual, scope, candidates, wind)
     base = build_base_table(
         assigned,
         counts,
-        pd.DataFrame(columns=["year", "road_section"]),
     )
     road_period = build_long_table(base, wind, bin_counts)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    road_period.to_parquet(args.output, index=False, compression="zstd")
+    missing = set(OUTPUT_COLUMNS) - set(road_period.columns)
+    if missing:
+        raise ValueError(f"Road-period output is missing columns: {sorted(missing)}")
+    road_period[OUTPUT_COLUMNS].to_csv(args.output, index=False)
     print(f"road_period_rows={len(road_period):,}")
     print(f"wrote={args.output}")
 
