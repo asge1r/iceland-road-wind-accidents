@@ -1,0 +1,12 @@
+temperature_interval_c,observed_accidents,expected_accidents,observed_expected_ratio,station_bootstrap_ci_95_low,station_bootstrap_ci_95_high,bootstrap_probability_above_1,sparse_bin_fewer_than_20_accidents
+<-9,44,81.1,0.54,0.36,0.75,0.0,False
+-9--6,161,172.2,0.93,0.8,1.07,0.1714,False
+-6--3,412,392.1,1.05,0.96,1.14,0.8454,False
+-3-0,839,715.6,1.17,1.09,1.25,0.9998,False
+0-3,1131,1029.5,1.1,1.02,1.17,0.9952,False
+3-6,710,1035.4,0.69,0.64,0.73,0.0,False
+6-9,858,1013.6,0.85,0.8,0.9,0.0,False
+9-12,814,805.3,1.01,0.95,1.08,0.6412,False
+12-15,495,351.0,1.41,1.29,1.54,1.0,False
+15-18,192,88.6,2.17,1.85,2.51,1.0,False
+>=18,51,22.7,2.25,1.69,2.94,1.0,False

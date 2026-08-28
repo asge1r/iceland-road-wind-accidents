@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 
-ALL_PERIODS = Path("reports/main/tables/stratified_crash_rate_ratio_by_wind.csv")
+ALL_PERIODS = Path("reports/main/tables/conditional_poisson_rate_ratio_by_wind.csv")
 OFFICIAL_PERIODS = Path("reports/working/tables/stratified_crash_rate_ratio_official_traffic.csv")
 OUTPUT = Path("reports/working/tables/traffic_scope_comparison.csv")
 

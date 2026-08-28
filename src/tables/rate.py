@@ -9,10 +9,8 @@ import numpy as np
 import pandas as pd
 from statsmodels.discrete.conditional_models import ConditionalPoisson
 
-
-INPUT = Path("data/analysis/rate_model.csv")
-OUTPUT = Path("reports/main/tables/stratified_crash_rate_ratio_by_wind.csv")
-
+INPUT = Path("data/analysis/conditional_poisson_input.csv")
+OUTPUT = Path("reports/main/tables/conditional_poisson_rate_ratio_by_wind.csv")
 COUNT_COLUMN = {
     "all": "injury_accidents",
     "one": "one_vehicle_accidents",

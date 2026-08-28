@@ -12,11 +12,11 @@ import pyarrow.parquet as pq
 from src.accidents.match_weather import read_candidate_weather, select_best
 
 
-PANEL = Path("data/processed/traffic/road_period.parquet")
-ACCIDENTS = Path("data/processed/accidents/rural_injury.parquet")
+PANEL = Path("data/processed/traffic/road_period.csv")
+ACCIDENTS = Path("data/processed/accidents/rural_injury.csv")
 WEATHER = Path("data/processed/weather/weather.parquet")
 STATIONS = Path("data/raw/weather/stations.csv")
-OUTPUT = Path("data/processed/accidents/rate.parquet")
+OUTPUT = Path("data/processed/accidents/rate.csv")
 AUDIT = Path("reports/working/tables/rate_accident_weather_audit.csv")
 
 PERIOD_BY_MONTH = {
@@ -47,7 +47,7 @@ def load_road_station_panel(path: Path) -> pd.DataFrame:
         "weather_station_distance_km", "section_length_km", "variable",
         "wind_frequency_available", "traffic_reference_daily_volume",
     ]
-    panel = pd.read_parquet(path, columns=columns)
+    panel = pd.read_csv(path, usecols=columns)
     panel = panel[
         panel["variable"].eq("f_5m")
         & panel["wind_frequency_available"].fillna(False)
@@ -65,8 +65,8 @@ def load_road_station_panel(path: Path) -> pd.DataFrame:
 
 
 def load_accidents(path: Path) -> pd.DataFrame:
-    columns = ["nid", "timestamp", "registered_road_section", "lat", "lon", "vehicle_count"]
-    accidents = pd.read_parquet(path, columns=columns)
+    columns = ["id", "timestamp", "registered_road_section", "lat", "lon", "vehicle_count"]
+    accidents = pd.read_csv(path, usecols=columns)
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"], errors="coerce")
     accidents["year"] = accidents["timestamp"].dt.year
     accidents["traffic_period"] = accidents["timestamp"].dt.month.map(PERIOD_BY_MONTH)
@@ -154,16 +154,16 @@ def main() -> None:
         output["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
     )
     keep = [
-        "nid", "timestamp", "year", "road_section", "traffic_period",
+        "id", "timestamp", "year", "road_section", "traffic_period",
         "rate_weather_station_id", "rate_weather_time", "weather_time_difference_minutes",
         "rate_station_accident_distance_km", "weather_station_distance_km",
         "section_length_km", "f", "fg",
         "vehicle_count", "vehicle_group",
     ]
-    output = output[keep].sort_values("nid")
+    output = output[keep].sort_values("id")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.audit.parent.mkdir(parents=True, exist_ok=True)
-    output.to_parquet(args.output, index=False, compression="zstd")
+    output.to_csv(args.output, index=False)
     audit = pd.DataFrame(
         [
             {"metric": "rural_injury_accidents", "value": source_accidents},

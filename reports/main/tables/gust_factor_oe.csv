@@ -1,7 +1,7 @@
 gust_factor_interval,observed_accidents,expected_accidents,observed_expected_ratio,station_bootstrap_ci_95_low,station_bootstrap_ci_95_high,bootstrap_probability_above_1,sparse_bin_fewer_than_20_accidents
 0-1.2,272,301.5,0.9,0.81,1.01,0.033,False
 1.2-1.4,2101,2058.0,1.02,0.99,1.06,0.8796,False
-1.4-1.6,1255,1295.4,0.97,0.92,1.02,0.1196,False
-1.6-1.8,490,470.4,1.04,0.96,1.12,0.8522,False
+1.4-1.6,1254,1295.4,0.97,0.92,1.02,0.1134,False
+1.6-1.8,491,470.4,1.04,0.96,1.12,0.8648,False
 1.8-2,176,184.2,0.96,0.81,1.12,0.2824,False
 >=2,202,186.4,1.08,0.95,1.22,0.8806,False

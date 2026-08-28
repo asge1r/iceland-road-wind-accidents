@@ -41,11 +41,8 @@ def traffic_period(month: pd.Series) -> pd.Series:
     return pd.Categorical(result, categories=PERIOD_ORDER, ordered=True)
 
 
-def prepare_panel(input_path: Path) -> pd.DataFrame:
-    """Create the compact counter-day panel used in the wind-response analysis."""
-    if input_path.suffix != ".csv":
-        raise ValueError(f"Analysis input must be a CSV file: {input_path}")
-    source = pd.read_csv(input_path)
+def prepare_data(source: pd.DataFrame) -> pd.DataFrame:
+    """Create the compact counter-day panel from canonical input columns."""
     needed = [
         "date", "counter_id", "traffic", "f_mean",
     ]
@@ -85,6 +82,13 @@ def prepare_panel(input_path: Path) -> pd.DataFrame:
         panel["traffic_volume"] / panel["expected_daily_traffic"]
     )
     return panel
+
+
+def prepare_panel(input_path: Path) -> pd.DataFrame:
+    """Read a canonical CSV and create the counter-day analysis panel."""
+    if input_path.suffix != ".csv":
+        raise ValueError(f"Analysis input must be a CSV file: {input_path}")
+    return prepare_data(pd.read_csv(input_path))
 
 
 def bootstrap_ratios(data: pd.DataFrame, bins: list[str], replicates: int, seed: int) -> pd.DataFrame:

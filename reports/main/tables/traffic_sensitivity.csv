@@ -1,0 +1,9 @@
+check,primary_or_full_scope,estimate,ci_95_low,ci_95_high,records,interpretation
+"Rate model, 20-25 m/s","All VDU, SDU, and derived VHDU periods",2.38,1.78,3.18,48,Rate ratio relative to 0-5 m/s.
+"Rate model, 20-25 m/s",Official VDU and SDU periods only,1.93,1.32,2.82,28,Rate ratio relative to 0-5 m/s.
+"Rate model, >=25 m/s","All VDU, SDU, and derived VHDU periods",4.49,2.75,7.34,17,Rate ratio relative to 0-5 m/s.
+"Rate model, >=25 m/s",Official VDU and SDU periods only,2.52,1.18,5.35,7,Rate ratio relative to 0-5 m/s.
+"Daily traffic, 20-25 m/s",Retain zero counter-days,74.91,67.16,80.47,1359,Observed traffic as percent of the calendar-standardised expectation.
+"Daily traffic, 20-25 m/s",Exclude zero counter-days,75.18,67.8,80.75,1275,Observed traffic as percent of the calendar-standardised expectation.
+Nonpositive published VDU,"Excluded, not imputed",6.57,,,1509,"Percent of 22,982 road-section/year rows."
+Nonpositive derived VHDU,"Excluded, not imputed",2.4,,,552,"Percent of 22,982 road-section/year rows."

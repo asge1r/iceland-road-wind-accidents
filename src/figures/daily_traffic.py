@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.figures.common import interval_labels
+
 from src.tables.daily_traffic import PERIOD_ORDER
 
 
@@ -28,7 +30,7 @@ def plot_results(results: pd.DataFrame, path: Path, scope: str, title: str) -> N
     figure, axis = plt.subplots(figsize=(11.4, 6.6))
     bars = axis.bar(x, values, width=0.72, color=np.where(sparse, "#A8A8A8", "#287271"))
     axis.axhline(100, color="#202020", linestyle="--", linewidth=1.2)
-    display_bins = data["f_bin"].astype("string").str.replace(">=", "≥", regex=False)
+    display_bins = interval_labels(data["f_bin"])
     axis.set_xticks(x, display_bins, rotation=0)
     axis.set_xlabel("Daytime mean wind speed, 10:00–21:59 (m/s)")
     axis.set_ylabel("Daily traffic relative to expected (%)")
@@ -61,7 +63,7 @@ def plot_period_results(results: pd.DataFrame, path: Path) -> None:
         axis.set_ylim(0, ymax)
         for bar, row in zip(bars, data.itertuples(index=False), strict=True):
             axis.text(bar.get_x() + bar.get_width() / 2, min(ymax - 2, row.relative_traffic_pct + 1.2), f"n={row.counter_days:,}", ha="center", va="bottom", fontsize=7.5)
-    axes[-1].set_xticks(np.arange(len(data)), data["f_bin"], rotation=0)
+    axes[-1].set_xticks(np.arange(len(data)), interval_labels(data["f_bin"]), rotation=0)
     axes[-1].set_xlabel("Daytime mean wind speed, 10:00–21:59 (m/s)")
     figure.supylabel("Daily traffic relative to expected (%)")
     figure.text(0.5, 0.012, "Expected traffic is standardized within counter, year, month, and weekday. Grey bars have fewer than 20 counters.", ha="center", fontsize=8.3, color="#444444")

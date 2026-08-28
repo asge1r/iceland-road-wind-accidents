@@ -33,8 +33,10 @@ def main() -> None:
     args = parser.parse_args()
     run("src.analysis.build_oe", dry_run=args.dry_run)
     run("src.tables.oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
+    run("src.tables.radius_sensitivity", dry_run=args.dry_run)
     run("src.figures.oe", dry_run=args.dry_run)
     run("src.figures.gust_factor", dry_run=args.dry_run)
+    run("src.tables.annual_traffic_quality", dry_run=args.dry_run)
     run("src.tables.estimated_rate", dry_run=args.dry_run)
     run("src.figures.estimated_rate", dry_run=args.dry_run)
     run("src.tables.rate", dry_run=args.dry_run)
@@ -57,9 +59,26 @@ def main() -> None:
         print(f"Skipping optional daily-counter result: {reason}.")
     else:
         run("src.tables.daily_traffic", dry_run=args.dry_run)
+        run("src.tables.daily_wind_duration", dry_run=args.dry_run)
+        run("src.figures.daily_wind_duration", dry_run=args.dry_run)
+        run("src.tables.daily_allocated_rate", dry_run=args.dry_run)
+        run("src.figures.daily_allocated_rate", dry_run=args.dry_run)
+        run("src.tables.daily_counter_rate", dry_run=args.dry_run)
+        run(
+            "src.tables.daily_counter_rate",
+            "--coarse",
+            dry_run=args.dry_run,
+        )
+        run("src.tables.daily_counter_radius", dry_run=args.dry_run)
+        run("src.figures.daily_counter_rate", dry_run=args.dry_run)
+        run("src.tables.traffic_sensitivity", dry_run=args.dry_run)
         run("src.figures.daily_traffic", dry_run=args.dry_run)
     run("src.figures.data_flow", dry_run=args.dry_run)
     run("src.figures.accident_profiles", dry_run=args.dry_run)
+    run("src.tables.conditions", dry_run=args.dry_run)
+    run("src.figures.conditions", dry_run=args.dry_run)
+    run("src.tables.case_control", dry_run=args.dry_run)
+    run("src.tables.high_wind_profile", dry_run=args.dry_run)
     run("src.validate", dry_run=args.dry_run)
 
 

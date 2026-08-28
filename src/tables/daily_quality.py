@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.traffic import daily_traffic_tools as tools
+from src.traffic import daily_tools as tools
 
 
-DEFAULT_INPUT = Path("data/processed/traffic/daily_weather.parquet")
+DEFAULT_INPUT = Path("data/processed/traffic/daily_weather.csv")
 DEFAULT_ANNUAL = Path("data/processed/traffic/annual.csv")
 DEFAULT_SUMMARY = Path("reports/working/tables/daily_traffic_diagnostic.csv")
 DEFAULT_VALIDATION = Path("archive/generated_diagnostics/daily_traffic_adu_validation.csv")
@@ -70,7 +70,8 @@ def main() -> None:
     parser.add_argument("-b", "--bootstrap-replicates", type=int, default=1000)
     args = parser.parse_args()
 
-    panel = pd.read_parquet(args.input)
+    panel = pd.read_csv(args.input, low_memory=False)
+    panel["date"] = pd.to_datetime(panel["date"], errors="raise")
     summary = tools.build_wind_summary(panel, args.bootstrap_replicates)
     validation, adu_summary = tools.build_adu_validation(panel, args.annual)
     for path in [

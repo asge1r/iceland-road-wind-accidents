@@ -15,14 +15,17 @@ from src.weather.frequency import (
     F_UPPER_BOUNDS,
     GUST_FACTOR_MIN_MEAN_WIND,
     GUST_FACTOR_UPPER_BOUNDS,
+    TEMPERATURE_THRESHOLDS,
+    TEMPERATURE_LABELS,
     labels,
 )
 
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
+DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
 DEFAULT_FREQUENCY = Path("data/analysis/weather_frequency.csv")
 DEFAULT_RESULTS = Path("archive/generated_diagnostics/oe/detailed_results.csv")
-DEFAULT_DETAILS = Path("data/analysis/oe_station_bins.csv")
+DEFAULT_DETAILS = Path("reports/working/tables/oe_station_bins.csv")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
 DEFAULT_NOTES = Path("archive/generated_diagnostics/oe/calculation_notes.txt")
 
@@ -38,23 +41,56 @@ class VariableSpec:
     accident_column: str
     upper_bounds: np.ndarray
     title: str
+    station_column: str = "weather_station_id"
+    distance_column: str = "weather_station_dist_km"
+    time_difference_column: str = "weather_time_difference_minutes"
+    custom_bin_labels: tuple[str, ...] | None = None
+    custom_bin_edges: tuple[float, ...] | None = None
 
     @property
     def bin_labels(self) -> list[str]:
+        if self.custom_bin_labels is not None:
+            return list(self.custom_bin_labels)
         return labels(self.upper_bounds)
+
+    @property
+    def bin_edges(self) -> list[float]:
+        if self.custom_bin_edges is not None:
+            return list(self.custom_bin_edges)
+        return [0, *self.upper_bounds, np.inf]
 
 
 VARIABLES = [
-    VariableSpec("f", "f", F_UPPER_BOUNDS, "Mean wind speed"),
-    VariableSpec("fg", "fg", FG_UPPER_BOUNDS, "Maximum wind gust"),
+    VariableSpec(
+        "f",
+        "f",
+        F_UPPER_BOUNDS,
+        "Mean wind speed",
+    ),
+    VariableSpec(
+        "fg",
+        "fg",
+        FG_UPPER_BOUNDS,
+        "Wind gust at matched observation time",
+    ),
     VariableSpec(
         "gust_factor",
         "gust_factor",
         GUST_FACTOR_UPPER_BOUNDS,
         "Gust factor (fg / f; f >= 3 m/s)",
     ),
+    VariableSpec(
+        "temperature",
+        "temperature_c",
+        TEMPERATURE_THRESHOLDS,
+        "Temperature",
+        station_column="temp_station_id",
+        distance_column="temp_distance_km",
+        time_difference_column="temp_time_diff_min",
+        custom_bin_labels=tuple(TEMPERATURE_LABELS),
+        custom_bin_edges=(-np.inf, *TEMPERATURE_THRESHOLDS, np.inf),
+    ),
 ]
-
 SAMPLES = {
     "Injury accidents": lambda data: pd.Series(True, index=data.index),
     "Serious or fatal": lambda data: data["meidsli"].le(2),
@@ -114,20 +150,33 @@ def frequency_to_long(frequency: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_data(
-    accidents_path: Path, frequency_path: Path, start: str | None, end: str | None
+    accidents_path: Path,
+    conditions_path: Path,
+    frequency_path: Path,
+    start: str | None,
+    end: str | None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    columns = [
+    event_columns = ["id", "timestamp", "meidsli", "vehicle_count", "season"]
+    condition_columns = [
         "id",
-        "timestamp",
-        "meidsli",
+
         "weather_station_id",
         "weather_station_dist_km",
         "weather_time_difference_minutes",
         "f",
         "fg",
-        "vehicle_count",
+        "gust_factor",
+
+        "temp_station_id",
+        "temp_distance_km",
+        "temp_time_diff_min",
+        "temperature_c",
     ]
-    accidents = read_frame(accidents_path, columns)
+    events = read_frame(accidents_path, event_columns)
+    conditions = read_frame(conditions_path, condition_columns)
+    if not events["id"].is_unique or not conditions["id"].is_unique:
+        raise ValueError("Accident event and condition IDs must each be unique")
+    accidents = events.merge(conditions, on="id", how="left", validate="one_to_one")
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
     if start:
         accidents = accidents[accidents["timestamp"].ge(pd.Timestamp(start))]
@@ -138,12 +187,6 @@ def load_data(
         accidents["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
     )
     accidents["year"] = accidents["timestamp"].dt.year
-    accidents["season"] = season_from_month(accidents["timestamp"].dt.month)
-    accidents["gust_factor"] = np.where(
-        accidents["f"].ge(GUST_FACTOR_MIN_MEAN_WIND),
-        accidents["fg"] / accidents["f"],
-        np.nan,
-    )
 
     frequency = frequency_to_long(read_frame(frequency_path))
     frequency = frequency.rename(columns={"station": "weather_station_id"})
@@ -173,19 +216,28 @@ def one_analysis(
     max_time_difference_minutes: float = PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, object]]:
     scoped = accidents[
-        accidents["weather_station_dist_km"].le(radius)
-        & accidents["weather_time_difference_minutes"].le(
+        accidents[spec.distance_column].le(radius)
+        & accidents[spec.time_difference_column].le(
             max_time_difference_minutes
         )
         & accidents[spec.accident_column].notna()
+        & accidents[spec.station_column].notna()
         & SAMPLES[severity](accidents)
     ].copy()
+
     if analysis_season != "All seasons":
         scoped = scoped[scoped["season"].eq(analysis_season)].copy()
-    scoped["weather_station_id"] = scoped["weather_station_id"].astype(int)
+
+    # Normalize the variable-specific station to one common internal column.
+    # Wind uses weather_station_id; temperature uses temp_station_id.
+    scoped["weather_station_id"] = (
+        scoped[spec.station_column]
+        .astype(int)
+    )
+
     scoped["weather_bin"] = pd.cut(
         scoped[spec.accident_column],
-        bins=[0, *spec.upper_bounds, np.inf],
+        bins=spec.bin_edges,
         labels=spec.bin_labels,
         right=False,
         include_lowest=True,
@@ -285,6 +337,7 @@ def main() -> None:
         description="Station-frequency-adjusted wind risk using cleaned 10-minute data."
     )
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
+    parser.add_argument("-C", "--conditions", type=Path, default=DEFAULT_CONDITIONS)
     parser.add_argument("-f", "--frequency", type=Path, default=DEFAULT_FREQUENCY)
     parser.add_argument("-r", "--results", type=Path, default=DEFAULT_RESULTS)
     parser.add_argument("-d", "--details", type=Path, default=DEFAULT_DETAILS)
@@ -295,7 +348,7 @@ def main() -> None:
     args = parser.parse_args()
 
     accidents, frequency = load_data(
-        args.accidents, args.frequency, args.start, args.end
+        args.accidents, args.conditions, args.frequency, args.start, args.end
     )
     specs = {spec.variable: spec for spec in VARIABLES}
     scenarios: list[tuple[str, int, str, str, int]] = []
