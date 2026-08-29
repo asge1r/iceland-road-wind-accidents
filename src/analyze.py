@@ -35,7 +35,6 @@ def main() -> None:
     run("src.tables.oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
     run("src.tables.radius_sensitivity", dry_run=args.dry_run)
     run("src.figures.oe", dry_run=args.dry_run)
-    run("src.figures.gust_factor", dry_run=args.dry_run)
     run("src.tables.annual_traffic_quality", dry_run=args.dry_run)
     run("src.tables.estimated_rate", dry_run=args.dry_run)
     run("src.figures.estimated_rate", dry_run=args.dry_run)

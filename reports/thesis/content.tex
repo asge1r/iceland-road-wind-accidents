@@ -269,7 +269,7 @@ Script & Input file(s) & Output file(s) & Description \\
 Builds station--season observed and expected counts. \\ \grayhline
 \path{tables/oe.py} &
 \path{working/tables/oe_station_bins.csv}; \path{analysis/accidents.csv}; \path{analysis/accident_conditions.csv} &
-\emph{\path{main/tables/}} \path{oe_results.csv}; \path{mean_wind_oe.csv}; \path{gust_oe.csv}; \path{gust_factor_oe.csv}; \path{temperature_oe.csv} &
+\emph{\path{main/tables/}} \path{oe_results.csv}; \path{mean_wind_oe.csv}; \path{gust_oe.csv}; \path{temperature_oe.csv} &
 Calculates clustered-bootstrap O/E results. \\ \grayhline
 \path{tables/radius_sensitivity.py} &
 \path{main/tables/oe_results.csv} &
@@ -277,7 +277,7 @@ Calculates clustered-bootstrap O/E results. \\ \grayhline
 Selects the 10, 20, and 30 km primary sensitivity. \\ \grayhline
 \path{figures/oe.py} &
 \path{main/tables/oe_results.csv} &
-\emph{\path{main/figures/}} \path{mean_wind_oe.png}; \path{gust_oe.png}; \path{gust_factor_oe.png}; \path{temperature_oe.png}; subgroup figures &
+\emph{\path{main/figures/}} \path{mean_wind_oe.png}; \path{gust_oe.png}; \path{temperature_oe.png}; subgroup figures &
 Draws completed O/E tables. \\ \grayhline
 \path{tables/conditions.py} &
 \emph{\path{analysis/}} \path{accidents.csv}; \path{accident_conditions.csv} &
@@ -445,16 +445,6 @@ rules.}
 \label{fig:weather-selection}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{gust_factor_distribution.png}
-\caption{Distribution of gust factor ($fg/f$) in the cleaned weather
-observations. The ratio is calculated only where the 10-minute mean wind speed
-is at least 3 m/s, so that values from near-calm conditions do not dominate the
-distribution. Each eligible 10-minute observation has equal weight.}
-\label{fig:weather-gust-factor-frequency}
-\end{figure}
-
 \section{Traffic Data}
 
 Two traffic sources are used for different purposes.
@@ -537,10 +527,9 @@ study years. The expected count in a mean-wind interval is therefore based on
 how often that interval occurred locally, rather than on a national wind average.
 
 Temperature uses the same station-and-season O/E structure with independently
-matched temperature stations. Three-degree intervals are used from
--9 to 18\(^{\circ}\)C, with open tails below -9\(^{\circ}\)C and at least
-18\(^{\circ}\)C. The equal-width interior intervals show the shape around
-freezing while retaining 44 and 51 accidents in the two tails.
+matched temperature stations. The intervals are below -5, -5 to -3, -3 to -1,
+-1 to 1, 1 to 3, 3 to 5, and at least 5\(^{\circ}\)C. This gives greater
+resolution around freezing while retaining open tails.
 
 Let \(g\) identify a weather station and meteorological season.
 Let \(A_{jg}\) be the number of accidents in mean-wind interval \(j\) and group \(g\),

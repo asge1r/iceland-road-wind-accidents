@@ -13,9 +13,7 @@ from scipy.stats import chi2
 from src.weather.frequency import (
     FG_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
-    GUST_FACTOR_MIN_MEAN_WIND,
-    GUST_FACTOR_UPPER_BOUNDS,
-    TEMPERATURE_THRESHOLDS,
+    TEMPERATURE_UPPER_BOUNDS,
     TEMPERATURE_LABELS,
     labels,
 )
@@ -74,21 +72,15 @@ VARIABLES = [
         "Wind gust at matched observation time",
     ),
     VariableSpec(
-        "gust_factor",
-        "gust_factor",
-        GUST_FACTOR_UPPER_BOUNDS,
-        "Gust factor (fg / f; f >= 3 m/s)",
-    ),
-    VariableSpec(
         "temperature",
         "temperature_c",
-        TEMPERATURE_THRESHOLDS,
+        TEMPERATURE_UPPER_BOUNDS,
         "Temperature",
         station_column="temp_station_id",
         distance_column="temp_distance_km",
         time_difference_column="temp_time_diff_min",
         custom_bin_labels=tuple(TEMPERATURE_LABELS),
-        custom_bin_edges=(-np.inf, *TEMPERATURE_THRESHOLDS, np.inf),
+        custom_bin_edges=(-np.inf, *TEMPERATURE_UPPER_BOUNDS, np.inf),
     ),
 ]
 SAMPLES = {
@@ -109,11 +101,6 @@ def season_from_month(month: pd.Series) -> pd.Series:
     return season
 
 
-def count_column(variable: str, bin_label: str) -> str:
-    safe_label = bin_label.replace(">=", "ge_").replace("-", "_")
-    return f"{variable}_{safe_label}_count"
-
-
 def read_frame(path: Path, columns: list[str] | None = None) -> pd.DataFrame:
     if path.suffix != ".csv":
         raise ValueError(f"Analysis input must be a CSV file: {path}")
@@ -121,32 +108,19 @@ def read_frame(path: Path, columns: list[str] | None = None) -> pd.DataFrame:
 
 
 def frequency_to_long(frequency: pd.DataFrame) -> pd.DataFrame:
-    if "variable" in frequency:
-        if "frequency_pct" not in frequency:
-            frequency = frequency.copy()
-            frequency["frequency_pct"] = (
-                100
-                * frequency["measurement_count"]
-                / frequency["total_measurements_in_period"]
-            )
-        return frequency
-    keys = ["station", "name", "year", "season", "period", "total_measurements_in_period"]
-    missing = set(keys) - set(frequency)
+    required = {
+        "station", "season", "variable", "bin_label", "measurement_count",
+        "total_measurements_in_period",
+    }
+    missing = required - set(frequency)
     if missing:
         raise ValueError(f"Frequency table is missing required columns: {sorted(missing)}")
-    rows: list[pd.DataFrame] = []
-    for spec in VARIABLES:
-        for bin_label in spec.bin_labels:
-            column = count_column(spec.variable, bin_label)
-            if column not in frequency:
-                raise ValueError(f"Frequency table is missing {column}")
-            part = frequency[keys].copy()
-            part["variable"] = spec.variable
-            part["bin_label"] = bin_label
-            part["measurement_count"] = frequency[column]
-            part["frequency_pct"] = 100 * part["measurement_count"] / part["total_measurements_in_period"]
-            rows.append(part)
-    return pd.concat(rows, ignore_index=True)
+    frequency = frequency[frequency["variable"].isin({spec.variable for spec in VARIABLES})].copy()
+    if "frequency_pct" not in frequency:
+        frequency["frequency_pct"] = (
+            100 * frequency["measurement_count"] / frequency["total_measurements_in_period"]
+        )
+    return frequency
 
 
 def load_data(
@@ -165,7 +139,6 @@ def load_data(
         "weather_time_difference_minutes",
         "f",
         "fg",
-        "gust_factor",
 
         "temp_station_id",
         "temp_distance_km",
@@ -423,7 +396,7 @@ Primary specification
 ---------------------
 - Rural injury accidents, 2007-2025
 - Maximum station distance: 20 km
-- Variables: f, fg and gust factor (fg / f where f >= 3 m/s)
+- Variables: mean wind (f), matched-time gust (fg), and temperature
 - Background controlled by station and season, pooled over 2007-2025
 - Exact Poisson 95% intervals; bins with fewer than 20 accidents marked sparse
 

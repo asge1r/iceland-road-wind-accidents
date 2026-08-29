@@ -11,7 +11,6 @@ import pandas as pd
 from src.weather.frequency import (
     FG_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
-    GUST_FACTOR_UPPER_BOUNDS,
     TEMPERATURE_LABELS,
     labels,
 )
@@ -35,22 +34,17 @@ PRIMARY_VARIABLE = "f"
 VARIABLE_LABELS = {
     "f": "Mean wind speed",
     "fg": "Wind gust at matched accident time",
-    "gust_factor": "Gust factor (fg / f; f ≥ 3 m/s)",
     "temperature": "Temperature",
 }
-VARIABLE_COLORS = {"f": "#287271", "fg": "#C7522A", "gust_factor": "#7B5EA7", "temperature": "#555555"}
+VARIABLE_COLORS = {"f": "#287271", "fg": "#C7522A", "temperature": "#555555"}
 VARIABLE_XLABELS = {
     "f": "Mean wind-speed interval, f (m/s)",
     "fg": "Wind-gust interval at matched time, fg (m/s)",
-    "gust_factor": "Gust factor, fg / f",
     "temperature": "Temperature interval (°C)",
 }
 COARSE_BINS = {
     "f": {value: value for value in labels(F_UPPER_BOUNDS)},
     "fg": {value: value for value in labels(FG_UPPER_BOUNDS)},
-    "gust_factor": {
-        value: value for value in labels(GUST_FACTOR_UPPER_BOUNDS)
-    },
     "temperature": {
         value: value for value in TEMPERATURE_LABELS
     },
@@ -58,7 +52,6 @@ COARSE_BINS = {
 BIN_ORDER = {
     "f": labels(F_UPPER_BOUNDS),
     "fg": labels(FG_UPPER_BOUNDS),
-    "gust_factor": labels(GUST_FACTOR_UPPER_BOUNDS),
     "temperature": TEMPERATURE_LABELS,
 }
 def prepare_details(path: Path) -> pd.DataFrame:
@@ -392,7 +385,6 @@ def write_thesis_outputs(
     thesis.to_csv(output_dir / "mean_wind_oe.csv", index=False)
     for variable, filename, interval_column in [
         ("fg", "gust_oe.csv", "gust_interval_ms"),
-        ("gust_factor", "gust_factor_oe.csv", "gust_factor_interval"),
         ("temperature", "temperature_oe.csv", "temperature_interval_c"),
     ]:
         secondary = primary[primary["variable"].eq(variable)].sort_values("bin_order")[

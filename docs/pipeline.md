@@ -77,9 +77,9 @@ This keeps the table short without making the file locations ambiguous.
 
 | Script | Input | Output | Description |
 |---|---|---|---|
-| `accidents/build.py` | *raw/accidents/*<br>`accidents_*.txt`<br>`vehicles_*.txt`<br>`road_links_2007_2025.txt`<br>`urban_boundaries_2020_2024.geojson` | *processed/accidents/*<br>`all.csv` | Joins the accident sources and retains the fields needed for selection and matching. |
+| `accidents/build.py` | *raw/accidents/*<br>`accidents_*.txt`<br>`vehicles_*.txt`<br>`road_links_2007_2025.csv`<br>`urban_boundaries_2020_2024.geojson` | *processed/accidents/*<br>`all.csv` | Joins the accident sources and retains the fields needed for selection and matching. |
 | `weather/clean.py` | *raw/weather/*<br>`weather_10min_raw.parquet` | *processed/weather/*<br>`weather.parquet` | Applies the fixed ten-minute weather-quality rules. |
-| `weather/frequency.py` | *processed/weather/*<br>`weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/weather/*<br>`frequency.csv` | Counts wind and temperature observations by station, season and interval. |
+| `weather/frequency.py` | *processed/weather/*<br>`weather.parquet` | *processed/weather/*<br>`frequency.csv` | Pools observations across all years and counts mean wind, gust, and temperature by station, season, and interval. |
 | `traffic/annual.py` | *raw/traffic/annual/*<br>`*.xls*` | *processed/traffic/*<br>`annual.csv` | Standardises road section, length, ADU, SDU and VDU. |
 | `accidents/match_weather.py` | *processed/accidents/*<br>`all.csv`<br>*processed/weather/*<br>`weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/accidents/*<br>`rural_injury.csv` | Independently matches wind and temperature within 20 km and five minutes; retains wind matches to 30 km for sensitivity. |
 | `accidents/case_control.py` | *processed/accidents/*<br>`rural_injury.csv`<br>*processed/weather/*<br>`weather.parquet` | *processed/accidents/*<br>`case_control.csv` | Selects same-hour, same-weekday control times in each accident month for wind and temperature. |
@@ -138,10 +138,9 @@ numerical results; figure scripts read those results and write images.
 | Script | Input | Output | Description |
 |---|---|---|---|
 | `analysis/build_oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_frequency.csv` | `reports/working/tables/oe_station_bins.csv` | Builds station-season observed and expected accident totals. |
-| `tables/oe.py` | `reports/working/tables/oe_station_bins.csv`<br>`analysis/accidents.csv`<br>`analysis/accident_conditions.csv` | `reports/main/tables/oe_results.csv`<br>`mean_wind_oe.csv`<br>`gust_oe.csv`<br>`gust_factor_oe.csv`<br>`temperature_oe.csv`<br>`weather_match_coverage.csv` | Calculates clustered-bootstrap intervals and exports the retained O/E tables. |
+| `tables/oe.py` | `reports/working/tables/oe_station_bins.csv`<br>`analysis/accidents.csv`<br>`analysis/accident_conditions.csv` | `reports/main/tables/oe_results.csv`<br>`mean_wind_oe.csv`<br>`gust_oe.csv`<br>`temperature_oe.csv`<br>`weather_match_coverage.csv` | Calculates clustered-bootstrap intervals and exports the retained O/E tables. |
 | `tables/radius_sensitivity.py` | `reports/main/tables/oe_results.csv` | `reports/main/tables/mean_wind_radius_sensitivity.csv` | Selects the primary upper mean-wind estimates under 10, 20 and 30 km station limits. |
-| `figures/oe.py` | `reports/main/tables/oe_results.csv` | `reports/main/figures/mean_wind_oe.png`<br>`gust_oe.png`<br>`gust_factor_oe.png`<br>`temperature_oe.png`<br>four subgroup figures | Draws the O/E figures from the completed result table. |
-| `figures/gust_factor.py` | `analysis/weather_frequency.csv` | `reports/main/figures/gust_factor_distribution.png` | Draws the descriptive gust-factor distribution. |
+| `figures/oe.py` | `reports/main/tables/oe_results.csv` | `reports/main/figures/mean_wind_oe.png`<br>`gust_oe.png`<br>`temperature_oe.png`<br>four subgroup figures | Draws the O/E figures from the completed result table. |
 | `tables/annual_traffic_quality.py` | `analysis/annual_traffic.csv` | `reports/main/tables/annual_traffic_quality.csv` | Audits nonpositive and unusual published seasonal traffic values. |
 | `tables/daily_traffic.py` | `analysis/daily_traffic.csv` | `reports/main/tables/daily_traffic_by_wind.csv`<br>`daily_traffic_period_summary.csv` | Calculates traffic relative to the typical day at the same counter. |
 | `tables/daily_wind_duration.py` | `analysis/daily_traffic.csv` | `reports/main/tables/daily_traffic_by_high_wind_duration.csv` | Compares traffic with the calendar expectation by hours with `f >= 15 m/s`. |
@@ -171,7 +170,6 @@ unavailable; the selection figures are always drawn.
 
 - Mean wind `f`: 0–5, 5–10, 10–15, 15–20, 20–25, and at least 25 m/s.
 - Matched-time wind gust `fg`: 0–5, 5–10, ..., 30–35, and at least 35 m/s.
-- Gust factor: `fg/f` where `f >= 3 m/s`; intervals are 0–1.2, 1.2–1.4, 1.4–1.6, 1.6–1.8, 1.8–2.0, and at least 2.0.
-- Temperature: below −9, 3°C intervals from −9 to 18, and at least 18°C.
+- Temperature: below −5, −5 to −3, −3 to −1, −1 to 1, 1 to 3, 3 to 5, and at least 5°C.
 - Winter: December–March; spring: April–May; summer: June–September; autumn: October–November.
 - Primary accident-weather match: nearest valid observation, within five minutes and within 20 km.

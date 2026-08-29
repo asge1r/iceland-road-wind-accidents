@@ -12,8 +12,6 @@ result is mean-wind O/E; gust and traffic figures are supporting results.
 - `figures/conditional_poisson_rate_ratio_by_wind.png`: main-text supporting
   road-section/year/traffic-period rate-ratio model.
 - `figures/gust_oe.png`: supporting matched-time wind-gust O/E result.
-- `figures/gust_factor_distribution.png`: descriptive distribution of `fg/f`
-  in clean weather observations.
 - `figures/mean_wind_by_season_oe.png` and
   `figures/mean_wind_by_vehicle_group_oe.png`: descriptive mean-wind subgroup
   figures; corresponding gust figures use the `gust_` prefix.

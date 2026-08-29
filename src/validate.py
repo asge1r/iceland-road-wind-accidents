@@ -80,7 +80,7 @@ def validation_values(
     conditions = pd.read_csv(conditions_path)
     required_condition_columns = {
         "id", "weather_station_id", "weather_station_dist_km",
-        "weather_time_difference_minutes", "f", "fg", "gust_factor",
+        "weather_time_difference_minutes", "f", "fg",
         "temp_station_id", "temp_distance_km", "temp_time_diff_min",
         "temperature_c", "solar_elevation_deg", "daylight_class",
     }
@@ -124,13 +124,12 @@ def validation_values(
     )
     temperature_result = pd.read_csv(temperature_path)
     expected_temperature_bins = [
-        "<-9", "-9--6", "-6--3", "-3-0", "0-3", "3-6",
-        "6-9", "9-12", "12-15", "15-18", ">=18",
+        "<-5", "-5--3", "-3--1", "-1-1", "1-3", "3-5", ">=5",
     ]
     require(
         temperature_result["temperature_interval_c"].tolist()
         == expected_temperature_bins,
-        "Temperature O/E table does not use the documented 3-degree bins",
+        "Temperature O/E table does not use the documented temperature bins",
     )
     require(
         int(temperature_result["observed_accidents"].sum()) == temperature_accidents

@@ -95,7 +95,6 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
     source["hour"] = source["timestamp"].dt.hour
     source["season"] = season_from_month(source["month"])
     source["traffic_period"] = traffic_period_from_month(source["month"])
-    source["gust_factor"] = np.where(source["f"].ge(3), source["fg"] / source["f"], np.nan)
     source["solar_elevation_deg"] = solar_elevation(
         source["timestamp"], source["lat"], source["lon"]
     )
@@ -112,7 +111,7 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
     ]
     conditions = [
         "id", "weather_station_id", "weather_station_dist_km",
-        "weather_time_difference_minutes", "f", "fg", "gust_factor",
+        "weather_time_difference_minutes", "f", "fg",
         "temp_station_id", "temp_distance_km", "temp_time_diff_min", "temperature_c",
         "solar_elevation_deg", "daylight_class",
     ]
@@ -134,25 +133,15 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
 
 def export_frequency(output: Path) -> tuple[int, list[str]]:
     source = read_table(ROOT / "weather/frequency.csv").copy()
-    source = source[source["variable"].isin(["f", "fg", "gust_factor", "temperature"])].copy()
+    source = source[source["variable"].isin(["f", "fg", "temperature"])].copy()
     source["unit"] = source["variable"].map(
-        {"f": "m/s", "fg": "m/s", "gust_factor": "ratio", "temperature": "deg C"}
+        {"f": "m/s", "fg": "m/s", "temperature": "deg C"}
     )
     group = ["station", "season", "variable", "bin_label", "unit"]
-    counts = source.groupby(group, as_index=False, observed=True).agg(
+    tidy = source.groupby(group, as_index=False, observed=True).agg(
         measurement_count=("measurement_count", "sum"),
         bin_lower=("bin_lower_value", "first"),
-    )
-    totals = source.groupby(
-        ["station", "year", "season", "variable", "unit"],
-        as_index=False,
-        observed=True,
-    ).agg(total_measurements_in_period=("total_measurements_in_period", "first"))
-    totals = totals.groupby(
-        ["station", "season", "variable", "unit"], as_index=False, observed=True
-    ).agg(total_measurements_in_period=("total_measurements_in_period", "sum"))
-    tidy = counts.merge(
-        totals, on=["station", "season", "variable", "unit"], how="left", validate="many_to_one"
+        total_measurements_in_period=("total_measurements_in_period", "first"),
     )
     tidy["frequency_pct"] = 100 * tidy["measurement_count"] / tidy["total_measurements_in_period"]
     columns = [
@@ -457,7 +446,7 @@ they can be opened and checked directly. Do not edit them by hand.
 
 - `accidents.csv`: the {period} rural injury-accident events, outcomes, locations, and calendar classifications.
 - `accident_conditions.csv`: independently matched wind and temperature plus estimated astronomical daylight at each accident time.
-- `weather_frequency.csv`: pooled 2007–2025 station-season wind and temperature counts. `f` and `fg` are in m/s; temperature is in degrees Celsius; `gust_factor` is the unitless ratio `fg / f` and is defined only when `f >= 3 m/s`.
+- `weather_frequency.csv`: pooled 2007–2025 station-season mean-wind, gust, and temperature counts. Wind values are in m/s; temperature is in degrees Celsius.
 - `case_control.csv`: accident times and same-hour, same-weekday control times for conditional logistic wind and temperature models.
 - `annual_traffic.csv`: annual road-section traffic exposure (ADU, SDU and VDU).
 - `conditional_poisson_input.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson model.

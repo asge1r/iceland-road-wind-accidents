@@ -145,7 +145,6 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     plot_primary(primary, args.output / "mean_wind_oe.png")
     plot_one_variable(primary, "fg", args.output / "gust_oe.png")
-    plot_one_variable(primary, "gust_factor", args.output / "gust_factor_oe.png")
     plot_one_variable(primary, "temperature", args.output / "temperature_oe.png")
     plot_mean_wind_strata(
         results,
