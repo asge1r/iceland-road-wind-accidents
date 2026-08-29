@@ -23,7 +23,7 @@ remain local and are excluded by `.gitignore`.
 - `docs/`: source inventory, variables and fixed analysis rules.
 - `archive/`: local diagnostics and superseded material; not version controlled.
 - `src/`: documented preparation, matching and analysis programs.
-- `reports/main/`: supervisor-ready and thesis-ready outputs.
+- `reports/main/`: retained tables and figures used in the thesis.
 - `reports/thesis/`: the current English thesis draft.
 
 ## Working data
