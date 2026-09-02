@@ -25,10 +25,11 @@ not committed because it is derived from authorised local data deliveries.
 |---|---|---|
 | `analysis/accidents.csv` | One rural injury accident | `id`, time, coordinates, outcome fields, road section, hour, weekday, meteorological season, and VDU/SDU/VHDU traffic period. |
 | `analysis/accident_conditions.csv` | One rural injury accident | Independent wind and temperature matches, match distances and time differences, solar elevation, and estimated daylight class. |
-| `analysis/weather_frequency.csv` | Station, season, variable, and interval | Tidy wind and temperature counts pooled across 2007--2025. `unit` distinguishes m/s, degrees Celsius, and the unitless gust factor. |
+| `analysis/weather_frequency.csv` | Station, season, variable, and interval | Tidy wind and temperature counts pooled across 2007--2025. `unit` distinguishes m/s and degrees Celsius. |
 | `analysis/case_control.csv` | Accident or matched control time | Same-station, same-hour, same-weekday wind and temperature samples within month and year. |
 | `analysis/annual_traffic.csv` | Road section and year | road section, length, ADU, SDU, and VDU. |
 | `analysis/conditional_poisson_input.csv` | Road section, year, traffic period, and mean-wind interval | Positive-exposure rows from strata with at least one accident. All-zero accident strata do not contribute information to the conditional Poisson model. |
+| `analysis/seasonal_poisson_input.csv` | Road section, year, meteorological season, and mean-wind interval | Year-specific estimated vehicle-kilometres and matched injury-accident counts used by the four seasonal models. |
 | `analysis/traffic_exposure_full.csv` | Traffic period and mean-wind interval | 18 rows containing exposure from every eligible road section and the associated accidents for the descriptive accident-per-vehicle-km table. Its exposure universe is intentionally broader than the conditional-model input. |
 | `analysis/selection_summary.csv` | Dataset-selection step | Eight counts used to draw the accident and traffic selection figures. |
 | `analysis/daily_traffic.csv` | Counter site and date | Daily count, wind summaries, and full-day observation counts in six mean-wind intervals. |

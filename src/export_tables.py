@@ -95,7 +95,6 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
     source["hour"] = source["timestamp"].dt.hour
     source["season"] = season_from_month(source["month"])
     source["traffic_period"] = traffic_period_from_month(source["month"])
-    source["gust_factor"] = np.where(source["f"].ge(3), source["fg"] / source["f"], np.nan)
     source["solar_elevation_deg"] = solar_elevation(
         source["timestamp"], source["lat"], source["lon"]
     )
@@ -112,7 +111,7 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
     ]
     conditions = [
         "id", "weather_station_id", "weather_station_dist_km",
-        "weather_time_difference_minutes", "f", "fg", "gust_factor",
+        "weather_time_difference_minutes", "f", "fg",
         "temp_station_id", "temp_distance_km", "temp_time_diff_min", "temperature_c",
         "solar_elevation_deg", "daylight_class",
     ]
@@ -134,9 +133,9 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
 
 def export_frequency(output: Path) -> tuple[int, list[str]]:
     source = read_table(ROOT / "weather/frequency.csv").copy()
-    source = source[source["variable"].isin(["f", "fg", "gust_factor", "temperature"])].copy()
+    source = source[source["variable"].isin(["f", "fg", "temperature"])].copy()
     source["unit"] = source["variable"].map(
-        {"f": "m/s", "fg": "m/s", "gust_factor": "ratio", "temperature": "deg C"}
+        {"f": "m/s", "fg": "m/s", "temperature": "deg C"}
     )
     group = ["station", "season", "variable", "bin_label", "unit"]
     counts = source.groupby(group, as_index=False, observed=True).agg(
@@ -144,13 +143,8 @@ def export_frequency(output: Path) -> tuple[int, list[str]]:
         bin_lower=("bin_lower_value", "first"),
     )
     totals = source.groupby(
-        ["station", "year", "season", "variable", "unit"],
-        as_index=False,
-        observed=True,
-    ).agg(total_measurements_in_period=("total_measurements_in_period", "first"))
-    totals = totals.groupby(
         ["station", "season", "variable", "unit"], as_index=False, observed=True
-    ).agg(total_measurements_in_period=("total_measurements_in_period", "sum"))
+    ).agg(total_measurements_in_period=("total_measurements_in_period", "first"))
     tidy = counts.merge(
         totals, on=["station", "season", "variable", "unit"], how="left", validate="many_to_one"
     )
@@ -233,6 +227,11 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
         "fg", "vehicle_group",
     ]
     accidents = read_table(accident_path)[accident_columns].copy()
+    severity = read_table(ROOT / "accidents/rural_injury.csv")[["id", "meidsli"]]
+    if severity["id"].duplicated().any():
+        raise ValueError("Prepared accident severity is not unique by id")
+    accidents = accidents.merge(severity, on="id", how="left", validate="one_to_one")
+    accidents["meidsli"] = pd.to_numeric(accidents["meidsli"], errors="raise")
     accidents["road_section"] = accidents["road_section"].astype("string").str.strip().str.lower()
     accidents = accidents[
         accidents["weather_time_difference_minutes"].le(5)
@@ -261,6 +260,7 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
     count_keys = ["year", "road_section", "traffic_period", "wind_bin"]
     counts = accidents.groupby(count_keys, as_index=False).agg(
         injury_accidents=("id", "nunique"),
+        serious_or_fatal_accidents=("meidsli", lambda values: values.le(2).sum()),
         one_vehicle_accidents=("vehicle_group", lambda values: values.eq("1 vehicle").sum()),
         multiple_vehicle_accidents=("vehicle_group", lambda values: values.eq("2 or more vehicles").sum()),
     )
@@ -278,13 +278,17 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
         validate="one_to_one",
     )
     model = model.drop(columns="wind_bin")
-    for column in ["injury_accidents", "one_vehicle_accidents", "multiple_vehicle_accidents"]:
+    for column in [
+        "injury_accidents", "serious_or_fatal_accidents",
+        "one_vehicle_accidents", "multiple_vehicle_accidents",
+    ]:
         model[column] = model[column].fillna(0).astype(int)
     model = model.rename(columns={"bin_label": "wind_bin", "bin_lower_ms": "wind_bin_lower_ms"})[
         [
             "year", "road_section", "traffic_period", "weather_station_id", "wind_bin",
             "wind_bin_lower_ms", "estimated_vehicle_km", "injury_accidents",
-            "one_vehicle_accidents", "multiple_vehicle_accidents",
+            "serious_or_fatal_accidents", "one_vehicle_accidents",
+            "multiple_vehicle_accidents",
         ]
     ].sort_values(["year", "road_section", "traffic_period", "wind_bin_lower_ms"])
     model = model[model["estimated_vehicle_km"].gt(0)].copy()
@@ -296,9 +300,13 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
     )
     period_counts = accidents.groupby(["traffic_period", "wind_bin"], as_index=False).agg(
         injury_accidents=("id", "nunique"),
+        serious_or_fatal_accidents=("meidsli", lambda values: values.le(2).sum()),
     )
     summary = summary.merge(period_counts, on=["traffic_period", "wind_bin"], how="left")
     summary["injury_accidents"] = summary["injury_accidents"].fillna(0).astype(int)
+    summary["serious_or_fatal_accidents"] = (
+        summary["serious_or_fatal_accidents"].fillna(0).astype(int)
+    )
     model_count = write_csv(model, output / "conditional_poisson_input.csv")
     summary_count = write_csv(
         summary.sort_values(["traffic_period", "wind_bin_lower_ms"]),
@@ -314,6 +322,116 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
             "Vehicle-kilometres and injury accidents by traffic period and wind interval.",
         ),
     ]
+
+
+def export_season_rate_input(output: Path) -> tuple[str, int, list[str], str]:
+    """Write a compact year-specific seasonal mean-wind rate-model input."""
+    panel_columns = [
+        "year", "road_section", "traffic_period", "weather_station_id",
+        "section_length_km", "traffic_reference_daily_volume", "variable",
+        "wind_frequency_available",
+    ]
+    panel = read_table(ROOT / "traffic/road_period.csv")[panel_columns]
+    panel = panel[
+        panel["variable"].eq("f_5m")
+        & panel["wind_frequency_available"].fillna(False)
+        & panel["weather_station_id"].notna()
+        & panel["section_length_km"].gt(0)
+        & panel["traffic_reference_daily_volume"].gt(0)
+    ].drop_duplicates().copy()
+    period_seasons = pd.DataFrame(
+        [("VDU", "Winter"), ("VHDU", "Spring"), ("SDU", "Summer"), ("VHDU", "Fall")],
+        columns=["traffic_period", "season"],
+    )
+    panel = panel.merge(period_seasons, on="traffic_period", how="inner", validate="many_to_many")
+    panel["road_section"] = panel["road_section"].astype("string").str.strip().str.lower()
+    panel["weather_station_id"] = pd.to_numeric(panel["weather_station_id"], errors="raise").astype(int)
+
+    frequency = read_table(ROOT / "weather/traffic_frequency.csv")
+    required_frequency = {
+        "station", "year", "season", "variable", "bin_label",
+        "bin_lower_value", "measurement_count", "total_measurements_in_period",
+    }
+    missing = required_frequency - set(frequency)
+    if missing:
+        raise ValueError(f"Seasonal weather frequency is missing columns: {sorted(missing)}")
+    frequency = frequency[frequency["variable"].eq("f")].rename(
+        columns={"station": "weather_station_id", "bin_lower_value": "wind_bin_lower_ms"}
+    )
+    frequency["frequency_fraction"] = (
+        frequency["measurement_count"] / frequency["total_measurements_in_period"]
+    )
+    exposure = panel.merge(
+        frequency[
+            ["weather_station_id", "year", "season", "bin_label",
+             "wind_bin_lower_ms", "frequency_fraction"]
+        ],
+        on=["weather_station_id", "year", "season"],
+        how="inner", validate="many_to_many",
+    )
+    season_months = {
+        "Winter": [12, 1, 2, 3], "Spring": [4, 5],
+        "Summer": [6, 7, 8, 9], "Fall": [10, 11],
+    }
+    exposure["season_days"] = [
+        sum(calendar.monthrange(int(year), month)[1] for month in season_months[season])
+        for year, season in zip(exposure["year"], exposure["season"], strict=True)
+    ]
+    exposure["estimated_vehicle_km"] = (
+        exposure["traffic_reference_daily_volume"]
+        * exposure["section_length_km"]
+        * exposure["season_days"]
+        * exposure["frequency_fraction"]
+    )
+
+    rate = read_table(ROOT / "accidents/rate.csv")
+    severity = read_table(ROOT / "accidents/rural_injury.csv")[["id", "meidsli"]]
+    rate = rate.merge(severity, on="id", how="left", validate="one_to_one")
+    rate["timestamp"] = pd.to_datetime(rate["timestamp"], errors="raise")
+    rate["season"] = rate["timestamp"].dt.month.map(
+        {12: "Winter", 1: "Winter", 2: "Winter", 3: "Winter", 4: "Spring",
+         5: "Spring", 6: "Summer", 7: "Summer", 8: "Summer", 9: "Summer",
+         10: "Fall", 11: "Fall"}
+    )
+    rate["road_section"] = rate["road_section"].astype("string").str.strip().str.lower()
+    rate["wind_bin"] = pd.cut(
+        rate["f"], [0, 5, 10, 15, 20, 25, np.inf],
+        labels=["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"],
+        right=False, include_lowest=True,
+    ).astype("string")
+    counts = rate.groupby(
+        ["year", "road_section", "season", "wind_bin"],
+        observed=True, as_index=False,
+    ).agg(
+        injury_accidents=("id", "nunique"),
+        serious_or_fatal_accidents=("meidsli", lambda values: values.le(2).sum()),
+    )
+    strata = counts[["year", "road_section", "season"]].drop_duplicates()
+    model = exposure.merge(
+        strata, on=["year", "road_section", "season"],
+        how="inner", validate="many_to_one",
+    ).merge(
+        counts,
+        left_on=["year", "road_section", "season", "bin_label"],
+        right_on=["year", "road_section", "season", "wind_bin"],
+        how="left", validate="one_to_one",
+    )
+    model = model.drop(columns="wind_bin").rename(columns={"bin_label": "wind_bin"})
+    for column in ["injury_accidents", "serious_or_fatal_accidents"]:
+        model[column] = model[column].fillna(0).astype(int)
+    columns = [
+        "year", "road_section", "season", "weather_station_id", "wind_bin",
+        "wind_bin_lower_ms", "estimated_vehicle_km", "injury_accidents",
+        "serious_or_fatal_accidents",
+    ]
+    model = model[columns].sort_values(
+        ["year", "road_section", "season", "wind_bin_lower_ms"]
+    )
+    count = write_csv(model, output / "seasonal_poisson_input.csv")
+    return (
+        "seasonal_poisson_input.csv", count, columns,
+        "Year-specific road-section seasonal mean-wind exposure and matched accidents.",
+    )
 
 
 def export_selection_summary(output: Path) -> tuple[int, list[str]]:
@@ -377,6 +495,10 @@ def export_daily_traffic(
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
+        "active_07_24_observation_count", "f_07_24_bin_0_5_count",
+        "f_07_24_bin_5_10_count", "f_07_24_bin_10_15_count",
+        "f_07_24_bin_15_20_count", "f_07_24_bin_20_25_count",
+        "f_07_24_bin_ge25_count",
     ]
     text_columns = [column for column in text_columns if column in source]
     readable = source[text_columns].sort_values(["counter_site_id", "date"])
@@ -386,6 +508,10 @@ def export_daily_traffic(
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
+        "active_07_24_observation_count", "f_07_24_bin_0_5_count",
+        "f_07_24_bin_5_10_count", "f_07_24_bin_10_15_count",
+        "f_07_24_bin_15_20_count", "f_07_24_bin_20_25_count",
+        "f_07_24_bin_ge25_count",
     ]
     csv_columns = [column for column in csv_columns if column in readable]
     daily = readable[csv_columns].rename(
@@ -457,10 +583,11 @@ they can be opened and checked directly. Do not edit them by hand.
 
 - `accidents.csv`: the {period} rural injury-accident events, outcomes, locations, and calendar classifications.
 - `accident_conditions.csv`: independently matched wind and temperature plus estimated astronomical daylight at each accident time.
-- `weather_frequency.csv`: pooled 2007–2025 station-season wind and temperature counts. `f` and `fg` are in m/s; temperature is in degrees Celsius; `gust_factor` is the unitless ratio `fg / f` and is defined only when `f >= 3 m/s`.
+- `weather_frequency.csv`: pooled 2007–2025 station-season wind and temperature counts. `f` and `fg` are in m/s and temperature is in degrees Celsius.
 - `case_control.csv`: accident times and same-hour, same-weekday control times for conditional logistic wind and temperature models.
 - `annual_traffic.csv`: annual road-section traffic exposure (ADU, SDU and VDU).
 - `conditional_poisson_input.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson model.
+- `seasonal_poisson_input.csv`: compact road-section/year/season/wind-bin input for season-specific mean-wind models.
 - `traffic_exposure_full.csv`: 18 aggregated rows used for the descriptive accident-per-vehicle-km table.
 - `selection_summary.csv`: counts for the accident and traffic selection figures.
 - `daily_traffic.csv`: one daily counter total with wind summaries and full-day observation counts in six mean-wind intervals, 2019–2024.
@@ -492,6 +619,7 @@ def main() -> None:
         records, columns = exporter(args.output)
         entries.append((filename, records, columns, description))
     entries.extend(export_rate_tables(args.output))
+    entries.append(export_season_rate_input(args.output))
     records, columns = export_selection_summary(args.output)
     entries.append(("selection_summary.csv", records, columns, "Counts used in data-selection figures."))
     daily_entries = export_daily_traffic(args.output)

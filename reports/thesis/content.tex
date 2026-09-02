@@ -169,6 +169,8 @@ script paths are relative to \path{src/} and data paths are relative to
 shown with a file pattern. Within a cell, each shared directory is printed once
 and the following filenames belong to that directory.
 
+\input{generated_pipeline_preparation.tex}
+\iffalse
 \begin{table}[H]
 \centering
 \tiny
@@ -245,6 +247,7 @@ Exports the clean CSV inputs used by analysis scripts. \\
 \bottomrule
 \end{tabularx}
 \end{table}
+\fi
 
 Ordinary analysis begins only after the compact CSV layer has been exported.
 Table~\ref{tab:analysis-pipeline} lists the retained analysis-to-result steps;
@@ -252,6 +255,8 @@ none reads from \path{raw/} or \path{processed/}. Input paths beginning with
 \path{analysis/} are relative to \path{data/}; result paths are relative to
 \path{reports/}.
 
+\input{generated_pipeline_analysis.tex}
+\iffalse
 \begin{table}[p]
 \centering
 \tiny
@@ -269,7 +274,7 @@ Script & Input file(s) & Output file(s) & Description \\
 Builds station--season observed and expected counts. \\ \grayhline
 \path{tables/oe.py} &
 \path{working/tables/oe_station_bins.csv}; \path{analysis/accidents.csv}; \path{analysis/accident_conditions.csv} &
-\emph{\path{main/tables/}} \path{oe_results.csv}; \path{mean_wind_oe.csv}; \path{gust_oe.csv}; \path{gust_factor_oe.csv}; \path{temperature_oe.csv} &
+\emph{\path{main/tables/}} \path{oe_results.csv}; \path{mean_wind_oe.csv}; \path{gust_oe.csv}; \path{temperature_oe.csv} &
 Calculates clustered-bootstrap O/E results. \\ \grayhline
 \path{tables/radius_sensitivity.py} &
 \path{main/tables/oe_results.csv} &
@@ -277,7 +282,7 @@ Calculates clustered-bootstrap O/E results. \\ \grayhline
 Selects the 10, 20, and 30 km primary sensitivity. \\ \grayhline
 \path{figures/oe.py} &
 \path{main/tables/oe_results.csv} &
-\emph{\path{main/figures/}} \path{mean_wind_oe.png}; \path{gust_oe.png}; \path{gust_factor_oe.png}; \path{temperature_oe.png}; subgroup figures &
+\emph{\path{main/figures/}} \path{mean_wind_oe.png}; \path{gust_oe.png}; \path{temperature_oe.png}; subgroup figures &
 Draws completed O/E tables. \\ \grayhline
 \path{tables/conditions.py} &
 \emph{\path{analysis/}} \path{accidents.csv}; \path{accident_conditions.csv} &
@@ -338,6 +343,7 @@ Consolidates retained traffic sensitivities. \\
 \bottomrule
 \end{tabularx}
 \end{table}
+\fi
 \section{Accident Data}
 
 The accident source covers 2007--2025 \cite{samgongustofaAccidents}. The study
@@ -445,16 +451,6 @@ rules.}
 \label{fig:weather-selection}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{gust_factor_distribution.png}
-\caption{Distribution of gust factor ($fg/f$) in the cleaned weather
-observations. The ratio is calculated only where the 10-minute mean wind speed
-is at least 3 m/s, so that values from near-calm conditions do not dominate the
-distribution. Each eligible 10-minute observation has equal weight.}
-\label{fig:weather-gust-factor-frequency}
-\end{figure}
-
 \section{Traffic Data}
 
 Two traffic sources are used for different purposes.
@@ -537,10 +533,10 @@ study years. The expected count in a mean-wind interval is therefore based on
 how often that interval occurred locally, rather than on a national wind average.
 
 Temperature uses the same station-and-season O/E structure with independently
-matched temperature stations. Three-degree intervals are used from
--9 to 18\(^{\circ}\)C, with open tails below -9\(^{\circ}\)C and at least
-18\(^{\circ}\)C. The equal-width interior intervals show the shape around
-freezing while retaining 44 and 51 accidents in the two tails.
+matched temperature stations. The intervals are below -5, -5 to -3, -3 to
+-1, -1 to 1, 1 to 3, 3 to 5, and at least 5\(^{\circ}\)C. These narrow
+intervals around freezing follow the exploratory temperature specification;
+the open tails retain every valid match.
 
 Let \(g\) identify a weather station and meteorological season.
 Let \(A_{jg}\) be the number of accidents in mean-wind interval \(j\) and group \(g\),
@@ -652,6 +648,14 @@ The exponentiated coefficient \(\exp(\beta_j)\) is the estimated rate ratio
 relative to 0--5 m/s within otherwise identical road-section--year--period
 strata.
 
+The model is fitted separately for all injury accidents and for serious or
+fatal accidents. A seasonal extension uses year-specific station frequencies
+for winter, spring, summer, and autumn. Because individual 5 m/s upper bins are
+sparse within seasons, that extension uses 0--10, 10--15, and at least 15 m/s.
+Winter and summer use published VDU and SDU, respectively; spring and autumn
+use the same derived VHDU daily volume but retain separate weather frequencies
+and accident counts.
+
 The descriptive rate and conditional model use different exposure universes.
 The descriptive rate sums vehicle-kilometres over every eligible road section.
 The conditional model retains only road-section--year--period strata containing
@@ -740,6 +744,11 @@ allocation assumes uniform traffic across valid observation times; it is
 estimated within-day exposure, not observed hourly traffic. Accident and
 counter weather stations are selected independently and can differ. The
 full-day-mean model is retained only as an ecological appendix sensitivity.
+The main allocation uses all sufficiently complete 24-hour weather records. A
+separate sensitivity assumes all daily traffic occurs from 07:00 to midnight,
+uses only weather observations and accidents in that interval, and is reported
+only to show the effect of that unverified assumption. Both versions are also
+fitted for the serious-or-fatal outcome where counts permit.
 
 \chapter{Results}
 
@@ -852,11 +861,12 @@ Radius & Primary & Mean wind & Observed & Expected & O/E (95\% interval) \\
 Temperature remains exploratory. Valid temperature was available for 5,707
 accidents (88.98\%). Coverage by year ranges from 78.86\% to 97.37\%, so no
 temperature value is imputed. After standardisation by temperature station and
-season, accidents were relatively uncommon below -9\(^{\circ}\)C (44 observed,
-81.1 expected; O/E 0.54), while occurrence rose from 12--15\(^{\circ}\)C
-(O/E 1.41) to 15--18\(^{\circ}\)C (O/E 2.17) and at least
-18\(^{\circ}\)C (O/E 2.25). These associations may still reflect travel behaviour,
-daylight, precipitation, or road conditions and are not interpreted as a
+season, the largest departure was in the 3--5\(^{\circ}\)C interval (464
+observed, 691.2 expected; O/E 0.67, station-bootstrap 95\% CI 0.61--0.74).
+The -1 to 1\(^{\circ}\)C interval was elevated (769 observed, 609.0 expected;
+O/E 1.26, 95\% CI 1.17--1.35), whereas the open warm tail was close to the
+seasonal expectation (O/E 1.01). The non-monotonic pattern may reflect travel
+behaviour, precipitation, or road conditions and is not interpreted as a
 causal temperature effect or as an additional thesis conclusion.
 
 \section{Matched-Time Sensitivity Analysis}
@@ -897,8 +907,42 @@ frequency; they are not directly observed 10-minute vehicle exposure.
 \caption{Estimated rural injury-accident rate ratios relative to 0--5 m/s.
 The model compares wind intervals within the same road section, year, and
 traffic period. Traffic is allocated within a period in proportion to local
-10-minute wind frequency. Labels show observed accidents.}
+10-minute wind frequency. Labels show observed accidents and error bars are
+95\% confidence intervals.}
 \label{fig:traffic-rate-ratio}
+\end{figure}
+
+The serious-or-fatal model retains 1,054 accidents. Relative to 0--5 m/s, its
+rate ratio is 1.90 (95\% CI 1.38--2.60) at 15--20 m/s and 2.17
+(1.11--4.25) at 20--25 m/s. The at-least-25 m/s estimate is 4.70
+(1.69--13.08), but contains only four accidents and is correspondingly
+imprecise.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{conditional_poisson_rate_ratio_serious_fatal_by_wind.png}
+\caption{Estimated serious-or-fatal rural accident rate ratios by mean wind.
+The exposure and within-road-section--year--traffic-period comparison match
+Figure~\ref{fig:traffic-rate-ratio}; labels show observed accidents and error
+bars are 95\% confidence intervals.}
+\label{fig:traffic-rate-serious}
+\end{figure}
+
+Using coarse seasonal intervals, the rate ratio for at least 15 versus 0--10
+m/s is 1.45 (95\% CI 1.19--1.76) in winter, 2.85 (1.98--4.11) in spring,
+2.12 (1.55--2.90) in summer, and 1.38 (1.02--1.87) in autumn. The
+corresponding upper-category counts are 122, 34, 44, and 47. The pattern is
+therefore not confined to winter, although spring and autumn use derived VHDU
+traffic and should not be compared as precise seasonal rankings.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{seasonal_poisson_rate_ratio_by_wind.png}
+\caption{Estimated rural injury-accident rate ratios by season. Traffic and
+weather frequency are aligned by road section, year, and season. Coarse wind
+intervals avoid unstable one-event upper bins; labels show observed accidents
+and error bars are 95\% confidence intervals.}
+\label{fig:traffic-rate-season}
 \end{figure}
 
 Observed traffic decreases as strong wind persists. Relative to the calendar
@@ -918,10 +962,17 @@ counter-clustered 95\% confidence intervals; labels show counter-days.}
 
 The allocated daily-counter model retains 760 accidents in 488 informative
 counter--year strata. Relative to 0--10 m/s, the rate ratio is 1.77 (95\% CI
-1.44--2.17) at 10--15 m/s and 3.38 (2.46--4.62) at at least 15 m/s. The latter
+1.44--2.17) at 10--15 m/s and 3.38 (2.46--4.62) for at least 15 m/s. The latter
 category contains 46 accidents. The denominator starts from observed daily
 traffic, but its allocation within the day is estimated from the counter
 station's ten-minute wind frequency; it is not observed hourly traffic.
+For serious or fatal accidents, the corresponding estimates are 1.82
+(1.17--2.82; 25 accidents) at 10--15 m/s and 4.16 (2.25--7.69; 12
+accidents) for at least 15 m/s. Restricting the allocation and accident times to
+07:00--24:00 changes the all-injury upper estimate only modestly, from 3.38
+(2.46--4.62; 46 accidents) to 3.50 (2.53--4.83; 44 accidents). This stability
+does not validate the assumed time distribution; it only shows that the
+headline direction is not created by including midnight--07:00 weather.
 
 \begin{figure}[H]
 \centering
@@ -1026,10 +1077,10 @@ condition at the accident time. Presenting either comparison now would be
 misleading.
 
 The traffic data cannot supply the missing hourly denominator. Annual traffic
-is seasonal, while the counter data contain one total for an entire day. A
-24-hour count cannot be divided among clock hours or daylight states without
-an unsupported assumption. Consequently, no traffic-adjusted hour or daylight
-O/E curve is reported.
+is seasonal, while the counter data contain one total for an entire day. The
+07:00--24:00 uniform allocation is therefore used only as a sensitivity and
+not as an estimated hourly traffic profile. No traffic-adjusted hour or
+daylight O/E curve is reported.
 
 The appendix is organised by purpose. Accident-characteristic figures describe
 the selected study population. The gust result and mean-wind subgroup figures
@@ -1063,6 +1114,12 @@ again gives rate ratios above one. That model starts from measured 24-hour
 traffic but estimates its within-day distribution from wind frequency. It
 covers 760 accidents near selected counters and is therefore supporting rather
 than nationally representative evidence.
+
+The serious-or-fatal and four-season models point in the same direction as the
+all-injury result. They broaden the evidence without changing the primary
+outcome or exposure definition. Sparse extreme-wind counts, especially the
+four serious-or-fatal accidents in the at-least-25 m/s interval, preclude
+precise comparison of effect sizes across outcomes or seasons.
 
 The O/E and traffic-model estimates are not competing versions of the same
 number. O/E compares accident occurrence with the amount of time each wind
@@ -1114,6 +1171,9 @@ research question, method, and result clear.
   ten-minute observations. This is estimated exposure, not observed hourly
   traffic; the accident and counter weather stations can also differ, and the
   accident vehicle need not have passed the assigned counter.
+  \item The 07:00--24:00 daily sensitivity assumes zero traffic outside that
+  interval and uniform traffic within it. This is deliberately an assumption
+  check, not a reconstruction of hourly traffic.
   \item Estimated rates are restricted to rural injury accidents on linked
   road sections. They should not be compared directly with broad national or
   international accident rates unless the outcome and vehicle-kilometre

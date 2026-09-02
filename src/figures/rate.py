@@ -20,23 +20,42 @@ DEFAULT_OUTPUT = Path("reports/main/figures/conditional_poisson_rate_ratio_by_wi
 
 def title(data: pd.DataFrame) -> str:
     period = str(data["analysis_traffic_period"].iloc[0])
-    vehicle = str(data["analysis_vehicle_group"].iloc[0])
+    outcome_column = "analysis_outcome" if "analysis_outcome" in data else "analysis_vehicle_group"
+    vehicle = str(data[outcome_column].iloc[0])
     scope: list[str] = []
     if period == "official":
         scope.append("official VDU + SDU periods")
     elif period != "all":
         scope.append(period.upper())
-    if vehicle != "all":
-        scope.append("one vehicle" if vehicle == "one" else "two or more vehicles")
+    if vehicle not in {"all", "serious-fatal"}:
+        names = {
+            "serious-fatal": "serious or fatal",
+            "one": "one vehicle",
+            "two-plus": "two or more vehicles",
+        }
+        scope.append(names[vehicle])
     suffix = "" if not scope else " (" + ", ".join(scope) + ")"
-    return "Estimated rural injury-accident rate ratio by mean wind speed" + suffix
+    base = (
+        "Estimated serious/fatal rural accident rate ratio by mean wind speed"
+        if vehicle == "serious-fatal"
+        else "Estimated rural injury-accident rate ratio by mean wind speed"
+    )
+    return base + suffix
 
 
 def plot(result: pd.DataFrame, path: Path, figure_title: str) -> None:
     x = np.arange(len(result))
     values = result["time_proportional_rate_ratio"].to_numpy(float)
+    low = result["time_proportional_ci_95_low"].fillna(result["time_proportional_rate_ratio"]).to_numpy(float)
+    high = result["time_proportional_ci_95_high"].fillna(
+        result["time_proportional_rate_ratio"]
+    ).to_numpy(float)
     figure, axis = plt.subplots(figsize=(11.4, 6.6), constrained_layout=True)
     bars = axis.bar(x, values, color="#287271", width=0.72)
+    axis.errorbar(
+        x, values, yerr=np.vstack([values - low, high - values]),
+        fmt="none", ecolor="#202020", capsize=4,
+    )
     axis.axhline(1, color="#202020", linestyle="--", linewidth=1.1)
     axis.set_xticks(x, interval_labels(result["bin_label"]))
     axis.set_xlabel("Mean wind-speed interval, f (m/s)")
@@ -44,10 +63,15 @@ def plot(result: pd.DataFrame, path: Path, figure_title: str) -> None:
     axis.set_title(figure_title)
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)
-    top = max(1.2, float(values.max()) * 1.22)
+    top = max(1.2, float(high.max()) * 1.08)
     axis.set_ylim(0, top)
     for bar, row in zip(bars, result.itertuples(index=False), strict=True):
-        axis.text(bar.get_x() + bar.get_width() / 2, max(bar.get_height() * 0.5, top * 0.06), f"n={row.observed_accidents}", ha="center", va="center", fontsize=9, color="white")
+        axis.text(
+            bar.get_x() + bar.get_width() / 2,
+            max(bar.get_height() * 0.5, top * 0.06),
+            f"n={row.observed_accidents}", ha="center", va="center",
+            fontsize=9, color="white",
+        )
     path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(path, dpi=240)
     plt.close(figure)

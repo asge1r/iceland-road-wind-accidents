@@ -40,7 +40,11 @@ def main() -> None:
     axis.set_xticks(x, interval_labels(data["wind_bin"]))
     axis.set_xlabel("Mean wind at the matched accident time, f (m/s)")
     axis.set_ylabel("Within-counter-year rate ratio versus 0–10 m/s")
-    axis.set_title("Accident rate with observed daily traffic allocated by wind time")
+    outcome = str(data.get("analysis_outcome", pd.Series(["injury"])).iloc[0])
+    window = str(data.get("analysis_time_window", pd.Series(["full-day"])).iloc[0])
+    outcome_text = "Serious/fatal accident rate" if outcome == "serious-fatal" else "Injury-accident rate"
+    window_text = "07:00–24:00 allocation" if window == "07-24" else "full-day allocation"
+    axis.set_title(f"{outcome_text} with observed daily traffic ({window_text})")
     axis.set_ylim(0, float(high.max()) * 1.14)
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)

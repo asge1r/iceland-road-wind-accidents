@@ -216,6 +216,7 @@ def aggregate_daily_weather(
         f = table.column("f").to_numpy()[keep].astype(float)
         fg = table.column("fg").to_numpy()[keep].astype(float)
         daytime = (hour[keep] >= 10) & (hour[keep] < 22)
+        assumed_active = hour[keep] >= 7
         selected = pd.DataFrame(
             {
                 "weather_station_id": station[keep].astype(int),
@@ -226,15 +227,22 @@ def aggregate_daily_weather(
                 "f_daytime_sum": np.where(daytime, f, 0.0),
                 "fg_daytime_sum": np.where(daytime, fg, 0.0),
                 "daytime_observation_count": daytime.astype(int),
+                "active_07_24_observation_count": assumed_active.astype(int),
                 "f_full_bin_0_5_count": (f < 5).astype(int),
                 "f_full_bin_5_10_count": ((f >= 5) & (f < 10)).astype(int),
                 "f_full_bin_10_15_count": ((f >= 10) & (f < 15)).astype(int),
                 "f_full_bin_15_20_count": ((f >= 15) & (f < 20)).astype(int),
                 "f_full_bin_20_25_count": ((f >= 20) & (f < 25)).astype(int),
                 "f_full_bin_ge25_count": (f >= 25).astype(int),
+                "f_07_24_bin_0_5_count": (assumed_active & (f < 5)).astype(int),
+                "f_07_24_bin_5_10_count": (assumed_active & (f >= 5) & (f < 10)).astype(int),
+                "f_07_24_bin_10_15_count": (assumed_active & (f >= 10) & (f < 15)).astype(int),
+                "f_07_24_bin_15_20_count": (assumed_active & (f >= 15) & (f < 20)).astype(int),
+                "f_07_24_bin_20_25_count": (assumed_active & (f >= 20) & (f < 25)).astype(int),
+                "f_07_24_bin_ge25_count": (assumed_active & (f >= 25)).astype(int),
             }
         )
-        bin_columns = [column for column in selected if column.startswith("f_full_bin_")]
+        bin_columns = [column for column in selected if "_bin_" in column]
         aggregations = {
             "f_full_sum": ("f_full_sum", "sum"),
             "fg_full_sum": ("fg_full_sum", "sum"),
@@ -242,6 +250,7 @@ def aggregate_daily_weather(
             "f_daytime_sum": ("f_daytime_sum", "sum"),
             "fg_daytime_sum": ("fg_daytime_sum", "sum"),
             "daytime_observation_count": ("daytime_observation_count", "sum"),
+            "active_07_24_observation_count": ("active_07_24_observation_count", "sum"),
             **{column: (column, "sum") for column in bin_columns},
         }
         partials.append(

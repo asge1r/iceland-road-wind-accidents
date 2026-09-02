@@ -26,10 +26,7 @@ interpreted as missing wind observations from the wind-monitoring network.
 
 Mean wind speed (`f`) in 5 m/s intervals is the primary exposure. The `fg`
 reported in the ten-minute observation matched to the accident time is a
-secondary wind-gust exposure; it is not a daily maximum. The gust factor is
-`fg / f` and is calculated only when
-`f >= 3 m/s`; this avoids an unstable ratio in calm conditions. It is a
-descriptive secondary analysis, not a replacement for mean wind speed.
+secondary wind-gust exposure; it is not a daily maximum.
 
 ## Evidence hierarchy
 
@@ -45,11 +42,11 @@ also describe whether traffic changes with wind at selected sites. These
 analyses estimate different quantities and are compared by direction, not by
 the numerical size of their estimates.
 
-Temperature, hour, daylight, matched-time wind gust, gust factor, and subgroup results
+Temperature, hour, daylight, matched-time wind gust, and subgroup results
 are exploratory or descriptive. They do not add primary research questions.
-Temperature O/E uses 3°C intervals from −9 to 18°C, with open tails below −9°C
-and at least 18°C; the case-crossover model retains broader categories for
-stability.
+Temperature O/E uses the intervals below −5, −5 to −3, −3 to −1, −1 to 1,
+1 to 3, 3 to 5, and at least 5°C. The case-crossover model retains broader
+categories for stability.
 
 ## Accident sample
 

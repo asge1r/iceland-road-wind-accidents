@@ -113,6 +113,10 @@ def match_weather(
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
+        "active_07_24_observation_count", "f_07_24_bin_0_5_count",
+        "f_07_24_bin_5_10_count", "f_07_24_bin_10_15_count",
+        "f_07_24_bin_15_20_count", "f_07_24_bin_20_25_count",
+        "f_07_24_bin_ge25_count",
         "traffic_index",
         "weather_station_dist_km",
     ]

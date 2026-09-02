@@ -68,9 +68,22 @@ def add_coordinates(accidents: pd.DataFrame) -> pd.DataFrame:
 
 def add_road_links(accidents: pd.DataFrame, links_path: Path) -> pd.DataFrame:
     """Attach the supplied source-ID road link without spatially snapping crashes."""
-    links = pd.read_csv(links_path, sep="\t", dtype=str)
+    links = pd.read_csv(links_path, sep=None, engine="python", dtype=str)
     links.columns = [column.strip() for column in links.columns]
-    links = links.rename(columns={"nid": "id", "dagstimi": "road_link_datetime", "sveitavegur": "registered_road_section", "borgarnumer": "registered_urban_code"})
+    if "registered_road_section" in links:
+        links = links.rename(
+            columns={"nid": "id", "registered_urban_area_code": "registered_urban_code"}
+        )
+    else:
+        links = links.rename(columns={
+            "nid": "id", "dagstimi": "road_link_datetime",
+            "sveitavegur": "registered_road_section", "borgarnumer": "registered_urban_code",
+        })
+    missing = {"id", "registered_road_section"} - set(links.columns)
+    if missing:
+        raise ValueError(f"{links_path} is missing expected road-link columns: {sorted(missing)}")
+    if "registered_urban_code" not in links:
+        links["registered_urban_code"] = pd.NA
     links["id"] = pd.to_numeric(links["id"], errors="coerce")
     links = links.dropna(subset=["id"]).drop_duplicates("id", keep="last")
     links["registered_road_section"] = links["registered_road_section"].astype("string").str.strip().str.lower()

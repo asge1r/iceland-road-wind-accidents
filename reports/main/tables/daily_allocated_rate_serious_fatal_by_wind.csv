@@ -1,0 +1,4 @@
+wind_bin,observed_accidents,estimated_vehicles_within_wind_bin,counter_days,counters,accidents_per_100k_estimated_vehicles,rate_ratio,ci_95_low,ci_95_high,p_value,model_accidents,model_strata,model_rows,analysis_outcome,analysis_time_window,exposure_method
+0-10,127,110870442.91443262,50033,103,0.11454811278964208,1.0,,,,164,147,441,serious-fatal,full-day,observed daily traffic allocated by wind frequency over full-day
+10-15,25,12488422.974897338,24155,103,0.20018540411589086,1.8192036839022898,1.173249927921573,2.8207988466587737,0.007496927020230281,164,147,441,serious-fatal,full-day,observed daily traffic allocated by wind frequency over full-day
+>=15,12,2501007.110670052,8543,103,0.47980671261606467,4.158441348295542,2.2480172359262083,7.6923940665825405,5.594824463893214e-06,164,147,441,serious-fatal,full-day,observed daily traffic allocated by wind frequency over full-day

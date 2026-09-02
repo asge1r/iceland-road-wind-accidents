@@ -1,4 +1,4 @@
-bin_label,bin_lower_ms,observed_accidents,time_proportional_rate_ratio,time_proportional_ci_95_low,time_proportional_ci_95_high,time_proportional_p_value,model_accidents,model_strata,model_rows,analysis_traffic_period,analysis_vehicle_group
+bin_label,bin_lower_ms,observed_accidents,time_proportional_rate_ratio,time_proportional_ci_95_low,time_proportional_ci_95_high,time_proportional_p_value,model_accidents,model_strata,model_rows,analysis_traffic_period,analysis_outcome
 0-5,0.0,2435,1.0,,,,4958,4004,19924,all,all
 5-10,5.0,1706,1.1024138317637058,1.0346222338981417,1.1746473414600753,0.0026031838573925816,4958,4004,19924,all,all
 10-15,10.0,570,1.1094774932196474,1.0090927259439035,1.2198485593180082,0.031790893737883165,4958,4004,19924,all,all

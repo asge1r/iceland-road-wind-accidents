@@ -31,16 +31,30 @@ def main() -> None:
     )
     parser.add_argument("-n", "--dry-run", action="store_true")
     args = parser.parse_args()
+    run("src.tables.pipeline", dry_run=args.dry_run)
     run("src.analysis.build_oe", dry_run=args.dry_run)
     run("src.tables.oe", "-b", str(args.bootstrap_reps), dry_run=args.dry_run)
     run("src.tables.radius_sensitivity", dry_run=args.dry_run)
     run("src.figures.oe", dry_run=args.dry_run)
-    run("src.figures.gust_factor", dry_run=args.dry_run)
     run("src.tables.annual_traffic_quality", dry_run=args.dry_run)
     run("src.tables.estimated_rate", dry_run=args.dry_run)
     run("src.figures.estimated_rate", dry_run=args.dry_run)
     run("src.tables.rate", dry_run=args.dry_run)
     run("src.figures.rate", dry_run=args.dry_run)
+    run(
+        "src.tables.rate", "--outcome", "serious-fatal", "--output",
+        "reports/main/tables/conditional_poisson_rate_ratio_serious_fatal_by_wind.csv",
+        dry_run=args.dry_run,
+    )
+    run(
+        "src.figures.rate", "--input",
+        "reports/main/tables/conditional_poisson_rate_ratio_serious_fatal_by_wind.csv",
+        "--output",
+        "reports/main/figures/conditional_poisson_rate_ratio_serious_fatal_by_wind.png",
+        dry_run=args.dry_run,
+    )
+    run("src.tables.seasonal_rate", dry_run=args.dry_run)
+    run("src.figures.seasonal_rate", dry_run=args.dry_run)
     run(
         "src.tables.rate", "--traffic-period", "official",
         "--output", "reports/working/tables/stratified_crash_rate_ratio_official_traffic.csv",
@@ -63,6 +77,24 @@ def main() -> None:
         run("src.figures.daily_wind_duration", dry_run=args.dry_run)
         run("src.tables.daily_allocated_rate", dry_run=args.dry_run)
         run("src.figures.daily_allocated_rate", dry_run=args.dry_run)
+        run(
+            "src.tables.daily_allocated_rate", "--outcome", "serious-fatal",
+            "--output", "reports/main/tables/daily_allocated_rate_serious_fatal_by_wind.csv",
+            "--audit", "reports/working/tables/daily_allocated_rate_serious_fatal_audit.csv",
+            dry_run=args.dry_run,
+        )
+        run(
+            "src.figures.daily_allocated_rate", "--input",
+            "reports/main/tables/daily_allocated_rate_serious_fatal_by_wind.csv",
+            "--output", "reports/main/figures/daily_allocated_rate_serious_fatal_by_wind.png",
+            dry_run=args.dry_run,
+        )
+        run(
+            "src.tables.daily_allocated_rate", "--time-window", "07-24",
+            "--output", "reports/main/tables/daily_allocated_rate_07_24_by_wind.csv",
+            "--audit", "reports/working/tables/daily_allocated_rate_07_24_audit.csv",
+            dry_run=args.dry_run,
+        )
         run("src.tables.daily_counter_rate", dry_run=args.dry_run)
         run(
             "src.tables.daily_counter_rate",

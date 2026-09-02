@@ -1,0 +1,66 @@
+\begin{table}[p]
+\centering
+\tiny
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Exact inputs and outputs of the data-preparation pipeline}
+\label{tab:pipeline}
+\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}
+\toprule
+Script & Input file(s) & Output file(s) & Description \\
+\midrule
+\path{accidents/build.py} &
+\emph{\path{raw/accidents/}}\newline \path{accidents_*.txt}\newline \path{vehicles_*.txt}\newline \path{road_links_2007_2025.txt}\newline \path{urban_boundaries_2020_2024.geojson} &
+\emph{\path{processed/accidents/}}\newline \path{all.csv} &
+Joins the accident sources and retains the fields needed for selection and matching. \\ \grayhline
+\path{weather/clean.py} &
+\emph{\path{raw/weather/}}\newline \path{weather_10min_raw.parquet} &
+\emph{\path{processed/weather/}}\newline \path{weather.parquet} &
+Applies the fixed ten-minute weather-quality rules. \\ \grayhline
+\path{weather/frequency.py} &
+\emph{\path{processed/weather/}}\newline \path{weather.parquet} &
+\emph{\path{processed/weather/}}\newline \path{frequency.csv}\newline \path{traffic_frequency.csv} &
+Counts pooled station-season weather exposure for O/E and year-specific mean-wind exposure for traffic models. \\ \grayhline
+\path{traffic/annual.py} &
+\emph{\path{raw/traffic/annual/}}\newline \path{*.xls*} &
+\emph{\path{processed/traffic/}}\newline \path{annual.csv} &
+Standardises road section, length, ADU, SDU and VDU. \\ \grayhline
+\path{accidents/match_weather.py} &
+\emph{\path{processed/accidents/}}\newline \path{all.csv}\newline \emph{\path{processed/weather/}}\newline \path{weather.parquet}\newline \emph{\path{raw/weather/}}\newline \path{stations.csv} &
+\emph{\path{processed/accidents/}}\newline \path{rural_injury.csv} &
+Independently matches wind and temperature within 20 km and five minutes; retains wind matches to 30 km for sensitivity. \\ \grayhline
+\path{accidents/case_control.py} &
+\emph{\path{processed/accidents/}}\newline \path{rural_injury.csv}\newline \emph{\path{processed/weather/}}\newline \path{weather.parquet} &
+\emph{\path{processed/accidents/}}\newline \path{case_control.csv} &
+Selects same-hour, same-weekday control times in each accident month for wind and temperature. \\ \grayhline
+\path{traffic/build_road_period.py} &
+\emph{\path{processed/traffic/}}\newline \path{annual.csv}\newline \emph{\path{processed/accidents/}}\newline \path{rural_injury.csv}\newline \emph{\path{processed/weather/}}\newline \path{weather.parquet}\newline \emph{\path{raw/weather/}}\newline \path{stations.csv}\newline \emph{\path{raw/traffic/reference/}}\newline \path{road_section_midpoints.csv}, \path{road_sections.parquet} &
+\emph{\path{processed/}}\newline \path{weather/road_period_frequency.csv}\newline \path{traffic/road_period.csv} &
+Builds road-period mean-wind exposure; road geometry is a fallback for missing midpoints. \\ \grayhline
+\path{traffic/rate_weather.py} &
+\emph{\path{processed/}}\newline \path{traffic/road_period.csv}\newline \path{accidents/rural_injury.csv}\newline \path{weather/weather.parquet}\newline \emph{\path{raw/weather/}}\newline \path{stations.csv} &
+\emph{\path{processed/accidents/}}\newline \path{rate.csv} &
+Aligns accident wind with the road-exposure station. \\ \grayhline
+\path{traffic/daily.py} &
+\emph{\path{raw/traffic/daily_pdf/}}\newline \path{*.pdf} &
+\emph{\path{processed/traffic/}}\newline \path{daily_raw.csv} &
+Parses one daily count per counter channel and date. \\ \grayhline
+\path{traffic/download_roads.py} &
+VGD-R MapServer layer 6 &
+\emph{\path{raw/traffic/reference/}}\newline \path{roads.geojson} &
+Downloads the unchanged public road reference. \\ \grayhline
+\path{traffic/locate_counters.py} &
+\emph{\path{processed/traffic/}}\newline \path{daily_raw.csv}\newline \emph{\path{raw/traffic/reference/}}\newline \path{roads.geojson} &
+\emph{\path{processed/traffic/}}\newline \path{daily.csv} &
+Combines directional channels and locates counters. \\ \grayhline
+\path{traffic/daily_weather.py} &
+\emph{\path{processed/}}\newline \path{traffic/daily.csv}\newline \path{weather/weather.parquet}\newline \emph{\path{raw/weather/}}\newline \path{stations.csv} &
+\emph{\path{processed/traffic/}}\newline \path{daily_match.parquet}\newline \path{daily_weather.csv} &
+Matches counter-days to daytime and full-day wind; the compact Parquet join avoids a large CSV. \\ \grayhline
+\path{export_tables.py} &
+\emph{\path{processed/}}\newline \path{accidents/rural_injury.csv}\newline \path{accidents/rate.csv}\newline \path{accidents/case_control.csv}\newline \path{weather/frequency.csv}\newline \path{weather/traffic_frequency.csv}\newline \path{traffic/annual.csv}\newline \path{traffic/road_period.csv}\newline \path{traffic/daily_weather.csv}\newline \path{traffic/locations.csv} &
+\emph{\path{analysis/}}\newline eleven data CSV files listed below &
+Selects only the variables used by ordinary analysis. \\
+\bottomrule
+\end{tabularx}
+\end{table}

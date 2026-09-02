@@ -13,6 +13,7 @@ INPUT = Path("data/analysis/conditional_poisson_input.csv")
 OUTPUT = Path("reports/main/tables/conditional_poisson_rate_ratio_by_wind.csv")
 COUNT_COLUMN = {
     "all": "injury_accidents",
+    "serious-fatal": "serious_or_fatal_accidents",
     "one": "one_vehicle_accidents",
     "two-plus": "multiple_vehicle_accidents",
 }
@@ -26,7 +27,7 @@ def select_periods(data: pd.DataFrame, traffic_period: str) -> pd.DataFrame:
     return data[data["traffic_period"].eq(traffic_period.upper())].copy()
 
 
-def prepare_data(source: pd.DataFrame, traffic_period: str, vehicle_group: str) -> pd.DataFrame:
+def prepare_data(source: pd.DataFrame, traffic_period: str, outcome: str) -> pd.DataFrame:
     required = {
         "year", "road_section", "traffic_period", "wind_bin", "wind_bin_lower_ms",
         "estimated_vehicle_km", *COUNT_COLUMN.values(),
@@ -35,7 +36,7 @@ def prepare_data(source: pd.DataFrame, traffic_period: str, vehicle_group: str) 
     if missing:
         raise ValueError(f"Rate-model CSV is missing columns: {sorted(missing)}")
     data = select_periods(source, traffic_period)
-    count_column = COUNT_COLUMN[vehicle_group]
+    count_column = COUNT_COLUMN[outcome]
     data = data.copy()
     data["observed_accidents"] = pd.to_numeric(data[count_column], errors="raise").astype(int)
     totals = data.groupby(["year", "road_section", "traffic_period"])["observed_accidents"].transform("sum")
@@ -87,16 +88,19 @@ def main() -> None:
     parser.add_argument(
         "-t", "--traffic-period", choices=["all", "official", "vdu", "sdu", "vhdu"], default="all",
     )
-    parser.add_argument("-g", "--vehicle-group", choices=list(COUNT_COLUMN), default="all")
+    parser.add_argument(
+        "-g", "--outcome", "--vehicle-group", dest="outcome",
+        choices=list(COUNT_COLUMN), default="all",
+    )
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
-    data = prepare_data(pd.read_csv(args.input), args.traffic_period, args.vehicle_group)
+    data = prepare_data(pd.read_csv(args.input), args.traffic_period, args.outcome)
     if data.empty:
         raise ValueError("No informative road-year-period strata remain after selection")
     result = fit_model(data)
     result = result.rename(columns={"wind_bin": "bin_label", "wind_bin_lower_ms": "bin_lower_ms"})
     result["analysis_traffic_period"] = args.traffic_period
-    result["analysis_vehicle_group"] = args.vehicle_group
+    result["analysis_outcome"] = args.outcome
     args.output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)
     print(result.to_string(index=False))

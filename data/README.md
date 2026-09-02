@@ -47,7 +47,8 @@ Use `data/analysis/` for normal work:
 
 - `accidents.csv`, `accident_conditions.csv`, and `weather_frequency.csv` for O/E results;
 - `case_control.csv` for the time-stratified conditional logistic models;
-- `conditional_poisson_input.csv` and `traffic_exposure_full.csv` for annual-traffic results;
+- `conditional_poisson_input.csv`, `seasonal_poisson_input.csv`, and
+  `traffic_exposure_full.csv` for annual-traffic results;
 - `daily_traffic.csv` for the sustained-wind and allocated daily-counter results;
 - `daily_counter_locations.csv` for selected-counter rate analyses;
 - `manifest.csv` for each file's record count, columns and description.

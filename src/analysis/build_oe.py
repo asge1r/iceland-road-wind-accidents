@@ -13,8 +13,6 @@ from scipy.stats import chi2
 from src.weather.frequency import (
     FG_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
-    GUST_FACTOR_MIN_MEAN_WIND,
-    GUST_FACTOR_UPPER_BOUNDS,
     TEMPERATURE_THRESHOLDS,
     TEMPERATURE_LABELS,
     labels,
@@ -72,12 +70,6 @@ VARIABLES = [
         "fg",
         FG_UPPER_BOUNDS,
         "Wind gust at matched observation time",
-    ),
-    VariableSpec(
-        "gust_factor",
-        "gust_factor",
-        GUST_FACTOR_UPPER_BOUNDS,
-        "Gust factor (fg / f; f >= 3 m/s)",
     ),
     VariableSpec(
         "temperature",
@@ -165,8 +157,6 @@ def load_data(
         "weather_time_difference_minutes",
         "f",
         "fg",
-        "gust_factor",
-
         "temp_station_id",
         "temp_distance_km",
         "temp_time_diff_min",
@@ -423,7 +413,7 @@ Primary specification
 ---------------------
 - Rural injury accidents, 2007-2025
 - Maximum station distance: 20 km
-- Variables: f, fg and gust factor (fg / f where f >= 3 m/s)
+- Variables: mean wind (f), matched-time gust (fg), and temperature
 - Background controlled by station and season, pooled over 2007-2025
 - Exact Poisson 95% intervals; bins with fewer than 20 accidents marked sparse
 

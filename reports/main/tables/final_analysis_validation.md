@@ -40,6 +40,8 @@ At 20--25 m/s, O/E remains above one under 10, 20, and 30 km weather-station lim
 ## Stratified vehicle-kilometre result
 
 The shared-station rate model retains 4,958 accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is 4.49 (95% CI 2.75--7.34).
+The serious/fatal version retains 1,054 accidents. Its 15--20 m/s rate ratio is 1.90.
+The seasonal model uses coarse 0--10, 10--15, and >=15 m/s intervals; all four >=15 m/s estimates are above one.
 
 ## Time-stratified case-crossover result
 
@@ -50,6 +52,7 @@ At mean wind >=15 m/s versus 0--5 m/s, the matched odds ratio is 1.61 (95% CI 1.
 Restricting the 20--25 m/s rate model to official VDU and SDU gives RR 1.93. Excluding zero counter-days changes the corresponding daily-traffic percentage by less than two percentage points.
 The sustained-wind table contains 733,080 sufficiently complete counter-days. Traffic is 88.9% of its calendar expectation on days with at least six hours at f >=15 m/s.
 The allocated daily-counter model retains 760 accidents. Its >=15 versus 0--10 m/s rate ratio is 3.38 (95% CI 2.46--4.62). The within-day denominator is estimated, not observed hourly traffic.
+The serious/fatal daily model retains 164 accidents; its upper rate ratio is 4.16. Restricting the all-injury allocation to 07:00--24:00 gives 3.50, versus 3.38 for the full day.
 The appendix full-day-mean sensitivity retains 767 accidents. At >=15 m/s versus 0--10 m/s, RR is 2.42 (95% CI 1.38--4.24), based on 14 upper-category accidents.
 The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.
 

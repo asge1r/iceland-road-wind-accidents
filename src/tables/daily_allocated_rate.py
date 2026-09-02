@@ -26,6 +26,10 @@ COUNT_COLUMNS = {
         "f_full_bin_ge25_count",
     ],
 }
+ACTIVE_COUNT_COLUMNS = {
+    label: [column.replace("f_full_", "f_07_24_") for column in columns]
+    for label, columns in COUNT_COLUMNS.items()
+}
 
 
 def main() -> None:
@@ -35,6 +39,12 @@ def main() -> None:
     parser.add_argument("-d", "--daily-traffic", type=Path, default=DAILY)
     parser.add_argument("-l", "--locations", type=Path, default=LOCATIONS)
     parser.add_argument("-r", "--max-distance-km", type=float, default=20)
+    parser.add_argument(
+        "-g", "--outcome", choices=["injury", "serious-fatal"], default="injury",
+    )
+    parser.add_argument(
+        "-t", "--time-window", choices=["full-day", "07-24"], default="full-day",
+    )
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     parser.add_argument("-u", "--audit", type=Path, default=AUDIT)
     args = parser.parse_args()
@@ -42,20 +52,35 @@ def main() -> None:
     accidents, daily, locations = read_inputs(
         args.accidents, args.daily_traffic, args.locations
     )
+    require_columns(accidents, {"meidsli"}, "Accident input")
     conditions = pd.read_csv(args.conditions)
     require_columns(conditions, {"id", "f"}, "Accident-condition input")
     if conditions["id"].duplicated().any():
         raise ValueError("Accident conditions are not unique by id")
-    required_daily = {"full_observation_count"} | {
-        column for columns in COUNT_COLUMNS.values() for column in columns
+    count_columns = COUNT_COLUMNS if args.time_window == "full-day" else ACTIVE_COUNT_COLUMNS
+    observation_column = (
+        "full_observation_count"
+        if args.time_window == "full-day"
+        else "active_07_24_observation_count"
+    )
+    required_daily = {observation_column} | {
+        column for columns in count_columns.values() for column in columns
     }
     require_columns(daily, required_daily, "Daily traffic input")
     matches, exact_candidates = match_accidents(accidents, locations, args.max_distance_km)
     events = matches.merge(
+        accidents[["id", "timestamp", "meidsli"]],
+        on="id", how="left", validate="one_to_one",
+    ).merge(
         conditions[["id", "f"]], on="id", how="left", validate="one_to_one"
     )
+    if args.outcome == "serious-fatal":
+        events = events[pd.to_numeric(events["meidsli"], errors="raise").le(2)].copy()
+    if args.time_window == "07-24":
+        events = events[events["timestamp"].dt.hour.ge(7)].copy()
+    minimum_observations = 108 if args.time_window == "full-day" else 77
     valid_daily = daily[
-        daily["traffic"].gt(0) & daily["full_observation_count"].ge(108)
+        daily["traffic"].gt(0) & daily[observation_column].ge(minimum_observations)
     ].copy()
     events = events.merge(
         valid_daily[["counter_id", "date"]],
@@ -71,14 +96,14 @@ def main() -> None:
     ).agg(observed_accidents=("id", "nunique"))
 
     exposure_rows: list[pd.DataFrame] = []
-    for label, columns in COUNT_COLUMNS.items():
-        frame = valid_daily[["counter_id", "year", "date", "traffic", "full_observation_count"]].copy()
+    for label, columns in count_columns.items():
+        frame = valid_daily[["counter_id", "year", "date", "traffic", observation_column]].copy()
         frame["wind_bin"] = label
         frame["wind_observations"] = valid_daily[columns].sum(axis=1)
         frame = frame[frame["wind_observations"].gt(0)].copy()
         frame["observed_vehicles"] = (
             frame["traffic"] * frame["wind_observations"]
-            / frame["full_observation_count"]
+            / frame[observation_column]
         )
         exposure_rows.append(frame)
     exposure = pd.concat(exposure_rows, ignore_index=True)
@@ -100,7 +125,11 @@ def main() -> None:
         "observed_vehicles": "estimated_vehicles_within_wind_bin",
         "accidents_per_100k_counted_vehicles": "accidents_per_100k_estimated_vehicles",
     })
-    result["exposure_method"] = "observed daily traffic allocated by within-day wind frequency"
+    result["analysis_outcome"] = args.outcome
+    result["analysis_time_window"] = args.time_window
+    result["exposure_method"] = (
+        "observed daily traffic allocated by wind frequency over " + args.time_window
+    )
     audit = pd.DataFrame([
         ("rural_injury_accidents_2019_2024", len(accidents)),
         ("exact_road_section_counter_candidates", exact_candidates),

@@ -1,4 +1,4 @@
-wind_bin,observed_accidents,estimated_vehicles_within_wind_bin,counter_days,counters,accidents_per_100k_estimated_vehicles,rate_ratio,ci_95_low,ci_95_high,p_value,model_accidents,model_strata,model_rows,exposure_method
-0-10,600,431040732.7347539,166362,230,0.1391979816369738,1.0,,,,760,488,1464,observed daily traffic allocated by within-day wind frequency
-10-15,114,39700291.55867608,77426,230,0.28715154353844163,1.76597205084357,1.436954951368666,2.170323628719325,6.435738329762247e-08,760,488,1464,observed daily traffic allocated by within-day wind frequency
->=15,46,7611399.706570012,27032,230,0.6043566462590803,3.3760279689997343,2.4647933377670777,4.624146240915204,3.4486701551367205e-14,760,488,1464,observed daily traffic allocated by within-day wind frequency
+wind_bin,observed_accidents,estimated_vehicles_within_wind_bin,counter_days,counters,accidents_per_100k_estimated_vehicles,rate_ratio,ci_95_low,ci_95_high,p_value,model_accidents,model_strata,model_rows,analysis_outcome,analysis_time_window,exposure_method
+0-10,600,431040732.7347539,166362,230,0.1391979816369738,1.0,,,,760,488,1464,injury,full-day,observed daily traffic allocated by wind frequency over full-day
+10-15,114,39700291.55867608,77426,230,0.28715154353844163,1.76597205084357,1.436954951368666,2.170323628719325,6.435738329762247e-08,760,488,1464,injury,full-day,observed daily traffic allocated by wind frequency over full-day
+>=15,46,7611399.706570012,27032,230,0.6043566462590803,3.3760279689997343,2.4647933377670777,4.624146240915204,3.4486701551367205e-14,760,488,1464,injury,full-day,observed daily traffic allocated by wind frequency over full-day

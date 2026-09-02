@@ -20,6 +20,8 @@ DEFAULT_DAILY = Path("data/analysis/daily_traffic.csv")
 DEFAULT_TRAFFIC_AUDIT = Path("reports/main/tables/annual_traffic_quality.csv")
 DEFAULT_RATE_INPUT = Path("data/analysis/conditional_poisson_input.csv")
 DEFAULT_RATE_MODEL = Path("reports/main/tables/conditional_poisson_rate_ratio_by_wind.csv")
+DEFAULT_RATE_SERIOUS = Path("reports/main/tables/conditional_poisson_rate_ratio_serious_fatal_by_wind.csv")
+DEFAULT_SEASONAL_RATE = Path("reports/main/tables/seasonal_poisson_rate_ratio_by_wind.csv")
 DEFAULT_CASE_CONTROL = Path("data/analysis/case_control.csv")
 DEFAULT_CASE_CONTROL_RESULT = Path("reports/main/tables/case_control_weather.csv")
 DEFAULT_RADIUS_RESULT = Path("reports/main/tables/mean_wind_radius_sensitivity.csv")
@@ -29,6 +31,8 @@ DEFAULT_DAILY_RATE_COARSE = Path("reports/main/tables/daily_counter_rate_ratio_c
 DEFAULT_DAILY_RATE_RADIUS = Path("reports/main/tables/daily_counter_radius_sensitivity.csv")
 DEFAULT_DAILY_DURATION = Path("reports/main/tables/daily_traffic_by_high_wind_duration.csv")
 DEFAULT_DAILY_ALLOCATED = Path("reports/main/tables/daily_allocated_rate_ratio_by_wind.csv")
+DEFAULT_DAILY_SERIOUS = Path("reports/main/tables/daily_allocated_rate_serious_fatal_by_wind.csv")
+DEFAULT_DAILY_07_24 = Path("reports/main/tables/daily_allocated_rate_07_24_by_wind.csv")
 DEFAULT_OUTPUT = Path("reports/main/tables/final_analysis_validation.md")
 
 
@@ -62,6 +66,8 @@ def validation_values(
     traffic_audit_path: Path,
     rate_input_path: Path,
     rate_model_path: Path,
+    rate_serious_path: Path,
+    seasonal_rate_path: Path,
     case_control_path: Path,
     case_control_result_path: Path,
     radius_result_path: Path,
@@ -71,6 +77,8 @@ def validation_values(
     daily_rate_radius_path: Path,
     daily_duration_path: Path,
     daily_allocated_path: Path,
+    daily_serious_path: Path,
+    daily_07_24_path: Path,
 ) -> dict[str, object]:
     if accidents_path.suffix != ".csv":
         raise ValueError(f"Analysis input must be a CSV file: {accidents_path}")
@@ -80,7 +88,7 @@ def validation_values(
     conditions = pd.read_csv(conditions_path)
     required_condition_columns = {
         "id", "weather_station_id", "weather_station_dist_km",
-        "weather_time_difference_minutes", "f", "fg", "gust_factor",
+        "weather_time_difference_minutes", "f", "fg",
         "temp_station_id", "temp_distance_km", "temp_time_diff_min",
         "temperature_c", "solar_elevation_deg", "daylight_class",
     }
@@ -124,13 +132,12 @@ def validation_values(
     )
     temperature_result = pd.read_csv(temperature_path)
     expected_temperature_bins = [
-        "<-9", "-9--6", "-6--3", "-3-0", "0-3", "3-6",
-        "6-9", "9-12", "12-15", "15-18", ">=18",
+        "<-5", "-5--3", "-3--1", "-1-1", "1-3", "3-5", ">=5",
     ]
     require(
         temperature_result["temperature_interval_c"].tolist()
         == expected_temperature_bins,
-        "Temperature O/E table does not use the documented 3-degree bins",
+        "Temperature O/E table does not use the documented bins",
     )
     require(
         int(temperature_result["observed_accidents"].sum()) == temperature_accidents
@@ -187,7 +194,9 @@ def validation_values(
     )
 
     rate_input = pd.read_csv(rate_input_path)
-    required_rate_columns = {"injury_accidents", "estimated_vehicle_km"}
+    required_rate_columns = {
+        "injury_accidents", "serious_or_fatal_accidents", "estimated_vehicle_km",
+    }
     require(required_rate_columns <= set(rate_input), "Rate-model input is incomplete")
     rate_model = pd.read_csv(rate_model_path)
     require(
@@ -196,6 +205,21 @@ def validation_values(
     )
     high_rate = rate_model.loc[rate_model["bin_label"].eq(">=25")].iloc[0]
     require(float(high_rate["time_proportional_rate_ratio"]) > 1, "High-wind rate ratio is not above one")
+    rate_serious = pd.read_csv(rate_serious_path)
+    require(
+        int(rate_serious["observed_accidents"].sum())
+        == int(rate_input["serious_or_fatal_accidents"].sum()),
+        "Serious/fatal model counts do not sum to its canonical input",
+    )
+    seasonal_rate = pd.read_csv(seasonal_rate_path)
+    require(
+        set(seasonal_rate["season"]) == {"Winter", "Spring", "Summer", "Fall"}
+        and set(seasonal_rate["bin_label"]) == {"0-10", "10-15", ">=15"}
+        and seasonal_rate[seasonal_rate["bin_label"].eq(">=15")][
+            "time_proportional_rate_ratio"
+        ].gt(1).all(),
+        "Season-specific mean-wind model is incomplete or has unexpected direction",
+    )
 
     case_control = pd.read_csv(case_control_path)
     require(
@@ -307,6 +331,19 @@ def validation_values(
         and allocated_estimates["rate_ratio"].le(allocated_estimates["ci_95_high"]).all(),
         "Allocated daily-counter confidence intervals are malformed",
     )
+    daily_serious = pd.read_csv(daily_serious_path)
+    daily_07_24 = pd.read_csv(daily_07_24_path)
+    for name, table, outcome, window in [
+        ("serious/fatal", daily_serious, "serious-fatal", "full-day"),
+        ("07:00--24:00", daily_07_24, "injury", "07-24"),
+    ]:
+        require(
+            table["wind_bin"].tolist() == ["0-10", "10-15", ">=15"]
+            and table["analysis_outcome"].eq(outcome).all()
+            and table["analysis_time_window"].eq(window).all()
+            and table["estimated_vehicles_within_wind_bin"].gt(0).all(),
+            f"Allocated daily {name} sensitivity is incomplete",
+        )
 
     from src.figures.accident_profiles import broad_accident_family
 
@@ -328,6 +365,8 @@ def validation_values(
         "traffic_audit": traffic_audit,
         "rate_accidents": int(rate_input["injury_accidents"].sum()),
         "high_rate": high_rate,
+        "rate_serious": rate_serious,
+        "seasonal_rate": seasonal_rate,
         "high_wind_case_control": high_wind_case_control,
         "radius_20_25": radius_20_25,
         "official_20_25": official_20_25.iloc[0],
@@ -337,6 +376,8 @@ def validation_values(
         "daily_rate_radius": daily_rate_radius,
         "daily_duration": daily_duration,
         "daily_allocated": daily_allocated,
+        "daily_serious": daily_serious,
+        "daily_07_24": daily_07_24,
         "single_vehicle_count": single_count,
         "single_vehicle_pct": 100 * single_count / len(accidents),
     }
@@ -402,6 +443,8 @@ def write_report(values: dict[str, object], output: Path) -> None:
             "## Stratified vehicle-kilometre result",
             "",
             f"The shared-station rate model retains {values['rate_accidents']:,} accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is {values['high_rate']['time_proportional_rate_ratio']:.2f} (95% CI {values['high_rate']['time_proportional_ci_95_low']:.2f}--{values['high_rate']['time_proportional_ci_95_high']:.2f}).",
+            f"The serious/fatal version retains {int(values['rate_serious']['model_accidents'].iloc[0]):,} accidents. Its 15--20 m/s rate ratio is {values['rate_serious'].loc[values['rate_serious']['bin_label'].eq('15-20'), 'time_proportional_rate_ratio'].iloc[0]:.2f}.",
+            "The seasonal model uses coarse 0--10, 10--15, and >=15 m/s intervals; all four >=15 m/s estimates are above one.",
             "",
             "## Time-stratified case-crossover result",
             "",
@@ -412,6 +455,7 @@ def write_report(values: dict[str, object], output: Path) -> None:
             f"Restricting the 20--25 m/s rate model to official VDU and SDU gives RR {values['official_20_25']['estimate']:.2f}. Excluding zero counter-days changes the corresponding daily-traffic percentage by less than two percentage points.",
             f"The sustained-wind table contains {int(values['daily_duration']['counter_days'].sum()):,} sufficiently complete counter-days. Traffic is {values['daily_duration'].iloc[-1]['relative_traffic_pct']:.1f}% of its calendar expectation on days with at least six hours at f >=15 m/s.",
             f"The allocated daily-counter model retains {int(values['daily_allocated']['observed_accidents'].sum()):,} accidents. Its >=15 versus 0--10 m/s rate ratio is {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} (95% CI {values['daily_allocated'].iloc[-1]['ci_95_low']:.2f}--{values['daily_allocated'].iloc[-1]['ci_95_high']:.2f}). The within-day denominator is estimated, not observed hourly traffic.",
+            f"The serious/fatal daily model retains {int(values['daily_serious']['observed_accidents'].sum()):,} accidents; its upper rate ratio is {values['daily_serious'].iloc[-1]['rate_ratio']:.2f}. Restricting the all-injury allocation to 07:00--24:00 gives {values['daily_07_24'].iloc[-1]['rate_ratio']:.2f}, versus {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} for the full day.",
             f"The appendix full-day-mean sensitivity retains {values['daily_rate_total']:,} accidents. At >=15 m/s versus 0--10 m/s, RR is {values['daily_rate_high']['rate_ratio']:.2f} (95% CI {values['daily_rate_high']['ci_95_low']:.2f}--{values['daily_rate_high']['ci_95_high']:.2f}), based on {int(values['daily_rate_high']['observed_accidents'])} upper-category accidents.",
             "The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.",
             "",
@@ -466,6 +510,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-t", "--traffic-audit", type=Path, default=DEFAULT_TRAFFIC_AUDIT)
     parser.add_argument("-r", "--rate-input", type=Path, default=DEFAULT_RATE_INPUT)
     parser.add_argument("-R", "--rate-model", type=Path, default=DEFAULT_RATE_MODEL)
+    parser.add_argument("--rate-serious", type=Path, default=DEFAULT_RATE_SERIOUS)
+    parser.add_argument("--seasonal-rate", type=Path, default=DEFAULT_SEASONAL_RATE)
     parser.add_argument("-x", "--case-control", type=Path, default=DEFAULT_CASE_CONTROL)
     parser.add_argument("-X", "--case-control-result", type=Path, default=DEFAULT_CASE_CONTROL_RESULT)
     parser.add_argument("-S", "--radius-result", type=Path, default=DEFAULT_RADIUS_RESULT)
@@ -475,6 +521,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-q", "--daily-rate-radius", type=Path, default=DEFAULT_DAILY_RATE_RADIUS)
     parser.add_argument("-U", "--daily-duration", type=Path, default=DEFAULT_DAILY_DURATION)
     parser.add_argument("-A", "--daily-allocated", type=Path, default=DEFAULT_DAILY_ALLOCATED)
+    parser.add_argument("--daily-serious", type=Path, default=DEFAULT_DAILY_SERIOUS)
+    parser.add_argument("--daily-07-24", type=Path, default=DEFAULT_DAILY_07_24)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args()
 
@@ -493,6 +541,8 @@ def main() -> None:
         args.traffic_audit,
         args.rate_input,
         args.rate_model,
+        args.rate_serious,
+        args.seasonal_rate,
         args.case_control,
         args.case_control_result,
         args.radius_result,
@@ -502,6 +552,8 @@ def main() -> None:
         args.daily_rate_radius,
         args.daily_duration,
         args.daily_allocated,
+        args.daily_serious,
+        args.daily_07_24,
     )
     write_report(values, args.output)
     print(f"Validated primary analysis; wrote {args.output}")
