@@ -1,15 +1,15 @@
 # Wind and Rural Road Accidents
 
 This project evaluates whether rural injury accidents are disproportionately
-common in high winds. The primary result is a wind-frequency-standardized
-observed/expected curve with weather-station-clustered bootstrap confidence
-intervals.
+common in high winds. The primary result compares accident counts with the
+local frequency of each mean-wind interval. Its uncertainty intervals account
+for accidents and weather observations grouped at the same weather station.
 
 ## Repository scope
 
 This GitHub repository contains the analysis code, documentation, thesis draft,
 and the small tables and figures needed to inspect the reported results. Raw
-data, processed data, canonical analysis CSV files, and working diagnostics
+data, processed data, analysis CSV files, and working diagnostics
 remain local and are excluded by `.gitignore`.
 
 ## Directory structure
@@ -34,12 +34,12 @@ remain local and are excluded by `.gitignore`.
   while creating the CSV frequency table, never by `src.analyze`.
 - `data/analysis/accidents.csv` and `weather_frequency.csv` are the complete
   inputs to the primary O/E analysis.
-- `data/analysis/conditional_poisson_input.csv` is the compact, positive-exposure input to the
+- `data/analysis/conditional_poisson_input.csv` is the compact input to the
   within-road/year/period rate model.
-- `data/analysis/traffic_exposure_full.csv` is an 18-row exposure table for the
+- `data/analysis/traffic_exposure_full.csv` is an 18-row estimated vehicle-kilometre table for the
   descriptive accidents-per-vehicle-km result.
-- `data/analysis/daily_traffic.csv` and `daily_counter_locations.csv` are the
-  compact inputs for the sustained-wind and allocated daily-counter analyses.
+- `data/analysis/daily_traffic.csv` is the optional, larger analysis CSV for
+  daily counters; `daily_counter_locations.csv` supplies their locations.
 - `reports/main/figures/conditional_poisson_rate_ratio_by_wind.png`: estimated
   within-road-section injury-accident rate ratios by 5 m/s mean-wind interval.
   It reports time-proportional annual-traffic allocation across local wind
@@ -51,7 +51,7 @@ After cloning, create a Python environment, install the dependencies, and
 place the authorised raw deliveries in the paths in
 [`data/README.md`](data/README.md). The public road geometry is downloaded by
 the pipeline. The six daily-traffic PDFs (2019--2024) are optional and are
-only needed for the daily-traffic description.
+needed for all daily-counter comparisons.
 
 ```bash
 .venv/bin/python -m src.prepare --stage prepare
@@ -86,11 +86,11 @@ processed files, tables, and figures. The accident workflow also requires its
 supplied road-link and urban-boundary reference files; daily traffic requires
 the six PDFs and weather-station metadata.
 
-## Primary Assumptions
+## Main analysis choices
 
 - Rural injury accidents, 2007-2025.
 - Nearest valid 10-minute weather observation within 20 km.
-- Expected accidents standardized by weather station and season, with weather frequency pooled across 2007--2025.
+- Expected accidents adjusted for weather station and season, with weather frequency pooled across 2007--2025.
 - Mean wind speed (`f`) is primary; wind gust (`fg`) from the observation
   matched to the accident time is secondary.
 - Results describe associations and are not causal estimates.

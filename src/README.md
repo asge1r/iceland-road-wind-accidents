@@ -18,14 +18,13 @@ The folders below contain the small steps called by the entry points:
 - `accidents/`: build the accident table and attach weather.
 - `weather/`: clean wind measurements and calculate local wind frequency.
 - `traffic/`: read annual and optional daily traffic data.
-- `analysis/`: calculate O/E and supporting traffic analyses.
+- `analysis/`: prepare the station-season rows used by O/E.
 - `figures/`: create data-flow and descriptive figures.
 
-Every script has `-h` for its own inputs and outputs. `docs/pipeline.md`
+Every executable script has `-h` for its own inputs and outputs. `docs/pipeline.md`
 describes the relationship between scripts, data, and outputs.
 
 Only preparation scripts read source deliveries or Parquet working files.
 Every script called by `src.analyze` reads `data/analysis/*.csv` or small CSV
-results produced earlier in that same run. The only exception is the optional
-counter-coordinate quality check, which intentionally queries the official
-road reference rather than producing a thesis result.
+results produced earlier in that same run. Optional source checks for daily
+traffic are kept outside these entry points.

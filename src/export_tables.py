@@ -1,4 +1,4 @@
-"""Export readable canonical analysis CSV files from prepared local data."""
+"""Export readable analysis CSV files from prepared local data."""
 
 from __future__ import annotations
 
@@ -491,7 +491,7 @@ def export_daily_traffic(
     source = read_table(path).rename(columns={"station_id": "road_station_m"})
     text_columns = [
         "date", "counter_site_id", "traffic_volume", "f_daytime_mean",
-        "fg_daytime_mean", "f_full_day_mean", "fg_full_day_mean",
+        "f_full_day_mean",
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
@@ -504,7 +504,7 @@ def export_daily_traffic(
     readable = source[text_columns].sort_values(["counter_site_id", "date"])
     csv_columns = [
         "date", "counter_site_id", "traffic_volume", "f_daytime_mean",
-        "fg_daytime_mean", "f_full_day_mean", "fg_full_day_mean",
+        "f_full_day_mean",
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
@@ -519,9 +519,7 @@ def export_daily_traffic(
             "counter_site_id": "counter_id",
             "traffic_volume": "traffic",
             "f_daytime_mean": "f_mean",
-            "fg_daytime_mean": "fg_mean",
             "f_full_day_mean": "f_full_day_mean",
-            "fg_full_day_mean": "fg_full_day_mean",
         }
     )
     if "traffic" in daily:
@@ -557,7 +555,7 @@ def export_daily_traffic(
     return [
         (
             "daily_traffic.csv", count, list(daily.columns),
-            "Daily counter totals with wind summaries and full-day counts in six mean-wind intervals.",
+            "Optional large daily-counter table with observed traffic and mean-wind observation counts.",
         ),
         (
             "daily_counter_locations.csv", location_count, list(locations.columns),
@@ -575,7 +573,7 @@ def write_readme(output: Path, daily_present: bool) -> None:
     accidents = pd.read_csv(output / "accidents.csv", usecols=["timestamp"])
     years = pd.to_datetime(accidents["timestamp"], errors="coerce").dt.year.dropna()
     period = f"{int(years.min())}–{int(years.max())}"
-    text = f"""# Canonical analysis data
+    text = f"""# Analysis data
 
 This directory is the only input layer used by the ordinary analysis scripts.
 The files are generated during preparation and are deliberately CSV so that
@@ -585,12 +583,12 @@ they can be opened and checked directly. Do not edit them by hand.
 - `accident_conditions.csv`: independently matched wind and temperature plus estimated astronomical daylight at each accident time.
 - `weather_frequency.csv`: pooled 2007–2025 station-season wind and temperature counts. `f` and `fg` are in m/s and temperature is in degrees Celsius.
 - `case_control.csv`: accident times and same-hour, same-weekday control times for conditional logistic wind and temperature models.
-- `annual_traffic.csv`: annual road-section traffic exposure (ADU, SDU and VDU).
+- `annual_traffic.csv`: annual road-section traffic values (ADU, SDU and VDU).
 - `conditional_poisson_input.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson model.
 - `seasonal_poisson_input.csv`: compact road-section/year/season/wind-bin input for season-specific mean-wind models.
 - `traffic_exposure_full.csv`: 18 aggregated rows used for the descriptive accident-per-vehicle-km table.
 - `selection_summary.csv`: counts for the accident and traffic selection figures.
-- `daily_traffic.csv`: one daily counter total with wind summaries and full-day observation counts in six mean-wind intervals, 2019–2024.
+- `daily_traffic.csv`: optional large CSV with one daily counter total and observation counts in six mean-wind intervals, 2019–2024.
 - `daily_counter_locations.csv`: one geometry-interpolated location per counter-site year for the selected-counter analyses.
 - {daily_text}
 - `manifest.csv`: row counts, columns, and a short description of each analysis file.
@@ -628,7 +626,7 @@ def main() -> None:
     entries.append(("README.md", 0, ["file descriptions", "rebuild instruction"], "Description of the analysis data layer."))
     entries.append(("manifest.csv", len(entries) + 1, ["file", "records", "columns", "description"], "Inventory of the analysis data files."))
     write_manifest(args.output, entries)
-    print(f"Wrote {len(entries)} canonical files to {args.output}")
+    print(f"Wrote {len(entries)} analysis-layer files to {args.output}")
 
 
 if __name__ == "__main__":

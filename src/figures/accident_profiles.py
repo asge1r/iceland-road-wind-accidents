@@ -43,8 +43,8 @@ def broad_accident_family(code: int) -> str:
     return "Unclassified"
 
 
-def prepare_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    study = pd.read_csv(STUDY_ACCIDENTS)
+def prepare_data(path: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    study = pd.read_csv(path)
     if study["vehicle_count"].isna().any():
         raise ValueError("Some study accidents have no prepared vehicle count.")
     study["vehicle_group"] = study["vehicle_count"].map(
@@ -78,29 +78,14 @@ def prepare_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFra
     severity["group_total"] = severity.groupby("severity_group")["count"].transform("sum")
     severity["percent"] = 100 * severity["count"] / severity["group_total"]
 
-    tidy = pd.concat(
-        [
-            family.assign(dimension="accident_family", category=family["accident_family"])[
-                ["dimension", "category", "count", "percent"]
-            ],
-            vehicles.assign(dimension="vehicle_count")[
-                ["dimension", "category", "count", "percent"]
-            ],
-            severity.assign(
-                dimension="accident_family_by_severity",
-                category=severity["accident_family"] + " | " + severity["severity_group"],
-            )[["dimension", "category", "count", "percent"]],
-        ],
-        ignore_index=True,
-    )
-    return family, vehicles, severity, tidy
+    return family, vehicles, severity
 
 
 def wrap(values: pd.Series, width: int = 42) -> list[str]:
     return ["\n".join(textwrap.wrap(value, width=width)) for value in values]
 
 
-def plot_accident_families(family: pd.DataFrame) -> None:
+def plot_accident_families(family: pd.DataFrame, path: Path) -> None:
     data = family.sort_values("count")
     fig, axis = plt.subplots(figsize=(10.5, 7), constrained_layout=True)
     bars = axis.barh(wrap(data["accident_family"]), data["count"], color=BLUE)
@@ -120,11 +105,11 @@ def plot_accident_families(family: pd.DataFrame) -> None:
     axis.set_xlim(0, data["count"].max() * 1.24)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right", "left"]].set_visible(False)
-    fig.savefig("reports/main/figures/accident_types.png", dpi=240, bbox_inches="tight")
+    fig.savefig(path, dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
-def plot_vehicles(vehicles: pd.DataFrame) -> None:
+def plot_vehicles(vehicles: pd.DataFrame, path: Path) -> None:
     fig, axis = plt.subplots(figsize=(8, 5.5), constrained_layout=True)
     bars = axis.bar(
         vehicles["category"], vehicles["count"], color=[GREEN, BLUE, GOLD]
@@ -145,11 +130,11 @@ def plot_vehicles(vehicles: pd.DataFrame) -> None:
     axis.set_ylim(0, vehicles["count"].max() * 1.18)
     axis.grid(axis="y", alpha=0.2)
     axis.spines[["top", "right"]].set_visible(False)
-    fig.savefig("reports/main/figures/vehicles_per_accident.png", dpi=240, bbox_inches="tight")
+    fig.savefig(path, dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
-def plot_severity(severity: pd.DataFrame, family: pd.DataFrame) -> None:
+def plot_severity(severity: pd.DataFrame, family: pd.DataFrame, path: Path) -> None:
     order = family.sort_values("count", ascending=False)["accident_family"].tolist()
     pivot = (
         severity.pivot(index="accident_family", columns="severity_group", values="percent")
@@ -180,27 +165,33 @@ def plot_severity(severity: pd.DataFrame, family: pd.DataFrame) -> None:
     axis.legend(frameon=False)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right"]].set_visible(False)
-    fig.savefig("reports/main/figures/accident_types_by_severity.png", dpi=240, bbox_inches="tight")
+    fig.savefig(path, dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--accidents", type=Path, default=STUDY_ACCIDENTS)
+    parser.add_argument(
+        "-o", "--output-dir", type=Path, default=Path("reports/main/figures")
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    global STUDY_ACCIDENTS
-    STUDY_ACCIDENTS = args.accidents
-    family, vehicles, severity, tidy = prepare_data()
-    plot_accident_families(family)
-    plot_vehicles(vehicles)
-    plot_severity(severity, family)
-    print("Wrote reports/main/figures/accident_types.png")
-    print("Wrote reports/main/figures/vehicles_per_accident.png")
-    print("Wrote reports/main/figures/accident_types_by_severity.png")
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    family, vehicles, severity = prepare_data(args.accidents)
+    outputs = [
+        args.output_dir / "accident_types.png",
+        args.output_dir / "vehicles_per_accident.png",
+        args.output_dir / "accident_types_by_severity.png",
+    ]
+    plot_accident_families(family, outputs[0])
+    plot_vehicles(vehicles, outputs[1])
+    plot_severity(severity, family, outputs[2])
+    for path in outputs:
+        print(f"Wrote {path}")
 
 
 if __name__ == "__main__":

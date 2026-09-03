@@ -115,7 +115,7 @@ def traffic_figure() -> None:
             ("Road-periods with nearby wind", annual_wind, f"{count(annual_total - annual_wind)} without nearby clean wind"),
         ],
     )
-    axes[0].set_title("Annual traffic exposure: road-section comparison", loc="left", fontsize=11, weight="bold", color=TEXT)
+    axes[0].set_title("Annual traffic: road-section comparison", loc="left", fontsize=11, weight="bold", color=TEXT)
     draw_flow(
         axes[1],
         [

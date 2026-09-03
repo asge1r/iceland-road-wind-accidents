@@ -77,15 +77,19 @@ def latex_cell(value: str, paths: bool) -> str:
     return value.strip()
 
 
-def render_part(rows: list[list[str]], caption: str, label: str | None) -> str:
+def render_part(
+    rows: list[list[str]], caption: str, label: str | None, continued: bool = False
+) -> str:
     body = []
     for index, row in enumerate(rows):
         cells = [latex_cell(cell, paths=column < 3) for column, cell in enumerate(row)]
         rule = r" \\ \grayhline" if index < len(rows) - 1 else r" \\"
         body.append(" &\n".join(cells) + rule)
     label_line = rf"\label{{{label}}}" if label else ""
+    continuation = r"\ContinuedFloat" if continued else ""
     return "\n".join([
         r"\begin{table}[p]",
+        continuation,
         r"\centering",
         r"\tiny",
         r"\setlength{\tabcolsep}{2.5pt}",
@@ -111,7 +115,7 @@ def render(
         return render_part(rows, caption, label)
     return "\n".join([
         render_part(rows[:split_at], caption, label),
-        render_part(rows[split_at:], f"{caption} (continued)", None),
+        render_part(rows[split_at:], f"{caption} (continued)", None, continued=True),
     ])
 
 

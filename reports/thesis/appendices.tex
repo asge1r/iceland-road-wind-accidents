@@ -1,8 +1,8 @@
 \chapter{Supporting Analyses}
 
 These figures are retained because each documents the study population, checks
-the stability of the primary pattern, or examines the traffic-exposure
-interpretation. They are descriptive unless stated otherwise; sparse bars are
+the primary pattern using another comparison, or examines the traffic data.
+They are descriptive unless stated otherwise; sparse bars are
 shown in grey and their observed accident counts are printed on the bars.
 
 \section{Accident Characteristics}
@@ -28,8 +28,9 @@ severity group.}
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{gust_oe.png}
-\caption{Frequency-adjusted observed/expected accident occurrence by maximum
-wind gust. The upper-tail increase supports, but does not replace, the primary
+\caption{Frequency-adjusted observed/expected accident occurrence by wind gust
+in the observation matched to the accident time. The upper-tail increase
+supports, but does not replace, the primary
 mean-wind result. Labels show observed accidents.}
 \end{figure}
 
@@ -60,7 +61,7 @@ grey bars contain fewer than 20 accidents.}
 \includegraphics[width=\textwidth]{temperature_oe.png}
 \caption{Temperature O/E estimates standardised by the independently matched
 temperature station and meteorological season. Temperature is exploratory;
-mean wind remains the primary exposure. Labels give observed accident counts.}
+mean wind remains the primary weather measure. Labels give observed accident counts.}
 \end{figure}
 
 The temperature bars compare observed accidents with the number expected from
@@ -75,7 +76,7 @@ largest hourly counts are at 15:00 and 16:00. Overall, 66.5\% of the selected
 accidents occurred in daylight, 10.5\% in civil twilight, and 23.0\% in
 darkness. These values describe when the study accidents occurred; they do not
 show that daylight or a particular hour is safer or more hazardous. Such a
-comparison would require traffic exposure by hour and daylight condition,
+comparison would require traffic counts by hour and daylight condition,
 which is not available in the daily-counter data.
 
 \section{Daily-Counter Validation}
@@ -88,7 +89,7 @@ which is not available in the daily-counter data.
 \toprule
 Check & Result \\
 \midrule
-Counter-site years in canonical location table & 2,332 \\
+Counter-site years in analysis location table & 2,332 \\
 Counter-site years located from road geometry & 2,325 \\
 Distinct located counter sites & 473 \\
 Sites matched to an official 20 m road-station point within 10 m & 435 \\
@@ -107,7 +108,7 @@ tests the interpolation; it is not used to overwrite the primary location.
 \caption{Vehicles counted per day relative to a typical day at the same
 counter, year, month, and weekday. Labels show counter-days. Daytime mean wind
 is calculated from 10:00 to 21:59. This is a supporting description of selected
-counter sites, not national traffic exposure.}
+counter sites, not traffic across the national road network.}
 \end{figure}
 
 \begin{table}[H]
@@ -115,7 +116,7 @@ counter sites, not national traffic exposure.}
 \caption{Consistency of observed daily PDF traffic with official ADU}
 \begin{tabularx}{\textwidth}{Xrrrr}
 \toprule
-Scope & \(N\) & Median & P10--P90 & \(r_{\log}\) \\
+Data included & \(N\) & Median & P10--P90 & \(r_{\log}\) \\
 \midrule
 All exact matches & 2,328 & 0.975 & 0.245--1.115 & 0.942 \\
 At least 300 observed days & 1,906 & 0.984 & 0.240--1.063 & 0.940 \\
@@ -124,7 +125,7 @@ At least 300 days, one counter per section & 1,122 & 1.000 & 0.925--1.112 & 0.99
 \end{tabularx}
 \end{table}
 
-\section{Full-Day-Mean Daily-Counter Sensitivity}
+\section{Full-Day-Mean Daily-Counter Check}
 \label{app:daily-counter-rate}
 
 \begin{table}[H]
@@ -153,7 +154,7 @@ to improve coverage.
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\caption{Detailed daily counter-based rural injury-accident rate sensitivity, 2019--2024}
+\caption{Detailed daily counter-based rural injury-accident rate comparison, 2019--2024}
 \begin{tabular}{lrrrr}
 \toprule
 Mean wind & Accidents & Counted vehicles & Counters & Rate ratio (95\% CI) \\
@@ -175,12 +176,12 @@ and gives a rate ratio of 2.42 (95\% CI 1.38--4.24) for at least 15 m/s. Both
 versions use the same 767 accidents, exact road-section/year assignment within
 20 km, and observed 24-hour traffic as the offset. Because a full-day mean
 does not represent conditions at the accident time, this analysis is retained
-only as an ecological sensitivity.
+only as a day-level check.
 
 \begin{table}[H]
 \centering
 \small
-\caption{Sensitivity of the upper daily-counter estimate to assignment distance}
+\caption{Upper daily-counter estimate under three assignment distances}
 \begin{tabular}{rrrrr}
 \toprule
 Maximum distance & Included accidents & Upper-bin accidents & Rate ratio & 95\% CI \\
@@ -198,8 +199,19 @@ at least 15 m/s; stability across radii does not remove that limitation.
 
 \section{Stratified Vehicle-Kilometre Model}
 
-Table~\ref{tab:estimated-rate} gives descriptive absolute rates using exposure
-from every eligible road section. Table~\ref{tab:traffic-scope} compares the all-period conditional model
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{conditional_poisson_rate_ratio_serious_fatal_by_wind.png}
+\caption{Estimated serious-or-fatal rural accident rate ratios by mean wind.
+The model compares wind intervals within the same road section, year, and
+traffic period. Labels show observed accidents. The four accidents in the
+highest interval make that estimate imprecise.}
+\label{fig:traffic-rate-serious}
+\end{figure}
+
+Table~\ref{tab:estimated-rate} gives descriptive absolute rates using estimated
+vehicle-kilometres from every eligible road section.
+Table~\ref{tab:traffic-scope} compares the all-period conditional model
 with a model restricted to official VDU and SDU traffic periods. The latter
 excludes April--May and October--November, for which VHDU is derived from ADU,
 SDU and VDU.
@@ -245,7 +257,7 @@ intervals differ because the official-only comparison excludes VHDU and has
 few accidents. This comparison is retained to show the dependence of the
 estimated rate on the traffic-period assumption.
 
-Vehicle-group and seasonal rate-model versions are not retained because the
-upper intervals become too sparse for a balanced comparison. The descriptive
-O/E subgroup figures above provide the limited subgroup evidence used in this
-thesis.
+The four-season rate model is reported in the main results using wider wind
+intervals to avoid very small cells. A vehicle-group rate model is not retained
+because the upper intervals become too sparse for a balanced comparison. The
+descriptive O/E vehicle-group figure above shows the limited evidence available.

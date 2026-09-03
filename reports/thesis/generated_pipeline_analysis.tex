@@ -1,4 +1,5 @@
 \begin{table}[p]
+
 \centering
 \tiny
 \setlength{\tabcolsep}{2.5pt}
@@ -27,16 +28,52 @@ Calculates clustered-bootstrap intervals and exports the retained O/E tables. \\
 Selects the primary upper mean-wind estimates under 10, 20 and 30 km station limits. \\ \grayhline
 \path{figures/oe.py} &
 \path{reports/main/tables/oe_results.csv} &
-\path{reports/main/figures/mean_wind_oe.png}\newline \path{gust_oe.png}\newline \path{temperature_oe.png}\newline four subgroup figures &
+\path{reports/main/figures/mean_wind_oe.png}\newline \path{gust_oe.png}\newline \path{temperature_oe.png}\newline two mean-wind subgroup figures &
 Draws the O/E figures from the completed result table. \\ \grayhline
 \path{tables/annual_traffic_quality.py} &
 \path{analysis/annual_traffic.csv} &
 \path{reports/main/tables/annual_traffic_quality.csv} &
 Audits nonpositive and unusual published seasonal traffic values. \\ \grayhline
+\path{tables/estimated_rate.py} &
+\path{analysis/traffic_exposure_full.csv} &
+\path{reports/main/tables/crash_rate_per_vehicle_km_by_wind.csv} &
+Calculates the descriptive accident rate from all eligible road sections. \\ \grayhline
+\path{tables/rate.py} &
+\path{analysis/conditional_poisson_input.csv} &
+\emph{\path{reports/main/tables/}}\newline \path{conditional_poisson_rate_ratio_by_wind.csv}\newline \path{conditional_poisson_rate_ratio_serious_fatal_by_wind.csv}\newline \emph{\path{reports/working/tables/}}\newline \path{stratified_crash_rate_ratio_official_traffic.csv} &
+Estimates injury and serious/fatal rate ratios and repeats the injury model using official VDU and SDU periods only. \\ \grayhline
+\path{figures/rate.py} &
+The three tables written by \path{tables/rate.py} &
+\emph{\path{reports/main/figures/}}\newline \path{conditional_poisson_rate_ratio_by_wind.png}\newline \path{conditional_poisson_rate_ratio_serious_fatal_by_wind.png}\newline \emph{\path{reports/working/figures/}}\newline \path{stratified_crash_rate_ratio_official_traffic.png} &
+Draws the annual-traffic rate ratios. \\ \grayhline
+\path{tables/seasonal_rate.py} &
+\path{analysis/seasonal_poisson_input.csv} &
+\path{reports/main/tables/seasonal_poisson_rate_ratio_by_wind.csv} &
+Fits four injury-accident models using coarse mean-wind intervals. \\ \grayhline
+\path{figures/seasonal_rate.py} &
+\path{reports/main/tables/seasonal_poisson_rate_ratio_by_wind.csv} &
+\path{reports/main/figures/seasonal_poisson_rate_ratio_by_wind.png} &
+Draws four season-specific rate-ratio panels. \\ \grayhline
 \path{tables/daily_traffic.py} &
 \path{analysis/daily_traffic.csv} &
 \path{reports/main/tables/daily_traffic_by_wind.csv}\newline \path{daily_traffic_period_summary.csv} &
-Calculates traffic relative to the typical day at the same counter. \\ \grayhline
+Calculates traffic relative to the typical day at the same counter. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[p]
+\ContinuedFloat
+\centering
+\tiny
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Exact inputs and outputs of the ordinary analysis pipeline (continued)}
+
+\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}
+\toprule
+Script & Input file(s) & Output file(s) & Description \\
+\midrule
 \path{tables/daily_wind_duration.py} &
 \path{analysis/daily_traffic.csv} &
 \path{reports/main/tables/daily_traffic_by_high_wind_duration.csv} &
@@ -50,28 +87,13 @@ Draws the sustained-wind traffic comparison. \\ \grayhline
 \emph{\path{reports/main/tables/}}\newline \path{daily_allocated_rate_ratio_by_wind.csv}\newline \path{daily_allocated_rate_serious_fatal_by_wind.csv}\newline \path{daily_allocated_rate_07_24_by_wind.csv} &
 Fits injury, serious/fatal, and 07:00--24:00 daily allocated-traffic models using accident-time \texttt{f}. \\ \grayhline
 \path{figures/daily_allocated_rate.py} &
-Daily allocated-rate result tables &
-\emph{\path{reports/main/figures/}}\newline \path{daily_allocated_rate_ratio_by_wind.png}\newline \path{daily_allocated_rate_serious_fatal_by_wind.png} &
-Draws the retained daily-counter rate ratios. \\ \grayhline
+\path{reports/main/tables/daily_allocated_rate_ratio_by_wind.csv} &
+\path{reports/main/figures/daily_allocated_rate_ratio_by_wind.png} &
+Draws the retained daily-counter injury-accident rate ratios. \\ \grayhline
 \path{tables/daily_counter_rate.py} &
 \emph{\path{analysis/}}\newline \path{accidents.csv}\newline \path{daily_traffic.csv}\newline \path{daily_counter_locations.csv} &
 \path{reports/main/tables/daily_counter_rate_ratio_by_wind.csv}\newline \path{daily_counter_rate_ratio_coarse_by_wind.csv} &
-Fits the detailed and preferred coarse full-day observed-traffic sensitivities within counter and year. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\begin{table}[p]
-\centering
-\tiny
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{1.08}
-\caption{Exact inputs and outputs of the ordinary analysis pipeline (continued)}
-
-\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}
-\toprule
-Script & Input file(s) & Output file(s) & Description \\
-\midrule
+Fits the detailed and coarse full-day observed-traffic comparisons within counter and year. \\ \grayhline
 \path{tables/daily_counter_radius.py} &
 \emph{\path{analysis/}}\newline \path{accidents.csv}\newline \path{daily_traffic.csv}\newline \path{daily_counter_locations.csv} &
 \path{reports/main/tables/daily_counter_radius_sensitivity.csv} &
@@ -79,38 +101,22 @@ Repeats both non-reference coarse estimates at 5, 10 and 20 km. \\ \grayhline
 \path{figures/daily_counter_rate.py} &
 \path{reports/main/tables/daily_counter_rate_ratio_coarse_by_wind.csv} &
 \path{reports/main/figures/daily_counter_rate_ratio_coarse_by_wind.png} &
-Draws the preferred observed-traffic sensitivity with 95\% intervals. \\ \grayhline
+Draws the coarse observed-traffic comparison with 95\% intervals. \\ \grayhline
 \path{tables/traffic_sensitivity.py} &
 Main and official-period rate tables\newline \path{analysis/daily_traffic.csv}\newline \path{reports/main/tables/annual_traffic_quality.csv} &
 \path{reports/main/tables/traffic_sensitivity.csv} &
-Consolidates period-scope, zero-counter-day and annual-traffic quality checks. \\ \grayhline
+Places the alternative traffic-period rule, zero-counter-day check, and annual-traffic quality checks in one table. \\ \grayhline
 \path{figures/daily_traffic.py} &
 \path{reports/main/tables/daily_traffic_by_wind.csv} &
 \path{reports/main/figures/daily_traffic_by_wind.png} &
 Draws the supporting daily-traffic result. \\ \grayhline
-\path{tables/rate.py} &
-\path{analysis/conditional_poisson_input.csv} &
-\emph{\path{reports/main/tables/}}\newline \path{conditional_poisson_rate_ratio_by_wind.csv}\newline \path{conditional_poisson_rate_ratio_serious_fatal_by_wind.csv} &
-Estimates injury and serious/fatal road-, year- and period-stratified rate ratios. \\ \grayhline
-\path{figures/rate.py} &
-Conditional Poisson rate tables &
-Two matching rate-ratio figures &
-Draws injury and serious/fatal rate ratios. \\ \grayhline
-\path{tables/seasonal_rate.py} &
-\path{analysis/seasonal_poisson_input.csv} &
-\path{reports/main/tables/seasonal_poisson_rate_ratio_by_wind.csv} &
-Fits four injury-accident models using coarse mean-wind intervals. \\ \grayhline
-\path{figures/seasonal_rate.py} &
-\path{reports/main/tables/seasonal_poisson_rate_ratio_by_wind.csv} &
-\path{reports/main/figures/seasonal_poisson_rate_ratio_by_wind.png} &
-Draws four season-specific rate-ratio panels. \\ \grayhline
 \path{figures/data_flow.py} &
-Selection and weather-cleaning summaries &
-Three data-selection figures &
+\path{analysis/selection_summary.csv}\newline \path{reports/main/tables/weather_cleaning_audit.csv} &
+\emph{\path{reports/main/figures/}}\newline \path{accident_flow.png}\newline \path{weather_flow.png}\newline \path{traffic_flow.png} &
 Draws accident, weather and traffic selection figures. \\ \grayhline
 \path{figures/accident_profiles.py} &
 \path{analysis/accidents.csv} &
-Descriptive figures &
+\emph{\path{reports/main/figures/}}\newline \path{accident_types.png}\newline \path{vehicles_per_accident.png}\newline \path{accident_types_by_severity.png} &
 Draws accident-type, vehicle-count and severity descriptions. \\ \grayhline
 \path{tables/conditions.py} &
 \path{analysis/accidents.csv}\newline \path{analysis/accident_conditions.csv} &
@@ -129,9 +135,9 @@ Fits continuous and categorical conditional logistic models. \\ \grayhline
 \path{reports/main/tables/high_wind_accident_profile.csv} &
 Compares the primary sample with accidents at mean wind at least 15 m/s. \\ \grayhline
 \path{validate.py} &
-Canonical analysis CSVs and retained result tables &
+Analysis CSVs and retained result tables &
 \path{reports/main/tables/final_analysis_validation.md} &
-Checks row counts, scope and headline results. \\
+Checks row counts, included records, and headline results. \\
 \bottomrule
 \end{tabularx}
 \end{table}

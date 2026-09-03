@@ -170,84 +170,6 @@ shown with a file pattern. Within a cell, each shared directory is printed once
 and the following filenames belong to that directory.
 
 \input{generated_pipeline_preparation.tex}
-\iffalse
-\begin{table}[H]
-\centering
-\tiny
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{1.08}
-\caption{Exact inputs and outputs of the data-preparation pipeline}
-\label{tab:pipeline}
-\begin{tabularx}{\textwidth}{L{0.17\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.25\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}
-\toprule
-Script & Input file(s) & Output file(s) & Description \\
-\midrule
-\path{accidents/build.py} &
-\emph{\path{raw/accidents/}} \path{accidents_*.txt}; \path{vehicles_*.txt};
-\path{road_links_2007_2025.txt}; \path{urban_boundaries_2020_2024.geojson} &
-\emph{\path{processed/accidents/}} \path{all.csv} &
-Joins source records and retains matching fields. \\ \grayhline
-\path{weather/clean.py} &
-\emph{\path{raw/weather/}} \path{weather_10min_raw.parquet} &
-\emph{\path{processed/weather/}} \path{weather.parquet} &
-Cleans ten-minute weather observations. \\ \grayhline
-\path{weather/frequency.py} &
-\emph{\path{processed/weather/}} \path{weather.parquet};
-\emph{\path{raw/weather/}} \path{stations.csv} &
-\emph{\path{processed/weather/}} \path{frequency.csv} &
-Counts wind and temperature observations by station, season and interval. \\ \grayhline
-\path{traffic/annual.py} &
-\emph{\path{raw/traffic/annual/}} \path{*.xls*} &
-\emph{\path{processed/traffic/}} \path{annual.csv} &
-Standardises annual road traffic. \\ \grayhline
-\path{accidents/match_weather.py} &
-\emph{\path{processed/accidents/}} \path{all.csv};
-\emph{\path{processed/weather/}} \path{weather.parquet};
-\emph{\path{raw/weather/}} \path{stations.csv} &
-\emph{\path{processed/accidents/}} \path{rural_injury.csv} &
-Matches wind and temperature independently within 20 km and five minutes. \\ \grayhline
-\path{accidents/case_control.py} &
-\emph{\path{processed/accidents/}} \path{rural_injury.csv};
-\emph{\path{processed/weather/}} \path{weather.parquet} &
-\emph{\path{processed/accidents/}} \path{case_control.csv} &
-Selects matched non-accident weather times. \\ \grayhline
-\path{traffic/build_road_period.py} &
-\emph{\path{processed/}} \path{traffic/annual.csv}; \path{accidents/rural_injury.csv}; \path{weather/weather.parquet};
-\emph{\path{raw/weather/}} \path{stations.csv};
-\emph{\path{raw/traffic/reference/}} \path{road_section_midpoints.csv}; \path{road_sections.parquet} (fallback) &
-\emph{\path{processed/}} \path{weather/road_period_frequency.csv}; \path{traffic/road_period.csv} &
-Builds road-period mean-wind exposure. \\ \grayhline
-\path{traffic/rate_weather.py} &
-\emph{\path{processed/}} \path{traffic/road_period.csv}; \path{accidents/rural_injury.csv}; \path{weather/weather.parquet};
-\emph{\path{raw/weather/}} \path{stations.csv} &
-\emph{\path{processed/accidents/}} \path{rate.csv} &
-Aligns accident and road-exposure weather stations. \\ \grayhline
-\path{traffic/daily.py} &
-\emph{\path{raw/traffic/daily_pdf/}} \path{*.pdf} &
-\emph{\path{processed/traffic/}} \path{daily_raw.csv} &
-Parses daily counter reports. \\ \grayhline
-\path{traffic/download_roads.py} &
-VGD-R MapServer layer 6 &
-\emph{\path{raw/traffic/reference/}} \path{roads.geojson} &
-Downloads the unchanged road reference. \\ \grayhline
-\path{traffic/locate_counters.py} &
-\emph{\path{processed/traffic/}} \path{daily_raw.csv};
-\emph{\path{raw/traffic/reference/}} \path{roads.geojson} &
-\emph{\path{processed/traffic/}} \path{daily.csv} &
-Combines channels and locates counters. \\ \grayhline
-\path{traffic/daily_weather.py} &
-\emph{\path{processed/}} \path{traffic/daily.csv}; \path{weather/weather.parquet};
-\emph{\path{raw/weather/}} \path{stations.csv} &
-\emph{\path{processed/traffic/}} \path{daily_match.parquet}; \path{daily_weather.csv} &
-Matches counter-days to daytime and full-day wind. \\ \grayhline
-\path{export_tables.py} &
-\emph{\path{processed/}} \path{accidents/rural_injury.csv}; \path{accidents/rate.csv}; \path{accidents/case_control.csv}; \path{weather/frequency.csv}; \path{traffic/annual.csv}; \path{traffic/road_period.csv}; \path{traffic/daily_weather.csv} &
-\emph{\path{analysis/}} \path{accidents.csv}; \path{accident_conditions.csv}; \path{case_control.csv}; \path{weather_frequency.csv}; \path{annual_traffic.csv}; \path{conditional_poisson_input.csv}; \path{traffic_exposure_full.csv}; \path{daily_traffic.csv}; \path{daily_counter_locations.csv}; \path{selection_summary.csv} &
-Exports the clean CSV inputs used by analysis scripts. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\fi
 
 Ordinary analysis begins only after the compact CSV layer has been exported.
 Table~\ref{tab:analysis-pipeline} lists the retained analysis-to-result steps;
@@ -256,94 +178,6 @@ none reads from \path{raw/} or \path{processed/}. Input paths beginning with
 \path{reports/}.
 
 \input{generated_pipeline_analysis.tex}
-\iffalse
-\begin{table}[p]
-\centering
-\tiny
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{1.08}
-\caption{Exact inputs and outputs of the ordinary analysis pipeline}
-\label{tab:analysis-pipeline}
-\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}
-\toprule
-Script & Input file(s) & Output file(s) & Description \\
-\midrule
-\path{analysis/build_oe.py} &
-\emph{\path{analysis/}} \path{accidents.csv}; \path{accident_conditions.csv}; \path{weather_frequency.csv} &
-\emph{\path{working/tables/}} \path{oe_station_bins.csv} &
-Builds station--season observed and expected counts. \\ \grayhline
-\path{tables/oe.py} &
-\path{working/tables/oe_station_bins.csv}; \path{analysis/accidents.csv}; \path{analysis/accident_conditions.csv} &
-\emph{\path{main/tables/}} \path{oe_results.csv}; \path{mean_wind_oe.csv}; \path{gust_oe.csv}; \path{temperature_oe.csv} &
-Calculates clustered-bootstrap O/E results. \\ \grayhline
-\path{tables/radius_sensitivity.py} &
-\path{main/tables/oe_results.csv} &
-\path{main/tables/mean_wind_radius_sensitivity.csv} &
-Selects the 10, 20, and 30 km primary sensitivity. \\ \grayhline
-\path{figures/oe.py} &
-\path{main/tables/oe_results.csv} &
-\emph{\path{main/figures/}} \path{mean_wind_oe.png}; \path{gust_oe.png}; \path{temperature_oe.png}; subgroup figures &
-Draws completed O/E tables. \\ \grayhline
-\path{tables/conditions.py} &
-\emph{\path{analysis/}} \path{accidents.csv}; \path{accident_conditions.csv} &
-\emph{\path{main/tables/}} \path{accident_conditions_summary.csv}; \path{temperature_coverage.csv} &
-Summarises hour, daylight, and temperature. \\ \grayhline
-\path{figures/conditions.py} &
-\path{main/tables/accident_conditions_summary.csv} &
-\path{main/figures/accident_conditions_overview.png} &
-Draws the consolidated raw-count figure. \\ \grayhline
-\path{tables/case_control.py} &
-\path{analysis/case_control.csv} &
-\path{main/tables/case_control_weather.csv} &
-Fits time-stratified conditional logistic models. \\ \grayhline
-\path{tables/rate.py} &
-\path{analysis/conditional_poisson_input.csv} &
-\path{main/tables/conditional_poisson_rate_ratio_by_wind.csv} &
-Fits the supplementary conditional Poisson model. \\ \grayhline
-\path{tables/estimated_rate.py} &
-\path{analysis/traffic_exposure_full.csv} &
-\path{main/tables/crash_rate_per_vehicle_km_by_wind.csv} &
-Calculates descriptive estimated rates. \\ \grayhline
-\path{tables/daily_traffic.py} &
-\path{analysis/daily_traffic.csv} &
-\emph{\path{main/tables/}} \path{daily_traffic_by_wind.csv}; \path{daily_traffic_period_summary.csv} &
-Summarises counter-day traffic by wind. \\ \grayhline
-\path{tables/daily_wind_duration.py} &
-\path{analysis/daily_traffic.csv} &
-\path{main/tables/daily_traffic_by_high_wind_duration.csv} &
-Compares traffic by hours with strong wind. \\ \grayhline
-\path{figures/daily_wind_duration.py} &
-\path{main/tables/daily_traffic_by_high_wind_duration.csv} &
-\path{main/figures/daily_traffic_by_high_wind_duration.png} &
-Draws the sustained-wind traffic result. \\ \grayhline
-\path{tables/daily_allocated_rate.py} &
-\emph{\path{analysis/}} \path{accidents.csv}; \path{accident_conditions.csv}; \path{daily_traffic.csv}; \path{daily_counter_locations.csv} &
-\path{main/tables/daily_allocated_rate_ratio_by_wind.csv} &
-Fits the allocated daily-counter rate model. \\ \grayhline
-\path{figures/daily_allocated_rate.py} &
-\path{main/tables/daily_allocated_rate_ratio_by_wind.csv} &
-\path{main/figures/daily_allocated_rate_ratio_by_wind.png} &
-Draws the allocated rate ratios. \\ \grayhline
-\path{tables/daily_counter_rate.py} &
-\emph{\path{analysis/}} \path{accidents.csv}; \path{daily_traffic.csv}; \path{daily_counter_locations.csv} &
-\emph{\path{main/tables/}} \path{daily_counter_rate_ratio_by_wind.csv}; \path{daily_counter_rate_ratio_coarse_by_wind.csv} &
-Fits appendix full-day-mean sensitivities. \\ \grayhline
-\path{tables/daily_counter_radius.py} &
-\emph{\path{analysis/}} \path{accidents.csv}; \path{daily_traffic.csv}; \path{daily_counter_locations.csv} &
-\path{main/tables/daily_counter_radius_sensitivity.csv} &
-Tests 5, 10, and 20 km counter assignment. \\ \grayhline
-\path{figures/daily_counter_rate.py} &
-\path{main/tables/daily_counter_rate_ratio_coarse_by_wind.csv} &
-\path{main/figures/daily_counter_rate_ratio_coarse_by_wind.png} &
-Draws the appendix coarse sensitivity. \\ \grayhline
-\path{tables/traffic_sensitivity.py} &
-Rate tables; \path{analysis/daily_traffic.csv}; \path{main/tables/annual_traffic_quality.csv} &
-\path{main/tables/traffic_sensitivity.csv} &
-Consolidates retained traffic sensitivities. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\fi
 \section{Accident Data}
 
 The accident source covers 2007--2025 \cite{samgongustofaAccidents}. The study
@@ -524,7 +358,7 @@ Figures are generated by the figure scripts and are not manually edited.
 
 \section{Primary Wind-Frequency Analysis}
 
-Mean wind speed \texttt{f} is the pre-specified primary exposure and is divided
+Mean wind speed \texttt{f} is the pre-specified primary weather measure and is divided
 into 5 m/s intervals. Wind gust \texttt{fg} from the ten-minute observation
 matched to the accident time is retained as a supporting analysis. Each
 accident is compared with the mean-wind distribution at its
@@ -701,7 +535,7 @@ association rather than an estimate of traffic in that window.
 The source contains 5,432 counter-days with a reported count of zero. They are
 retained because the reports do not distinguish a genuine zero or road closure
 from counter downtime. Consequently, the daily result is supplementary and
-the zero-count sensitivity should be inspected before substantive inference.
+the result with zero counts excluded should be inspected before interpretation.
 The report's \emph{stöð} is placed proportionally between the official start
 and end stations on the registered road-section geometry. The resulting
 coordinate is explicitly marked as estimated rather than treated as a surveyed
@@ -743,9 +577,9 @@ conditional Poisson model gives each counter--year its own intercept. The
 allocation assumes uniform traffic across valid observation times; it is
 estimated within-day exposure, not observed hourly traffic. Accident and
 counter weather stations are selected independently and can differ. The
-full-day-mean model is retained only as an ecological appendix sensitivity.
+full-day-mean model is retained only as an appendix day-level check.
 The main allocation uses all sufficiently complete 24-hour weather records. A
-separate sensitivity assumes all daily traffic occurs from 07:00 to midnight,
+separate check assumes all daily traffic occurs from 07:00 to midnight,
 uses only weather observations and accidents in that interval, and is reported
 only to show the effect of that unverified assumption. Both versions are also
 fitted for the serious-or-fatal outcome where counts permit.
@@ -760,7 +594,7 @@ fitted for the serious-or-fatal outcome where counts permit.
 \label{tab:coverage}
 \begin{tabularx}{\textwidth}{Xrrr}
 \toprule
-Analysis step & Available & Scope & Coverage \\
+Analysis step & Available & Data included & Coverage \\
 \midrule
 Wind match within 10 km & 4,858 & 6,414 & 75.74\% \\
 Wind match within 20 km (primary) & 6,192 & 6,414 & 96.54\% \\
@@ -791,7 +625,7 @@ reduced to 6,414 rural injury accidents by the outcome and location rules;
 road-section/year traffic link; and 4,958 enter the conditional traffic model.
 Within 2019--2024, 767 of 1,863 accidents have the stricter exact-section,
 distance, and valid observed counter-day link used by the direct daily-rate
-sensitivity. Each reduction answers a different data requirement and no
+check. Each reduction answers a different data requirement and no
 unmatched accident is silently reassigned.
 
 \begin{figure}[p]
@@ -839,7 +673,7 @@ imprecise under every radius because it contains only 15--17 accidents.
 \begin{table}[H]
 \centering
 \small
-\caption{Primary mean-wind O/E sensitivity to weather-station radius}
+\caption{Primary mean-wind O/E under three weather-station distance limits}
 \label{tab:mean-wind-radius}
 \begin{tabular}{rrlrrr}
 \toprule
@@ -869,7 +703,7 @@ seasonal expectation (O/E 1.01). The non-monotonic pattern may reflect travel
 behaviour, precipitation, or road conditions and is not interpreted as a
 causal temperature effect or as an additional thesis conclusion.
 
-\section{Matched-Time Sensitivity Analysis}
+\section{Comparison with Matched Non-accident Times}
 
 The case-crossover analysis retains 6,190 wind strata with 20,869 control
 times and 5,697 temperature strata with 19,175 control times. A 5 m/s increase
@@ -891,10 +725,11 @@ accidents account for 63.0\% versus 72.1\%, and serious or fatal accidents for
 20.0\% versus 22.7\%. These are descriptive compositions, not adjusted risk
 comparisons.
 
-\section{Traffic Triangulation}
+\section{Results Using Traffic Data}
 
-The conditional Poisson model includes 4,958 accidents in 4,004 informative
-road-section--year--traffic-period strata. Relative to 0--5 m/s, the estimated
+The conditional Poisson model includes 4,958 accidents in 4,004
+road-section--year--traffic-period groups that contain accidents. Relative to
+0--5 m/s, the estimated
 within-stratum rate ratio is 1.59 (95\% CI 1.36--1.86) at 15--20 m/s, 2.38
 (1.78--3.18) at 20--25 m/s, and 4.49 (2.75--7.34) at at least 25 m/s. The
 uppermost estimate contains 17 accidents and is therefore less precise. These
@@ -917,16 +752,6 @@ rate ratio is 1.90 (95\% CI 1.38--2.60) at 15--20 m/s and 2.17
 (1.11--4.25) at 20--25 m/s. The at-least-25 m/s estimate is 4.70
 (1.69--13.08), but contains only four accidents and is correspondingly
 imprecise.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{conditional_poisson_rate_ratio_serious_fatal_by_wind.png}
-\caption{Estimated serious-or-fatal rural accident rate ratios by mean wind.
-The exposure and within-road-section--year--traffic-period comparison match
-Figure~\ref{fig:traffic-rate-ratio}; labels show observed accidents and error
-bars are 95\% confidence intervals.}
-\label{fig:traffic-rate-serious}
-\end{figure}
 
 Using coarse seasonal intervals, the rate ratio for at least 15 versus 0--10
 m/s is 1.45 (95\% CI 1.19--1.76) in winter, 2.85 (1.98--4.11) in spring,
@@ -960,8 +785,9 @@ counter-clustered 95\% confidence intervals; labels show counter-days.}
 \label{fig:daily-wind-duration}
 \end{figure}
 
-The allocated daily-counter model retains 760 accidents in 488 informative
-counter--year strata. Relative to 0--10 m/s, the rate ratio is 1.77 (95\% CI
+The allocated daily-counter model retains 760 accidents in 488 counter--year
+groups that contain accidents. Relative to 0--10 m/s, the rate ratio is 1.77
+(95\% CI
 1.44--2.17) at 10--15 m/s and 3.38 (2.46--4.62) for at least 15 m/s. The latter
 category contains 46 accidents. The denominator starts from observed daily
 traffic, but its allocation within the day is estimated from the counter
@@ -994,11 +820,11 @@ counter records reported as zero changes the 20--25 m/s traffic estimate from
 \begin{table}[H]
 \centering
 \footnotesize
-\caption{Compact sensitivity and quality checks for the traffic analyses}
+\caption{Compact comparison and quality checks for the traffic analyses}
 \label{tab:traffic-sensitivity}
 \begin{tabularx}{\textwidth}{L{0.22\textwidth}L{0.31\textwidth}L{0.22\textwidth}X}
 \toprule
-Check & Scope & Estimate (95\% interval) & Records \\
+Check & Data included & Estimate (95\% interval) & Records \\
 \midrule
 Rate model, 20--25 m/s & All periods, including derived VHDU & RR 2.38 (1.78--3.18) & 48 accidents \\
  & Official VDU and SDU only & RR 1.93 (1.32--2.82) & 28 accidents \\ \grayhline
@@ -1022,9 +848,9 @@ Annual-traffic quality & Nonpositive published VDU & 6.57\% excluded & 1,509 sec
 \toprule
 Analysis & Comparison & Estimate (95\% interval) & Interpretation and principal limitation \\
 \midrule
-Primary O/E & 20--25 m/s & 2.11 (1.54--2.73) & Accident occurrence relative to local wind frequency; no traffic denominator. \\ \grayhline
+Primary O/E & 20--25 m/s & 2.11 (1.54--2.73) & Accident occurrence relative to local wind frequency; traffic is not included. \\ \grayhline
 Case-crossover & $\geq15$ vs 0--5 m/s & OR 1.61 (1.39--1.87) & Exact calendar-time matching; no direct control for unusual daily travel changes. \\ \grayhline
-Conditional Poisson & 20--25 vs 0--5 m/s & RR 2.38 (1.78--3.18) & Within road, year, and traffic period; vehicle-kilometres are estimated exposure. \\ \grayhline
+Conditional Poisson & 20--25 vs 0--5 m/s & RR 2.38 (1.78--3.18) & Within road, year, and traffic period; vehicle-kilometres are estimated from annual traffic. \\ \grayhline
 Allocated daily rate & $\geq15$ vs 0--10 m/s & RR 3.38 (2.46--4.62) & Observed daily total with estimated within-day allocation; 760 linked accidents, including 46 in the upper category. \\
 \bottomrule
 \end{tabularx}
@@ -1078,7 +904,7 @@ misleading.
 
 The traffic data cannot supply the missing hourly denominator. Annual traffic
 is seasonal, while the counter data contain one total for an entire day. The
-07:00--24:00 uniform allocation is therefore used only as a sensitivity and
+07:00--24:00 uniform allocation is therefore used only as an assumption check and
 not as an estimated hourly traffic profile. No traffic-adjusted hour or
 daylight O/E curve is reported.
 
@@ -1086,7 +912,7 @@ The appendix is organised by purpose. Accident-characteristic figures describe
 the selected study population. The gust result and mean-wind subgroup figures
 check whether the main pattern is confined to one exposure definition or
 subgroup. Detailed daily
-and annual traffic tables document the supporting exposure work. None is used
+and annual traffic tables document the supporting traffic work. None is used
 to redefine the primary outcome after seeing the results.
 
 \chapter{Discussion}
@@ -1108,7 +934,7 @@ traffic during strong wind, but their temporal and spatial coverage is not
 sufficient to make them a final national estimate of accident risk per
 vehicle-kilometre.
 
-The daily-counter analyses strengthen this triangulation. Observed traffic is
+The daily-counter analyses support the same interpretation. Observed traffic is
 lower when strong wind persists for more hours, and the allocated daily model
 again gives rate ratios above one. That model starts from measured 24-hour
 traffic but estimates its within-day distribution from wind frequency. It
@@ -1168,10 +994,10 @@ research question, method, and result clear.
   \item The allocated daily-rate model retains 760 accidents with an exact
   road-section counter link and valid counter-day. It assumes the observed
   daily traffic is distributed across wind intervals in proportion to valid
-  ten-minute observations. This is estimated exposure, not observed hourly
+  ten-minute observations. This is an estimated within-day split, not observed hourly
   traffic; the accident and counter weather stations can also differ, and the
   accident vehicle need not have passed the assigned counter.
-  \item The 07:00--24:00 daily sensitivity assumes zero traffic outside that
+  \item The 07:00--24:00 daily check assumes zero traffic outside that
   interval and uniform traffic within it. This is deliberately an assumption
   check, not a reconstruction of hourly traffic.
   \item Estimated rates are restricted to rural injury accidents on linked

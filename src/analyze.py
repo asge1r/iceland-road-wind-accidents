@@ -1,10 +1,10 @@
-"""Rebuild the canonical tables and figures retained for the thesis.
+"""Rebuild the tables and figures retained for the thesis.
 
 Run from the project root with::
 
     .venv/bin/python -m src.analyze
 
-All results use compact canonical CSV inputs under ``data/analysis``. Run
+All results use documented CSV inputs under ``data/analysis``. Run
 ``src.prepare`` first when source data or preparation rules have changed.
 """
 
@@ -38,7 +38,6 @@ def main() -> None:
     run("src.figures.oe", dry_run=args.dry_run)
     run("src.tables.annual_traffic_quality", dry_run=args.dry_run)
     run("src.tables.estimated_rate", dry_run=args.dry_run)
-    run("src.figures.estimated_rate", dry_run=args.dry_run)
     run("src.tables.rate", dry_run=args.dry_run)
     run("src.figures.rate", dry_run=args.dry_run)
     run(
@@ -66,7 +65,6 @@ def main() -> None:
         "--output", "reports/working/figures/stratified_crash_rate_ratio_official_traffic.png",
         dry_run=args.dry_run,
     )
-    run("src.analysis.compare_traffic_scopes", dry_run=args.dry_run)
     daily_path = Path("data/analysis/daily_traffic.csv")
     if args.skip_daily_traffic or not daily_path.exists():
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
@@ -81,12 +79,6 @@ def main() -> None:
             "src.tables.daily_allocated_rate", "--outcome", "serious-fatal",
             "--output", "reports/main/tables/daily_allocated_rate_serious_fatal_by_wind.csv",
             "--audit", "reports/working/tables/daily_allocated_rate_serious_fatal_audit.csv",
-            dry_run=args.dry_run,
-        )
-        run(
-            "src.figures.daily_allocated_rate", "--input",
-            "reports/main/tables/daily_allocated_rate_serious_fatal_by_wind.csv",
-            "--output", "reports/main/figures/daily_allocated_rate_serious_fatal_by_wind.png",
             dry_run=args.dry_run,
         )
         run(

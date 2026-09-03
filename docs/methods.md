@@ -24,9 +24,9 @@ interpreted as missing wind observations from the wind-monitoring network.
 
 ## Wind variables used in O/E analysis
 
-Mean wind speed (`f`) in 5 m/s intervals is the primary exposure. The `fg`
+Mean wind speed (`f`) in 5 m/s intervals is the primary weather measure. The `fg`
 reported in the ten-minute observation matched to the accident time is a
-secondary wind-gust exposure; it is not a daily maximum.
+secondary wind-gust measure; it is not a daily maximum.
 
 ## Evidence hierarchy
 
@@ -37,7 +37,7 @@ of the same weekday and clock time in the same month and year, using the same
 weather station and match limits. The conditional Poisson road-section model is
 the second supporting analysis and uses estimated vehicle-kilometres. A stricter
 selected-counter model uses observed daily counts directly as its offset; its
-5, 10 and 20 km assignment sensitivity is reported explicitly. Daily counters
+Results under 5, 10 and 20 km assignment limits are reported explicitly. Daily counters
 also describe whether traffic changes with wind at selected sites. These
 analyses estimate different quantities and are compared by direction, not by
 the numerical size of their estimates.
@@ -54,7 +54,7 @@ The prepared accident dataset retains all valid registered accidents. The
 compact `data/analysis/accidents.csv` file then contains the defined thesis
 population: rural injury accidents with `meidsli < 4`. Serious or fatal
 accidents have `meidsli <= 2`. Damage-only accidents remain in the reproducible
-prepared accident file but are not copied into the canonical thesis CSV.
+prepared accident file but are not copied into the thesis analysis CSV.
 
 ## Daily traffic and wind
 
@@ -78,10 +78,10 @@ and weekday expectation. The allocated daily-rate model assigns the observed
 24-hour total to 0--10, 10--15, and at least 15 m/s in proportion to the
 counter station's valid ten-minute observations. Accidents are classified by
 their independently matched accident-time `f`; strata are counter and year.
-This uses estimated within-day exposure, not observed hourly traffic. It is
+This uses an estimated within-day traffic split, not observed hourly traffic. It is
 supporting because it covers selected counters in 2019--2024 and cannot show
 that an accident vehicle passed the assigned counter. The former full-day-mean
-model is retained only as an appendix ecological sensitivity.
+model is retained only as an appendix day-level check.
 
 ## Counter coordinates
 

@@ -166,26 +166,6 @@ def main() -> None:
         "Mean wind O/E by number of vehicles involved",
         args.output / "mean_wind_by_vehicle_group_oe.png",
     )
-    plot_mean_wind_strata(
-        results,
-        "fg",
-        "analysis_season",
-        ["Winter", "Spring", "Summer", "Fall"],
-        "severity_group",
-        "Injury accidents",
-        "Matched-time wind-gust O/E by season",
-        args.output / "gust_by_season_oe.png",
-    )
-    plot_mean_wind_strata(
-        results,
-        "fg",
-        "severity_group",
-        ["1 vehicle", "2 or more vehicles"],
-        "analysis_season",
-        "All seasons",
-        "Matched-time wind-gust O/E by number of vehicles involved",
-        args.output / "gust_by_vehicle_group_oe.png",
-    )
     print(f"wrote O/E figures to {args.output}")
 
 
