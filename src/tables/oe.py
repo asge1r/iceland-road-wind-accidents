@@ -18,16 +18,11 @@ from src.weather.frequency import (
 
 DEFAULT_DETAILS = Path("reports/working/tables/oe_station_bins.csv")
 DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
-ACCIDENT_MATCH_COVERAGE = Path(
-    "archive/generated_diagnostics/oe/accident_weather_coverage.csv"
-)
 DEFAULT_OUTPUT_DIR = Path("reports/main/tables")
 DEFAULT_SUBGROUP_OUTPUT = Path("reports/working/tables/mean_wind_subgroups.csv")
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
-DEFAULT_WEATHER_CLEANING = Path(
-    "archive/generated_diagnostics/weather_cleaning_by_year.csv"
-)
+DEFAULT_WEATHER_CLEANING = Path("data/analysis/weather_cleaning.csv")
 PRIMARY_MAX_TIME_DIFFERENCE_MINUTES = 5
 PRIMARY_VARIABLE = "f"
 
@@ -352,6 +347,7 @@ def write_thesis_outputs(
     primary: pd.DataFrame,
     risk_coverage: pd.DataFrame,
     output_dir: Path,
+    scope_accidents: int,
 ) -> None:
     primary_data = primary[primary["variable"].eq(PRIMARY_VARIABLE)].sort_values("bin_order").copy()
     thesis = primary_data[
@@ -424,17 +420,12 @@ def write_thesis_outputs(
         & risk_coverage["severity_group"].eq("Injury accidents")
         & risk_coverage["analysis_season"].eq("All seasons")
     ][["radius_km", "eligible_accidents", "analysed_accidents"]].copy()
-    if ACCIDENT_MATCH_COVERAGE.exists():
-        match_coverage = pd.read_csv(ACCIDENT_MATCH_COVERAGE)
-        scope_accidents = int(match_coverage["scope_accidents"].max())
-    else:
-        scope_accidents = 6120
     primary_coverage.insert(1, "scope_accidents", scope_accidents)
     primary_coverage["coverage_pct"] = (
         100 * primary_coverage["analysed_accidents"] / scope_accidents
     )
     primary_coverage.to_csv(
-        output_dir / "weather_match_coverage.csv", index=False
+        output_dir / "wind_coverage.csv", index=False
     )
 
 
@@ -472,6 +463,8 @@ def main() -> None:
     for vehicle_group in ["1 vehicle", "2 or more vehicles"]:
         for variable in ["f", "fg"]:
             scenarios.append((variable, 20, vehicle_group, "All seasons"))
+    for accident_type in ["Single-vehicle accident type", "Other accident types"]:
+        scenarios.append(("f", 20, accident_type, "All seasons"))
 
     for scenario_index, (variable, radius, severity, season) in enumerate(scenarios):
         result, _ = analyse_scenario(
@@ -509,7 +502,7 @@ def main() -> None:
         & all_results["analysis_season"].eq("All seasons")
     ].copy()
     subgroup = all_results[
-        all_results["variable"].isin(["f", "fg"])
+        all_results["variable"].isin(["f", "fg", "temperature"])
         & all_results["radius_km"].eq(20)
         & all_results["max_time_difference_minutes"].eq(
             PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
@@ -523,6 +516,12 @@ def main() -> None:
                 all_results["severity_group"].isin(["1 vehicle", "2 or more vehicles"])
                 & all_results["analysis_season"].eq("All seasons")
             )
+            | (
+                all_results["severity_group"].isin(
+                    ["Single-vehicle accident type", "Other accident types"]
+                )
+                & all_results["analysis_season"].eq("All seasons")
+            )
         )
     ].copy()
     args.subgroup_output.parent.mkdir(parents=True, exist_ok=True)
@@ -532,13 +531,14 @@ def main() -> None:
         primary,
         coverage,
         args.output_dir,
+        len(read_accidents(args.accidents, ["id"])),
     )
 
     write_weather_coverage(
         args.accidents,
         args.conditions,
         args.weather_cleaning,
-        args.output_dir / "weather_cleaning_audit.csv",
+        args.output_dir / "weather_audit.csv",
     )
 
     print(f"scenarios={len(scenarios)} bootstrap_reps={args.bootstrap_reps:,}")

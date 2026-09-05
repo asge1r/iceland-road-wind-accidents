@@ -11,12 +11,18 @@ from statsmodels.discrete.conditional_models import ConditionalLogit
 
 
 DEFAULT_INPUT = Path("data/analysis/case_control.csv")
-DEFAULT_OUTPUT = Path("reports/main/tables/case_control_weather.csv")
+DEFAULT_OUTPUT = Path("reports/main/tables/matched_weather.csv")
 SPECS = {
     "mean_wind": {
         "bins": [0, 5, 10, 15, np.inf],
         "labels": ["0-5", "5-10", "10-15", ">=15"],
         "reference": "0-5",
+        "unit": "m/s",
+    },
+    "wind_gust": {
+        "bins": [0, 10, 15, 20, 25, 30, np.inf],
+        "labels": ["0-10", "10-15", "15-20", "20-25", "25-30", ">=30"],
+        "reference": "0-10",
         "unit": "m/s",
     },
     "temperature": {

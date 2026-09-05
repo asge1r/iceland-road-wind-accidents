@@ -14,23 +14,32 @@ import pandas as pd
 from src.figures.common import interval_label
 
 
-DEFAULT_INPUT = Path("reports/main/tables/accident_conditions_summary.csv")
-DEFAULT_OUTPUT = Path("reports/main/figures/accident_conditions_overview.png")
+DEFAULT_INPUT = Path("reports/main/tables/conditions.csv")
+DEFAULT_OUTPUT = Path("reports/main/figures/conditions.png")
 COLOR = "#547A99"
 
 
 def panel(axis: plt.Axes, data: pd.DataFrame, title: str, xlabel: str = "") -> None:
     categories = data["category"].map(interval_label)
-    bars = axis.bar(categories, data["accidents"], color=COLOR)
+    minor = axis.bar(
+        categories, data["minor_injury"], color=COLOR, label="Minor injury"
+    )
+    serious = axis.bar(
+        categories,
+        data["serious_or_fatal"],
+        bottom=data["minor_injury"],
+        color="#B85C4A",
+        label="Serious or fatal",
+    )
     axis.set_title(title)
     axis.set_xlabel(xlabel)
     axis.set_ylabel("Accidents")
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)
-    for bar, value in zip(bars, data["accidents"], strict=True):
+    for bar, value in zip(minor, data["accidents"], strict=True):
         axis.text(
             bar.get_x() + bar.get_width() / 2,
-            bar.get_height(),
+            value,
             f"{int(value):,}",
             ha="center",
             va="bottom",
@@ -65,7 +74,10 @@ def main() -> None:
     axes[0, 0].tick_params(axis="x", labelrotation=45)
     for axis in [axes[1, 0], axes[1, 1]]:
         axis.tick_params(axis="x", labelrotation=25)
-    figure.suptitle("Rural injury accidents: time and environmental conditions")
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    figure.legend(
+        handles, labels, loc="outside upper center", ncol=2, frameon=False
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(args.output, dpi=240)
     plt.close(figure)

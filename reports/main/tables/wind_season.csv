@@ -1,0 +1,6 @@
+result,season,comparison,reference,odds_ratio,ci_95_low,ci_95_high,p_value,likelihood_ratio_chi2,degrees_of_freedom,strata,cases,control_times,matching
+Season interaction test,All seasons,All wind-by-season interaction terms,Common wind association across seasons,,,,0.07211407053531174,11.576399900477554,6.0,6190,6190,20869,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Winter,>=15 m/s,0-10 m/s,1.5107817546513624,1.2355752158479583,1.8472865762534965,5.775123602793352e-05,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Spring,>=15 m/s,0-10 m/s,1.9881005966305905,1.3082347495963713,3.0212803807133124,0.0012894162687690808,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Summer,>=15 m/s,0-10 m/s,2.3654121031946396,1.6219651681847465,3.449626741492628,7.737698642062741e-06,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Autumn,>=15 m/s,0-10 m/s,1.3177390610179576,0.9442708093304764,1.8389176238156588,0.10464223520581734,,,6190,6190,20869,"same station, year, month, weekday, and clock time"

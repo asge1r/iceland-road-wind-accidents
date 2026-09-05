@@ -21,9 +21,9 @@ RAW_COLUMNS = ("station", "time", "f", "fg", "t")
 WIND_COLUMNS = RAW_COLUMNS[:-1]
 DEFAULT_INPUT = Path("data/raw/weather/weather_10min_raw.parquet")
 DEFAULT_OUTPUT = Path("data/processed/weather/weather.parquet")
-DEFAULT_SUMMARY = Path("archive/generated_diagnostics/weather_cleaning_by_year.csv")
-DEFAULT_COVERAGE = Path("archive/generated_diagnostics/weather_station_year_coverage.csv")
-DEFAULT_FROZEN = Path("archive/generated_diagnostics/weather_frozen_zero_intervals.csv")
+DEFAULT_SUMMARY = Path("data/processed/weather/cleaning.csv")
+DEFAULT_COVERAGE = Path("data/processed/weather/station_coverage.csv")
+DEFAULT_FROZEN = Path("data/processed/weather/frozen_zero.csv")
 
 MAX_F = 45.0
 MAX_FG = 65.0

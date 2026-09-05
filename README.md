@@ -1,9 +1,14 @@
-# Wind and Rural Road Accidents
+# Meteorological Conditions and Rural Injury Accidents in Iceland
 
-This project evaluates whether rural injury accidents are disproportionately
-common in high winds. The primary result compares accident counts with the
-local frequency of each mean-wind interval. Its uncertainty intervals account
+This project examines rural injury accidents in relation to mean wind, gust,
+temperature, season, hour, daylight, and available traffic data. The primary
+result compares accident counts with the
+local frequency of each accident-time ten-minute mean-wind interval. Its
+uncertainty intervals account
 for accidents and weather observations grouped at the same weather station.
+Supporting analyses cover matched-time wind and temperature, adjusted injury
+severity, daylight, a formal seasonal comparison, accident type, and the
+available annual and daily traffic data.
 
 ## Repository scope
 
@@ -32,15 +37,15 @@ remain local and are excluded by `.gitignore`.
 - `data/processed/weather/weather.parquet` is the only very large
   temporary file: the 211.5 million cleaned 10-minute observations. It is used
   while creating the CSV frequency table, never by `src.analyze`.
-- `data/analysis/accidents.csv` and `weather_frequency.csv` are the complete
-  inputs to the primary O/E analysis.
-- `data/analysis/conditional_poisson_input.csv` is the compact input to the
+- `data/analysis/accidents.csv`, `accident_conditions.csv`, and
+  `weather_frequency.csv` are the complete inputs to the primary O/E analysis.
+- `data/analysis/road_rate.csv` is the compact input to the
   within-road/year/period rate model.
-- `data/analysis/traffic_exposure_full.csv` is an 18-row estimated vehicle-kilometre table for the
+- `data/analysis/road_exposure.csv` is an 18-row estimated vehicle-kilometre table for the
   descriptive accidents-per-vehicle-km result.
 - `data/analysis/daily_traffic.csv` is the optional, larger analysis CSV for
-  daily counters; `daily_counter_locations.csv` supplies their locations.
-- `reports/main/figures/conditional_poisson_rate_ratio_by_wind.png`: estimated
+  daily counters; `counter_locations.csv` supplies their locations.
+- `reports/main/figures/wind_rate.png`: estimated
   within-road-section injury-accident rate ratios by 5 m/s mean-wind interval.
   It reports time-proportional annual-traffic allocation across local wind
   frequency intervals.

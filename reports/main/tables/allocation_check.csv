@@ -1,0 +1,7 @@
+bin_label,time_proportional_rate_ratio,relative_traffic_pct,counter_days,illustrative_rate_ratio,illustrative_change_pct,interpretation
+0-5,1.0,100.7386190805554,404666,1.0,0.0,"Direction check only: full-day traffic response at selected counters, 2019-2024, applied to the annual model; not a corrected estimate."
+5-10,1.1024138317637058,99.18067098444814,260989,1.1197307495993178,1.570818265941698,"Direction check only: full-day traffic response at selected counters, 2019-2024, applied to the annual model; not a corrected estimate."
+10-15,1.1094774932196474,94.3438622954278,60436,1.1846794041345934,6.7781375804851995,"Direction check only: full-day traffic response at selected counters, 2019-2024, applied to the annual model; not a corrected estimate."
+15-20,1.5927836760274572,86.92543271714595,10793,1.8458904718849587,15.890845672701271,"Direction check only: full-day traffic response at selected counters, 2019-2024, applied to the annual model; not a corrected estimate."
+20-25,2.3774653977067604,74.91100320097328,1359,3.197161576307267,34.47773327810213,"Direction check only: full-day traffic response at selected counters, 2019-2024, applied to the annual model; not a corrected estimate."
+>=25,4.493286342767233,61.78604653648374,181,7.32604668331722,63.04428706418486,"Direction check only: full-day traffic response at selected counters, 2019-2024, applied to the annual model; not a corrected estimate."

@@ -24,37 +24,27 @@ __pycache__/
 *.synctex.gz
 
 # Generated reports and diagnostics
-/reports/main/
+/reports/main/*
 /reports/working/
-/reports/thesis/
+/reports/thesis/*
 /reports/reproduced/
 /archive/
 
-# Versioned thesis deliverables: the draft, its PDF, and the small set of
-# figures and tables needed to inspect the reported results. Other generated
-# reports remain local.
-!/reports/main/
+# Versioned thesis deliverables and retained results. Everything in main is a
+# selected thesis result; intermediate and diagnostic outputs stay in working.
 !/reports/main/figures/
-!/reports/main/figures/accident_flow.png
-!/reports/main/figures/accident_types.png
-!/reports/main/figures/daily_traffic_by_wind.png
-!/reports/main/figures/gust_oe.png
-!/reports/main/figures/mean_wind_oe.png
-!/reports/main/figures/traffic_flow.png
-!/reports/main/figures/traffic_sensitivity.png
-!/reports/main/figures/vehicles_per_accident.png
-!/reports/main/figures/weather_flow.png
-!/reports/main/figures/gust_distribution.png
+!/reports/main/figures/*.png
 !/reports/main/tables/
-!/reports/main/tables/daily_traffic_by_wind.csv
-!/reports/main/tables/mean_wind_oe.csv
-!/reports/main/tables/road_coverage.csv
-!/reports/main/tables/weather_match_coverage.csv
-!/reports/main/tables/weather_cleaning_audit.csv
-!/reports/main/tables/final_analysis_validation.md
-!/reports/thesis/
-!/reports/thesis/draft_en.tex
-!/reports/thesis/draft_en.pdf
+!/reports/main/tables/*.csv
+!/reports/main/tables/*.md
+!/reports/thesis/*.tex
+!/reports/thesis/*.pdf
+!/reports/thesis/*.png
+!/reports/thesis/*.md
+!/reports/thesis/generated/
+!/reports/thesis/generated/*.tex
+/reports/thesis/*.bbl
+/reports/thesis/*.blg
 
 # Local scratch files
 .Rhistory

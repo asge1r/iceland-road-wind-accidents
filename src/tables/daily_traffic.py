@@ -20,8 +20,8 @@ import pandas as pd
 
 
 INPUT = Path("data/analysis/daily_traffic.csv")
-RESULTS = Path("reports/main/tables/daily_traffic_by_wind.csv")
-PERIOD_SUMMARY = Path("reports/main/tables/daily_traffic_period_summary.csv")
+RESULTS = Path("reports/main/tables/traffic_wind.csv")
+PERIOD_SUMMARY = Path("reports/main/tables/traffic_period.csv")
 
 F_EDGES = np.array([0, 5, 10, 15, 20, 25, np.inf], dtype=float)
 F_LABELS = ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"]

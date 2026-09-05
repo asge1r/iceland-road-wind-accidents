@@ -13,7 +13,7 @@ import pandas as pd
 
 OUT = Path("reports/main/figures")
 SELECTION = Path("data/analysis/selection_summary.csv")
-WEATHER_AUDIT = Path("reports/main/tables/weather_cleaning_audit.csv")
+WEATHER_AUDIT = Path("reports/main/tables/weather_audit.csv")
 
 KEEP = "#5F8F78"
 DROP = "#C96A5B"

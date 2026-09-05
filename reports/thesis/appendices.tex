@@ -22,24 +22,25 @@ non-overlapping fatal-or-serious group. Percentages sum to 100 within each
 severity group.}
 \end{figure}
 
-\section{Wind Gust at the Matched Accident Time}
-\label{app:gust}
+\section{Wind Gust Distance Check}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{gust_oe.png}
-\caption{Frequency-adjusted observed/expected accident occurrence by wind gust
-in the observation matched to the accident time. The upper-tail increase
-supports, but does not replace, the primary
-mean-wind result. Labels show observed accidents.}
-\end{figure}
+\input{generated/gust_radius.tex}
 
 \section{Mean-Wind Subgroups}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{mean_wind_by_season_oe.png}
-\caption{Mean-wind O/E estimates by meteorological season. These estimates are
+\includegraphics[width=\textwidth]{season_rate_severity.png}
+\caption{Estimated serious-or-fatal accident rate ratios by season using
+coarse mean-wind intervals. The spring upper category contains six accidents;
+the seasonal estimates therefore show direction and uncertainty rather than
+precise differences between seasons.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{wind_season_oe.png}
+\caption{Mean-wind O/E estimates by study season. These estimates are
 shown as a descriptive subgroup analysis; high-wind bins are sparse after the
 sample is divided by season. All panels share one vertical scale; grey bars
 contain fewer than 20 accidents.}
@@ -47,56 +48,56 @@ contain fewer than 20 accidents.}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{mean_wind_by_vehicle_group_oe.png}
+\includegraphics[width=\textwidth]{wind_vehicle.png}
 \caption{Mean-wind O/E estimates by the number of registered vehicles involved.
 This is a descriptive subgroup analysis; it does not establish accident type or
 vehicle count as an explanatory variable. Both panels share one vertical scale;
 grey bars contain fewer than 20 accidents.}
 \end{figure}
 
-\section{Temperature, Hour, and Daylight}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{wind_type.png}
+\caption{Mean-wind O/E estimates for single-vehicle run-off-road, rollover,
+fall, or other events and for all other accident types. At least 20 m/s, the
+combined O/E is 2.37 for the single-vehicle family and 1.75 for other types.
+The figure is descriptive and is not a formal test of interaction.}
+\end{figure}
+
+\section{Raw Condition Counts, Temperature by Season, and Adjusted Severity}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{temperature_oe.png}
-\caption{Temperature O/E estimates standardised by the independently matched
-temperature station and meteorological season. Temperature is exploratory;
-mean wind remains the primary weather measure. Labels give observed accident counts.}
+\includegraphics[width=\textwidth]{conditions.png}
+\caption{Raw counts of rural injury accidents by recorded hour, season,
+estimated daylight, and matched temperature, divided into minor-injury and
+serious-or-fatal accidents. Labels give total accidents. Hour, season, and
+daylight use all 6,414 accidents; temperature uses the 5,707 qualifying
+matches. These panels describe the sample and do not estimate risk.}
+\label{fig:accident-conditions}
 \end{figure}
 
-The temperature bars compare observed accidents with the number expected from
-the local seasonal temperature distribution. The intervals are below -5,
--5 to -3, -3 to -1, -1 to 1, 1 to 3, 3 to 5, and at least
-5\(^{\circ}\)C. The open tails ensure that no valid observation is omitted.
-Raw temperature counts document the sample but cannot indicate relative
-occurrence because temperatures have very different background frequencies.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{temperature_season.png}
+\caption{Temperature O/E by season using three broad intervals formed by
+summing the fixed temperature bins. The changing direction between seasons
+shows why the pooled temperature pattern is treated as exploratory. Labels are
+observed accidents.}
+\end{figure}
 
-The raw-count panels in Figure~\ref{fig:accident-conditions} show that the
-largest hourly counts are at 15:00 and 16:00. Overall, 66.5\% of the selected
-accidents occurred in daylight, 10.5\% in civil twilight, and 23.0\% in
-darkness. These values describe when the study accidents occurred; they do not
-show that daylight or a particular hour is safer or more hazardous. Such a
-comparison would require traffic counts by hour and daylight condition,
-which is not available in the daily-counter data.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{severity_conditions.png}
+\caption{Adjusted odds of serious-or-fatal rather than minor injury among
+5,707 recorded injury accidents with complete wind and temperature matches.
+The model contains all displayed variables together. It describes severity
+conditional on an accident and does not estimate accident occurrence.}
+\end{figure}
 
 \section{Daily-Counter Validation}
 
-\begin{table}[H]
-\centering
-\small
-\caption{Counter-location construction and independent coordinate check}
-\begin{tabularx}{0.9\textwidth}{Xr}
-\toprule
-Check & Result \\
-\midrule
-Counter-site years in analysis location table & 2,332 \\
-Counter-site years located from road geometry & 2,325 \\
-Distinct located counter sites & 473 \\
-Sites matched to an official 20 m road-station point within 10 m & 435 \\
-Median / 90th-percentile coordinate difference & 5.0 / 9.0 m \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\input{generated/counter_locations.tex}
 
 Coordinates are interpolated from the reported road station along official
 road geometry and remain labelled as estimates. The separate 20 m point match
@@ -104,45 +105,19 @@ tests the interpolation; it is not used to overwrite the primary location.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{daily_traffic_by_wind.png}
+\includegraphics[width=\textwidth]{traffic_wind.png}
 \caption{Vehicles counted per day relative to a typical day at the same
 counter, year, month, and weekday. Labels show counter-days. Daytime mean wind
 is calculated from 10:00 to 21:59. This is a supporting description of selected
 counter sites, not traffic across the national road network.}
 \end{figure}
 
-\begin{table}[H]
-\centering
-\caption{Consistency of observed daily PDF traffic with official ADU}
-\begin{tabularx}{\textwidth}{Xrrrr}
-\toprule
-Data included & \(N\) & Median & P10--P90 & \(r_{\log}\) \\
-\midrule
-All exact matches & 2,328 & 0.975 & 0.245--1.115 & 0.942 \\
-At least 300 observed days & 1,906 & 0.984 & 0.240--1.063 & 0.940 \\
-At least 300 days, one counter per section & 1,122 & 1.000 & 0.925--1.112 & 0.993 \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\input{generated/adu_quality.tex}
 
 \section{Full-Day-Mean Daily-Counter Check}
 \label{app:daily-counter-rate}
 
-\begin{table}[H]
-\centering
-\small
-\caption{Selection of accidents for the observed daily-counter analysis}
-\begin{tabularx}{0.86\textwidth}{Xrr}
-\toprule
-Selection step & Accidents & Share of 2019--2024 sample \\
-\midrule
-Rural injury accidents in 2019--2024 & 1,863 & 100.0\% \\
-Exact road-section/year counter candidate & 864 & 46.4\% \\
-Assigned counter within 20 km & 863 & 46.3\% \\
-Positive count and valid full-day wind & 767 & 41.2\% \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\input{generated/daily_selection.tex}
 
 The main loss occurs because many accident road sections have no daily counter
 record for the same year. Distance excludes only one additional candidate at
@@ -150,24 +125,7 @@ record for the same year. Distance excludes only one additional candidate at
 wind on the accident date. No accident is assigned across road sections merely
 to improve coverage.
 
-\begin{table}[H]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\caption{Detailed daily counter-based rural injury-accident rate comparison, 2019--2024}
-\begin{tabular}{lrrrr}
-\toprule
-Mean wind & Accidents & Counted vehicles & Counters & Rate ratio (95\% CI) \\
-\midrule
-0--5 m/s & 392 & 284,393,198 & 230 & 1.00 (reference) \\
-5--10 m/s & 273 & 164,363,094 & 230 & 1.05 (0.90--1.24) \\
-10--15 m/s & 88 & 29,868,420 & 230 & 1.71 (1.34--2.18) \\
-15--20 m/s & 12 & 2,719,300 & 176 & 2.43 (1.35--4.37) \\
-20--25 m/s & 1 & 80,251 & 64 & 4.32 (0.59--31.37) \\
-$\geq25$ m/s & 1 & 3,578 & 6 & 170.95 (18.19--1,606.66) \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{generated/daily_rate.tex}
 
 The detailed table documents the standard wind intervals but is not used for
 upper-tail inference: the final two estimates are determined by one accident
@@ -178,20 +136,7 @@ versions use the same 767 accidents, exact road-section/year assignment within
 does not represent conditions at the accident time, this analysis is retained
 only as a day-level check.
 
-\begin{table}[H]
-\centering
-\small
-\caption{Upper daily-counter estimate under three assignment distances}
-\begin{tabular}{rrrrr}
-\toprule
-Maximum distance & Included accidents & Upper-bin accidents & Rate ratio & 95\% CI \\
-\midrule
-5 km & 585 & 12 & 2.65 & 1.44--4.88 \\
-10 km & 750 & 14 & 2.48 & 1.41--4.35 \\
-20 km & 767 & 14 & 2.42 & 1.38--4.24 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{generated/daily_radius.tex}
 
 The estimate remains in the same direction under stricter distance rules. The
 wide intervals reflect the small number of accidents at full-day mean wind of
@@ -201,7 +146,7 @@ at least 15 m/s; stability across radii does not remove that limitation.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{conditional_poisson_rate_ratio_serious_fatal_by_wind.png}
+\includegraphics[width=\textwidth]{wind_rate_severity.png}
 \caption{Estimated serious-or-fatal rural accident rate ratios by mean wind.
 The model compares wind intervals within the same road section, year, and
 traffic period. Labels show observed accidents. The four accidents in the
@@ -216,41 +161,21 @@ with a model restricted to official VDU and SDU traffic periods. The latter
 excludes April--May and October--November, for which VHDU is derived from ADU,
 SDU and VDU.
 
-\begin{table}[H]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\caption{Estimated rural injury-accident rate by mean wind speed, all traffic periods}
-\label{tab:estimated-rate}
-\begin{tabular}{lrr}
-\toprule
-Mean wind & Accidents & Estimated accidents per 100 million vehicle-km \\
-\midrule
-0--5 & 2,435 & 8.5 \\
-5--10 & 1,706 & 13.2 \\
-10--15 & 570 & 16.4 \\
-15--20 & 182 & 27.3 \\
-20--25 & 48 & 43.0 \\
-$\geq25$ & 17 & 57.2 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{generated/estimated_rate.tex}
 
-\begin{table}[H]
-\centering
-\small
-\caption{Conditional rate ratios in the upper mean-wind intervals: all periods versus official VDU and SDU periods only}
-\label{tab:traffic-scope}
-\begin{tabular}{lrr}
-\toprule
-Mean wind & All periods & Official VDU+SDU only \\
-\midrule
-15--20 & 1.59 (1.36--1.86), $n=182$ & 1.67 (1.39--2.01), $n=131$ \\
-20--25 & 2.38 (1.78--3.18), $n=48$ & 1.93 (1.32--2.82), $n=28$ \\
-$\geq25$ & 4.49 (2.75--7.34), $n=17$ & 2.52 (1.18--5.35), $n=7$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{generated/traffic_scope.tex}
+
+\input{generated/traffic_quality.tex}
+
+\input{generated/allocation_check.tex}
+
+The last table is a deliberately illustrative calculation. ``Daily traffic''
+is observed traffic as a percentage of the calendar-standardised expectation
+on days classified by full-day mean wind. The illustrative rate ratio multiplies
+the annual-model rate ratio by the 0--5 m/s percentage divided by the percentage
+for the displayed interval. Because the daily data cover selected counters in
+2019--2024 and do not contain traffic by ten-minute interval, these values are
+not corrected estimates or additional model results.
 
 The two models agree that the rate ratio is higher from 15 m/s. The upper
 intervals differ because the official-only comparison excludes VHDU and has

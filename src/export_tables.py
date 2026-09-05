@@ -9,6 +9,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from src.analysis.solar import daylight_class, solar_elevation
+
 
 ROOT = Path("data/processed")
 
@@ -34,6 +36,38 @@ def write_csv(frame: pd.DataFrame, path: Path) -> int:
     return len(frame)
 
 
+def export_counter_validation(output: Path) -> tuple[int, list[str]]:
+    source = read_table(ROOT / "traffic/daily_counter_station_validation.csv")
+    columns = [
+        "road_section", "station_id", "status", "official_station_m",
+        "station_difference_m", "coordinate_difference_m",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Counter validation is missing columns: {sorted(missing)}")
+    table = source[columns].sort_values(["status", "road_section", "station_id"])
+    return write_csv(table, output / "counter_check.csv"), columns
+
+
+def export_weather_cleaning(output: Path) -> tuple[int, list[str]]:
+    """Copy the compact cleaning summary into the canonical analysis layer."""
+    source = read_table(ROOT / "weather/cleaning.csv")
+    required = {
+        "year", "input_rows", "no_wind_station_year", "missing_wind",
+        "negative", "upper_threshold", "inconsistent_zero_gust",
+        "gust_below_mean", "frozen_zero", "clean_wind_rows",
+        "negative_f", "negative_fg", "f_at_or_above_45",
+        "fg_at_or_above_65", "fg_zero_rows", "fg_zero_with_positive_f",
+        "excluded_rows",
+    }
+    missing = required - set(source)
+    if missing:
+        raise ValueError(f"Weather cleaning summary is missing columns: {sorted(missing)}")
+    columns = [column for column in source.columns if column in required]
+    table = source[columns]
+    return write_csv(table, output / "weather_cleaning.csv"), columns
+
+
 def days_in_traffic_period(year: int, traffic_period: str) -> int:
     return sum(calendar.monthrange(int(year), month)[1] for month in PERIOD_MONTHS[traffic_period])
 
@@ -54,35 +88,6 @@ def traffic_period_from_month(month: pd.Series) -> pd.Series:
     return period
 
 
-def solar_elevation(timestamp: pd.Series, lat: pd.Series, lon: pd.Series) -> np.ndarray:
-    """Approximate solar elevation for Icelandic local time (UTC year-round)."""
-    time = pd.to_datetime(timestamp)
-    day = time.dt.dayofyear.to_numpy(float)
-    hour = (
-        time.dt.hour.to_numpy(float)
-        + time.dt.minute.to_numpy(float) / 60
-        + time.dt.second.to_numpy(float) / 3600
-    )
-    gamma = 2 * np.pi / 365 * (day - 1 + (hour - 12) / 24)
-    equation_of_time = 229.18 * (
-        0.000075 + 0.001868 * np.cos(gamma) - 0.032077 * np.sin(gamma)
-        - 0.014615 * np.cos(2 * gamma) - 0.040849 * np.sin(2 * gamma)
-    )
-    declination = (
-        0.006918 - 0.399912 * np.cos(gamma) + 0.070257 * np.sin(gamma)
-        - 0.006758 * np.cos(2 * gamma) + 0.000907 * np.sin(2 * gamma)
-        - 0.002697 * np.cos(3 * gamma) + 0.00148 * np.sin(3 * gamma)
-    )
-    solar_minutes = hour * 60 + equation_of_time + 4 * lon.to_numpy(float)
-    hour_angle = np.radians(solar_minutes / 4 - 180)
-    latitude = np.radians(lat.to_numpy(float))
-    cosine_zenith = (
-        np.sin(latitude) * np.sin(declination)
-        + np.cos(latitude) * np.cos(declination) * np.cos(hour_angle)
-    )
-    return 90 - np.degrees(np.arccos(np.clip(cosine_zenith, -1, 1)))
-
-
 def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
     source = read_table(ROOT / "accidents/rural_injury.csv").copy()
     source["timestamp"] = pd.to_datetime(source["timestamp"], errors="raise")
@@ -98,12 +103,7 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
     source["solar_elevation_deg"] = solar_elevation(
         source["timestamp"], source["lat"], source["lon"]
     )
-    source["daylight_class"] = pd.cut(
-        source["solar_elevation_deg"],
-        bins=[-np.inf, -6, 0, np.inf],
-        labels=["Darkness", "Civil twilight", "Daylight"],
-        right=False,
-    ).astype("string")
+    source["daylight_class"] = daylight_class(source["solar_elevation_deg"])
     events = [
         "id", "timestamp", "year", "month", "weekday", "hour", "lat", "lon",
         "meidsli", "tegohapps", "vehicle_count", "registered_road_section",
@@ -119,7 +119,7 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
     event_count = write_csv(event_table, output / "accidents.csv")
     condition_table = source[conditions]
     condition_count = write_csv(condition_table, output / "accident_conditions.csv")
-    return [
+    entries = [
         (
             "accidents.csv", event_count, list(event_table.columns),
             "Rural injury accident events with outcome, location, and calendar fields.",
@@ -129,6 +129,33 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
             "Independent wind and temperature matches plus astronomical daylight.",
         ),
     ]
+    accident_weather_path = ROOT / "traffic/accident_wind.csv"
+    if accident_weather_path.exists():
+        accident_weather = read_table(accident_weather_path)
+        accident_weather_columns = [
+            "id", "year", "date", "counter_id", "counter_distance_km",
+            "counter_weather_station_id", "counter_weather_station_dist_km",
+            "counter_station_accident_distance_km", "weather_time",
+            "weather_time_difference_minutes", "f",
+        ]
+        missing = set(accident_weather_columns) - set(accident_weather)
+        if missing:
+            raise ValueError(
+                f"Daily-counter accident weather is missing columns: {sorted(missing)}"
+            )
+        accident_weather = accident_weather[accident_weather_columns].sort_values("id")
+        accident_weather_count = write_csv(
+            accident_weather, output / "counter_wind.csv"
+        )
+        entries.append(
+            (
+                "counter_wind.csv",
+                accident_weather_count,
+                accident_weather_columns,
+                "Accident-time mean wind from the same station used for the assigned counter-day.",
+            )
+        )
+    return entries
 
 
 def export_frequency(output: Path) -> tuple[int, list[str]]:
@@ -180,8 +207,8 @@ def export_case_control(output: Path) -> tuple[int, list[str]]:
 def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
     """Write the two compact CSV inputs used by the vehicle-kilometre results.
 
-    ``traffic_exposure_full.csv`` retains all valid road exposure, aggregated to
-    traffic period and wind interval. ``conditional_poisson_input.csv`` retains the complete
+    ``road_exposure.csv`` retains all valid road exposure, aggregated to
+    traffic period and wind interval. ``road_rate.csv`` retains the complete
     within-road/year/period strata only where at least one matched accident
     occurred; all-zero strata do not contribute information to a conditional
     Poisson model.
@@ -217,6 +244,40 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
         * panel["frequency_pct"]
         / 100
     )
+    exposure_groups = [
+        "year", "road_section", "traffic_period", "weather_station_id"
+    ]
+
+    frequency_totals = panel.groupby(exposure_groups)["frequency_pct"].sum()
+    bad_frequency = ~np.isclose(
+        frequency_totals.to_numpy(float), 100.0, atol=1e-6
+    )
+    if bad_frequency.any():
+        examples = frequency_totals[bad_frequency].head().to_dict()
+        raise ValueError(
+            "Road-period wind frequencies do not sum to 100%; "
+            f"examples={examples}"
+        )
+
+    expected_period_vehicle_km = (
+        panel["traffic_reference_daily_volume"]
+        * panel["section_length_km"]
+        * panel["period_days"]
+    )
+
+    reconstructed = panel.groupby(exposure_groups)["estimated_vehicle_km"].sum()
+    target = expected_period_vehicle_km.groupby(
+        [panel[column] for column in exposure_groups]
+    ).first()
+    if not np.allclose(
+        reconstructed.to_numpy(float),
+        target.to_numpy(float),
+        rtol=1e-10,
+        atol=1e-6,
+    ):
+        raise ValueError(
+            "Wind-bin vehicle-kilometres do not reconstruct period exposure"
+        )
     keys = ["year", "road_section", "traffic_period", "weather_station_id", "bin_label"]
     if panel.duplicated(keys).any():
         raise ValueError("Road exposure has duplicate road-year-period-wind rows")
@@ -307,18 +368,18 @@ def export_rate_tables(output: Path) -> list[tuple[str, int, list[str], str]]:
     summary["serious_or_fatal_accidents"] = (
         summary["serious_or_fatal_accidents"].fillna(0).astype(int)
     )
-    model_count = write_csv(model, output / "conditional_poisson_input.csv")
+    model_count = write_csv(model, output / "road_rate.csv")
     summary_count = write_csv(
         summary.sort_values(["traffic_period", "wind_bin_lower_ms"]),
-        output / "traffic_exposure_full.csv",
+        output / "road_exposure.csv",
     )
     return [
         (
-            "conditional_poisson_input.csv", model_count, list(model.columns),
+            "road_rate.csv", model_count, list(model.columns),
             "Road-period wind exposure and matched accidents for the rate model.",
         ),
         (
-            "traffic_exposure_full.csv", summary_count, list(summary.columns),
+            "road_exposure.csv", summary_count, list(summary.columns),
             "Vehicle-kilometres and injury accidents by traffic period and wind interval.",
         ),
     ]
@@ -427,9 +488,9 @@ def export_season_rate_input(output: Path) -> tuple[str, int, list[str], str]:
     model = model[columns].sort_values(
         ["year", "road_section", "season", "wind_bin_lower_ms"]
     )
-    count = write_csv(model, output / "seasonal_poisson_input.csv")
+    count = write_csv(model, output / "road_seasons.csv")
     return (
-        "seasonal_poisson_input.csv", count, columns,
+        "road_seasons.csv", count, columns,
         "Year-specific road-section seasonal mean-wind exposure and matched accidents.",
     )
 
@@ -491,7 +552,7 @@ def export_daily_traffic(
     source = read_table(path).rename(columns={"station_id": "road_station_m"})
     text_columns = [
         "date", "counter_site_id", "traffic_volume", "f_daytime_mean",
-        "f_full_day_mean",
+        "f_full_day_mean", "weather_station_id",
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
@@ -504,7 +565,7 @@ def export_daily_traffic(
     readable = source[text_columns].sort_values(["counter_site_id", "date"])
     csv_columns = [
         "date", "counter_site_id", "traffic_volume", "f_daytime_mean",
-        "f_full_day_mean",
+        "f_full_day_mean", "weather_station_id",
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",
         "f_full_bin_20_25_count", "f_full_bin_ge25_count",
@@ -524,6 +585,11 @@ def export_daily_traffic(
     )
     if "traffic" in daily:
         daily["traffic"] = daily["traffic"].round().astype("Int64")
+    count_columns = [column for column in daily if column.endswith("_count")]
+    for column in ["weather_station_id", *count_columns]:
+        daily[column] = pd.to_numeric(daily[column], errors="coerce").astype("Int64")
+    for column in ["f_mean", "f_full_day_mean"]:
+        daily[column] = pd.to_numeric(daily[column], errors="coerce").round(3)
     count = write_csv(daily, output / "daily_traffic.csv")
     locations = read_table(ROOT / "traffic/locations.csv")
     location_columns = [
@@ -551,14 +617,14 @@ def export_daily_traffic(
     ].sort_values(["year", "counter_id"])
     if locations.duplicated(["year", "counter_id"]).any():
         raise ValueError("Daily counter locations are not unique by year and counter")
-    location_count = write_csv(locations, output / "daily_counter_locations.csv")
+    location_count = write_csv(locations, output / "counter_locations.csv")
     return [
         (
             "daily_traffic.csv", count, list(daily.columns),
             "Optional large daily-counter table with observed traffic and mean-wind observation counts.",
         ),
         (
-            "daily_counter_locations.csv", location_count, list(locations.columns),
+            "counter_locations.csv", location_count, list(locations.columns),
             "One estimated counter location per counter-site year.",
         ),
     ]
@@ -582,14 +648,17 @@ they can be opened and checked directly. Do not edit them by hand.
 - `accidents.csv`: the {period} rural injury-accident events, outcomes, locations, and calendar classifications.
 - `accident_conditions.csv`: independently matched wind and temperature plus estimated astronomical daylight at each accident time.
 - `weather_frequency.csv`: pooled 2007–2025 station-season wind and temperature counts. `f` and `fg` are in m/s and temperature is in degrees Celsius.
-- `case_control.csv`: accident times and same-hour, same-weekday control times for conditional logistic wind and temperature models.
+- `weather_cleaning.csv`: annual and total counts from the fixed weather-quality rules.
+- `case_control.csv`: accident times and same-hour, same-weekday control times for mean wind, gust, and temperature models.
 - `annual_traffic.csv`: annual road-section traffic values (ADU, SDU and VDU).
-- `conditional_poisson_input.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson model.
-- `seasonal_poisson_input.csv`: compact road-section/year/season/wind-bin input for season-specific mean-wind models.
-- `traffic_exposure_full.csv`: 18 aggregated rows used for the descriptive accident-per-vehicle-km table.
+- `road_rate.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson model.
+- `road_seasons.csv`: compact road-section/year/season/wind-bin input for season-specific mean-wind models.
+- `road_exposure.csv`: 18 aggregated rows used for the descriptive accident-per-vehicle-km table.
 - `selection_summary.csv`: counts for the accident and traffic selection figures.
 - `daily_traffic.csv`: optional large CSV with one daily counter total and observation counts in six mean-wind intervals, 2019–2024.
-- `daily_counter_locations.csv`: one geometry-interpolated location per counter-site year for the selected-counter analyses.
+- `counter_locations.csv`: one geometry-interpolated location per counter-site year for the selected-counter analyses.
+- `counter_wind.csv`: accident-time mean wind from the same station used for the assigned counter-day.
+- `counter_check.csv`: independent comparison of estimated counter locations with official 20 m road-station points.
 - {daily_text}
 - `manifest.csv`: row counts, columns, and a short description of each analysis file.
 """
@@ -611,8 +680,9 @@ def main() -> None:
     entries.extend(export_accident_tables(args.output))
     for filename, description, exporter in [
         ("weather_frequency.csv", "Station-season wind and temperature frequencies used as O/E denominators.", export_frequency),
+        ("weather_cleaning.csv", "Annual and total counts from the fixed weather-quality rules.", export_weather_cleaning),
         ("annual_traffic.csv", "Annual road-section traffic volumes and lengths.", export_annual_traffic),
-        ("case_control.csv", "Time-stratified wind and temperature case-crossover samples.", export_case_control),
+        ("case_control.csv", "Time-stratified mean-wind, gust, and temperature samples.", export_case_control),
     ]:
         records, columns = exporter(args.output)
         entries.append((filename, records, columns, description))
@@ -622,6 +692,15 @@ def main() -> None:
     entries.append(("selection_summary.csv", records, columns, "Counts used in data-selection figures."))
     daily_entries = export_daily_traffic(args.output)
     entries.extend(daily_entries)
+    counter_validation = ROOT / "traffic/daily_counter_station_validation.csv"
+    if counter_validation.exists():
+        records, columns = export_counter_validation(args.output)
+        entries.append(
+            (
+                "counter_check.csv", records, columns,
+                "Estimated counter coordinates compared with official 20 m road-station points.",
+            )
+        )
     write_readme(args.output, bool(daily_entries))
     entries.append(("README.md", 0, ["file descriptions", "rebuild instruction"], "Description of the analysis data layer."))
     entries.append(("manifest.csv", len(entries) + 1, ["file", "records", "columns", "description"], "Inventory of the analysis data files."))

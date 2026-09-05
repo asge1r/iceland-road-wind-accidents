@@ -19,6 +19,7 @@ MAX_TIME_MINUTES = 5.0
 
 SPECS = {
     "mean_wind": ("weather_station_id", "weather_station_dist_km", "f"),
+    "wind_gust": ("weather_station_id", "weather_station_dist_km", "fg"),
     "temperature": ("temp_station_id", "temp_distance_km", "temperature_c"),
 }
 
@@ -118,8 +119,14 @@ def assemble(
     controls = candidates.merge(
         weather, on=["station_id", "weather_time"], how="inner", validate="many_to_one"
     )
-    controls["value"] = np.where(
-        controls["exposure"].eq("mean_wind"), controls["f"], controls["t"]
+    controls["value"] = np.select(
+        [
+            controls["exposure"].eq("mean_wind"),
+            controls["exposure"].eq("wind_gust"),
+            controls["exposure"].eq("temperature"),
+        ],
+        [controls["f"], controls["fg"], controls["t"]],
+        default=np.nan,
     )
     valid_temperature = controls["t"].between(-30, 30, inclusive="both")
     controls = controls[

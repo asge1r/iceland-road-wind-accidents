@@ -17,8 +17,8 @@ from src.figures.common import interval_labels
 from src.tables.daily_traffic import PERIOD_ORDER
 
 
-DEFAULT_INPUT = Path("reports/main/tables/daily_traffic_by_wind.csv")
-DEFAULT_MAIN = Path("reports/main/figures/daily_traffic_by_wind.png")
+DEFAULT_INPUT = Path("reports/main/tables/traffic_wind.csv")
+DEFAULT_MAIN = Path("reports/main/figures/traffic_wind.png")
 DEFAULT_PERIOD = Path("reports/working/figures/daily_traffic_by_period.png")
 
 

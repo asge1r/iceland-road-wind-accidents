@@ -109,6 +109,7 @@ def match_weather(
         path.parent.mkdir(parents=True, exist_ok=True)
     output_columns = [
         "date", "year", "counter_site_id", "road_section", "traffic_volume",
+        "weather_station_id",
         "f_daytime_mean", "fg_daytime_mean", "f_full_day_mean", "fg_full_day_mean",
         "full_observation_count", "f_full_bin_0_5_count", "f_full_bin_5_10_count",
         "f_full_bin_10_15_count", "f_full_bin_15_20_count",

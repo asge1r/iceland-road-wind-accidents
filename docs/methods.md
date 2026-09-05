@@ -1,10 +1,10 @@
-# Canonical analysis rules
+# Analysis rules
 
 ## Weather quality
 
 The weather-cleaning script never imputes or clips wind values. Its rules are
 fixed before analysis and are reported annually in
-`archive/generated_diagnostics/weather_cleaning_by_year.csv`.
+`data/analysis/weather_cleaning.csv`.
 
 | Condition | Treatment | Audit category |
 |---|---|---|
@@ -22,11 +22,15 @@ The raw delivery contains station-time records from stations that do not
 measure wind, for example precipitation and radiation stations. These are not
 interpreted as missing wind observations from the wind-monitoring network.
 
-## Wind variables used in O/E analysis
+## Weather variables used in O/E analysis
 
-Mean wind speed (`f`) in 5 m/s intervals is the primary weather measure. The `fg`
+Accident-time mean wind speed (`f`) in 5 m/s intervals is the primary weather
+measure. It is the ten-minute mean matched within five minutes of the accident,
+not an instantaneous value. The `fg`
 reported in the ten-minute observation matched to the accident time is a
 secondary wind-gust measure; it is not a daily maximum.
+Temperature is matched independently and compared with its local seasonal
+frequency. Its narrower intervals around freezing are exploratory.
 
 ## Evidence hierarchy
 
@@ -36,17 +40,33 @@ first supporting analysis: each accident is compared with the other occurrences
 of the same weekday and clock time in the same month and year, using the same
 weather station and match limits. The conditional Poisson road-section model is
 the second supporting analysis and uses estimated vehicle-kilometres. A stricter
-selected-counter model uses observed daily counts directly as its offset; its
-Results under 5, 10 and 20 km assignment limits are reported explicitly. Daily counters
+selected-counter model uses observed daily counts. Results under 5, 10 and
+20 km assignment limits are reported explicitly. Daily counters
 also describe whether traffic changes with wind at selected sites. These
 analyses estimate different quantities and are compared by direction, not by
 the numerical size of their estimates.
 
 Temperature, hour, daylight, matched-time wind gust, and subgroup results
-are exploratory or descriptive. They do not add primary research questions.
+answer supporting research questions. They remain exploratory or descriptive
+and do not replace the primary mean-wind result.
 Temperature O/E uses the intervals below −5, −5 to −3, −3 to −1, −1 to 1,
 1 to 3, 3 to 5, and at least 5°C. The case-crossover model retains broader
 categories for stability.
+
+The joint matched-time model includes categorical mean wind and temperature
+together. A separate model describes the odds that a recorded injury accident
+is serious or fatal using wind, temperature, daylight, time of day, and season.
+That model concerns severity among accidents and does not estimate whether an
+accident occurs. The daylight comparison uses the same location, month,
+weekday, and clock time; only strata whose solar-elevation class changes within
+those matched dates inform the comparison. It is not a rate per vehicle.
+
+A matched-time season comparison groups mean wind as 0--10, 10--15, and at
+least 15 m/s. It adds wind-by-season interaction terms to the conditional
+logistic model and compares that model with a common-wind-association model
+using a six-degree-of-freedom likelihood-ratio test. This is the formal
+assessment of seasonal differences; separate seasonal plots are supporting
+descriptions.
 
 ## Accident sample
 
@@ -77,11 +97,19 @@ The sustained-wind analysis counts hours per sufficiently complete day with
 and weekday expectation. The allocated daily-rate model assigns the observed
 24-hour total to 0--10, 10--15, and at least 15 m/s in proportion to the
 counter station's valid ten-minute observations. Accidents are classified by
-their independently matched accident-time `f`; strata are counter and year.
+`f` from that same station at the accident time; the station must be within
+20 km of both the accident and counter, and the assigned counter must be within
+20 km of the accident. Strata are counter and year.
 This uses an estimated within-day traffic split, not observed hourly traffic. It is
 supporting because it covers selected counters in 2019--2024 and cannot show
 that an accident vehicle passed the assigned counter. The former full-day-mean
 model is retained only as an appendix day-level check.
+
+The traffic-allocation direction check applies the observed daily traffic
+percentage for each full-day mean-wind interval to the corresponding annual
+model rate ratio. It is explicitly illustrative: daily mean categories do not
+measure traffic during individual ten-minute wind intervals, and the daily
+data cover only selected counters in 2019--2024.
 
 ## Counter coordinates
 

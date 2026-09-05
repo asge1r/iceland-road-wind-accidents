@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.accidents.types import broad_accident_family
+
 
 STUDY_ACCIDENTS = Path("data/analysis/accidents.csv")
 
@@ -18,29 +20,6 @@ BLUE = "#547A99"
 GREEN = "#4F8068"
 GOLD = "#D5A444"
 TEXT = "#243238"
-
-
-def broad_accident_family(code: int) -> str:
-    """Map the detailed accident code to a small interpretable family."""
-    if 11 <= code <= 95:
-        return "Single vehicle: run-off-road, rollover, fall, or other"
-    if 111 <= code <= 160:
-        return "Same direction: overtaking, lane change, or rear-end"
-    if 211 <= code <= 280:
-        return "Opposing, overtaking, or reversing vehicles"
-    if 310 <= code <= 440:
-        return "Turning and changes in direction"
-    if 510 <= code <= 696:
-        return "Junctions, roundabouts, and priority"
-    if 710 <= code <= 743:
-        return "Stopped or parked vehicles"
-    if 810 <= code <= 880:
-        return "Pedestrians and horse riders"
-    if 910 <= code <= 999:
-        return "Animals, fixed objects, and other events"
-    if 1090 <= code <= 1095:
-        return "Bicycles"
-    return "Unclassified"
 
 
 def prepare_data(path: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

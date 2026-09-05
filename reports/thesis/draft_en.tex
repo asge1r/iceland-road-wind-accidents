@@ -37,17 +37,17 @@
 \captionsetup{width=\textwidth,indent=1em}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
 \hypersetup{
-  pdftitle={Wind Speed and Rural Traffic Accidents in Iceland},
+  pdftitle={Meteorological Conditions and Rural Injury Accidents in Iceland},
   pdfauthor={Ásgeir Snær Magnússon},
   pdfsubject={M.Sc. thesis in Software Engineering}
 }
 
 \def\thesisyear{2026}
-\def\thesismonth{August}
+\def\thesismonth{September}
 \def\thesisauthor{Ásgeir Snær Magnússon}
-\def\thesistitle{Wind Speed and Rural Traffic Accidents in Iceland}
-\def\thesissubtitle{A Frequency-Adjusted Analysis, 2007--2025}
-\def\thesisshorttitle{Wind and Rural Traffic Accidents}
+\def\thesistitle{Meteorological Conditions and Rural Injury Accidents in Iceland}
+\def\thesissubtitle{Frequency-Standardised and Traffic-Informed Analyses, 2007--2025}
+\def\thesisshorttitle{Meteorological Conditions and Rural Injury Accidents}
 \def\thesiscredits{30}
 \def\thesissubject{Software Engineering}
 \def\thesiskind{M.Sc.}
@@ -164,13 +164,14 @@
 
 \section*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
-This thesis examines whether strong mean wind speeds are disproportionately common
-when rural injury accidents occur in Iceland. Accident records, cleaned
+This thesis examines rural injury-accident occurrence in Iceland in relation to
+mean wind, gust, temperature, season, hour, daylight, and available traffic
+data. Accident records, cleaned
 10-minute weather observations, urban boundaries, annual road-section traffic
 statistics, and daily counter data are combined in a documented analysis. The
 primary analysis includes 6,192 rural injury accidents from 2007--2025 with
 valid wind observations within 20 km. Within each weather station and
-meteorological season, observed accidents in each mean-wind interval are
+study season, observed accidents in each mean-wind interval are
 compared with the number expected from the local background frequency of that
 interval, pooled across 2007--2025.
 Confidence intervals are obtained from 5,000 bootstrap samples clustered by
@@ -179,31 +180,48 @@ weather station.
 The observed/expected ratio is close to one across most low and moderate wind
 intervals. At mean wind speeds of 20--25 m/s, 61 accidents were observed
 compared with 29.0 expected, giving a ratio of 2.11 (95\% station-clustered
-bootstrap interval 1.54--2.73). Wind gust at the matched accident time is a
-secondary wind measure.
+bootstrap interval 1.54--2.73). Gust shows a corresponding upper-tail pattern
+in the O/E and matched-time comparisons. The upper-wind estimate persists when
+temperature is included in the same matched model. Temperature is available
+for 5,707 accidents and has a non-monotonic frequency-adjusted pattern. The
+matched daylight estimates are imprecise and close to one. An adjusted model
+compares serious-or-fatal with minor injury by time of day, daylight, season,
+wind, and temperature; it concerns severity after an accident rather than
+accident occurrence.
 The result describes relative accident occurrence, not a causal effect or
-accident risk per vehicle. Complete hourly traffic exposure is unavailable at
+accident risk per vehicle. Complete hourly traffic is unavailable at
 the required spatial and temporal resolution for the full study period. The thesis documents data
 cleaning, matching, coverage and statistical analysis separately.
 
 \vfill
 \section*{Útdráttur}
 \addcontentsline{toc}{chapter}{Útdráttur}
-Ritgerðin rannsakar hvort hár meðalvindhraði sé óvenju algengur þegar
-umferðarslys með meiðslum verða í dreifbýli á Íslandi. Hún sameinar slysaskrá,
-hreinsuð tíu mínútna veðurgögn, þéttbýlismörk, árleg umferðargögn fyrir vegkafla
-og daglegar umferðartalningar. Aðalgreiningin nær til 6.192 slysa með meiðslum
-á árunum 2007--2025 sem tengjast gildri vindmælingu innan 20 km. Fyrir hverja
-veðurstöð og hverja árstíð er fjöldi slysa í vindbili borinn saman við
-þann fjölda sem vænta mætti miðað við staðbundna vindtíðni sem er safnað
-yfir öll ár rannsóknartímabilsins.
 
-Við meðalvind upp á 20--25 m/s urðu 61 slys, en 29,0 voru vænt. Hlutfall
-séðra og væntra slysa var því 2,11 (95\% bil 1,54--2,73). Vindhviður eru
-skoðaðar sem aukagreining. Niðurstaðan lýsir hlutfallslegri tíðni slysa, en
-ekki orsakaáhrifum eða áhættu á hvert ökutæki. Umferðargögn eru ekki tiltæk
-með nægilega nákvæmri staðsetningu og tímasetningu fyrir allt rannsóknartímabilið.
+Í þessari ritgerð eru tengsl veðurs og umferðarslysa með meiðslum í dreifbýli
+á Íslandi rannsökuð fyrir tímabilið 2007--2025. Megináhersla er lögð á vind,
+en einnig eru skoðuð vindhviður, hitastig, árstíð, tími dags og birta.
+Slysagögn eru tengd við tíu mínútna veðurmælingar frá nærliggjandi
+veðurstöðvum og niðurstöðurnar bornar saman við tíðni sömu veðurskilyrða.
+Umferðargögn eru síðan notuð til að kanna nánar samband vinds og slysatíðni.
 
+Meginniðurstöðurnar byggja á 6.192 slysum sem hægt var að tengja við gilda
+vindmælingu í innan við 20 km fjarlægð. Fyrir hverja veðurstöð og árstíð var
+borinn saman raunverulegur fjöldi slysa við þann fjölda sem búast mætti við
+miðað við hversu oft vindhraði á hverju bili mældist á viðkomandi stað.
+Við 20--25 m/s meðalvind urðu 61 slys en búast hefði mátt við 29,0.
+Hlutfall raunverulegs og vænts fjölda slysa var því 2,11
+(95\% öryggisbil 1,54--2,73). Niðurstöðurnar benda þannig til þess að slys
+séu hlutfallslega algengari þegar vindur er mikill en tíðni slíkra
+vindskilyrða ein og sér myndi gefa til kynna. Greiningar þar sem tekið er
+tillit til umferðar styðja sömu meginniðurstöðu.
+
+Svipað samband kemur fram fyrir miklar vindhviður, en samband hitastigs og
+slysatíðni er ekki jafn skýrt. Ekki fundust skýrar vísbendingar um að mikill
+vindur tengdist hærra hlutfalli alvarlegra slysa eða banaslysa meðal þeirra
+slysa með meiðslum sem þegar höfðu orðið. Niðurstöðurnar sýna tölfræðileg
+tengsl en sanna ekki að veður valdi slysum. Takmarkanir umferðargagnanna gera
+jafnframt að verkum að ekki er hægt að reikna nákvæma áhættu á hvert ökutæki
+fyrir allt rannsóknartímabilið.
 \newpage
 \setkomafont{section}{\Large}
 \hypersetup{pageanchor=true}

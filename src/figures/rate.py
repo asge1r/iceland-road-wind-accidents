@@ -14,8 +14,8 @@ import pandas as pd
 
 from src.figures.common import interval_labels
 
-DEFAULT_INPUT = Path("reports/main/tables/conditional_poisson_rate_ratio_by_wind.csv")
-DEFAULT_OUTPUT = Path("reports/main/figures/conditional_poisson_rate_ratio_by_wind.png")
+DEFAULT_INPUT = Path("reports/main/tables/wind_rate.csv")
+DEFAULT_OUTPUT = Path("reports/main/figures/wind_rate.png")
 
 
 def title(data: pd.DataFrame) -> str:

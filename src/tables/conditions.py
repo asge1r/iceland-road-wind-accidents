@@ -11,7 +11,7 @@ import pandas as pd
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
-DEFAULT_OUTPUT = Path("reports/main/tables/accident_conditions_summary.csv")
+DEFAULT_OUTPUT = Path("reports/main/tables/conditions.csv")
 DEFAULT_COVERAGE = Path("reports/main/tables/temperature_coverage.csv")
 TEMPERATURE_BINS = [-np.inf, -9, -6, -3, 0, 3, 6, 9, 12, 15, 18, np.inf]
 TEMPERATURE_LABELS = [
@@ -27,8 +27,17 @@ def require_columns(frame: pd.DataFrame, required: set[str], name: str) -> None:
 
 
 def counts(data: pd.DataFrame, dimension: str, order: list[object]) -> pd.DataFrame:
-    result = data[dimension].value_counts(dropna=False).reindex(order, fill_value=0)
-    frame = result.rename_axis("category").reset_index(name="accidents")
+    grouped = data.groupby(dimension, dropna=False, observed=True).agg(
+        accidents=("id", "size"),
+        serious_or_fatal=("meidsli", lambda values: values.le(2).sum()),
+    )
+    frame = grouped.reindex(order, fill_value=0).rename_axis("category").reset_index()
+    frame["minor_injury"] = frame["accidents"] - frame["serious_or_fatal"]
+    frame["serious_or_fatal_pct"] = np.where(
+        frame["accidents"].gt(0),
+        100 * frame["serious_or_fatal"] / frame["accidents"],
+        np.nan,
+    )
     frame["available_accidents"] = int(data[dimension].notna().sum())
     frame["percent_of_available"] = np.where(
         frame["available_accidents"].gt(0),
@@ -42,7 +51,7 @@ def counts(data: pd.DataFrame, dimension: str, order: list[object]) -> pd.DataFr
 def build_tables(accidents: pd.DataFrame, conditions: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     require_columns(
         accidents,
-        {"id", "year", "hour", "season", "traffic_period"},
+        {"id", "year", "hour", "season", "traffic_period", "meidsli"},
         "accidents.csv",
     )
     require_columns(

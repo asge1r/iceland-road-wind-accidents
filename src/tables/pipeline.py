@@ -8,8 +8,8 @@ import re
 
 
 INPUT = Path("docs/pipeline.md")
-PREPARATION_OUTPUT = Path("reports/thesis/generated_pipeline_preparation.tex")
-ANALYSIS_OUTPUT = Path("reports/thesis/generated_pipeline_analysis.tex")
+PREPARATION_OUTPUT = Path("reports/thesis/pipeline_prepare.tex")
+ANALYSIS_OUTPUT = Path("reports/thesis/pipeline_analysis.tex")
 
 
 def markdown_table(text: str, heading: str) -> list[list[str]]:
@@ -113,10 +113,16 @@ def render(
 ) -> str:
     if split_at is None or len(rows) <= split_at:
         return render_part(rows, caption, label)
-    return "\n".join([
-        render_part(rows[:split_at], caption, label),
-        render_part(rows[split_at:], f"{caption} (continued)", None, continued=True),
-    ])
+    parts = [rows[index:index + split_at] for index in range(0, len(rows), split_at)]
+    return "\n".join(
+        render_part(
+            part,
+            caption if index == 0 else f"{caption} (continued)",
+            label if index == 0 else None,
+            continued=index > 0,
+        )
+        for index, part in enumerate(parts)
+    )
 
 
 def main() -> None:

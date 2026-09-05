@@ -11,29 +11,40 @@ import pandas as pd
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
-DEFAULT_WEATHER_AUDIT = Path("archive/generated_diagnostics/weather_cleaning_by_year.csv")
+DEFAULT_WEATHER_AUDIT = Path("data/analysis/weather_cleaning.csv")
 DEFAULT_MEAN_WIND = Path("reports/main/tables/mean_wind_oe.csv")
 DEFAULT_TEMPERATURE = Path("reports/main/tables/temperature_oe.csv")
-DEFAULT_COVERAGE = Path("reports/main/tables/weather_match_coverage.csv")
-DEFAULT_SENSITIVITY = Path("archive/generated_diagnostics/gust_sensitivity.csv")
+DEFAULT_COVERAGE = Path("reports/main/tables/wind_coverage.csv")
 DEFAULT_DAILY = Path("data/analysis/daily_traffic.csv")
-DEFAULT_TRAFFIC_AUDIT = Path("reports/main/tables/annual_traffic_quality.csv")
-DEFAULT_RATE_INPUT = Path("data/analysis/conditional_poisson_input.csv")
-DEFAULT_RATE_MODEL = Path("reports/main/tables/conditional_poisson_rate_ratio_by_wind.csv")
-DEFAULT_RATE_SERIOUS = Path("reports/main/tables/conditional_poisson_rate_ratio_serious_fatal_by_wind.csv")
-DEFAULT_SEASONAL_RATE = Path("reports/main/tables/seasonal_poisson_rate_ratio_by_wind.csv")
+DEFAULT_DAILY_ACCIDENT_WEATHER = Path("data/analysis/counter_wind.csv")
+DEFAULT_TRAFFIC_AUDIT = Path("reports/main/tables/annual_quality.csv")
+DEFAULT_RATE_INPUT = Path("data/analysis/road_rate.csv")
+DEFAULT_RATE_MODEL = Path("reports/main/tables/wind_rate.csv")
+DEFAULT_RATE_SERIOUS = Path("reports/main/tables/wind_rate_severity.csv")
+DEFAULT_TRAFFIC_ALLOCATION_CHECK = Path(
+    "reports/main/tables/allocation_check.csv"
+)
+DEFAULT_SEASONAL_RATE = Path("reports/main/tables/season_rate.csv")
+DEFAULT_SEASONAL_SERIOUS = Path("reports/main/tables/season_rate_severity.csv")
 DEFAULT_CASE_CONTROL = Path("data/analysis/case_control.csv")
-DEFAULT_CASE_CONTROL_RESULT = Path("reports/main/tables/case_control_weather.csv")
-DEFAULT_RADIUS_RESULT = Path("reports/main/tables/mean_wind_radius_sensitivity.csv")
-DEFAULT_TRAFFIC_SENSITIVITY = Path("reports/main/tables/traffic_sensitivity.csv")
-DEFAULT_DAILY_RATE = Path("reports/main/tables/daily_counter_rate_ratio_by_wind.csv")
-DEFAULT_DAILY_RATE_COARSE = Path("reports/main/tables/daily_counter_rate_ratio_coarse_by_wind.csv")
-DEFAULT_DAILY_RATE_RADIUS = Path("reports/main/tables/daily_counter_radius_sensitivity.csv")
-DEFAULT_DAILY_DURATION = Path("reports/main/tables/daily_traffic_by_high_wind_duration.csv")
-DEFAULT_DAILY_ALLOCATED = Path("reports/main/tables/daily_allocated_rate_ratio_by_wind.csv")
-DEFAULT_DAILY_SERIOUS = Path("reports/main/tables/daily_allocated_rate_serious_fatal_by_wind.csv")
-DEFAULT_DAILY_07_24 = Path("reports/main/tables/daily_allocated_rate_07_24_by_wind.csv")
-DEFAULT_OUTPUT = Path("reports/main/tables/final_analysis_validation.md")
+DEFAULT_CASE_CONTROL_RESULT = Path("reports/main/tables/matched_weather.csv")
+DEFAULT_SEASON_INTERACTION = Path(
+    "reports/main/tables/wind_season.csv"
+)
+DEFAULT_JOINT_WEATHER = Path("reports/main/tables/weather_model.csv")
+DEFAULT_SEVERITY = Path("reports/main/tables/severity_conditions.csv")
+DEFAULT_DAYLIGHT = Path("reports/main/tables/daylight.csv")
+DEFAULT_OE_RESULTS = Path("reports/main/tables/oe_results.csv")
+DEFAULT_RADIUS_RESULT = Path("reports/main/tables/wind_radius.csv")
+DEFAULT_TRAFFIC_CHECKS = Path("reports/main/tables/traffic_checks.csv")
+DEFAULT_DAILY_RATE = Path("reports/main/tables/day_rate.csv")
+DEFAULT_DAILY_RATE_COARSE = Path("reports/main/tables/day_rate_coarse.csv")
+DEFAULT_DAILY_RATE_RADIUS = Path("reports/main/tables/counter_radius.csv")
+DEFAULT_DAILY_DURATION = Path("reports/main/tables/wind_duration.csv")
+DEFAULT_DAILY_ALLOCATED = Path("reports/main/tables/allocated_rate.csv")
+DEFAULT_DAILY_SERIOUS = Path("reports/main/tables/allocated_rate_severity.csv")
+DEFAULT_DAILY_07_24 = Path("reports/main/tables/allocated_rate_day.csv")
+DEFAULT_OUTPUT = Path("reports/main/tables/validation.md")
 
 
 def require(condition: bool, message: str) -> None:
@@ -61,17 +72,19 @@ def validation_values(
     mean_wind_path: Path,
     temperature_path: Path,
     coverage_path: Path,
-    sensitivity_path: Path,
+    oe_results_path: Path,
     daily_path: Path,
+    daily_accident_weather_path: Path,
     traffic_audit_path: Path,
     rate_input_path: Path,
     rate_model_path: Path,
     rate_serious_path: Path,
     seasonal_rate_path: Path,
+    seasonal_serious_path: Path,
     case_control_path: Path,
     case_control_result_path: Path,
     radius_result_path: Path,
-    traffic_sensitivity_path: Path,
+    traffic_checks_path: Path,
     daily_rate_path: Path,
     daily_rate_coarse_path: Path,
     daily_rate_radius_path: Path,
@@ -154,6 +167,9 @@ def validation_values(
         "Rounded expected mean-wind counts do not sum to the primary sample",
     )
     highest = mean_wind.loc[mean_wind["mean_wind_interval_ms"].eq(">=25")].iloc[0]
+    main_upper = mean_wind.loc[
+        mean_wind["mean_wind_interval_ms"].eq("20-25")
+    ].iloc[0]
     require(int(highest["observed_accidents"]) > 0, "No observed accidents in the highest mean-wind interval")
     require(float(highest["expected_accidents"]) > 0, "No expected accidents in the highest mean-wind interval")
 
@@ -162,14 +178,16 @@ def validation_values(
         require(radius in coverage.index, f"Missing {radius} km coverage")
         require(int(coverage.loc[radius, "analysed_accidents"]) > 0, f"No {radius} km coverage")
 
-    sensitivity = pd.read_csv(sensitivity_path)
-    radius_sensitivity = sensitivity[
-        sensitivity["comparison"].eq("station_radius")
-        & sensitivity["variable"].eq("fg")
-        & sensitivity["wind_interval_ms"].eq(">=35")
-    ].set_index("level")
-    for level in ["10 km", "20 km", "30 km"]:
-        require(level in radius_sensitivity.index, f"Missing gust distance result for {level}")
+    oe_results = pd.read_csv(oe_results_path)
+    radius_sensitivity = oe_results[
+        oe_results["variable"].eq("fg")
+        & oe_results["coarse_bin"].eq(">=35")
+        & oe_results["severity_group"].eq("Injury accidents")
+        & oe_results["analysis_season"].eq("All seasons")
+        & oe_results["max_time_difference_minutes"].eq(5)
+    ].set_index("radius_km")
+    for radius in [10, 20, 30]:
+        require(radius in radius_sensitivity.index, f"Missing gust distance result for {radius} km")
 
     daily_rows: int | None = None
     daily_with_wind: int | None = None
@@ -181,6 +199,36 @@ def validation_values(
         daily_with_wind = int(daily["f_mean"].notna().sum())
         require(daily_rows > 0, "No daily counter-days")
         require(daily_with_wind > 0, "No daily counter-days with wind")
+
+    daily_accident_weather = pd.read_csv(daily_accident_weather_path)
+    required_daily_accident_columns = {
+        "id", "counter_id", "counter_distance_km",
+        "counter_weather_station_id", "counter_weather_station_dist_km",
+        "counter_station_accident_distance_km",
+        "weather_time_difference_minutes", "f",
+    }
+    require(
+        required_daily_accident_columns <= set(daily_accident_weather),
+        "Daily accident-weather input is incomplete",
+    )
+    require(
+        daily_accident_weather["id"].is_unique,
+        "Daily accident-weather input is not unique by accident",
+    )
+    usable_daily_accident_weather = daily_accident_weather[
+        daily_accident_weather["f"].notna()
+    ]
+    require(
+        usable_daily_accident_weather["counter_distance_km"].le(20).all()
+        and usable_daily_accident_weather["counter_weather_station_dist_km"].le(20).all()
+        and usable_daily_accident_weather[
+            "counter_station_accident_distance_km"
+        ].le(20).all()
+        and usable_daily_accident_weather[
+            "weather_time_difference_minutes"
+        ].le(5).all(),
+        "A same-station daily accident-weather match exceeds a fixed limit",
+    )
 
     traffic_audit = pd.read_csv(traffic_audit_path).set_index("metric")
     required_traffic_metrics = {
@@ -220,6 +268,14 @@ def validation_values(
         ].gt(1).all(),
         "Season-specific mean-wind model is incomplete or has unexpected direction",
     )
+    seasonal_serious = pd.read_csv(seasonal_serious_path)
+    require(
+        set(seasonal_serious["season"]) == {"Winter", "Spring", "Summer", "Fall"}
+        and set(seasonal_serious["bin_label"]) == {"0-10", "10-15", ">=15"}
+        and seasonal_serious["analysis_outcome"].eq("serious-fatal").all()
+        and seasonal_serious["observed_accidents"].ge(0).all(),
+        "Season-specific serious-or-fatal model is incomplete",
+    )
 
     case_control = pd.read_csv(case_control_path)
     require(
@@ -230,6 +286,10 @@ def validation_values(
     stratum_cases = case_control.groupby(["exposure", "stratum_id"])["case"].sum()
     require(stratum_cases.eq(1).all(), "Each case-crossover stratum must have one case")
     require(case_control["controls_in_stratum"].ge(1).all(), "A case-crossover stratum has no control")
+    require(
+        set(case_control["exposure"]) == {"mean_wind", "wind_gust", "temperature"},
+        "Case-crossover input does not contain all three weather measures",
+    )
     case_control_result = pd.read_csv(case_control_result_path)
     high_wind_case_control = case_control_result[
         case_control_result["exposure"].eq("mean_wind")
@@ -240,6 +300,77 @@ def validation_values(
         float(high_wind_case_control["odds_ratio"]) > 1,
         "High-wind case-crossover odds ratio is not above one",
     )
+    high_gust_case_control = case_control_result[
+        case_control_result["exposure"].eq("wind_gust")
+        & case_control_result["model"].eq("categorical")
+        & case_control_result["comparison"].eq(">=30")
+    ].iloc[0]
+    require(
+        float(high_gust_case_control["odds_ratio"]) > 1,
+        "High-gust case-crossover odds ratio is not above one",
+    )
+    season_interaction = pd.read_csv(DEFAULT_SEASON_INTERACTION)
+    omnibus = season_interaction[
+        season_interaction["result"].eq("Season interaction test")
+    ]
+    seasonal_estimates = season_interaction[
+        season_interaction["result"].eq("Season-specific estimate")
+    ]
+    require(
+        len(omnibus) == 1
+        and set(seasonal_estimates["season"])
+        == {"Winter", "Spring", "Summer", "Autumn"}
+        and int(omnibus.iloc[0]["degrees_of_freedom"]) == 6
+        and 0 <= float(omnibus.iloc[0]["p_value"]) <= 1
+        and seasonal_estimates["ci_95_low"].le(
+            seasonal_estimates["odds_ratio"]
+        ).all()
+        and seasonal_estimates["odds_ratio"].le(
+            seasonal_estimates["ci_95_high"]
+        ).all(),
+        "Matched wind-by-season comparison is incomplete or inconsistent",
+    )
+    weather_model = pd.read_csv(DEFAULT_JOINT_WEATHER)
+    joint_high_wind = weather_model[
+        weather_model["variable"].eq("Mean wind")
+        & weather_model["comparison"].eq(">=15 m/s")
+    ].iloc[0]
+    require(
+        int(joint_high_wind["strata"]) >= 5_000
+        and float(joint_high_wind["adjusted_odds_ratio"]) > 1
+        and float(joint_high_wind["ci_95_low"]) <= float(joint_high_wind["adjusted_odds_ratio"])
+        <= float(joint_high_wind["ci_95_high"]),
+        "Joint wind-temperature model is incomplete or inconsistent",
+    )
+    severity = pd.read_csv(DEFAULT_SEVERITY)
+    require(
+        set(severity["predictor"])
+        == {"Mean wind", "Temperature", "Daylight", "Time of day", "Season"}
+        and severity["accidents"].nunique() == 1
+        and int(severity["accidents"].iloc[0]) == temperature_accidents
+        and severity["ci_95_low"].le(severity["odds_ratio"]).all()
+        and severity["odds_ratio"].le(severity["ci_95_high"]).all(),
+        "Severity-composition model is incomplete or inconsistent",
+    )
+    daylight = pd.read_csv(DEFAULT_DAYLIGHT)
+    require(
+        daylight["comparison"].tolist() == ["Darkness", "Civil twilight"]
+        and daylight["reference"].eq("Daylight").all()
+        and int(daylight["total_strata"].iloc[0]) == len(accidents)
+        and int(daylight["informative_strata"].iloc[0]) > 0,
+        "Matched daylight comparison is incomplete",
+    )
+    accident_type_rows = oe_results[
+        oe_results["severity_group"].isin(
+            ["Single-vehicle accident type", "Other accident types"]
+        )
+    ]
+    require(
+        set(accident_type_rows["severity_group"])
+        == {"Single-vehicle accident type", "Other accident types"}
+        and accident_type_rows["variable"].eq("f").all(),
+        "Accident-type mean-wind O/E result is incomplete",
+    )
 
     radius_result = pd.read_csv(radius_result_path)
     require(len(radius_result) == 9, "Primary radius table must contain nine rows")
@@ -249,17 +380,29 @@ def validation_values(
         and radius_20_25["relative_accident_frequency"].gt(1).all(),
         "Primary 20--25 m/s radius sensitivity is incomplete or inconsistent",
     )
-    traffic_sensitivity = pd.read_csv(traffic_sensitivity_path)
-    official_20_25 = traffic_sensitivity[
-        traffic_sensitivity["check"].eq("Rate model, 20-25 m/s")
-        & traffic_sensitivity["primary_or_full_scope"].str.contains("Official")
+    traffic_checks = pd.read_csv(traffic_checks_path)
+    official_20_25 = traffic_checks[
+        traffic_checks["check"].eq("Rate model, 20-25 m/s")
+        & traffic_checks["primary_or_full_scope"].str.contains("Official")
     ]
     require(
         len(official_20_25) == 1 and float(official_20_25.iloc[0]["estimate"]) > 1,
         "Official-period traffic sensitivity does not retain the high-wind pattern",
     )
-    daily_20_25 = traffic_sensitivity[
-        traffic_sensitivity["check"].eq("Daily traffic, 20-25 m/s")
+    allocation_check = pd.read_csv(DEFAULT_TRAFFIC_ALLOCATION_CHECK)
+    upper_check = allocation_check[
+        allocation_check["bin_label"].isin(["15-20", "20-25", ">=25"])
+    ]
+    require(
+        set(allocation_check["bin_label"])
+        == {"0-5", "5-10", "10-15", "15-20", "20-25", ">=25"}
+        and upper_check["illustrative_rate_ratio"].gt(
+            upper_check["time_proportional_rate_ratio"]
+        ).all(),
+        "Traffic-allocation direction check is incomplete or has an unexpected direction",
+    )
+    daily_20_25 = traffic_checks[
+        traffic_checks["check"].eq("Daily traffic, 20-25 m/s")
     ]
     require(
         len(daily_20_25) == 2
@@ -345,7 +488,7 @@ def validation_values(
             f"Allocated daily {name} sensitivity is incomplete",
         )
 
-    from src.figures.accident_profiles import broad_accident_family
+    from src.accidents.types import broad_accident_family
 
     families = accidents["tegohapps"].map(broad_accident_family)
     single_count = int(
@@ -358,6 +501,7 @@ def validation_values(
         "study_period": study_period,
         "weather": weather,
         "highest": highest,
+        "main_upper": main_upper,
         "coverage": coverage,
         "radius_sensitivity": radius_sensitivity,
         "daily_rows": daily_rows,
@@ -367,9 +511,16 @@ def validation_values(
         "high_rate": high_rate,
         "rate_serious": rate_serious,
         "seasonal_rate": seasonal_rate,
+        "seasonal_serious": seasonal_serious,
         "high_wind_case_control": high_wind_case_control,
+        "high_gust_case_control": high_gust_case_control,
+        "season_interaction": season_interaction,
+        "joint_high_wind": joint_high_wind,
+        "daylight": daylight,
+        "severity": severity,
         "radius_20_25": radius_20_25,
         "official_20_25": official_20_25.iloc[0],
+        "allocation_check": allocation_check,
         "daily_20_25": daily_20_25,
         "daily_rate_high": daily_rate_high,
         "daily_rate_total": int(daily_rate_coarse["model_accidents"].iloc[0]),
@@ -386,19 +537,20 @@ def validation_values(
 def write_report(values: dict[str, object], output: Path) -> None:
     weather = values["weather"]
     highest = values["highest"]
+    main_upper = values["main_upper"]
     coverage = values["coverage"]
     radius_sensitivity = values["radius_sensitivity"]
     traffic_audit = values["traffic_audit"]
     lines = [
         "# Final analysis validation",
         "",
-        "All checks below passed against the current local canonical files.",
+        "All checks below passed against the current local analysis files.",
         "",
         "## Fixed primary analysis",
         "",
         f"- Population: {values['study_accidents']:,} rural injury accidents, {values['study_period']}.",
         f"- Primary weather match: {values['primary_accidents']:,} accidents within 20 km and 5 minutes.",
-        "- Primary exposure: mean wind speed (`f`) in 5 m/s intervals.",
+        "- Primary weather measure: accident-time ten-minute mean wind speed (`f`) in 5 m/s intervals.",
         "- Standardisation: weather station and season; weather frequency is pooled across 2007--2025.",
         "- Uncertainty: 5,000 weather-station-clustered bootstrap samples.",
         "",
@@ -431,6 +583,7 @@ def write_report(values: dict[str, object], output: Path) -> None:
             "",
             "| Mean wind-speed interval | Observed | Expected | O/E | 95% interval |",
             "|---|---:|---:|---:|---:|",
+            f"| 20--25 m/s | {int(main_upper['observed_accidents'])} | {main_upper['expected_accidents']:.1f} | {main_upper['observed_expected_ratio']:.2f} | {main_upper['station_bootstrap_ci_95_low']:.2f}--{main_upper['station_bootstrap_ci_95_high']:.2f} |",
             f"| >=25 m/s | {int(highest['observed_accidents'])} | {highest['expected_accidents']:.1f} | {highest['observed_expected_ratio']:.2f} | {highest['station_bootstrap_ci_95_low']:.2f}--{highest['station_bootstrap_ci_95_high']:.2f} |",
             "",
             f"Observed counts sum to {values['primary_accidents']:,}. Expected counts are rounded to one decimal in this table.",
@@ -445,16 +598,27 @@ def write_report(values: dict[str, object], output: Path) -> None:
             f"The shared-station rate model retains {values['rate_accidents']:,} accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is {values['high_rate']['time_proportional_rate_ratio']:.2f} (95% CI {values['high_rate']['time_proportional_ci_95_low']:.2f}--{values['high_rate']['time_proportional_ci_95_high']:.2f}).",
             f"The serious/fatal version retains {int(values['rate_serious']['model_accidents'].iloc[0]):,} accidents. Its 15--20 m/s rate ratio is {values['rate_serious'].loc[values['rate_serious']['bin_label'].eq('15-20'), 'time_proportional_rate_ratio'].iloc[0]:.2f}.",
             "The seasonal model uses coarse 0--10, 10--15, and >=15 m/s intervals; all four >=15 m/s estimates are above one.",
+            "The serious-or-fatal seasonal model uses the same intervals; its spring upper category contains only six accidents and is interpreted cautiously.",
             "",
             "## Time-stratified case-crossover result",
             "",
             f"At mean wind >=15 m/s versus 0--5 m/s, the matched odds ratio is {values['high_wind_case_control']['odds_ratio']:.2f} (95% CI {values['high_wind_case_control']['ci_95_low']:.2f}--{values['high_wind_case_control']['ci_95_high']:.2f}).",
+            f"At gust >=30 m/s versus 0--10 m/s, the matched odds ratio is {values['high_gust_case_control']['odds_ratio']:.2f} (95% CI {values['high_gust_case_control']['ci_95_low']:.2f}--{values['high_gust_case_control']['ci_95_high']:.2f}).",
+            f"The formal wind-by-season likelihood-ratio test gives chi-square {values['season_interaction'].iloc[0]['likelihood_ratio_chi2']:.2f} on {int(values['season_interaction'].iloc[0]['degrees_of_freedom'])} degrees of freedom (p={values['season_interaction'].iloc[0]['p_value']:.3f}).",
+            "",
+            "## Additional environmental comparisons",
+            "",
+            f"The joint matched-time model retains {int(values['joint_high_wind']['strata']):,} accidents with both wind and temperature. Its adjusted >=15 versus 0--5 m/s wind odds ratio is {values['joint_high_wind']['adjusted_odds_ratio']:.2f} (95% CI {values['joint_high_wind']['ci_95_low']:.2f}--{values['joint_high_wind']['ci_95_high']:.2f}).",
+            f"The matched daylight comparison uses all {values['study_accidents']:,} accidents, but only {int(values['daylight']['informative_strata'].iloc[0]):,} strata change daylight class within the matched month and hour.",
+            f"The severity-composition model contains {int(values['severity']['accidents'].iloc[0]):,} complete accidents and {int(values['severity']['serious_or_fatal_accidents'].iloc[0]):,} serious-or-fatal outcomes. It estimates severity among recorded accidents, not accident occurrence.",
+            "Separate mean-wind O/E results are present for single-vehicle accident types and all other accident types.",
             "",
             "## Results using traffic data",
             "",
             f"Restricting the 20--25 m/s rate model to official VDU and SDU gives RR {values['official_20_25']['estimate']:.2f}. Excluding zero counter-days changes the corresponding daily-traffic percentage by less than two percentage points.",
+            f"The illustrative denominator direction check changes the 20--25 m/s annual-model RR from {values['allocation_check'].loc[values['allocation_check']['bin_label'].eq('20-25'), 'time_proportional_rate_ratio'].iloc[0]:.2f} to {values['allocation_check'].loc[values['allocation_check']['bin_label'].eq('20-25'), 'illustrative_rate_ratio'].iloc[0]:.2f} when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.",
             f"The sustained-wind table contains {int(values['daily_duration']['counter_days'].sum()):,} sufficiently complete counter-days. Traffic is {values['daily_duration'].iloc[-1]['relative_traffic_pct']:.1f}% of its calendar expectation on days with at least six hours at f >=15 m/s.",
-            f"The allocated daily-counter model retains {int(values['daily_allocated']['observed_accidents'].sum()):,} accidents. Its >=15 versus 0--10 m/s rate ratio is {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} (95% CI {values['daily_allocated'].iloc[-1]['ci_95_low']:.2f}--{values['daily_allocated'].iloc[-1]['ci_95_high']:.2f}). The within-day denominator is estimated, not observed hourly traffic.",
+            f"The allocated daily-counter model retains {int(values['daily_allocated']['observed_accidents'].sum()):,} accidents. Its >=15 versus 0--10 m/s rate ratio is {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} (95% CI {values['daily_allocated'].iloc[-1]['ci_95_low']:.2f}--{values['daily_allocated'].iloc[-1]['ci_95_high']:.2f}). The within-day traffic split is estimated, not observed hourly traffic.",
             f"The serious/fatal daily model retains {int(values['daily_serious']['observed_accidents'].sum()):,} accidents; its upper rate ratio is {values['daily_serious'].iloc[-1]['rate_ratio']:.2f}. Restricting the all-injury allocation to 07:00--24:00 gives {values['daily_07_24'].iloc[-1]['rate_ratio']:.2f}, versus {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} for the full day.",
             f"The appendix full-day-mean check retains {values['daily_rate_total']:,} accidents. At >=15 m/s versus 0--10 m/s, RR is {values['daily_rate_high']['rate_ratio']:.2f} (95% CI {values['daily_rate_high']['ci_95_low']:.2f}--{values['daily_rate_high']['ci_95_high']:.2f}), based on {int(values['daily_rate_high']['observed_accidents'])} upper-category accidents.",
             "The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.",
@@ -465,13 +629,12 @@ def write_report(values: dict[str, object], output: Path) -> None:
             "|---|---:|---:|---:|",
         ]
     )
-    for level in ["10 km", "20 km", "30 km"]:
-        radius = int(level.split()[0])
-        row = radius_sensitivity.loc[level]
+    for radius in [10, 20, 30]:
+        row = radius_sensitivity.loc[radius]
         lines.append(
-            f"| {level} | {int(coverage.loc[radius, 'analysed_accidents']):,} | "
-            f"{row['observed_expected_ratio']:.2f} | "
-            f"{row['station_bootstrap_ci_95_low']:.2f}--{row['station_bootstrap_ci_95_high']:.2f} |"
+            f"| {radius} km | {int(coverage.loc[radius, 'analysed_accidents']):,} | "
+            f"{row['relative_accident_frequency']:.2f} | "
+            f"{row['bootstrap_ci_95_low']:.2f}--{row['bootstrap_ci_95_high']:.2f} |"
         )
     lines.extend(
         [
@@ -481,16 +644,16 @@ def write_report(values: dict[str, object], output: Path) -> None:
             f"The 2007--2025 annual-traffic input contains {int(traffic_audit.loc['section_years', 'section_years']):,} road-section/year rows. "
             f"Nonpositive published VDU values occur in {int(traffic_audit.loc['nonpositive_vdu', 'section_years']):,} rows, and "
             f"nonpositive derived VHDU residuals occur in {int(traffic_audit.loc['nonpositive_derived_vhdu', 'section_years']):,} rows. "
-            "These rows are excluded from the corresponding positive vehicle-kilometre exposure; they are not replaced or imputed.",
+            "These rows are excluded from the corresponding estimated vehicle-kilometres; they are not replaced or imputed.",
             "",
             "## Study-population decision",
             "",
             f"Single-vehicle, run-off-road, rollover, fall, or other accidents account for {values['single_vehicle_count']:,} of {values['study_accidents']:,} study accidents ({values['single_vehicle_pct']:.1f}%).",
-            "This supports the relevance of wind conditions to vehicle control. A separate O/E curve for this group would be an exploratory appendix analysis, not a replacement for the fixed all-injury primary result.",
+            "This supports the relevance of wind conditions to vehicle control. The separate appendix O/E curve for this group is exploratory and does not replace the fixed all-injury primary result.",
             "",
             "## Decision",
             "",
-            "The primary analysis is internally consistent and ready to freeze: `f`, a 20 km weather-station limit, a 5-minute time limit, and wind-frequency-adjusted O/E as the main result. Gust and daily traffic remain secondary analyses.",
+            "The primary analysis is internally consistent and ready to freeze: `f`, a 20 km weather-station limit, a 5-minute time limit, and wind-frequency-adjusted O/E as the main result. Gust, temperature, and traffic remain supporting analyses.",
         ]
     )
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -505,17 +668,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-m", "--mean-wind", type=Path, default=DEFAULT_MEAN_WIND)
     parser.add_argument("-p", "--temperature", type=Path, default=DEFAULT_TEMPERATURE)
     parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
-    parser.add_argument("-s", "--sensitivity", type=Path, default=DEFAULT_SENSITIVITY)
+    parser.add_argument("-O", "--oe-results", type=Path, default=DEFAULT_OE_RESULTS)
     parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
+    parser.add_argument("--daily-accident-weather", type=Path, default=DEFAULT_DAILY_ACCIDENT_WEATHER)
     parser.add_argument("-t", "--traffic-audit", type=Path, default=DEFAULT_TRAFFIC_AUDIT)
     parser.add_argument("-r", "--rate-input", type=Path, default=DEFAULT_RATE_INPUT)
     parser.add_argument("-R", "--rate-model", type=Path, default=DEFAULT_RATE_MODEL)
     parser.add_argument("--rate-serious", type=Path, default=DEFAULT_RATE_SERIOUS)
     parser.add_argument("--seasonal-rate", type=Path, default=DEFAULT_SEASONAL_RATE)
+    parser.add_argument("--seasonal-serious", type=Path, default=DEFAULT_SEASONAL_SERIOUS)
     parser.add_argument("-x", "--case-control", type=Path, default=DEFAULT_CASE_CONTROL)
     parser.add_argument("-X", "--case-control-result", type=Path, default=DEFAULT_CASE_CONTROL_RESULT)
     parser.add_argument("-S", "--radius-result", type=Path, default=DEFAULT_RADIUS_RESULT)
-    parser.add_argument("-T", "--traffic-sensitivity", type=Path, default=DEFAULT_TRAFFIC_SENSITIVITY)
+    parser.add_argument("-T", "--traffic-checks", type=Path, default=DEFAULT_TRAFFIC_CHECKS)
     parser.add_argument("-D", "--daily-rate", type=Path, default=DEFAULT_DAILY_RATE)
     parser.add_argument("-Q", "--daily-rate-coarse", type=Path, default=DEFAULT_DAILY_RATE_COARSE)
     parser.add_argument("-q", "--daily-rate-radius", type=Path, default=DEFAULT_DAILY_RATE_RADIUS)
@@ -536,17 +701,19 @@ def main() -> None:
         args.mean_wind,
         args.temperature,
         args.coverage,
-        args.sensitivity,
+        args.oe_results,
         args.daily,
+        args.daily_accident_weather,
         args.traffic_audit,
         args.rate_input,
         args.rate_model,
         args.rate_serious,
         args.seasonal_rate,
+        args.seasonal_serious,
         args.case_control,
         args.case_control_result,
         args.radius_result,
-        args.traffic_sensitivity,
+        args.traffic_checks,
         args.daily_rate,
         args.daily_rate_coarse,
         args.daily_rate_radius,

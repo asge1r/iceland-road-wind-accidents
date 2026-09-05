@@ -23,17 +23,20 @@ not committed because it is derived from authorised local data deliveries.
 
 | File | Unit | Key columns used |
 |---|---|---|
-| `analysis/accidents.csv` | One rural injury accident | `id`, time, coordinates, outcome fields, road section, hour, weekday, meteorological season, and VDU/SDU/VHDU traffic period. |
+| `analysis/accidents.csv` | One rural injury accident | `id`, time, coordinates, outcome fields, road section, hour, weekday, study season, and VDU/SDU/VHDU traffic period. |
 | `analysis/accident_conditions.csv` | One rural injury accident | Independent wind and temperature matches, match distances and time differences, solar elevation, and estimated daylight class. |
 | `analysis/weather_frequency.csv` | Station, season, variable, and interval | Tidy wind and temperature counts pooled across 2007--2025. `unit` distinguishes m/s and degrees Celsius. |
-| `analysis/case_control.csv` | Accident or matched control time | Same-station, same-hour, same-weekday wind and temperature samples within month and year. |
+| `analysis/weather_cleaning.csv` | Year and total | Counts retained and excluded by each fixed weather-quality rule. |
+| `analysis/case_control.csv` | Accident or matched control time | Same-station, same-hour, same-weekday mean-wind, gust, and temperature samples within month and year. |
 | `analysis/annual_traffic.csv` | Road section and year | road section, length, ADU, SDU, and VDU. |
-| `analysis/conditional_poisson_input.csv` | Road section, year, traffic period, and mean-wind interval | Rows with positive estimated vehicle-kilometres from road/year/period groups containing at least one accident. Groups with no accidents do not add a comparison to this model. |
-| `analysis/seasonal_poisson_input.csv` | Road section, year, meteorological season, and mean-wind interval | Year-specific estimated vehicle-kilometres and matched injury-accident counts used by the four seasonal models. |
-| `analysis/traffic_exposure_full.csv` | Traffic period and mean-wind interval | 18 rows containing estimated vehicle-kilometres from every eligible road section and the associated accidents for the descriptive accident-per-vehicle-km table. It includes more road sections than the conditional-model input. |
+| `analysis/road_rate.csv` | Road section, year, traffic period, and mean-wind interval | Rows with positive estimated vehicle-kilometres from road/year/period groups containing at least one accident. Groups with no accidents do not add a comparison to this model. |
+| `analysis/road_seasons.csv` | Road section, year, study season, and mean-wind interval | Year-specific estimated vehicle-kilometres and matched injury-accident counts used by the four seasonal models. |
+| `analysis/road_exposure.csv` | Traffic period and mean-wind interval | 18 rows containing estimated vehicle-kilometres from every eligible road section and the associated accidents for the descriptive accident-per-vehicle-km table. It includes more road sections than the conditional-model input. |
 | `analysis/selection_summary.csv` | Dataset-selection step | Eight counts used to draw the accident and traffic selection figures. |
 | `analysis/daily_traffic.csv` | Counter site and date | Optional large CSV containing the observed daily count, mean-wind summaries, and observation counts in six mean-wind intervals. |
-| `analysis/daily_counter_locations.csv` | Counter site and year | Road section and geometry-interpolated coordinates used by selected-counter rate analyses. |
+| `analysis/counter_locations.csv` | Counter site and year | Road section and geometry-interpolated coordinates used by selected-counter rate analyses. |
+| `analysis/counter_wind.csv` | Accident assigned to a counter | Accident-time mean wind from the same weather station used for that counter-day's traffic allocation. |
+| `analysis/counter_check.csv` | Counter site | Independent comparison with official 20 m road-station points. |
 | `analysis/manifest.csv` | One analysis file | record count, available columns, and a short description. |
 
 The accident deliveries call their record key `nid` or `NID`. Preparation
@@ -49,7 +52,7 @@ does not use traffic. It writes the intermediate O/E calculation table to
 `reports/working/tables/oe_station_bins.csv`. Mean wind speed
 `f` is its primary weather measure and matched-time wind gust `fg` is secondary. The daily
 traffic scripts use `daily_traffic.csv`; the direct daily-rate comparison also
-uses `daily_counter_locations.csv`. The vehicle-kilometre scripts use
-`conditional_poisson_input.csv` and `traffic_exposure_full.csv`. Therefore the ordinary
+uses `counter_locations.csv`. The vehicle-kilometre scripts use
+`road_rate.csv` and `road_exposure.csv`. Therefore the ordinary
 analysis stage reads only files in `data/analysis/`, not `data/raw/` or
 `data/processed/`.

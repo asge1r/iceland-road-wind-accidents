@@ -123,6 +123,66 @@ def plot_mean_wind_strata(data: pd.DataFrame, variable: str, group_column: str, 
     plt.close(figure)
 
 
+def plot_temperature_seasons(data: pd.DataFrame, path: Path) -> None:
+    subset = data[
+        data["variable"].eq("temperature")
+        & data["radius_km"].eq(20)
+        & data["max_time_difference_minutes"].eq(
+            PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
+        )
+        & data["severity_group"].eq("Injury accidents")
+        & data["analysis_season"].isin(["Winter", "Spring", "Summer", "Fall"])
+    ].copy()
+    groups = {
+        "<-5": "<1", "-5--3": "<1", "-3--1": "<1", "-1-1": "<1",
+        "1-3": "1-5", "3-5": "1-5", ">=5": ">=5",
+    }
+    subset["display_bin"] = subset["coarse_bin"].map(groups)
+    subset = subset.groupby(
+        ["analysis_season", "display_bin"], as_index=False, observed=True
+    ).agg(
+        observed_accidents=("observed_accidents", "sum"),
+        expected_accidents=("expected_accidents", "sum"),
+    )
+    subset["relative_accident_frequency"] = (
+        subset["observed_accidents"] / subset["expected_accidents"]
+    )
+    order = {"<1": 0, "1-5": 1, ">=5": 2}
+    subset["bin_order"] = subset["display_bin"].map(order)
+    seasons = ["Winter", "Spring", "Summer", "Fall"]
+    season_titles = {"Fall": "Autumn"}
+    figure, axes = plt.subplots(
+        2, 2, figsize=(13, 8.5), sharey=True, constrained_layout=True
+    )
+    top = max(1.5, float(subset["relative_accident_frequency"].max()) * 1.15)
+    for axis, season in zip(axes.flat, seasons, strict=True):
+        panel = subset[subset["analysis_season"].eq(season)].sort_values("bin_order")
+        x = np.arange(len(panel))
+        colors = np.where(
+            panel["observed_accidents"].lt(20),
+            "#A7A7A7",
+            VARIABLE_COLORS["temperature"],
+        )
+        bars = axis.bar(x, panel["relative_accident_frequency"], color=colors)
+        axis.axhline(1, color="#222222", linestyle="--", linewidth=1)
+        axis.set_title(season_titles.get(season, season))
+        axis.set_xticks(x, interval_labels(panel["display_bin"]))
+        axis.set_ylim(0, top)
+        axis.grid(axis="y", alpha=0.2)
+        for bar, count in zip(bars, panel["observed_accidents"], strict=True):
+            axis.text(
+                bar.get_x() + bar.get_width() / 2,
+                max(bar.get_height() * 0.52, top * 0.05),
+                f"n={int(count)}",
+                ha="center", va="center", fontsize=7, color="white",
+            )
+    figure.supxlabel("Temperature interval (°C)")
+    figure.supylabel("Observed / expected accidents (O/E)")
+    figure.suptitle("Temperature O/E by season (broad intervals)")
+    figure.savefig(path, dpi=240)
+    plt.close(figure)
+
+
 def primary_rows(results: pd.DataFrame) -> pd.DataFrame:
     return results[
         results["radius_km"].eq(20)
@@ -154,7 +214,7 @@ def main() -> None:
         "severity_group",
         "Injury accidents",
         "Mean wind O/E by season",
-        args.output / "mean_wind_by_season_oe.png",
+        args.output / "wind_season_oe.png",
     )
     plot_mean_wind_strata(
         results,
@@ -164,8 +224,19 @@ def main() -> None:
         "analysis_season",
         "All seasons",
         "Mean wind O/E by number of vehicles involved",
-        args.output / "mean_wind_by_vehicle_group_oe.png",
+        args.output / "wind_vehicle.png",
     )
+    plot_mean_wind_strata(
+        results,
+        "f",
+        "severity_group",
+        ["Single-vehicle accident type", "Other accident types"],
+        "analysis_season",
+        "All seasons",
+        "Mean wind O/E by accident type",
+        args.output / "wind_type.png",
+    )
+    plot_temperature_seasons(results, args.output / "temperature_season.png")
     print(f"wrote O/E figures to {args.output}")
 
 
