@@ -23,10 +23,10 @@ from src.weather.frequency import (
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
 DEFAULT_FREQUENCY = Path("data/analysis/weather_frequency.csv")
-DEFAULT_RESULTS = Path("archive/generated_diagnostics/oe/detailed_results.csv")
+DEFAULT_RESULTS = Path("reports/working/tables/oe_scenarios.csv")
 DEFAULT_DETAILS = Path("reports/working/tables/oe_station_bins.csv")
-DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
-DEFAULT_NOTES = Path("archive/generated_diagnostics/oe/calculation_notes.txt")
+DEFAULT_COVERAGE = Path("reports/working/tables/oe_coverage.csv")
+DEFAULT_NOTES = Path("reports/working/oe_notes.txt")
 
 SEASON_ORDER = ["Winter", "Spring", "Summer", "Fall"]
 RADII = [10, 20, 30]

@@ -85,6 +85,12 @@ still be rebuilt after preparation with:
 .venv/bin/python -m src.analyze --skip-daily-traffic
 ```
 
+Run the focused definition and analysis-input checks with:
+
+```bash
+.venv/bin/python -m unittest discover -s tests
+```
+
 Without data, a clone can inspect every documented script and fixed analysis
 decision. With the authorised raw deliveries it can rebuild the same local
 processed files, tables, and figures. The accident workflow also requires its

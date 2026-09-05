@@ -90,7 +90,7 @@ This keeps the table short without making the file locations ambiguous.
 | `traffic/locate_counters.py` | *processed/traffic/*<br>`daily_raw.csv`<br>*raw/traffic/reference/*<br>`roads.geojson` | *processed/traffic/*<br>`daily.csv` | Combines directional channels and locates counters. |
 | `traffic/daily_weather.py` | *processed/*<br>`traffic/daily.csv`<br>`weather/weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/traffic/*<br>`daily_match.parquet`<br>`daily_weather.csv` | Matches counter-days to a nearby weather station. |
 | `traffic/accident_wind.py` | *processed/*<br>`accidents/rural_injury.csv`<br>`traffic/daily_weather.csv`<br>`traffic/locations.csv`<br>`weather/weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/traffic/*<br>`accident_wind.csv` | Matches accidents to the assigned counter-day station. |
-| `export_tables.py` | *processed/*<br>`accidents/rural_injury.csv`<br>`accidents/rate.csv`<br>`accidents/case_control.csv`<br>`weather/frequency.csv`<br>`weather/traffic_frequency.csv`<br>`traffic/annual.csv`<br>`traffic/road_period.csv`<br>`traffic/daily_weather.csv`<br>`traffic/accident_wind.csv`<br>`traffic/locations.csv` | *analysis/*<br>analysis CSV files listed below | Selects only the variables used by ordinary analysis. |
+| `export_tables.py` | *processed/*<br>`accidents/rural_injury.csv`<br>`accidents/rate.csv`<br>`accidents/case_control.csv`<br>`weather/frequency.csv`<br>`weather/traffic_frequency.csv`<br>`weather/cleaning.csv`<br>`traffic/annual.csv`<br>`traffic/road_period.csv`<br>`traffic/daily_weather.csv`<br>`traffic/accident_wind.csv`<br>`traffic/locations.csv` | *analysis/*<br>analysis CSV files listed below | Selects only the variables used by ordinary analysis. |
 
 The road-period preparation contains only the 5 m/s mean-wind intervals used
 by the traffic model. Gust and duplicate mean-wind classifications are not
@@ -99,6 +99,9 @@ carried through that working table.
 ## Code organisation
 
 - Executable modules parse options and coordinate one clearly named task.
+  The public `export_tables.py` and `validate.py` entry points delegate their
+  detailed column-selection and audit logic to `analysis_data.py` and
+  `checks.py`, respectively.
 - Larger helper modules contain related calculations but do not create extra
   analysis routes: `traffic/road_period.py` prepares road-period exposure,
   `traffic/daily_tools.py` supports counter-weather matching and its

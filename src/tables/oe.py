@@ -17,7 +17,7 @@ from src.weather.frequency import (
 
 
 DEFAULT_DETAILS = Path("reports/working/tables/oe_station_bins.csv")
-DEFAULT_COVERAGE = Path("archive/generated_diagnostics/oe/coverage.csv")
+DEFAULT_COVERAGE = Path("reports/working/tables/oe_coverage.csv")
 DEFAULT_OUTPUT_DIR = Path("reports/main/tables")
 DEFAULT_SUBGROUP_OUTPUT = Path("reports/working/tables/mean_wind_subgroups.csv")
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
