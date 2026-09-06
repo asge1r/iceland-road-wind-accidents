@@ -32,6 +32,25 @@ class AnalysisInputTests(unittest.TestCase):
         actual = {path.name for path in ANALYSIS.glob("*.csv")} | {"README.md"}
         self.assertEqual(listed, actual)
 
+    def test_yearly_weather_frequencies_are_complete(self) -> None:
+        weather = pd.read_csv(ANALYSIS / "weather_yearly.csv")
+        keys = ["station", "year", "season", "variable", "bin_label"]
+        self.assertFalse(weather.duplicated(keys).any())
+        totals = weather.groupby(
+            ["station", "year", "season", "variable"]
+        )["frequency_pct"].sum()
+        self.assertTrue(((totals - 100).abs() < 1e-6).all())
+
+    def test_year_adjusted_oe_preserves_accident_totals(self) -> None:
+        result = pd.read_csv("reports/main/tables/year_oe.csv")
+        totals = result.groupby("variable").agg(
+            observed=("observed_accidents", "sum"),
+            expected=("expected_accidents", "sum"),
+            analysed=("analysed_accidents", "first"),
+        )
+        self.assertTrue((totals["observed"] == totals["analysed"]).all())
+        self.assertTrue(((totals["expected"] - totals["analysed"]).abs() < 1e-6).all())
+
     def test_daily_accident_and_denominator_stations_agree(self) -> None:
         daily_path = ANALYSIS / "daily_traffic.csv"
         wind_path = ANALYSIS / "counter_wind.csv"

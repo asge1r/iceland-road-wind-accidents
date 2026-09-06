@@ -22,6 +22,10 @@ Builds station-season observed and expected accident totals. \\ \grayhline
 \path{reports/working/tables/oe_station_bins.csv}\newline \path{analysis/accidents.csv}\newline \path{analysis/accident_conditions.csv} &
 \path{reports/main/tables/oe_results.csv}\newline \path{mean_wind_oe.csv}\newline \path{gust_oe.csv}\newline \path{temperature_oe.csv}\newline \path{wind_coverage.csv} &
 Calculates O/E results and uncertainty intervals. \\ \grayhline
+\path{tables/year_oe.py} &
+\path{analysis/accidents.csv}\newline \path{analysis/accident_conditions.csv}\newline \path{analysis/weather_yearly.csv} &
+\path{reports/main/tables/year_oe.csv} &
+Repeats mean-wind and temperature O/E within station, season, and year. \\ \grayhline
 \path{tables/wind_radius.py} &
 \path{reports/main/tables/oe_results.csv} &
 \path{reports/main/tables/wind_radius.csv} &
@@ -53,11 +57,7 @@ Fits injury and serious-or-fatal models for four seasons. \\ \grayhline
 \path{figures/season_rate.py} &
 The two tables written by \path{tables/season_rate.py} &
 \emph{\path{reports/main/figures/}}\newline \path{season_rate.png}\newline \path{season_rate_severity.png} &
-Draws the season-specific rate-ratio panels. \\ \grayhline
-\path{tables/daily_traffic.py} &
-\path{analysis/daily_traffic.csv} &
-\path{reports/main/tables/traffic_wind.csv}\newline \path{traffic_period.csv} &
-Calculates traffic relative to the typical day at the same counter. \\
+Draws the season-specific rate-ratio panels. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -74,6 +74,10 @@ Calculates traffic relative to the typical day at the same counter. \\
 \toprule
 Script & Input file(s) & Output file(s) & Description \\
 \midrule
+\path{tables/daily_traffic.py} &
+\path{analysis/daily_traffic.csv} &
+\path{reports/main/tables/traffic_wind.csv}\newline \path{traffic_period.csv} &
+Calculates traffic relative to the typical day at the same counter. \\ \grayhline
 \path{tables/wind_duration.py} &
 \path{analysis/daily_traffic.csv} &
 \path{reports/main/tables/wind_duration.csv} &
@@ -117,11 +121,7 @@ Draws the supporting daily-traffic result. \\ \grayhline
 \path{figures/data_flow.py} &
 \path{analysis/selection_summary.csv}\newline \path{reports/main/tables/weather_audit.csv} &
 \emph{\path{reports/main/figures/}}\newline \path{accident_flow.png}\newline \path{weather_flow.png}\newline \path{traffic_flow.png} &
-Draws the three selection figures. \\ \grayhline
-\path{figures/accident_profiles.py} &
-\path{analysis/accidents.csv} &
-\emph{\path{reports/main/figures/}}\newline \path{accident_types.png}\newline \path{vehicles_per_accident.png}\newline \path{accident_types_by_severity.png} &
-Draws accident-type, vehicle-count and severity descriptions. \\
+Draws the three selection figures. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -138,6 +138,10 @@ Draws accident-type, vehicle-count and severity descriptions. \\
 \toprule
 Script & Input file(s) & Output file(s) & Description \\
 \midrule
+\path{figures/accident_profiles.py} &
+\path{analysis/accidents.csv} &
+\emph{\path{reports/main/figures/}}\newline \path{accident_types.png}\newline \path{vehicles_per_accident.png}\newline \path{accident_types_by_severity.png} &
+Draws accident-type, vehicle-count and severity descriptions. \\ \grayhline
 \path{figures/accident_map.py} &
 \path{analysis/accidents.csv}\newline \path{accident_conditions.csv} &
 \path{reports/main/figures/accident_map.png} &
@@ -146,6 +150,10 @@ Maps the study population and strong-wind accidents. \\ \grayhline
 \path{analysis/accidents.csv}\newline \path{accident_conditions.csv} &
 \path{reports/main/tables/weather_coverage.csv} &
 Summarises annual weather-match coverage. \\ \grayhline
+\path{tables/match_quality.py} &
+\path{analysis/accidents.csv}\newline \path{accident_conditions.csv} &
+\path{reports/main/tables/match_quality.csv} &
+Reports wind and temperature match counts, stations, distances and time differences. \\ \grayhline
 \path{figures/annual_coverage.py} &
 \path{reports/main/tables/weather_coverage.csv} &
 \path{reports/main/figures/weather_coverage.png} &
@@ -177,15 +185,7 @@ Draws the complete and focused model-estimate figures. \\ \grayhline
 \path{tables/severity.py} &
 \path{analysis/accidents.csv}\newline \path{accident_conditions.csv} &
 \path{reports/main/tables/severity_conditions.csv} &
-Models serious-or-fatal severity among recorded accidents. \\ \grayhline
-\path{tables/daylight.py} &
-\path{analysis/accidents.csv} &
-\path{reports/main/tables/daylight.csv} &
-Compares daylight at accident dates with dates at the same location, month, weekday and clock time. \\ \grayhline
-\path{tables/wind_profile.py} &
-\path{analysis/accidents.csv}\newline \path{analysis/accident_conditions.csv} &
-\path{reports/main/tables/wind_profile.csv} &
-Describes accidents at mean wind at least 15 m/s. \\
+Models serious-or-fatal severity among recorded accidents. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -202,6 +202,14 @@ Describes accidents at mean wind at least 15 m/s. \\
 \toprule
 Script & Input file(s) & Output file(s) & Description \\
 \midrule
+\path{tables/daylight.py} &
+\path{analysis/accidents.csv} &
+\path{reports/main/tables/daylight.csv} &
+Compares daylight at accident dates with dates at the same location, month, weekday and clock time. \\ \grayhline
+\path{tables/wind_profile.py} &
+\path{analysis/accidents.csv}\newline \path{analysis/accident_conditions.csv} &
+\path{reports/main/tables/wind_profile.csv} &
+Describes accidents at mean wind at least 15 m/s. \\ \grayhline
 \path{tables/daily_adu.py} &
 \path{analysis/daily_traffic.csv}\newline \path{counter_locations.csv}\newline \path{annual_traffic.csv} &
 \path{reports/main/tables/counter_adu.csv} &

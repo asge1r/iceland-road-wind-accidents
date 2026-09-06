@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 
 DEFAULT_INPUT = Path("data/processed/weather/weather.parquet")
 DEFAULT_OUTPUT = Path("data/processed/weather/frequency.csv")
+DEFAULT_YEARLY_OUTPUT = Path("data/processed/weather/yearly_frequency.csv")
 DEFAULT_TRAFFIC_OUTPUT = Path("data/processed/weather/traffic_frequency.csv")
 FIRST_YEAR = 2007
 LAST_YEAR = 2025
@@ -190,6 +191,9 @@ def main() -> None:
     parser.add_argument("-i", "--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument(
+        "-y", "--yearly-output", type=Path, default=DEFAULT_YEARLY_OUTPUT
+    )
+    parser.add_argument(
         "-t", "--traffic-output", type=Path, default=DEFAULT_TRAFFIC_OUTPUT
     )
     parser.add_argument("-m", "--max-row-groups", type=int)
@@ -203,14 +207,16 @@ def main() -> None:
     arrays = accumulate(parquet_file, row_groups, stations)
     yearly = make_yearly_table(stations, *arrays[:-1])
     pooled = make_pooled_table(yearly)
-    for path in [args.output, args.traffic_output]:
+    for path in [args.output, args.yearly_output, args.traffic_output]:
         path.parent.mkdir(parents=True, exist_ok=True)
     pooled.to_csv(args.output, index=False)
+    yearly.to_csv(args.yearly_output, index=False)
     traffic = yearly[yearly["variable"].eq("f")]
     traffic.to_csv(args.traffic_output, index=False)
     print(
         f"wrote={args.output} rows={len(pooled):,}; "
-        f"traffic_rows={len(traffic):,}; input_rows={arrays[-1]:,}; "
+        f"yearly_rows={len(yearly):,}; traffic_rows={len(traffic):,}; "
+        f"input_rows={arrays[-1]:,}; "
         f"elapsed={time.perf_counter() - started:.1f}s"
     )
 

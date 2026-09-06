@@ -127,6 +127,74 @@ def coverage(output: Path) -> None:
     write_table(output / "coverage.tex", "Coverage of the retained analyses", "tab:coverage", "Xrrr", ["Analysis step", "Retained", "Starting set", "Share"], rows, width=r"\textwidth")
 
 
+def match_quality(output: Path) -> None:
+    data = pd.read_csv("reports/main/tables/match_quality.csv")
+    rows = []
+    for row in data.itertuples(index=False):
+        rows.append([
+            row.weather_variable,
+            f"{int(row.matched_accidents):,} ({row.matched_pct:.1f}%)",
+            f"{int(row.unmatched_accidents):,}",
+            f"{int(row.stations_used):,}",
+            f"{row.median_distance_km:.1f} / {row.p90_distance_km:.1f}",
+            f"{row.median_time_difference_min:.1f} / {row.maximum_time_difference_min:.1f}",
+        ])
+    write_table(
+        output / "match_quality.tex",
+        "Quality of the primary accident--weather matches (20 km and five minutes). Distances are median / P90; time differences are median / maximum.",
+        "tab:match-quality", "lrrrrr",
+        ["Variable", "Matched", "Unmatched", "Stations", "Distance (km)", "Time (min)"],
+        rows, size="footnotesize",
+    )
+
+
+def year_comparison(output: Path) -> None:
+    yearly = pd.read_csv("reports/main/tables/year_oe.csv")
+    pooled_sources = {
+        "f": ("reports/main/tables/mean_wind_oe.csv", "mean_wind_interval_ms"),
+        "temperature": (
+            "reports/main/tables/temperature_oe.csv", "temperature_interval_c"
+        ),
+    }
+    selected = {
+        "f": ["15-20", "20-25", ">=25"],
+        "temperature": ["-1-1", "3-5", ">=5"],
+    }
+    names = {"f": "Mean wind (m/s)", "temperature": "Temperature (deg C)"}
+    rows = []
+    for variable, intervals in selected.items():
+        path, bin_column = pooled_sources[variable]
+        pooled = pd.read_csv(path).set_index(bin_column)
+        adjusted = yearly[yearly["variable"].eq(variable)].set_index("coarse_bin")
+        for bin_label in intervals:
+            first = pooled.loc[bin_label]
+            second = adjusted.loc[bin_label]
+            display_interval = "-1--1" if bin_label == "-1-1" else interval(bin_label)
+            rows.append([
+                names[variable], display_interval,
+                f"{int(second.observed_accidents):,}",
+                estimate(
+                    first, "observed_expected_ratio",
+                    "station_bootstrap_ci_95_low", "station_bootstrap_ci_95_high"
+                ),
+                estimate(
+                    second, "observed_expected_ratio",
+                    "bootstrap_ci_95_low", "bootstrap_ci_95_high"
+                ),
+            ])
+    write_table(
+        output / "year_oe.tex",
+        "Selected pooled and year-adjusted O/E estimates",
+        "tab:year-oe", r"L{0.17\textwidth}L{0.09\textwidth}rL{0.27\textwidth}X",
+        [
+            "Variable", "Interval", "Observed",
+            r"Station + season O/E (95\% interval)",
+            r"Station + season + year O/E (95\% interval)",
+        ],
+        rows, size="footnotesize", width=r"\textwidth",
+    )
+
+
 def radius_tables(output: Path) -> None:
     wind = pd.read_csv("reports/main/tables/wind_radius.csv")
     rows = []
@@ -265,6 +333,8 @@ def main() -> None:
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
     weather_cleaning(args.output)
+    match_quality(args.output)
+    year_comparison(args.output)
     coverage(args.output)
     radius_tables(args.output)
     traffic_tables(args.output)

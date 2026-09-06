@@ -11,6 +11,10 @@ Key outputs are:
   and its plotted values.
 - `tables/wind_radius.csv`: the upper-wind estimates under
   10, 20, and 30 km weather-station limits.
+- `tables/match_quality.csv`: transparent wind and temperature match counts,
+  station use, distances, and time differences.
+- `tables/year_oe.csv`: supporting O/E comparison that also controls for year
+  within weather station and season.
 - `tables/matched_weather.csv`: comparisons with matched non-accident
   times for mean wind, gust, and temperature.
 - `figures/wind_rate.png` and

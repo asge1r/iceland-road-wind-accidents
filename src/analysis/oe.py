@@ -246,6 +246,8 @@ def one_analysis(
     scoped = scoped.dropna(subset=["weather_bin"])
 
     group_columns = ["weather_station_id", "season"]
+    if "year" in frequency.columns:
+        group_columns.append("year")
     group_totals = (
         scoped.groupby(group_columns, observed=False)["id"]
         .nunique()

@@ -57,10 +57,20 @@ the amount of traffic \cite{theofilatos2014}.
 Temperature, daylight, and time of day add context that wind alone cannot
 provide. They affect road-surface conditions, visibility, travel patterns, and
 the composition of road users, but accident counts in these categories are not
-rates unless the corresponding amount of travel is known. The present study
-therefore compares temperature with its local seasonal frequency, while hour,
-season, and estimated daylight are reported as transparent descriptions of the
-accident sample.
+rates unless the corresponding amount of travel is known. Temperature effects
+can also be non-linear and season-specific: a Seoul time-series study found its
+strongest cold-weather association below freezing in winter, while an hourly
+case-crossover study in Shenzhen found a J-shaped temperature relationship
+\cite{lee2014,zhan2020}. The present study therefore compares temperature with
+its local seasonal frequency and checks the result within year rather than
+assuming one linear effect.
+
+Darkness presents the same denominator problem. A method developed using
+Norwegian, Swedish, and Dutch data compared daylight and darkness within clock
+time and season, avoiding the interpretation of raw night-time counts as risk
+\cite{johansson2009}. Here, raw hour, season, and daylight counts describe the
+sample, while matched daylight and adjusted severity models provide the formal
+comparisons supported by the available data.
 
 Weather can change the amount of traffic as well as the hazard. Research using
 automatic traffic recorders shows that extreme weather variables, including
@@ -297,6 +307,13 @@ separately. Wind and temperature may therefore come from different stations.
 This increases usable temperature coverage without changing the wind sample or
 discarding accidents with missing temperature.
 
+Table~\ref{tab:match-quality} reports the resulting spatial and temporal match
+quality separately for wind and temperature. It shows both retained and
+unmatched accidents, so the greater temperature loss is visible rather than
+hidden inside the later analyses.
+
+\input{generated/match_quality.tex}
+
 \input{generated/weather_cleaning.tex}
 
 Thus, 93.34\% of all delivered rows are retained. Among the 214,770,209 rows
@@ -483,10 +500,12 @@ whether an accident occurs and does not replace the traffic analyses.
 The primary comparison uses background wind time. Traffic is not included because
 it is unavailable at the spatial and temporal resolution required for the full
 study period.
-The estimated crash-rate analysis uses annual traffic on every eligible road
-section, rather than only sections where an accident occurred. It includes
-4,958 accidents that have an exact annual road-section, year, and traffic-period
-link. It uses SDU and VDU where they are published,
+The descriptive estimated-rate calculation uses annual traffic on every
+eligible road section, including sections without an accident. The principal
+conditional model has a narrower purpose and sample: it includes 4,958
+accidents in road-section--year--traffic-period strata that contain an accident
+and have a valid weather and traffic link. Both calculations use SDU and VDU
+where they are published,
 and a clearly labelled residual VHDU estimate for April--May and
 October--November.
 
@@ -773,6 +792,18 @@ temperature station and study season. Labels show observed accident
 counts. The non-monotonic pattern is treated as exploratory.}
 \label{fig:temperature-oe}
 \end{figure}
+
+Because weather conditions and reporting coverage can change over a 19-year
+period, Table~\ref{tab:year-oe} repeats selected mean-wind and temperature
+results after defining the expected distribution within weather station,
+season, and year. This is a supporting comparison; the simpler pre-specified
+station--season result remains primary.
+
+\input{generated/year_oe.tex}
+
+The comparison leaves the substantive pattern unchanged. At 20--25 m/s, O/E
+changes from 2.11 to 2.12. For temperature, the -1 to 1\(^{\circ}\)C estimate
+remains 1.26 and the 3--5\(^{\circ}\)C estimate changes from 0.67 to 0.68.
 
 \section{Comparison with Matched Non-accident Times}
 
@@ -1161,7 +1192,7 @@ association between strong mean wind and higher relative occurrence of rural
 injury accidents. Better linked hourly traffic data are required to estimate
 directly observed road risk per vehicle.
 
-\begin{thebibliography}{20}
+\begin{thebibliography}{23}
 
 \bibitem[Ahmed et al.(2012)]{ahmed2012}
 Ahmed, M. M., Abdel-Aty, M., and Yu, R. (2012).
@@ -1206,6 +1237,12 @@ Hrafnkelsdóttir, E. (2020).
 \newblock Vegager\dh in research report 1800-707-2.
 \newblock \url{https://www.vegagerdin.is/vegagerdin/gagnasafn/skyrslur/utgefnar-rannsoknaskyrslur/umferd/2020-umferd/ahrif-vinds-a-farartaeki-throun-reiknilikans/}.
 
+\bibitem[Johansson et al.(2009)]{johansson2009}
+Johansson, \"O., Wanvik, P. O., and Elvik, R. (2009).
+\newblock A new method for assessing the risk of accident associated with darkness.
+\newblock \emph{Accident Analysis \& Prevention}, 41(4), 809--815.
+\newblock \url{https://doi.org/10.1016/j.aap.2009.04.003}.
+
 \bibitem[Janes et al.(2005)]{janes2005}
 Janes, H., Sheppard, L., and Lumley, T. (2005).
 \newblock Case-crossover analyses of air pollution exposure data: Referent
@@ -1219,6 +1256,14 @@ Lord, D. and Mannering, F. (2010).
 assessment of methodological alternatives.
 \newblock \emph{Transportation Research Part A}, 44(5), 291--305.
 \newblock \url{https://doi.org/10.1016/j.tra.2010.02.001}.
+
+\bibitem[Lee et al.(2014)]{lee2014}
+Lee, W.-K., Lee, H. A., Hwang, S.-S., Kim, H., Lim, Y.-H., Hong, Y.-C.,
+Ha, E.-H., and Park, H. (2014).
+\newblock A time series study on the effects of cold temperature on road
+traffic injuries in Seoul, Korea.
+\newblock \emph{Environmental Research}, 132, 290--296.
+\newblock \url{https://doi.org/10.1016/j.envres.2014.04.019}.
 
 \bibitem[Theofilatos and Yannis(2014)]{theofilatos2014}
 Theofilatos, A., and Yannis, G. (2014).
@@ -1278,6 +1323,13 @@ Xing, F., Huang, H., Zhan, Z. Y., Zhai, X., Ou, C., Sze, N. N., and Hon, K. K. (
 \newblock Hourly associations between weather factors and traffic crashes: Non-linear and lag effects.
 \newblock \emph{Analytic Methods in Accident Research}, 24, 100109.
 \newblock \url{https://doi.org/10.1016/j.amar.2019.100109}.
+
+\bibitem[Zhan et al.(2020)]{zhan2020}
+Zhan, Z.-Y., Yu, Y.-M., Chen, T.-T., Xu, L.-J., and Ou, C.-Q. (2020).
+\newblock Effects of hourly precipitation and temperature on road traffic
+casualties in Shenzhen, China (2010--2016): A time-stratified case-crossover study.
+\newblock \emph{Science of the Total Environment}, 720, 137482.
+\newblock \url{https://doi.org/10.1016/j.scitotenv.2020.137482}.
 
 \bibitem[Young and Liesman(2007)]{young2007}
 Young, R. K., and Liesman, J. (2007).
