@@ -63,6 +63,46 @@ def estimate(row: pd.Series, estimate: str, low: str, high: str, prefix: str = "
     return f"{prefix}{row[estimate]:.2f} ({row[low]:.2f}--{row[high]:.2f})"
 
 
+def accident_sample(output: Path) -> None:
+    path = Path("data/analysis/accidents.csv")
+    data = pd.read_csv(path)
+    required = {
+        "id", "timestamp", "lat", "lon", "meidsli", "tegohapps",
+        "road_section",
+    }
+    missing = required - set(data.columns)
+    if missing:
+        raise ValueError(f"{path} is missing columns: {sorted(missing)}")
+    timestamps = pd.to_datetime(data["timestamp"], errors="coerce")
+    if timestamps.isna().any():
+        raise ValueError(f"{path} contains invalid timestamps")
+    sample = data.assign(_timestamp=timestamps).sort_values(
+        ["_timestamp", "id"]
+    ).head(10)
+    rows = []
+    for _, row in sample.iterrows():
+        rows.append([
+            int(row["id"]), row["_timestamp"].strftime("%Y-%m-%d"),
+            row["_timestamp"].strftime("%H:%M"), f"{row['lat']:.4f}",
+            f"{row['lon']:.4f}", int(row["meidsli"]),
+            int(row["tegohapps"]),
+            row["road_section"] if pd.notna(row["road_section"]) else "Missing",
+        ])
+    write_table(
+        output / "accident_sample.tex",
+        "First chronological records in the canonical rural injury-accident analysis file",
+        "tab:accident-source-example",
+        r"rL{0.11\textwidth}L{0.07\textwidth}rrrL{0.10\textwidth}X",
+        [
+            r"\texttt{id}", "Date", "Time", "Lat.", "Lon.",
+            r"\texttt{meidsli}", r"\texttt{tegohapps}", "Road section",
+        ],
+        rows,
+        size="scriptsize",
+        width=r"\textwidth",
+    )
+
+
 def weather_cleaning(output: Path) -> None:
     data = pd.read_csv("data/analysis/weather_cleaning.csv")
     data = data[data["year"].astype(str).ne("total")]
@@ -158,7 +198,7 @@ def year_comparison(output: Path) -> None:
     }
     selected = {
         "f": ["15-20", "20-25", ">=25"],
-        "temperature": ["-1-1", "3-5", ">=5"],
+        "temperature": ["-3-0", "0-3", "3-6"],
     }
     names = {"f": "Mean wind (m/s)", "temperature": "Temperature (deg C)"}
     rows = []
@@ -169,7 +209,7 @@ def year_comparison(output: Path) -> None:
         for bin_label in intervals:
             first = pooled.loc[bin_label]
             second = adjusted.loc[bin_label]
-            display_interval = "-1--1" if bin_label == "-1-1" else interval(bin_label)
+            display_interval = interval(bin_label)
             rows.append([
                 names[variable], display_interval,
                 f"{int(second.observed_accidents):,}",
@@ -246,6 +286,52 @@ def traffic_tables(output: Path) -> None:
         ["Positive count and valid full-day wind", f"{int(audit['with_valid_counter_day']):,}", f"{100*audit['with_valid_counter_day']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
     ]
     write_table(output / "daily_selection.tex", "Selection of accidents for the observed daily-counter analysis", None, "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth")
+
+    sample = pd.read_csv("reports/main/tables/daily_sample.csv").set_index("group")
+    groups = [
+        "All accidents", "No exact counter link", "Exact link, not retained",
+        "Allocated-rate sample",
+    ]
+    headers = ["Characteristic", "All", "No link", "Linked, excluded", "Retained"]
+    metrics = [
+        ("Accidents", "accidents", lambda value: f"{int(value):,}"),
+        ("Share of all accidents", "share_of_all_pct", lambda value: f"{value:.1f}%"),
+        ("Distinct road sections", "road_sections", lambda value: f"{int(value):,}"),
+        ("Serious or fatal", "serious_or_fatal_pct", lambda value: f"{value:.1f}%"),
+        ("One vehicle", "one_vehicle_pct", lambda value: f"{value:.1f}%"),
+        ("Winter", "winter_pct", lambda value: f"{value:.1f}%"),
+        ("Spring", "spring_pct", lambda value: f"{value:.1f}%"),
+        ("Summer", "summer_pct", lambda value: f"{value:.1f}%"),
+        ("Autumn", "fall_pct", lambda value: f"{value:.1f}%"),
+    ]
+    rows = [
+        [label, *[formatter(sample.loc[group, column]) for group in groups]]
+        for label, column, formatter in metrics
+    ]
+    write_table(
+        output / "daily_sample.tex",
+        "Characteristics of accidents retained and excluded by the daily-counter linkage",
+        None,
+        "Xrrrr",
+        headers,
+        rows,
+        size="footnotesize",
+        width=r"\textwidth",
+    )
+    exclusions = pd.read_csv("reports/main/tables/daily_exclusions.csv")
+    rows = [
+        [row.reason, f"{int(row.accidents):,}", f"{row.share_of_all_pct:.1f}%"]
+        for row in exclusions.itertuples(index=False)
+    ]
+    write_table(
+        output / "daily_exclusions.tex",
+        "Reasons an exact same-year daily-counter link was unavailable",
+        None,
+        "Xrr",
+        ["Reason", "Accidents", "Share of all accidents"],
+        rows,
+        width=r"0.9\textwidth",
+    )
 
     daily = pd.read_csv("reports/main/tables/day_rate.csv")
     rows = []
@@ -332,6 +418,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
+    accident_sample(args.output)
     weather_cleaning(args.output)
     match_quality(args.output)
     year_comparison(args.output)

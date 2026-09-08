@@ -30,6 +30,7 @@ they can be opened and checked directly. Do not edit them by hand.
 - `case_control.csv`: accident times and same-hour, same-weekday control times for mean wind, gust, and temperature models.
 - `annual_traffic.csv`: annual road-section traffic values (ADU, SDU and VDU).
 - `road_rate.csv`: compact road-section/year/traffic-period/wind-bin input for the conditional Poisson model.
+- `road_temperature.csv`: matching road-section/year/traffic-period temperature-bin input for the secondary conditional Poisson model.
 - `road_seasons.csv`: compact road-section/year/season/wind-bin input for season-specific mean-wind models.
 - `road_exposure.csv`: 18 aggregated rows used for the descriptive accident-per-vehicle-km table.
 - `selection_summary.csv`: counts for the accident and traffic selection figures.

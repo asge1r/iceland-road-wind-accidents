@@ -134,8 +134,9 @@ def plot_temperature_seasons(data: pd.DataFrame, path: Path) -> None:
         & data["analysis_season"].isin(["Winter", "Spring", "Summer", "Fall"])
     ].copy()
     groups = {
-        "<-5": "<1", "-5--3": "<1", "-3--1": "<1", "-1-1": "<1",
-        "1-3": "1-5", "3-5": "1-5", ">=5": ">=5",
+        "<-6": "<0", "-6--3": "<0", "-3-0": "<0",
+        "0-3": "0-6", "3-6": "0-6", "6-9": ">=6",
+        "9-12": ">=6", "12-15": ">=6", ">=15": ">=6",
     }
     subset["display_bin"] = subset["coarse_bin"].map(groups)
     subset = subset.groupby(
@@ -147,7 +148,7 @@ def plot_temperature_seasons(data: pd.DataFrame, path: Path) -> None:
     subset["relative_accident_frequency"] = (
         subset["observed_accidents"] / subset["expected_accidents"]
     )
-    order = {"<1": 0, "1-5": 1, ">=5": 2}
+    order = {"<0": 0, "0-6": 1, ">=6": 2}
     subset["bin_order"] = subset["display_bin"].map(order)
     seasons = ["Winter", "Spring", "Summer", "Fall"]
     season_titles = {"Fall": "Autumn"}

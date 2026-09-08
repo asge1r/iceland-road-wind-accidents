@@ -1,0 +1,133 @@
+"""Render the human-readable validation report."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+def write_report(values: dict[str, object], output: Path) -> None:
+    weather = values["weather"]
+    highest = values["highest"]
+    main_upper = values["main_upper"]
+    coverage = values["coverage"]
+    radius_sensitivity = values["radius_sensitivity"]
+    traffic_audit = values["traffic_audit"]
+    lines = [
+        "# Final analysis validation",
+        "",
+        "All checks below passed against the current local analysis files.",
+        "",
+        "## Fixed primary analysis",
+        "",
+        f"- Population: {values['study_accidents']:,} rural injury accidents, {values['study_period']}.",
+        f"- Primary weather match: {values['primary_accidents']:,} accidents within 20 km and 5 minutes.",
+        "- Primary weather measure: accident-time ten-minute mean wind speed (`f`) in 5 m/s intervals.",
+        "- Standardisation: weather station and season; weather frequency is pooled across 2007--2025.",
+        "- Uncertainty: 5,000 weather-station-clustered bootstrap samples.",
+        "",
+        "## Data checks",
+        "",
+        "| Check | Result |",
+        "|---|---:|",
+        f"| Unique accident identifiers | {values['study_accidents']:,} / {values['study_accidents']:,} |",
+        f"| Temperature matches within 20 km and 5 minutes | {values['temperature_accidents']:,} / {values['study_accidents']:,} |",
+        f"| Raw weather observations | {weather['input_rows']:,} |",
+        f"| Clean weather observations retained | {weather['clean_rows']:,} |",
+        f"| Weather observations excluded by fixed rules | {weather['excluded_rows']:,} |",
+        f"| Clean weather retention, all delivered rows | {100 * weather['clean_rows'] / weather['input_rows']:.2f}% |",
+        f"| Rate-analysis accidents with shared station within 20 km and 5 minutes | {values['rate_accidents']:,} |",
+    ]
+    if values["daily_rows"] is None:
+        lines.append("| Daily counter-days | Optional daily PDF data were not prepared locally |")
+    else:
+        daily_pct = 100 * values["daily_with_wind"] / values["daily_rows"]
+        lines.extend(
+            [
+                f"| Daily counter-days | {values['daily_rows']:,} |",
+                f"| Daily counter-days with daytime wind | {values['daily_with_wind']:,} ({daily_pct:.2f}%) |",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## Primary O/E result",
+            "",
+            "| Mean wind-speed interval | Observed | Expected | O/E | 95% interval |",
+            "|---|---:|---:|---:|---:|",
+            f"| 20--25 m/s | {int(main_upper['observed_accidents'])} | {main_upper['expected_accidents']:.1f} | {main_upper['observed_expected_ratio']:.2f} | {main_upper['station_bootstrap_ci_95_low']:.2f}--{main_upper['station_bootstrap_ci_95_high']:.2f} |",
+            f"| >=25 m/s | {int(highest['observed_accidents'])} | {highest['expected_accidents']:.1f} | {highest['observed_expected_ratio']:.2f} | {highest['station_bootstrap_ci_95_low']:.2f}--{highest['station_bootstrap_ci_95_high']:.2f} |",
+            "",
+            f"Observed counts sum to {values['primary_accidents']:,}. Expected counts are rounded to one decimal in this table.",
+            "The >=25 m/s O/E interval includes one; this sparse upper bin is descriptive rather than a separate precise result.",
+            "",
+            "## Weather-station distance check",
+            "",
+            "At 20--25 m/s, O/E remains above one under 10, 20, and 30 km weather-station limits.",
+            "",
+            "## Stratified vehicle-kilometre result",
+            "",
+            f"The shared-station rate model retains {values['rate_accidents']:,} accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is {values['high_rate']['time_proportional_rate_ratio']:.2f} (95% CI {values['high_rate']['time_proportional_ci_95_low']:.2f}--{values['high_rate']['time_proportional_ci_95_high']:.2f}).",
+            f"The serious/fatal version retains {int(values['rate_serious']['model_accidents'].iloc[0]):,} accidents. Its 15--20 m/s rate ratio is {values['rate_serious'].loc[values['rate_serious']['bin_label'].eq('15-20'), 'time_proportional_rate_ratio'].iloc[0]:.2f}.",
+            "The seasonal model uses coarse 0--10, 10--15, and >=15 m/s intervals; all four >=15 m/s estimates are above one.",
+            "The serious-or-fatal seasonal model uses the same intervals; its spring upper category contains only six accidents and is interpreted cautiously.",
+            "",
+            "## Time-stratified case-crossover result",
+            "",
+            f"At mean wind >=15 m/s versus 0--5 m/s, the matched odds ratio is {values['high_wind_case_control']['odds_ratio']:.2f} (95% CI {values['high_wind_case_control']['ci_95_low']:.2f}--{values['high_wind_case_control']['ci_95_high']:.2f}).",
+            f"At gust >=30 m/s versus 0--10 m/s, the matched odds ratio is {values['high_gust_case_control']['odds_ratio']:.2f} (95% CI {values['high_gust_case_control']['ci_95_low']:.2f}--{values['high_gust_case_control']['ci_95_high']:.2f}).",
+            f"The formal wind-by-season likelihood-ratio test gives chi-square {values['season_interaction'].iloc[0]['likelihood_ratio_chi2']:.2f} on {int(values['season_interaction'].iloc[0]['degrees_of_freedom'])} degrees of freedom (p={values['season_interaction'].iloc[0]['p_value']:.3f}).",
+            "",
+            "## Additional environmental comparisons",
+            "",
+            f"The joint matched-time model retains {int(values['joint_high_wind']['strata']):,} accidents with both wind and temperature. Its adjusted >=15 versus 0--5 m/s wind odds ratio is {values['joint_high_wind']['adjusted_odds_ratio']:.2f} (95% CI {values['joint_high_wind']['ci_95_low']:.2f}--{values['joint_high_wind']['ci_95_high']:.2f}).",
+            f"The matched daylight comparison uses all {values['study_accidents']:,} accidents, but only {int(values['daylight']['informative_strata'].iloc[0]):,} strata change daylight class within the matched month and hour.",
+            f"The severity-composition model contains {int(values['severity']['accidents'].iloc[0]):,} complete accidents and {int(values['severity']['serious_or_fatal_accidents'].iloc[0]):,} serious-or-fatal outcomes. It estimates severity among recorded accidents, not accident occurrence.",
+            "Separate mean-wind O/E results are present for single-vehicle accident types and all other accident types.",
+            "",
+            "## Results using traffic data",
+            "",
+            f"Restricting the 20--25 m/s rate model to official VDU and SDU gives RR {values['official_20_25']['estimate']:.2f}. Excluding zero counter-days changes the corresponding daily-traffic percentage by less than two percentage points.",
+            f"The illustrative denominator direction check changes the 20--25 m/s annual-model RR from {values['allocation_check'].loc[values['allocation_check']['bin_label'].eq('20-25'), 'time_proportional_rate_ratio'].iloc[0]:.2f} to {values['allocation_check'].loc[values['allocation_check']['bin_label'].eq('20-25'), 'illustrative_rate_ratio'].iloc[0]:.2f} when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.",
+            f"The sustained-wind table contains {int(values['daily_duration']['counter_days'].sum()):,} sufficiently complete counter-days. Traffic is {values['daily_duration'].iloc[-1]['relative_traffic_pct']:.1f}% of its calendar expectation on days with at least six hours at f >=15 m/s.",
+            f"The allocated daily-counter model retains {int(values['daily_allocated']['observed_accidents'].sum()):,} accidents. Its >=15 versus 0--10 m/s rate ratio is {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} (95% CI {values['daily_allocated'].iloc[-1]['ci_95_low']:.2f}--{values['daily_allocated'].iloc[-1]['ci_95_high']:.2f}). The within-day traffic split is estimated, not observed hourly traffic.",
+            f"The temperature vehicle-kilometre model retains {int(values['temperature_rate']['observed_accidents'].sum()):,} accidents. Relative to 0--3 degrees C, its below--6 estimate is {values['temperature_rate'].iloc[0]['time_proportional_rate_ratio']:.2f} and its 3--6 estimate is {values['temperature_rate'].loc[values['temperature_rate']['bin_label'].eq('3-6'), 'time_proportional_rate_ratio'].iloc[0]:.2f}.",
+            f"The coarse >=15 m/s estimates are {values['vehicle_rates']['one'].iloc[-1]['time_proportional_rate_ratio']:.2f} for one-vehicle accidents and {values['vehicle_rates']['two-plus'].iloc[-1]['time_proportional_rate_ratio']:.2f} for accidents involving two or more vehicles. These are separate subgroup estimates, not a formal test of their difference.",
+            f"This retained sample is {values['daily_sample'].loc['Allocated-rate sample', 'share_of_all_pct']:.1f}% of the 2019--2024 rural injury accidents. The generated appendix audit compares its severity, vehicle-count, season, and road-section composition with retained and excluded accidents.",
+            f"The serious/fatal daily model retains {int(values['daily_serious']['observed_accidents'].sum()):,} accidents; its upper rate ratio is {values['daily_serious'].iloc[-1]['rate_ratio']:.2f}. Restricting the all-injury allocation to 07:00--24:00 gives {values['daily_07_24'].iloc[-1]['rate_ratio']:.2f}, versus {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} for the full day.",
+            f"The appendix full-day-mean check retains {values['daily_rate_total']:,} accidents. At >=15 m/s versus 0--10 m/s, RR is {values['daily_rate_high']['rate_ratio']:.2f} (95% CI {values['daily_rate_high']['ci_95_low']:.2f}--{values['daily_rate_high']['ci_95_high']:.2f}), based on {int(values['daily_rate_high']['observed_accidents'])} upper-category accidents.",
+            "The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.",
+            "",
+            "## Weather-station distance comparison for fg >=35 m/s (secondary analysis)",
+            "",
+            "| Maximum distance | Matched accidents | O/E | 95% interval |",
+            "|---|---:|---:|---:|",
+        ]
+    )
+    for radius in [10, 20, 30]:
+        row = radius_sensitivity.loc[radius]
+        lines.append(
+            f"| {radius} km | {int(coverage.loc[radius, 'analysed_accidents']):,} | "
+            f"{row['relative_accident_frequency']:.2f} | "
+            f"{row['bootstrap_ci_95_low']:.2f}--{row['bootstrap_ci_95_high']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Annual-traffic quality",
+            "",
+            f"The 2007--2025 annual-traffic input contains {int(traffic_audit.loc['section_years', 'section_years']):,} road-section/year rows. "
+            f"Nonpositive published VDU values occur in {int(traffic_audit.loc['nonpositive_vdu', 'section_years']):,} rows, and "
+            f"nonpositive derived VHDU residuals occur in {int(traffic_audit.loc['nonpositive_derived_vhdu', 'section_years']):,} rows. "
+            "These rows are excluded from the corresponding estimated vehicle-kilometres; they are not replaced or imputed.",
+            "",
+            "## Study-population decision",
+            "",
+            f"Single-vehicle, run-off-road, rollover, fall, or other accidents account for {values['single_vehicle_count']:,} of {values['study_accidents']:,} study accidents ({values['single_vehicle_pct']:.1f}%).",
+            "This supports the relevance of wind conditions to vehicle control. The separate appendix O/E curve for this group is exploratory and does not replace the fixed all-injury primary result.",
+            "",
+            "## Decision",
+            "",
+            "The primary analysis is internally consistent and ready to freeze: `f`, a 20 km weather-station limit, a 5-minute time limit, and wind-frequency-adjusted O/E as the main result. Gust, temperature, and traffic remain supporting analyses.",
+        ]
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines) + "\n", encoding="utf-8")

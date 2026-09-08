@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 from statsmodels.discrete.conditional_models import ConditionalLogit
 
+from src.weather.frequency import TEMPERATURE_LABELS, TEMPERATURE_THRESHOLDS
+
 
 DEFAULT_INPUT = Path("data/analysis/case_control.csv")
 DEFAULT_OUTPUT = Path("reports/main/tables/matched_weather.csv")
@@ -26,9 +28,9 @@ SPECS = {
         "unit": "m/s",
     },
     "temperature": {
-        "bins": [-np.inf, -5, 0, 5, 10, 15, np.inf],
-        "labels": ["<-5", "-5-0", "0-5", "5-10", "10-15", ">=15"],
-        "reference": "0-5",
+        "bins": [-np.inf, *TEMPERATURE_THRESHOLDS, np.inf],
+        "labels": TEMPERATURE_LABELS,
+        "reference": "0-3",
         "unit": "deg C",
     },
 }

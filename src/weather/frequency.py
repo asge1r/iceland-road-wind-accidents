@@ -20,9 +20,12 @@ SEASONS = np.array(["Winter", "Spring", "Summer", "Fall"])
 F_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25], dtype=float)
 F_FIVE_MS_UPPER_BOUNDS = F_UPPER_BOUNDS
 FG_UPPER_BOUNDS = np.array([5, 10, 15, 20, 25, 30, 35], dtype=float)
-TEMPERATURE_UPPER_BOUNDS = np.array([-5, -3, -1, 1, 3, 5], dtype=float)
+TEMPERATURE_UPPER_BOUNDS = np.array([-6, -3, 0, 3, 6, 9, 12, 15], dtype=float)
 TEMPERATURE_THRESHOLDS = TEMPERATURE_UPPER_BOUNDS
-TEMPERATURE_LABELS = ["<-5", "-5--3", "-3--1", "-1-1", "1-3", "3-5", ">=5"]
+TEMPERATURE_LABELS = [
+    "<-6", "-6--3", "-3-0", "0-3", "3-6", "6-9", "9-12",
+    "12-15", ">=15",
+]
 
 
 def season_index(month: np.ndarray) -> np.ndarray:

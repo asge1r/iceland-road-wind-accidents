@@ -48,30 +48,40 @@ def latex_cell(value: str, paths: bool) -> str:
     value = value.replace("<br>", "\n")
     tokens: list[str] = []
 
+    def checked_path(path: str) -> str:
+        path = path.strip()
+        if re.search(r"/[ \t]+", path):
+            raise ValueError(f"Whitespace after '/' in pipeline path: {path}")
+        return path
+
     def save(latex: str) -> str:
         tokens.append(latex)
         return f"@@TOKEN{len(tokens) - 1}@@"
 
     value = re.sub(
         r"\*`([^`]+)`\*",
-        lambda match: save(r"\emph{\path{" + match.group(1).strip() + "}}"),
+        lambda match: save(r"\emph{\path{" + checked_path(match.group(1)) + "}}"),
         value,
     )
     value = re.sub(
         r"\*([^*]+/)\*",
-        lambda match: save(r"\emph{\path{" + match.group(1).strip() + "}}"),
+        lambda match: save(r"\emph{\path{" + checked_path(match.group(1)) + "}}"),
         value,
     )
     value = re.sub(
         r"`([^`]+)`",
         lambda match: save(
             (r"\path{" if paths else r"\texttt{")
-            + (match.group(1).strip() if paths else escape_text(match.group(1).strip()))
+            + (
+                checked_path(match.group(1))
+                if paths
+                else escape_text(match.group(1).strip())
+            )
             + "}"
         ),
         value,
     )
-    value = escape_text(value).replace("\n", r"\newline ")
+    value = escape_text(value).replace("\n", r"\newline{}")
     for index, token in enumerate(tokens):
         value = value.replace(f"@@TOKEN{index}@@", token)
     return value.strip()

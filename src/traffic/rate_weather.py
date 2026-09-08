@@ -149,7 +149,8 @@ def main() -> None:
         & output["fg"].between(0, 65, inclusive="left")
         & output["fg"].add(0.5).ge(output["f"])
     )
-    output = output[valid_wind].copy()
+    valid_temperature = output["t"].between(-30, 30, inclusive="both")
+    output["temperature_c"] = output["t"].where(valid_temperature)
     output["vehicle_group"] = np.where(
         output["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
     )
@@ -157,7 +158,7 @@ def main() -> None:
         "id", "timestamp", "year", "road_section", "traffic_period",
         "rate_weather_station_id", "rate_weather_time", "weather_time_difference_minutes",
         "rate_station_accident_distance_km", "weather_station_distance_km",
-        "section_length_km", "f", "fg",
+        "section_length_km", "f", "fg", "temperature_c",
         "vehicle_count", "vehicle_group",
     ]
     output = output[keep].sort_values("id")
@@ -169,7 +170,8 @@ def main() -> None:
             {"metric": "rural_injury_accidents", "value": source_accidents},
             {"metric": "accidents_with_annual_traffic_road_period", "value": matched_to_road_period},
             {"metric": "accidents_with_same_rate_station_within_20km", "value": within_20km},
-            {"metric": "accidents_with_clean_rate_station_wind", "value": len(output)},
+            {"metric": "accidents_with_clean_rate_station_wind", "value": int(valid_wind.sum())},
+            {"metric": "accidents_with_clean_rate_station_temperature", "value": int(valid_temperature.sum())},
             {"metric": "accidents_with_vehicle_count", "value": int(output["vehicle_count"].notna().sum())},
         ]
     )

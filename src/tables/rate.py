@@ -49,10 +49,36 @@ def prepare_data(source: pd.DataFrame, traffic_period: str, outcome: str) -> pd.
     return data
 
 
-def fit_model(data: pd.DataFrame) -> pd.DataFrame:
+def coarsen(data: pd.DataFrame) -> pd.DataFrame:
+    """Combine standard wind intervals before fitting subgroup models."""
+    result = data.copy()
+    result["wind_bin"] = pd.cut(
+        result["wind_bin_lower_ms"], [-0.1, 10, 15, np.inf],
+        labels=["0-10", "10-15", ">=15"], right=False,
+    ).astype("string")
+    result["wind_bin_lower_ms"] = result["wind_bin"].map(
+        {"0-10": 0.0, "10-15": 10.0, ">=15": 15.0}
+    ).astype(float)
+    return result.groupby(
+        [
+            "year", "road_section", "traffic_period", "stratum",
+            "wind_bin", "wind_bin_lower_ms",
+        ],
+        observed=True,
+        as_index=False,
+    ).agg(
+        estimated_vehicle_km=("estimated_vehicle_km", "sum"),
+        observed_accidents=("observed_accidents", "sum"),
+    )
+
+
+def fit_model(data: pd.DataFrame, baseline: str | None = None) -> pd.DataFrame:
     bins = data[["wind_bin", "wind_bin_lower_ms"]].drop_duplicates().sort_values("wind_bin_lower_ms")
     labels = bins["wind_bin"].tolist()
-    baseline = labels[0]
+    baseline = labels[0] if baseline is None else baseline
+    if baseline not in labels:
+        raise ValueError(f"Reference interval is absent from model data: {baseline}")
+    predictors = [label for label in labels if label != baseline]
     exog = pd.get_dummies(data["wind_bin"], dtype=float).reindex(columns=labels, fill_value=0.0)
     exog = exog.drop(columns=baseline)
     model = ConditionalPoisson(
@@ -65,11 +91,12 @@ def fit_model(data: pd.DataFrame) -> pd.DataFrame:
     confidence = fitted.conf_int()
     observed = data.groupby("wind_bin", as_index=False)["observed_accidents"].sum()
     result = bins.merge(observed, on="wind_bin", how="left", validate="one_to_one")
-    result["time_proportional_rate_ratio"] = 1.0
+    result["time_proportional_rate_ratio"] = np.nan
     result["time_proportional_ci_95_low"] = np.nan
     result["time_proportional_ci_95_high"] = np.nan
     result["time_proportional_p_value"] = np.nan
-    for index, label in enumerate(labels[1:]):
+    result.loc[result["wind_bin"].eq(baseline), "time_proportional_rate_ratio"] = 1.0
+    for index, label in enumerate(predictors):
         coefficient = float(fitted.params[index])
         mask = result["wind_bin"].eq(label)
         result.loc[mask, "time_proportional_rate_ratio"] = np.exp(coefficient)
@@ -92,15 +119,22 @@ def main() -> None:
         "-g", "--outcome", "--vehicle-group", dest="outcome",
         choices=list(COUNT_COLUMN), default="all",
     )
+    parser.add_argument(
+        "-c", "--coarse", action="store_true",
+        help="Use 0-10, 10-15, and >=15 m/s intervals.",
+    )
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
     data = prepare_data(pd.read_csv(args.input), args.traffic_period, args.outcome)
+    if args.coarse:
+        data = coarsen(data)
     if data.empty:
         raise ValueError("No informative road-year-period strata remain after selection")
     result = fit_model(data)
     result = result.rename(columns={"wind_bin": "bin_label", "wind_bin_lower_ms": "bin_lower_ms"})
     result["analysis_traffic_period"] = args.traffic_period
     result["analysis_outcome"] = args.outcome
+    result["analysis_binning"] = "coarse" if args.coarse else "standard"
     args.output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)
     print(result.to_string(index=False))

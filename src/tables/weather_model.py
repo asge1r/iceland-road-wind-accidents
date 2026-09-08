@@ -9,13 +9,15 @@ import numpy as np
 import pandas as pd
 from statsmodels.discrete.conditional_models import ConditionalLogit
 
+from src.weather.frequency import TEMPERATURE_LABELS, TEMPERATURE_THRESHOLDS
+
 
 INPUT = Path("data/analysis/case_control.csv")
 OUTPUT = Path("reports/main/tables/weather_model.csv")
 WIND_BINS = [0, 5, 10, 15, np.inf]
 WIND_LABELS = ["0-5", "5-10", "10-15", ">=15"]
-TEMP_BINS = [-np.inf, -5, 0, 5, 10, 15, np.inf]
-TEMP_LABELS = ["<-5", "-5-0", "0-5", "5-10", "10-15", ">=15"]
+TEMP_BINS = [-np.inf, *TEMPERATURE_THRESHOLDS, np.inf]
+TEMP_LABELS = TEMPERATURE_LABELS
 
 
 def prepare(data: pd.DataFrame) -> pd.DataFrame:
@@ -47,7 +49,7 @@ def model_rows(data: pd.DataFrame) -> pd.DataFrame:
     )
     temperature = pd.get_dummies(
         data["temperature_interval"], prefix="temperature", dtype=float
-    ).drop(columns="temperature_0-5")
+    ).drop(columns="temperature_0-3")
     design = pd.concat([wind, temperature], axis=1)
     model = ConditionalLogit(
         data["case"].astype(int), design, groups=data["stratum_id"]
@@ -63,7 +65,7 @@ def model_rows(data: pd.DataFrame) -> pd.DataFrame:
         else:
             variable = "Temperature"
             comparison = term.removeprefix("temperature_")
-            reference = "0-5 °C"
+            reference = "0-3 °C"
             comparison = f"{comparison} °C"
         rows.append(
             {

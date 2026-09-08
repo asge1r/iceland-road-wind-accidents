@@ -41,6 +41,19 @@ def main() -> None:
     run("src.tables.estimated_rate", dry_run=args.dry_run)
     run("src.tables.rate", dry_run=args.dry_run)
     run("src.figures.rate", dry_run=args.dry_run)
+    run("src.tables.temp_rate", dry_run=args.dry_run)
+    run("src.figures.temp_rate", dry_run=args.dry_run)
+    run(
+        "src.tables.rate", "--outcome", "one", "--coarse",
+        "--output", "reports/main/tables/wind_rate_one.csv",
+        dry_run=args.dry_run,
+    )
+    run(
+        "src.tables.rate", "--outcome", "two-plus", "--coarse",
+        "--output", "reports/main/tables/wind_rate_multiple.csv",
+        dry_run=args.dry_run,
+    )
+    run("src.figures.vehicle_rate", dry_run=args.dry_run)
     run(
         "src.tables.rate", "--outcome", "serious-fatal", "--output",
         "reports/main/tables/wind_rate_severity.csv",
@@ -87,6 +100,8 @@ def main() -> None:
         run("src.tables.wind_duration", dry_run=args.dry_run)
         run("src.figures.wind_duration", dry_run=args.dry_run)
         run("src.tables.allocated_rate", dry_run=args.dry_run)
+        run("src.tables.daily_sample", dry_run=args.dry_run)
+        run("src.figures.counter_map", dry_run=args.dry_run)
         run("src.figures.allocated_rate", dry_run=args.dry_run)
         run(
             "src.tables.allocated_rate", "--outcome", "serious-fatal",

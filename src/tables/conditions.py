@@ -8,16 +8,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from src.weather.frequency import TEMPERATURE_LABELS, TEMPERATURE_THRESHOLDS
+
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
 DEFAULT_OUTPUT = Path("reports/main/tables/conditions.csv")
 DEFAULT_COVERAGE = Path("reports/main/tables/temperature_coverage.csv")
-TEMPERATURE_BINS = [-np.inf, -9, -6, -3, 0, 3, 6, 9, 12, 15, 18, np.inf]
-TEMPERATURE_LABELS = [
-    "<-9", "-9--6", "-6--3", "-3-0", "0-3", "3-6",
-    "6-9", "9-12", "12-15", "15-18", ">=18",
-]
+TEMPERATURE_BINS = [-np.inf, *TEMPERATURE_THRESHOLDS, np.inf]
 
 
 def require_columns(frame: pd.DataFrame, required: set[str], name: str) -> None:

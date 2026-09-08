@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+from src.weather.frequency import TEMPERATURE_LABELS, TEMPERATURE_THRESHOLDS
+
 
 ACCIDENTS = Path("data/analysis/accidents.csv")
 CONDITIONS = Path("data/analysis/accident_conditions.csv")
@@ -55,8 +57,8 @@ def fit(accidents: pd.DataFrame, conditions: pd.DataFrame) -> pd.DataFrame:
     ).astype("string")
     data["temperature"] = pd.cut(
         data["temperature_c"],
-        [-np.inf, -5, 0, 5, 10, np.inf],
-        labels=["<-5", "-5-0", "0-5", "5-10", ">=10"],
+        [-np.inf, *TEMPERATURE_THRESHOLDS, np.inf],
+        labels=TEMPERATURE_LABELS,
         right=False,
     ).astype("string")
     data["time"] = pd.cut(
@@ -65,7 +67,7 @@ def fit(accidents: pd.DataFrame, conditions: pd.DataFrame) -> pd.DataFrame:
     ).astype("string")
     specifications = [
         ("Mean wind", "wind", ["0-10", "10-15", ">=15"], "0-10", "m/s"),
-        ("Temperature", "temperature", ["<-5", "-5-0", "0-5", "5-10", ">=10"], "0-5", "°C"),
+        ("Temperature", "temperature", TEMPERATURE_LABELS, "0-3", "°C"),
         ("Daylight", "daylight_class", ["Darkness", "Civil twilight", "Daylight"], "Daylight", ""),
         ("Time of day", "time", ["00-06", "06-10", "10-16", "16-20", "20-24"], "10-16", ""),
         ("Season", "season", ["Winter", "Spring", "Summer", "Fall"], "Summer", ""),
