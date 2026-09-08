@@ -1,20 +1,19 @@
 \chapter{Supporting Analyses}
 
-These figures are retained because each documents the study population, checks
-the primary pattern using another comparison, or examines the traffic data.
-They are descriptive unless stated otherwise; sparse bars are
+These figures describe the study population, check the main wind pattern, or
+examine the traffic data. Unless stated otherwise, they are descriptive; sparse bars are
 shown in grey and their observed accident counts are printed on the bars.
 
 \section{Accident Characteristics}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.72\textwidth]{vehicles_per_accident.png}
 \caption{Number of registered vehicles involved in the 6,414 rural injury
 accidents. Most selected accidents involved one registered vehicle.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{accident_types_by_severity.png}
 \caption{Accident-type composition in minor-injury accidents and in the
@@ -28,16 +27,16 @@ severity group.}
 
 \section{Mean-Wind Subgroups}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{season_rate_severity.png}
 \caption{Estimated serious-or-fatal accident rate ratios by season using
-coarse mean-wind intervals. The spring upper category contains six accidents;
-the seasonal estimates therefore show direction and uncertainty rather than
+coarse mean-wind intervals. The spring upper category contains six accidents,
+so the estimates show direction and uncertainty rather than
 precise differences between seasons.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{wind_season_oe.png}
 \caption{Mean-wind O/E estimates by study season. These estimates are
@@ -46,7 +45,7 @@ sample is divided by season. All panels share one vertical scale; grey bars
 contain fewer than 20 accidents.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{wind_vehicle.png}
 \caption{Mean-wind O/E estimates by the number of registered vehicles involved.
@@ -55,7 +54,7 @@ vehicle count as an explanatory variable. Both panels share one vertical scale;
 grey bars contain fewer than 20 accidents.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{wind_type.png}
 \caption{Mean-wind O/E estimates for single-vehicle run-off-road, rollover,
@@ -66,7 +65,7 @@ The figure is descriptive and is not a formal test of interaction.}
 
 \section{Raw Condition Counts, Temperature by Season, and Adjusted Severity}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{conditions.png}
 \caption{Raw counts of rural injury accidents by recorded hour, season,
@@ -77,16 +76,16 @@ matches. These panels describe the sample and do not estimate risk.}
 \label{fig:accident-conditions}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{temperature_season.png}
 \caption{Temperature O/E by season using three broad intervals formed by
 summing the fixed temperature bins. The changing direction between seasons
-shows why the pooled temperature pattern is treated as exploratory. Labels are
+shows why the pooled temperature result should be interpreted cautiously. Labels are
 observed accidents.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{severity_conditions.png}
 \caption{Adjusted odds of serious-or-fatal rather than minor injury among
@@ -101,15 +100,25 @@ conditional on an accident and does not estimate accident occurrence.}
 
 Coordinates are interpolated from the reported road station along official
 road geometry and remain labelled as estimates. The separate 20 m point match
-tests the interpolation; it is not used to overwrite the primary location.
+tests the interpolation; it does not replace the estimated location.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{traffic_wind.png}
 \caption{Vehicles counted per day relative to a typical day at the same
 counter, year, month, and weekday. Labels show counter-days. Daytime mean wind
-is calculated from 10:00 to 21:59. This is a supporting description of selected
-counter sites, not traffic across the national road network.}
+is calculated from 10:00 to 21:59. The figure describes selected counter sites,
+not traffic across the national road network.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{traffic_wind_period.png}
+\caption{Daily traffic relative to its calendar expectation by traffic period
+and daytime mean wind. The decline is present in VDU, SDU, and VHDU, although
+the highest interval contains only 136, 16, and 29 counter-days respectively.
+Grey bars contain fewer than 20 counters.}
+\label{fig:traffic-wind-period}
 \end{figure}
 
 \input{generated/adu_quality.tex}
@@ -119,11 +128,31 @@ counter sites, not traffic across the national road network.}
 
 \input{generated/daily_selection.tex}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{counter_coverage.png}
+\caption{Locations of the 1,863 rural injury accidents in 2019--2024 and the
+473 located daily counters. Colours distinguish the 758 accidents included in
+the allocated-rate model, the 106 with an exact link but another exclusion,
+and the 999 without an exact same-year counter link. The map displays the
+geographic selectivity of the daily-counter sample; it is not a road-network
+rate map.}
+\label{fig:counter-coverage}
+\end{figure}
+
 The main loss occurs because many accident road sections have no daily counter
 record for the same year. Distance excludes only one additional candidate at
 20 km; a further 96 accidents lack a positive counter count or valid full-day
 wind on the accident date. No accident is assigned across road sections merely
 to improve coverage.
+
+\input{generated/daily_sample.tex}
+
+\input{generated/daily_exclusions.tex}
+
+The selected sample reflects the geography and operating years of the counters;
+it is not a representative national sample. It contains fewer summer and
+serious-or-fatal accidents than the full 2019--2024 rural injury-accident set.
 
 \input{generated/daily_rate.tex}
 
@@ -133,8 +162,8 @@ each and are extremely unstable. The coarse version combines the upper tail
 and gives a rate ratio of 2.42 (95\% CI 1.38--4.24) for at least 15 m/s. Both
 versions use the same 767 accidents, exact road-section/year assignment within
 20 km, and observed 24-hour traffic as the offset. Because a full-day mean
-does not represent conditions at the accident time, this analysis is retained
-only as a day-level check.
+does not represent conditions at the accident time, this is only a day-level
+check.
 
 \input{generated/daily_radius.tex}
 
@@ -144,7 +173,17 @@ at least 15 m/s; stability across radii does not remove that limitation.
 
 \section{Stratified Vehicle-Kilometre Model}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{wind_rate_vehicle.png}
+\caption{Estimated mean-wind rate ratios from separate one-vehicle and
+multiple-vehicle models. The upper category contains 150 and 97 accidents,
+respectively, in the upper category. Comparisons are within road section, year,
+and traffic period; error bars are 95\% confidence intervals.}
+\label{fig:traffic-rate-vehicle}
+\end{figure}
+
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{wind_rate_severity.png}
 \caption{Estimated serious-or-fatal rural accident rate ratios by mean wind.
@@ -178,11 +217,11 @@ for the displayed interval. Because the daily data cover selected counters in
 not corrected estimates or additional model results.
 
 The two models agree that the rate ratio is higher from 15 m/s. The upper
-intervals differ because the official-only comparison excludes VHDU and has
-few accidents. This comparison is retained to show the dependence of the
+intervals differ because the official-only analysis excludes VHDU and has
+few accidents. It shows how the estimated rate depends on the
 estimated rate on the traffic-period assumption.
 
 The four-season rate model is reported in the main results using wider wind
-intervals to avoid very small cells. A vehicle-group rate model is not retained
-because the upper intervals become too sparse for a balanced comparison. The
+intervals to avoid very small cells. A vehicle-group rate model is not reported
+because the upper intervals become too sparse for a balanced analysis. The
 descriptive O/E vehicle-group figure above shows the limited evidence available.

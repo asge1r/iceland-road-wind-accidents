@@ -1,11 +1,14 @@
-\documentclass[a4paper,11pt,twoside,BCOR=10mm]{scrbook}
+\documentclass[a4paper,12pt,twoside,BCOR=10mm,numbers=noenddot]{scrbook}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \babelprovide[import]{icelandic}
+\usepackage{mathptmx}
 \usepackage{lmodern}
+\renewcommand{\rmdefault}{ptm}
 \usepackage{microtype}
+\usepackage[inner=30mm,outer=25mm,top=25mm,bottom=25mm]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
@@ -15,11 +18,13 @@
 \usepackage[format=plain,labelformat=simple,labelsep=colon]{caption}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage[round,authoryear]{natbib}
 \usepackage{url}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usepackage[pdfborder={0 0 0},hidelinks]{hyperref}
+\usepackage{scrlayer-scrpage}
 
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcommand{\grayhline}{\arrayrulecolor{gray!40}\hline\arrayrulecolor{black}}
@@ -27,19 +32,23 @@
 \definecolor{hiblue}{rgb}\tmphiblue
 \graphicspath{{../main/figures/}}
 
-\setlength{\parskip}{0.45\baselineskip}
+\setlength{\parskip}{0.5\baselineskip}
 \setlength{\parindent}{0pt}
 \setlength{\emergencystretch}{2em}
 \raggedbottom
-\setkomafont{captionlabel}{\itshape}
-\setkomafont{caption}{\itshape}
+\setkomafont{captionlabel}{\normalfont\normalsize\itshape}
+\setkomafont{caption}{\normalfont\normalsize\itshape}
 \setkomafont{section}{\Large}
+\setkomafont{subsection}{\large}
 \DeclareTOCStyleEntry[numwidth=3.2em]{tocline}{figure}
 \DeclareTOCStyleEntry[numwidth=3.2em]{tocline}{table}
-\captionsetup{width=\textwidth,indent=1em}
+\captionsetup{width=\textwidth,indent=0pt,justification=raggedright,
+  singlelinecheck=false,skip=0.5\baselineskip}
+\clearpairofpagestyles
+\ofoot*{\pagemark}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
 \hypersetup{
-  pdftitle={Meteorological Conditions and Rural Injury Accidents in Iceland},
+  pdftitle={Meteorological Conditions and Rural Injury Accidents in Iceland: Analysis of Accident Frequency and Traffic, 2007--2025},
   pdfauthor={Ásgeir Snær Magnússon},
   pdfsubject={M.Sc. thesis in Software Engineering}
 }
@@ -48,7 +57,7 @@
 \def\thesismonth{September}
 \def\thesisauthor{Ásgeir Snær Magnússon}
 \def\thesistitle{Meteorological Conditions and Rural Injury Accidents in Iceland}
-\def\thesissubtitle{Frequency-Standardised and Traffic-Informed Analyses, 2007--2025}
+\def\thesissubtitle{Analysis of Accident Frequency and Traffic, 2007--2025}
 \def\thesisshorttitle{Meteorological Conditions and Rural Injury Accidents}
 \def\thesiscredits{30}
 \def\thesissubject{Software Engineering}
@@ -171,7 +180,7 @@ mean wind, gust, temperature, season, hour, daylight, and available traffic
 data. Accident records, cleaned
 10-minute weather observations, urban boundaries, annual road-section traffic
 statistics, and daily counter data are combined in a documented analysis. The
-primary analysis includes 6,192 rural injury accidents from 2007--2025 with
+main analysis includes 6,192 rural injury accidents from 2007--2025 with
 valid wind observations within 20 km. Within each weather station and
 study season, observed accidents in each mean-wind interval are
 compared with the number expected from the local background frequency of that
@@ -183,7 +192,7 @@ The observed/expected ratio is close to one across most low and moderate wind
 intervals. At mean wind speeds of 20--25 m/s, 61 accidents were observed
 compared with 29.0 expected, giving a ratio of 2.11 (95\% station-clustered
 bootstrap interval 1.54--2.73). Gust shows a corresponding upper-tail pattern
-in the O/E and matched-time comparisons. In the matched-time analysis, the
+in the O/E and matched-time analyses. In the matched-time analysis, the
 odds ratio for mean wind of at least 15 m/s versus 0--5 m/s is 1.61
 (95\% interval 1.39--1.87), and it changes little when temperature is included.
 The annual-traffic model also gives an elevated 20--25 m/s rate ratio of 2.38,
@@ -198,8 +207,8 @@ the required spatial and temporal resolution for the full study period. The thes
 cleaning, matching, coverage and statistical analysis separately.
 
 \vfill
-\section*{Útdráttur}
-\addcontentsline{toc}{chapter}{Útdráttur}
+\section*{Ágrip}
+\addcontentsline{toc}{chapter}{Ágrip}
 
 Í þessari ritgerð eru tengsl veðurs og umferðarslysa með meiðslum í dreifbýli
 á Íslandi rannsökuð fyrir tímabilið 2007--2025. Megináhersla er lögð á vind,
