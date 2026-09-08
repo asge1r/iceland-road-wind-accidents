@@ -9,7 +9,7 @@ intermediate preparation files to `data/processed/` and the named, readable anal
 
 | Source family | Required local path | Used by |
 |---|---|---|
-| Accident register | `raw/accidents/accidents_2007_2024.txt`; `accidents_2025.txt`; `road_links_2007_2025.txt`; `vehicles_2007_2024.txt`; `vehicles_2025.txt` | `src/accidents/build.py` |
+| Accident register | `raw/accidents/accidents_2007_2024.txt`; `accidents_2025.txt`; `road_links_2007_2025.csv`; `vehicles_2007_2024.txt`; `vehicles_2025.txt` | `src/accidents/build.py` |
 | Urban boundaries | `raw/accidents/urban_boundaries_2020_2024.geojson` | `src/accidents/build.py` |
 | Ten-minute weather | `raw/weather/weather_10min_raw.parquet` | `src/weather/clean.py` |
 | Station reference | `raw/weather/stations.csv` | Weather and traffic matching scripts |

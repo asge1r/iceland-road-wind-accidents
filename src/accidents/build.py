@@ -13,7 +13,7 @@ from src.accidents.urban import SEVERITY_LABELS, classify_accidents, load_urban_
 
 RAW_2007_2024 = Path("data/raw/accidents/accidents_2007_2024.txt")
 RAW_2025 = Path("data/raw/accidents/accidents_2025.txt")
-RAW_ROAD_LINKS = Path("data/raw/accidents/road_links_2007_2025.txt")
+RAW_ROAD_LINKS = Path("data/raw/accidents/road_links_2007_2025.csv")
 VEHICLE_SOURCES = [
     (Path("data/raw/accidents/vehicles_2007_2024.txt"), "nid", "taeki"),
     (Path("data/raw/accidents/vehicles_2025.txt"), "NID", "Nr. Ökutækis"),
