@@ -53,7 +53,7 @@ The formal wind-by-season likelihood-ratio test gives chi-square 11.58 on 6 degr
 
 ## Additional environmental comparisons
 
-The joint matched-time model retains 5,697 accidents with both wind and temperature. Its adjusted >=15 versus 0--5 m/s wind odds ratio is 1.58 (95% CI 1.35--1.85).
+The joint matched-time model retains 5,697 accidents with both wind and temperature. Its adjusted >=15 versus 0--5 m/s wind odds ratio is 1.60 (95% CI 1.37--1.88).
 The matched daylight comparison uses all 6,414 accidents, but only 985 strata change daylight class within the matched month and hour.
 The severity-composition model contains 5,707 complete accidents and 1,290 serious-or-fatal outcomes. It estimates severity among recorded accidents, not accident occurrence.
 Separate mean-wind O/E results are present for single-vehicle accident types and all other accident types.
@@ -64,6 +64,9 @@ Restricting the 20--25 m/s rate model to official VDU and SDU gives RR 1.93. Exc
 The illustrative denominator direction check changes the 20--25 m/s annual-model RR from 2.38 to 3.20 when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.
 The sustained-wind table contains 733,080 sufficiently complete counter-days. Traffic is 88.9% of its calendar expectation on days with at least six hours at f >=15 m/s.
 The allocated daily-counter model retains 758 accidents. Its >=15 versus 0--10 m/s rate ratio is 3.34 (95% CI 2.44--4.58). The within-day traffic split is estimated, not observed hourly traffic.
+The temperature vehicle-kilometre model retains 3,136 accidents. Relative to 0--3 degrees C, its below--6 estimate is 0.75 and its 3--6 estimate is 0.60.
+The coarse >=15 m/s estimates are 1.39 for one-vehicle accidents and 2.33 for accidents involving two or more vehicles. These are separate subgroup estimates, not a formal test of their difference.
+This retained sample is 40.7% of the 2019--2024 rural injury accidents. The generated appendix audit compares its severity, vehicle-count, season, and road-section composition with retained and excluded accidents.
 The serious/fatal daily model retains 164 accidents; its upper rate ratio is 4.16. Restricting the all-injury allocation to 07:00--24:00 gives 3.45, versus 3.34 for the full day.
 The appendix full-day-mean check retains 767 accidents. At >=15 m/s versus 0--10 m/s, RR is 2.42 (95% CI 1.38--4.24), based on 14 upper-category accidents.
 The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.

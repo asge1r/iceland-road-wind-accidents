@@ -1,5 +1,7 @@
 # Meteorological Conditions and Rural Injury Accidents in Iceland
 
+*Analysis of Accident Frequency and Traffic, 2007–2025*
+
 This project examines rural injury accidents in relation to mean wind, gust,
 temperature, season, hour, daylight, and available traffic data. The primary
 result compares accident counts with the

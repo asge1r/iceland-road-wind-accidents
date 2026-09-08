@@ -49,9 +49,9 @@ the numerical size of their estimates.
 Temperature, hour, daylight, matched-time wind gust, and subgroup results
 answer supporting research questions. They remain exploratory or descriptive
 and do not replace the primary mean-wind result.
-Temperature O/E uses the intervals below −5, −5 to −3, −3 to −1, −1 to 1,
-1 to 3, 3 to 5, and at least 5°C. The case-crossover model retains broader
-categories for stability.
+Temperature O/E uses the intervals below −6, −6 to −3, −3 to 0, 0 to 3,
+3 to 6, 6 to 9, 9 to 12, 12 to 15, and at least 15°C. The case-crossover
+model uses the same categories for stability.
 
 The joint matched-time model includes categorical mean wind and temperature
 together. A separate model describes the odds that a recorded injury accident
