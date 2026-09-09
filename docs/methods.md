@@ -22,6 +22,11 @@ The raw delivery contains station-time records from stations that do not
 measure wind, for example precipitation and radiation stations. These are not
 interpreted as missing wind observations from the wind-monitoring network.
 
+The primary mean-wind result is also recalculated with a 24-hour all-zero
+threshold and with all all-zero runs retained. The generated comparison is
+`reports/main/tables/zero_run_check.csv`; this raw-data check is run with
+`python -m src.validation.zero_runs` and does not overwrite the main inputs.
+
 ## Weather variables used in O/E analysis
 
 Accident-time mean wind speed (`f`) in 5 m/s intervals is the primary weather

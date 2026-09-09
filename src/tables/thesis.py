@@ -107,17 +107,17 @@ def weather_cleaning(output: Path) -> None:
     data = pd.read_csv("data/analysis/weather_cleaning.csv")
     data = data[data["year"].astype(str).ne("total")]
     total = int(data["input_rows"].sum())
+    outside_scope = int(data["no_wind_station_year"].sum())
+    assessed = total - outside_scope
     categories = [
         ("All delivered station-time rows", "input_rows"),
-        ("Rows from station-years without wind data", "no_wind_station_year"),
-        ("Records assessed for wind quality", None),
+        ("Rows in station-years containing wind data", None),
         (r"Missing \texttt{f} or \texttt{fg}", "missing_wind"),
         ("Negative or upper-threshold wind", None),
         (r"Internally inconsistent \texttt{f}/\texttt{fg}", None),
         (r"Frozen all-zero runs ($\geq 2$ hours)", "frozen_zero"),
         ("Clean wind observations retained", "clean_wind_rows"),
     ]
-    assessed = total - int(data["no_wind_station_year"].sum())
     invalid_range = int(data["negative"].sum() + data["upper_threshold"].sum())
     inconsistent = int(
         data["inconsistent_zero_gust"].sum() + data["gust_below_mean"].sum()
@@ -126,11 +126,13 @@ def weather_cleaning(output: Path) -> None:
     rows = []
     for name, column in categories:
         value = int(data[column].sum()) if column else next(special)
-        rows.append([name, f"{value:,}", f"{100 * value / total:.2f}%"])
+        denominator = total if name == "All delivered station-time rows" else assessed
+        rows.append([name, f"{value:,}", f"{100 * value / denominator:.2f}%"])
     write_table(
         output / "weather_cleaning.tex",
-        "Wind-quality audit of all delivered station-time rows, 2007--2025",
-        "tab:weather-cleaning", "lrr", ["Category", "Records", "Share of total"], rows,
+        "Wind-data scope and quality audit, 2007--2025. Quality-rule shares use the rows in station-years containing wind data as their denominator; "
+        f"{outside_scope:,} delivered rows from station-years without wind measurements are outside that scope.",
+        "tab:weather-cleaning", "lrr", ["Category", "Records", "Share"], rows,
     )
 
 
@@ -164,7 +166,13 @@ def coverage(output: Path) -> None:
             ["Full-day-mean daily-counter check, 2019--2024", f"{int(full['with_valid_counter_day']):,}", "1,863", f"{100*full['with_valid_counter_day']/1863:.2f}%"],
         ]
     )
-    write_table(output / "coverage.tex", "Coverage of the retained analyses", "tab:coverage", "Xrrr", ["Analysis step", "Retained", "Starting set", "Share"], rows, width=r"\textwidth")
+    write_table(
+        output / "coverage.tex",
+        "Coverage of the retained analyses. One counter-day is one physical counter site on one date. A counter-day with daytime wind has a matched station within 20 km and at least one valid ten-minute mean-wind observation between 10:00 and 21:59; its traffic value is still the observed 24-hour total.",
+        "tab:coverage", "Xrrr",
+        ["Analysis step", "Retained", "Starting set", "Share"], rows,
+        width=r"\textwidth",
+    )
 
 
 def match_quality(output: Path) -> None:
@@ -173,17 +181,16 @@ def match_quality(output: Path) -> None:
     for row in data.itertuples(index=False):
         rows.append([
             row.weather_variable,
-            f"{int(row.matched_accidents):,} ({row.matched_pct:.1f}%)",
-            f"{int(row.unmatched_accidents):,}",
+            f"{int(row.matched_accidents):,}",
+            f"{row.matched_pct:.1f}%",
             f"{int(row.stations_used):,}",
             f"{row.median_distance_km:.1f} / {row.p90_distance_km:.1f}",
-            f"{row.median_time_difference_min:.1f} / {row.maximum_time_difference_min:.1f}",
         ])
     write_table(
         output / "match_quality.tex",
-        "Quality of the primary accident--weather matches (20 km and five minutes). Distances are median / P90; time differences are median / maximum.",
-        "tab:match-quality", "lrrrrr",
-        ["Variable", "Matched", "Unmatched", "Stations", "Distance (km)", "Time (min)"],
+        "Share of accidents with weather information from a station with a valid measurement within 20 km. Distance is shown as median / P90; every retained observation is within five minutes of the accident time.",
+        "tab:match-quality", "lrrrr",
+        ["Variable", "Accidents", "Share", "Stations", "Distance (km)"],
         rows, size="footnotesize",
     )
 

@@ -34,24 +34,24 @@ def main() -> None:
         & data["weather_station_dist_km"].le(20)
         & data["weather_time_difference_minutes"].le(5)
     )
-    figure, axis = plt.subplots(figsize=(9.5, 7.5), constrained_layout=True)
+    figure, axis = plt.subplots(figsize=(10.5, 7.5), constrained_layout=True)
     axis.scatter(
         data.loc[~strong, "lon"], data.loc[~strong, "lat"],
-        s=8, color="#A5ADB3", alpha=0.42,
+        s=12, color="#8F999F", alpha=0.48,
         label=f"Other rural injury accidents (n={(~strong).sum():,})",
     )
     axis.scatter(
         data.loc[strong, "lon"], data.loc[strong, "lat"],
-        s=18, color="#B85C4A", alpha=0.85,
+        s=28, color="#B85C4A", alpha=0.9,
         label=f"Mean wind ≥15 m/s (n={strong.sum():,})",
     )
     axis.set_xlim(-25, -13)
     axis.set_ylim(63.2, 66.7)
-    axis.set_xlabel("Longitude")
-    axis.set_ylabel("Latitude")
-    axis.set_title("Locations of rural injury accidents, 2007–2025")
+    axis.set_xlabel("Longitude", fontsize=14)
+    axis.set_ylabel("Latitude", fontsize=14)
+    axis.tick_params(labelsize=12)
     axis.grid(alpha=0.15)
-    axis.legend(frameon=False, loc="lower left")
+    axis.legend(frameon=False, loc="lower left", fontsize=12, markerscale=1.25)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(args.output, dpi=240)
     plt.close(figure)

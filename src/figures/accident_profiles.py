@@ -79,8 +79,8 @@ def plot_accident_families(family: pd.DataFrame, path: Path) -> None:
             fontsize=9,
             color=TEXT,
         )
-    axis.set_title("Rural injury accidents by accident type", weight="bold")
-    axis.set_xlabel("Accidents")
+    axis.set_xlabel("Accidents", fontsize=13)
+    axis.tick_params(axis="both", labelsize=12)
     axis.set_xlim(0, data["count"].max() * 1.24)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right", "left"]].set_visible(False)
