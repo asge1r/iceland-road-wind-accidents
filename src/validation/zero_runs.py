@@ -23,7 +23,7 @@ from src.accidents.match_weather import (
     weather_station_ids,
 )
 from src.accidents.types import broad_accident_family
-from src.analysis.oe_core import (
+from src.analysis.oe_analysis import (
     VARIABLES,
     cluster_bootstrap,
     station_frequency_scenario,

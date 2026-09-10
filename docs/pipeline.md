@@ -157,7 +157,7 @@ carried through that working table.
   alternative analysis routes.
 - Preparation code does not draw thesis figures. Table code writes numerical
   results, and figure code reads those completed results.
-- `analysis/oe_core.py` contains the shared bins, expected-count calculation,
+- `analysis/oe_analysis.py` contains the shared bins, expected-count calculation,
   and station bootstrap used for wind, gust, and temperature. It has no command
   line and writes no files; `analysis/oe.py` and `tables/oe.py` remain the two
   visible O/E pipeline steps.

@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.analysis.oe_core import (
+from src.analysis.oe_analysis import (
     PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
     PRIMARY_VARIABLE,
     VARIABLES,

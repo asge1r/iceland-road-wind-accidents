@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.analysis.oe_core import PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
+from src.analysis.oe_analysis import PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
 
 
 INPUT = Path("reports/main/tables/oe_results.csv")

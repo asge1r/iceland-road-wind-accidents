@@ -3,10 +3,10 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.analysis.oe_core import VARIABLES, station_frequency_scenario
+from src.analysis.oe_analysis import VARIABLES, station_frequency_scenario
 
 
-class OECoreTests(unittest.TestCase):
+class OEAnalysisTests(unittest.TestCase):
     def test_all_weather_variables_use_the_same_expected_count_engine(self) -> None:
         accidents = pd.DataFrame(
             {
