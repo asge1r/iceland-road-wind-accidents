@@ -46,6 +46,19 @@ DEFAULT_DAILY_ALLOCATED = Path("reports/main/tables/allocated_rate.csv")
 DEFAULT_DAILY_SAMPLE = Path("reports/main/tables/daily_sample.csv")
 DEFAULT_DAILY_SERIOUS = Path("reports/main/tables/allocated_rate_severity.csv")
 DEFAULT_DAILY_07_24 = Path("reports/main/tables/allocated_rate_day.csv")
+DEFAULT_DAILY_SEASON_PANEL = Path(
+    "reports/working/tables/daily_season_panel.csv"
+)
+DEFAULT_DAILY_SEASON_OE = Path("reports/main/tables/daily_season_oe.csv")
+DEFAULT_DAILY_SEASON_INTERACTION = Path(
+    "reports/working/tables/daily_season_interaction.csv"
+)
+DEFAULT_DAILY_HIGHWIND_SEASON_INTERACTION = Path(
+    "reports/working/tables/daily_highwind_season_interaction.csv"
+)
+DEFAULT_WIND_OE_COMPARISON = Path(
+    "reports/main/tables/wind_oe_comparison.csv"
+)
 DEFAULT_OUTPUT = Path("reports/main/tables/validation.md")
 
 def require(condition: bool, message: str) -> None:

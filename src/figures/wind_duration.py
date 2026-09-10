@@ -29,13 +29,8 @@ def main() -> None:
         raise ValueError(f"Duration table is missing columns: {sorted(missing)}")
     x = np.arange(len(data))
     values = data["relative_traffic_pct"].to_numpy(float)
-    errors = np.vstack([
-        values - data["ci_95_low_pct"].to_numpy(float),
-        data["ci_95_high_pct"].to_numpy(float) - values,
-    ])
     figure, axis = plt.subplots(figsize=(9.6, 5.8), constrained_layout=True)
     bars = axis.bar(x, values, color="#287271", width=0.68)
-    axis.errorbar(x, values, yerr=errors, fmt="none", ecolor="#202020", capsize=4)
     axis.axhline(100, color="#202020", linestyle="--", linewidth=1.1)
     display_labels = {"0": "0", ">0-2": ">0–2", "2-6": "2–6", ">=6": "≥6"}
     axis.set_xticks(x, data["hours_with_f_ge15"].map(display_labels))

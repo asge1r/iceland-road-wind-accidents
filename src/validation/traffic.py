@@ -8,14 +8,156 @@ import numpy as np
 import pandas as pd
 
 from src.validation.common import (
+    DEFAULT_DAILY_HIGHWIND_SEASON_INTERACTION,
+    DEFAULT_DAILY_SEASON_INTERACTION,
+    DEFAULT_DAILY_SEASON_OE,
+    DEFAULT_DAILY_SEASON_PANEL,
     DEFAULT_TEMPERATURE_RATE,
     DEFAULT_RATE_MODEL,
     DEFAULT_TRAFFIC_ALLOCATION_CHECK,
     DEFAULT_TRAFFIC_WIND,
     DEFAULT_VEHICLE_RATE_MULTIPLE,
     DEFAULT_VEHICLE_RATE_ONE,
+    DEFAULT_WIND_OE_COMPARISON,
     require,
 )
+
+
+def validate_daily_season_results() -> dict[str, object]:
+    """Check the shared seasonal panel and every retained headline result."""
+    panel = pd.read_csv(DEFAULT_DAILY_SEASON_PANEL)
+    seasonal_oe = pd.read_csv(DEFAULT_DAILY_SEASON_OE)
+    full_test = pd.read_csv(DEFAULT_DAILY_SEASON_INTERACTION)
+    highwind_test = pd.read_csv(DEFAULT_DAILY_HIGHWIND_SEASON_INTERACTION)
+    require(
+        {"stratum", "season", "wind_bin", "allocated_vehicles",
+         "observed_accidents"} <= set(panel),
+        "Shared daily seasonal panel is incomplete",
+    )
+    require(
+        panel["allocated_vehicles"].gt(0).all()
+        and set(panel["season"]) == {"Winter", "Spring", "Summer", "Fall"}
+        and set(panel["wind_bin"]) == {"0-10", "10-15", ">=15"},
+        "Shared daily seasonal panel has unexpected categories or exposure",
+    )
+    totals = panel.groupby("stratum", observed=True).agg(
+        observed=("observed_accidents", "sum"),
+        exposure=("allocated_vehicles", "sum"),
+    )
+    reconstructed = panel.merge(
+        totals, left_on="stratum", right_index=True, validate="many_to_one"
+    )
+    reconstructed["expected"] = (
+        reconstructed["observed"]
+        * reconstructed["allocated_vehicles"]
+        / reconstructed["exposure"]
+    )
+    stratum_check = reconstructed.groupby("stratum", observed=True).agg(
+        observed=("observed_accidents", "sum"), expected=("expected", "sum")
+    )
+    require(
+        np.allclose(stratum_check["observed"], stratum_check["expected"]),
+        "Seasonal expected counts do not reconstruct accidents within strata",
+    )
+    calculated = reconstructed.groupby(
+        ["season", "wind_bin"], observed=True, as_index=False
+    ).agg(
+        observed_accidents=("observed_accidents", "sum"),
+        traffic_expected_accidents=("expected", "sum"),
+    )
+    published = seasonal_oe.merge(
+        calculated, on=["season", "wind_bin"], suffixes=("_file", "_check"),
+        validate="one_to_one",
+    )
+    require(
+        np.array_equal(
+            published["observed_accidents_file"],
+            published["observed_accidents_check"],
+        )
+        and np.allclose(
+            published["traffic_expected_accidents_file"],
+            published["traffic_expected_accidents_check"],
+        )
+        and seasonal_oe["bootstrap_replicates"].eq(5000).all()
+        and seasonal_oe["bootstrap_cluster"].eq("counter").all(),
+        "Published seasonal O/E does not reproduce the shared panel",
+    )
+    season_totals = seasonal_oe.groupby("season", observed=True).agg(
+        observed=("observed_accidents", "sum"),
+        expected=("traffic_expected_accidents", "sum"),
+    )
+    require(
+        np.allclose(season_totals["observed"], season_totals["expected"]),
+        "Published seasonal expected totals do not equal observed totals",
+    )
+    highwind_counts = seasonal_oe[
+        seasonal_oe["wind_bin"].eq(">=15")
+    ].set_index("season")["observed_accidents"]
+    require(
+        highwind_counts.to_dict()
+        == {"Winter": 24, "Spring": 10, "Summer": 7, "Fall": 6},
+        "Seasonal high-wind accident counts changed unexpectedly",
+    )
+    full_row = full_test[full_test["result"].eq("Season interaction test")]
+    focused_row = highwind_test[
+        highwind_test["result"].eq(">=15 m/s season interaction test")
+    ]
+    require(
+        len(full_row) == len(focused_row) == 1
+        and int(full_row.iloc[0]["degrees_of_freedom"]) == 6
+        and int(focused_row.iloc[0]["degrees_of_freedom"]) == 3
+        and int(full_row.iloc[0]["model_accidents"]) == 761
+        and int(focused_row.iloc[0]["model_accidents"]) == 761,
+        "Seasonal interaction outputs have unexpected scope",
+    )
+    return {
+        "daily_season_oe": seasonal_oe,
+        "daily_season_full_test": full_row.iloc[0],
+        "daily_season_highwind_test": focused_row.iloc[0],
+    }
+
+
+def validate_wind_oe_comparison() -> pd.DataFrame:
+    """Check the three denominators shown in the main wind O/E figure."""
+    result = pd.read_csv(DEFAULT_WIND_OE_COMPARISON)
+    expected_bins = {
+        "Weather frequency": ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"],
+        "Annual traffic": ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"],
+        "Daily traffic": ["0-10", "10-15", ">=15"],
+    }
+    expected_samples = {
+        "Weather frequency": 6259,
+        "Annual traffic": 4933,
+        "Daily traffic": 762,
+    }
+    require(
+        set(result["method"]) == set(expected_bins)
+        and result["bootstrap_replicates"].eq(5000).all(),
+        "Main wind O/E comparison has unexpected methods or bootstrap scope",
+    )
+    for method, bins in expected_bins.items():
+        rows = result[result["method"].eq(method)].sort_values("bin_order")
+        require(
+            rows["wind_bin"].tolist() == bins
+            and rows["analysis_accidents"].eq(expected_samples[method]).all()
+            and int(rows["observed_accidents"].sum()) == expected_samples[method]
+            and np.isclose(rows["expected_accidents"].sum(), expected_samples[method])
+            and rows["ci_95_low"].le(rows["observed_expected_ratio"]).all()
+            and rows["observed_expected_ratio"].le(rows["ci_95_high"]).all(),
+            f"Main wind O/E comparison is inconsistent for {method}",
+        )
+    require(
+        float(result[
+            result["method"].eq("Annual traffic")
+            & result["wind_bin"].eq("20-25")
+        ]["observed_expected_ratio"].iloc[0]) > 1
+        and float(result[
+            result["method"].eq("Daily traffic")
+            & result["wind_bin"].eq(">=15")
+        ]["observed_expected_ratio"].iloc[0]) > 1,
+        "Traffic-standardised upper-wind O/E no longer supports the main direction",
+    )
+    return result
 
 
 def validate_traffic_models(
@@ -312,6 +454,8 @@ def validate_traffic_checks(
             and table["estimated_vehicles_within_wind_bin"].gt(0).all(),
             f"Allocated daily {name} sensitivity is incomplete",
         )
+    seasonal_checks = validate_daily_season_results()
+    wind_oe_comparison = validate_wind_oe_comparison()
     return {
         "radius_20_25": radius_20_25,
         "official_20_25": official_20_25.iloc[0],
@@ -324,4 +468,6 @@ def validate_traffic_checks(
         "traffic_wind": traffic_wind,
         "daily_serious": daily_serious,
         "daily_07_24": daily_07_24,
+        **seasonal_checks,
+        "wind_oe_comparison": wind_oe_comparison,
     }

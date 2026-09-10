@@ -51,6 +51,14 @@ also describe whether traffic changes with wind at selected sites. These
 analyses estimate different quantities and are compared by direction, not by
 the numerical size of their estimates.
 
+The main comparison figure therefore keeps three denominators separate. The
+weather panel uses local observation frequency, the annual panel uses estimated
+vehicle-kilometres allocated by local wind frequency, and the daily panel uses
+observed daily totals allocated by ten-minute wind fractions. Expected counts
+are reconstructed within the defining stratum for each method. The traffic
+panels are descriptive O/E standardisations; the conditional Poisson models
+remain the formal traffic comparisons.
+
 Temperature, hour, daylight, matched-time wind gust, and subgroup results
 answer supporting research questions. They remain exploratory or descriptive
 and do not replace the primary mean-wind result.
@@ -72,6 +80,13 @@ logistic model and compares that model with a common-wind-association model
 using a six-degree-of-freedom likelihood-ratio test. This is the formal
 assessment of seasonal differences; separate seasonal plots are supporting
 descriptions.
+
+The annual-traffic seasonal model is the broader traffic comparison and uses
+4,933 linked accidents. The selected-counter seasonal O/E uses observed daily
+totals but only 762 accidents and is therefore an appendix check. Its full
+six-term interaction test is reported before the narrower test of the
+at-least-15 m/s terms. Neither set of separate seasonal estimates is used to
+rank seasons.
 
 ## Accident sample
 

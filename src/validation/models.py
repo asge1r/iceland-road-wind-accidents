@@ -17,8 +17,7 @@ from src.validation.common import (
 
 def validate_models(
     case_control_path: Path, case_control_result_path: Path,
-    accidents: pd.DataFrame, temperature_accidents: int,
-    oe_results: pd.DataFrame,
+    accidents: pd.DataFrame, oe_results: pd.DataFrame,
 ) -> dict[str, object]:
     case_control = pd.read_csv(case_control_path)
     require(
@@ -86,11 +85,22 @@ def validate_models(
         "Joint wind-temperature model is incomplete or inconsistent",
     )
     severity = pd.read_csv(DEFAULT_SEVERITY)
+    complete_severity_sample = int(
+        (
+            accidents["f"].notna()
+            & accidents["weather_station_dist_km"].le(20)
+            & accidents["weather_time_difference_minutes"].le(5)
+            & accidents["temperature_c"].notna()
+            & accidents["temp_distance_km"].le(20)
+            & accidents["temp_time_diff_min"].le(5)
+            & accidents["daylight_class"].notna()
+        ).sum()
+    )
     require(
         set(severity["predictor"])
         == {"Mean wind", "Temperature", "Daylight", "Time of day", "Season"}
         and severity["accidents"].nunique() == 1
-        and int(severity["accidents"].iloc[0]) == temperature_accidents
+        and int(severity["accidents"].iloc[0]) == complete_severity_sample
         and severity["ci_95_low"].le(severity["odds_ratio"]).all()
         and severity["odds_ratio"].le(severity["ci_95_high"]).all(),
         "Severity-composition model is incomplete or inconsistent",

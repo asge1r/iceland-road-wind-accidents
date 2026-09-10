@@ -33,19 +33,9 @@ def main() -> None:
     if missing:
         raise ValueError(f"Temperature-rate table is missing columns: {sorted(missing)}")
     values = data["time_proportional_rate_ratio"].to_numpy(float)
-    low = data["time_proportional_ci_95_low"].fillna(
-        data["time_proportional_rate_ratio"]
-    ).to_numpy(float)
-    high = data["time_proportional_ci_95_high"].fillna(
-        data["time_proportional_rate_ratio"]
-    ).to_numpy(float)
     x = np.arange(len(data))
     figure, axis = plt.subplots(figsize=(11.4, 6.6), constrained_layout=True)
     bars = axis.bar(x, values, width=0.72, color="#287271")
-    axis.errorbar(
-        x, values, yerr=np.vstack([values - low, high - values]),
-        fmt="none", ecolor="#202020", capsize=4,
-    )
     axis.axhline(1, color="#202020", linestyle="--", linewidth=1.1)
     axis.set_xticks(x, interval_labels(data["bin_label"]))
     axis.set_xlabel("Temperature interval (°C)")
@@ -53,7 +43,7 @@ def main() -> None:
     axis.set_title("Estimated rural injury-accident rate ratio by temperature")
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)
-    top = max(1.2, float(high.max()) * 1.08)
+    top = max(1.2, float(values.max()) * 1.12)
     axis.set_ylim(0, top)
     for bar, row in zip(bars, data.itertuples(index=False), strict=True):
         axis.text(

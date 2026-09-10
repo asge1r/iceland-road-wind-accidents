@@ -28,10 +28,7 @@ def main() -> None:
     args = parser.parse_args()
     tables = [pd.read_csv(args.one_vehicle), pd.read_csv(args.multiple_vehicle)]
     names = ["One-vehicle accidents", "Two or more vehicles"]
-    upper = max(
-        float(table["time_proportional_ci_95_high"].fillna(1).max())
-        for table in tables
-    )
+    upper = max(float(table["time_proportional_rate_ratio"].max()) for table in tables)
     figure, axes = plt.subplots(1, 2, figsize=(11.5, 5.8), sharey=True)
     for axis, data, name in zip(axes, tables, names, strict=True):
         required = {
@@ -42,18 +39,8 @@ def main() -> None:
         if missing:
             raise ValueError(f"Vehicle-rate table is missing columns: {sorted(missing)}")
         values = data["time_proportional_rate_ratio"].to_numpy(float)
-        low = data["time_proportional_ci_95_low"].fillna(
-            data["time_proportional_rate_ratio"]
-        ).to_numpy(float)
-        high = data["time_proportional_ci_95_high"].fillna(
-            data["time_proportional_rate_ratio"]
-        ).to_numpy(float)
         x = np.arange(len(data))
         bars = axis.bar(x, values, width=0.7, color="#287271")
-        axis.errorbar(
-            x, values, yerr=np.vstack([values - low, high - values]),
-            fmt="none", ecolor="#202020", capsize=3,
-        )
         axis.axhline(1, color="#202020", linestyle="--", linewidth=1)
         axis.set_xticks(x, interval_labels(data["bin_label"]), rotation=30)
         axis.set_title(name)

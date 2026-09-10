@@ -34,7 +34,7 @@ def validation_values(
     ))
     values.update(validate_models(
         case_control_path, case_control_result_path, values["_accidents"],
-        values["temperature_accidents"], values["_oe_results"],
+        values["_oe_results"],
     ))
     values.update(validate_traffic_checks(
         radius_result_path, traffic_checks_path, daily_rate_path,

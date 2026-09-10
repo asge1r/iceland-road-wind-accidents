@@ -177,42 +177,6 @@ def build_period_summary(panel: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def write_notes(path: Path, panel: pd.DataFrame, results: pd.DataFrame) -> None:
-    """Write a compact methodological record next to the generated files."""
-    eligible = panel[panel["wind_analysis_eligible"]]
-    text = f"""# Daily traffic and wind analysis
-
-## Unit and exposure
-
-- Unit: one physical counter on one date.
-- Daily traffic rows: {len(panel):,}.
-- Rows with mean wind from 0 to <45 m/s: {len(eligible):,} ({100 * len(eligible) / len(panel):.2f}%).
-- Traffic is reported as a 24-hour count. Wind is the mean from 10:00 to 21:59.
-
-## Standardisation
-
-For each counter-day, expected traffic is the arithmetic mean daily count for
-the same counter, calendar year, month, and weekday. The reported ratio is the
-sum of observed daily vehicles divided by the sum of expected daily vehicles in
-a wind bin. This compares the observed share of traffic in the bin with its
-expected share after local calendar standardisation.
-
-## Seasons
-
-- VDU: December--March.
-- SDU: June--September.
-- VHDU: April--May and October--November.
-
-## Outputs
-
-- `{RESULTS}`: thesis display with the stable >=25 m/s tail.
-- `{DETAILED_RESULTS}`: the same analysis data retained for inspection.
-- `{PERIOD_SUMMARY}`: daily-count sample by traffic period.
-"""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build daily traffic O/E by mean wind.")
     parser.add_argument("-i", "--input", type=Path, default=INPUT)

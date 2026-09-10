@@ -12,13 +12,19 @@ PREPARATION_OUTPUT = Path("reports/thesis/pipeline_prepare.tex")
 ANALYSIS_OUTPUT = Path("reports/thesis/pipeline_analysis.tex")
 
 
-def markdown_table(text: str, heading: str) -> list[list[str]]:
+def markdown_table(
+    text: str, heading: str, first_header: str = "Script"
+) -> list[list[str]]:
     section = text.split(f"## {heading}", maxsplit=1)
     if len(section) != 2:
         raise ValueError(f"Missing Markdown section: {heading}")
     lines = section[1].splitlines()
     start = next(
-        (index for index, line in enumerate(lines) if line.startswith("| Script |")),
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.startswith(f"| {first_header} |")
+        ),
         None,
     )
     if start is None:
@@ -88,7 +94,14 @@ def latex_cell(value: str, paths: bool) -> str:
 
 
 def render_part(
-    rows: list[list[str]], caption: str, label: str | None, continued: bool = False
+    rows: list[list[str]],
+    caption: str,
+    label: str | None,
+    continued: bool = False,
+    headers: tuple[str, str, str, str] = (
+        "Script", "Input file(s)", "Output file(s)", "Description"
+    ),
+    font_size: str = r"\tiny",
 ) -> str:
     body = []
     for index, row in enumerate(rows):
@@ -101,14 +114,14 @@ def render_part(
         r"\begin{table}[p]",
         continuation,
         r"\centering",
-        r"\tiny",
+        font_size,
         r"\setlength{\tabcolsep}{2.5pt}",
         r"\renewcommand{\arraystretch}{1.08}",
         rf"\caption{{{caption}}}",
         label_line,
         r"\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}",
         r"\toprule",
-        "Script & Input file(s) & Output file(s) & Description \\\\",
+        " & ".join(headers) + r" \\",
         r"\midrule",
         *body,
         r"\bottomrule",
@@ -119,10 +132,17 @@ def render_part(
 
 
 def render(
-    rows: list[list[str]], caption: str, label: str, split_at: int | None = None
+    rows: list[list[str]],
+    caption: str,
+    label: str,
+    split_at: int | None = None,
+    headers: tuple[str, str, str, str] = (
+        "Script", "Input file(s)", "Output file(s)", "Description"
+    ),
+    font_size: str = r"\tiny",
 ) -> str:
     if split_at is None or len(rows) <= split_at:
-        return render_part(rows, caption, label)
+        return render_part(rows, caption, label, headers=headers, font_size=font_size)
     parts = [rows[index:index + split_at] for index in range(0, len(rows), split_at)]
     return "\n".join(
         render_part(
@@ -130,6 +150,8 @@ def render(
             caption if index == 0 else f"{caption} (continued)",
             label if index == 0 else None,
             continued=index > 0,
+            headers=headers,
+            font_size=font_size,
         )
         for index, part in enumerate(parts)
     )
@@ -154,10 +176,11 @@ def main() -> None:
         (
             args.analysis_output,
             render(
-                markdown_table(text, "Analysis scripts"),
-                "Exact inputs and outputs of the ordinary analysis pipeline",
+                markdown_table(text, "Analysis scripts", "Analysis stage"),
+                "Main analysis pipeline and reproducible data products",
                 "tab:analysis-pipeline",
-                split_at=12,
+                headers=("Analysis stage", "Main input", "Main output", "Purpose"),
+                font_size=r"\footnotesize",
             ),
         ),
     ]

@@ -35,12 +35,8 @@ def main() -> None:
 
     x = np.arange(len(data))
     values = data["rate_ratio"].to_numpy(float)
-    low = data["ci_95_low"].fillna(data["rate_ratio"]).to_numpy(float)
-    high = data["ci_95_high"].fillna(data["rate_ratio"]).to_numpy(float)
-    errors = np.vstack([values - low, high - values])
     figure, axis = plt.subplots(figsize=(9.4, 5.8), constrained_layout=True)
     bars = axis.bar(x, values, color="#287271", width=0.68)
-    axis.errorbar(x, values, yerr=errors, fmt="none", ecolor="#202020", capsize=4)
     axis.axhline(1, color="#202020", linestyle="--", linewidth=1.1)
     axis.set_xticks(x, interval_labels(data["wind_bin"]))
     axis.set_xlabel("Full-day mean wind-speed interval, f (m/s)")
@@ -48,7 +44,7 @@ def main() -> None:
     axis.set_title("Observed daily-counter accident-rate sensitivity, 2019–2024")
     axis.grid(axis="y", alpha=0.2)
     axis.set_axisbelow(True)
-    top = float(high.max()) * 1.14
+    top = max(1.2, float(values.max()) * 1.14)
     axis.set_ylim(0, top)
     for bar, row in zip(bars, data.itertuples(index=False), strict=True):
         axis.text(

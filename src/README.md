@@ -19,7 +19,9 @@ The folders below contain the small steps called by the entry points:
 - `weather/`: clean wind measurements and calculate local wind frequency.
 - `traffic/`: read annual and optional daily traffic data.
 - `analysis/`: prepare the station-season rows used by O/E.
+- `tables/`: calculate numerical results from the analysis CSVs.
 - `figures/`: create data-flow and descriptive figures.
+- `validation/`: check data contracts, sample counts, and reported results.
 
 Every executable script has `-h` for its own inputs and outputs. `docs/pipeline.md`
 describes the relationship between scripts, data, and outputs.
@@ -28,3 +30,15 @@ Only preparation scripts read source deliveries or Parquet working files.
 Every script called by `src.analyze` reads `data/analysis/*.csv` or small CSV
 results produced earlier in that same run. Optional source checks for daily
 traffic are kept outside these entry points.
+
+`src.analyze` is divided into named stages. Run it without `--stage` for the
+complete result set, or repeat `--stage` to rebuild only affected parts:
+
+```bash
+python -m src.analyze --stage primary-weather
+python -m src.analyze --stage annual-traffic --stage products
+python -m src.analyze --stage daily-traffic --stage products
+```
+
+Within a stage, numerical table scripts run before figure scripts. The
+`products` stage validates the retained results and generates thesis tables.

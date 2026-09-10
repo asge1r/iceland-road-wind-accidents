@@ -131,7 +131,7 @@ def main() -> None:
         frame["wind_bin"] = label
         frame["wind_observations"] = valid_daily[columns].sum(axis=1)
         frame = frame[frame["wind_observations"].gt(0)].copy()
-        frame["observed_vehicles"] = (
+        frame["allocated_vehicles"] = (
             frame["traffic"] * frame["wind_observations"]
             / frame[observation_column]
         )
@@ -139,7 +139,7 @@ def main() -> None:
     exposure = pd.concat(exposure_rows, ignore_index=True)
     reconstructed = exposure.groupby(
         ["counter_id", "date"]
-    )["observed_vehicles"].sum()
+    )["allocated_vehicles"].sum()
     original = (
         valid_daily.set_index(["counter_id", "date"])["traffic"]
         .reindex(reconstructed.index)
@@ -157,7 +157,7 @@ def main() -> None:
     exposure = exposure.groupby(
         ["counter_id", "year", "wind_bin"], observed=True, as_index=False
     ).agg(
-        observed_vehicles=("observed_vehicles", "sum"),
+        allocated_vehicles=("allocated_vehicles", "sum"),
         counter_days=("date", "nunique"),
     )
     model_data = exposure.merge(
@@ -167,8 +167,11 @@ def main() -> None:
     model_data["observed_accidents"] = model_data["observed_accidents"].fillna(0).astype(int)
     model_data["stratum"] = model_data["counter_id"].astype(str) + "|" + model_data["year"].astype(str)
     informative = model_data.groupby("stratum")["observed_accidents"].transform("sum").gt(0)
-    model_data = model_data[informative & model_data["observed_vehicles"].gt(0)].copy()
-    result = fit_model(model_data, LABELS).rename(columns={
+    model_data = model_data[
+        informative & model_data["allocated_vehicles"].gt(0)
+    ].copy()
+    fit_input = model_data.rename(columns={"allocated_vehicles": "observed_vehicles"})
+    result = fit_model(fit_input, LABELS).rename(columns={
         "observed_vehicles": "estimated_vehicles_within_wind_bin",
         "accidents_per_100k_counted_vehicles": "accidents_per_100k_estimated_vehicles",
     })

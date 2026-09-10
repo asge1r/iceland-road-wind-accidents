@@ -35,25 +35,14 @@ def main() -> None:
     if missing:
         raise ValueError(f"Seasonal rate table is missing columns: {sorted(missing)}")
     figure, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True, constrained_layout=True)
-    finite_high = data["time_proportional_ci_95_high"].replace([np.inf, -np.inf], np.nan)
-    ymax = max(2.0, float(finite_high.max()) * 1.08)
+    ymax = max(2.0, float(data["time_proportional_rate_ratio"].max()) * 1.12)
     for axis, season in zip(axes.flat, SEASONS, strict=True):
         subset = data[data["season"].eq(season)].copy()
         x = np.arange(len(subset))
         values = subset["time_proportional_rate_ratio"].to_numpy(float)
-        low = subset["time_proportional_ci_95_low"].fillna(
-            subset["time_proportional_rate_ratio"]
-        ).to_numpy(float)
-        high = subset["time_proportional_ci_95_high"].fillna(
-            subset["time_proportional_rate_ratio"]
-        ).to_numpy(float)
         bars = axis.bar(x, values, color="#287271", width=0.7)
-        axis.errorbar(
-            x, values, yerr=np.vstack([values - low, high - values]),
-            fmt="none", ecolor="#202020", capsize=3,
-        )
         axis.axhline(1, color="#202020", linestyle="--", linewidth=1)
-        axis.set_title(season)
+        axis.set_title("Autumn" if season == "Fall" else season)
         axis.set_ylim(0, ymax)
         axis.grid(axis="y", alpha=0.2)
         axis.set_axisbelow(True)
@@ -65,15 +54,8 @@ def main() -> None:
                 f"n={row.observed_accidents}", ha="center", va="center",
                 fontsize=7.5, color="white",
             )
-    figure.supylabel("Within-road-year rate ratio versus 0–5 m/s")
-    figure.supxlabel("Mean wind-speed interval, f (m/s)")
-    outcome = (
-        "serious-or-fatal rural accident"
-        if "analysis_outcome" in data
-        and data["analysis_outcome"].eq("serious-fatal").all()
-        else "rural injury-accident"
-    )
-    figure.suptitle(f"Estimated {outcome} rate ratio by season")
+    figure.supylabel("Within-road-year rate ratio versus 0–10 m/s")
+    figure.supxlabel("Wind-speed interval, f (m/s)")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(args.output, dpi=240)
     plt.close(figure)

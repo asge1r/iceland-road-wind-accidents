@@ -35,10 +35,18 @@ def main() -> None:
     counts.set_ylabel("Accidents")
     counts.set_title("Rural injury accidents by year")
     counts.grid(axis="y", alpha=0.2)
-    coverage.plot(data["year"], data["wind_coverage_pct"], marker="o", label="Wind")
-    coverage.plot(
-        data["year"], data["temperature_coverage_pct"], marker="o", label="Temperature"
-    )
+    identical = data["wind_coverage_pct"].equals(data["temperature_coverage_pct"])
+    if identical:
+        coverage.plot(
+            data["year"], data["wind_coverage_pct"], marker="o",
+            label="Wind and temperature (identical)",
+        )
+    else:
+        coverage.plot(data["year"], data["wind_coverage_pct"], marker="o", label="Wind")
+        coverage.plot(
+            data["year"], data["temperature_coverage_pct"], marker="o",
+            label="Temperature",
+        )
     coverage.set_ylabel("Matched accidents (%)")
     coverage.set_xlabel("Year")
     coverage.set_ylim(70, 101)

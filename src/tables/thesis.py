@@ -128,10 +128,17 @@ def weather_cleaning(output: Path) -> None:
         value = int(data[column].sum()) if column else next(special)
         denominator = total if name == "All delivered station-time rows" else assessed
         rows.append([name, f"{value:,}", f"{100 * value / denominator:.2f}%"])
+    scope_note = (
+        f" {outside_scope:,} delivered rows from station-years without wind "
+        "measurements are outside that scope."
+        if outside_scope else
+        " Every delivered station-year contains at least one wind measurement."
+    )
     write_table(
         output / "weather_cleaning.tex",
-        "Wind-data scope and quality audit, 2007--2025. Quality-rule shares use the rows in station-years containing wind data as their denominator; "
-        f"{outside_scope:,} delivered rows from station-years without wind measurements are outside that scope.",
+        "Wind-data scope and quality audit, 2007--2025. Quality-rule shares use "
+        "the rows in station-years containing wind data as their denominator."
+        + scope_note,
         "tab:weather-cleaning", "lrr", ["Category", "Records", "Share"], rows,
     )
 
@@ -160,7 +167,7 @@ def coverage(output: Path) -> None:
         [
             ["Temperature match within 20 km", f"{int(temp.temperature_available):,}", f"{total:,}", f"{temp.temperature_coverage_pct:.2f}%"],
             ["Exact annual road-section match, 2007--2025", f"{exact:,}", f"{total:,}", f"{100*exact/total:.2f}%"],
-            ["Stratified accident-rate analysis", f"{int(rate.model_accidents):,}", "6,192", f"{100*rate.model_accidents/6192:.2f}%"],
+            ["Stratified accident-rate analysis", f"{int(rate.model_accidents):,}", f"{int(match.loc[match['radius_km'].eq(20), 'analysed_accidents'].iloc[0]):,}", f"{100*rate.model_accidents/int(match.loc[match['radius_km'].eq(20), 'analysed_accidents'].iloc[0]):.2f}%"],
             ["Daily counter-days with daytime wind", f"{daily_wind:,}", f"{daily_total:,}", f"{100*daily_wind/daily_total:.2f}%"],
             ["Allocated daily-counter rate, 2019--2024", f"{int(allocated['same_station_valid_daily_traffic_and_accident_wind']):,}", "1,863", f"{100*allocated['same_station_valid_daily_traffic_and_accident_wind']/1863:.2f}%"],
             ["Full-day-mean daily-counter check, 2019--2024", f"{int(full['with_valid_counter_day']):,}", "1,863", f"{100*full['with_valid_counter_day']/1863:.2f}%"],

@@ -50,7 +50,7 @@ def plot_results(results: pd.DataFrame, path: Path, scope: str, title: str) -> N
 
 def plot_period_results(results: pd.DataFrame, path: Path) -> None:
     figure, axes = plt.subplots(3, 1, figsize=(11.4, 12.6), sharex=True)
-    ymax = max(112, float(results["relative_traffic_ci_95_high_pct"].max()) * 1.12)
+    ymax = max(112, float(results["relative_traffic_pct"].max()) * 1.12)
     titles = {"VDU": "Winter daily traffic (VDU: December–March)", "SDU": "Summer daily traffic (SDU: June–September)", "VHDU": "Spring/autumn traffic (VHDU: April–May, October–November)"}
     for axis, period in zip(axes, PERIOD_ORDER, strict=True):
         data = results[results["scope"].eq(period)]

@@ -60,22 +60,16 @@ def main() -> None:
         )
     data = data.iloc[::-1].reset_index(drop=True)
     estimates = data[args.estimate_column].to_numpy(float)
-    low = data["ci_95_low"].to_numpy(float)
-    high = data["ci_95_high"].to_numpy(float)
     y = np.arange(len(data))
     height = max(4.0, 0.42 * len(data) + 1.8)
     figure, axis = plt.subplots(figsize=(11.5, height), constrained_layout=True)
-    axis.errorbar(
-        estimates, y,
-        xerr=np.vstack([estimates - low, high - estimates]),
-        fmt="o", color="#287271", ecolor="#555555", capsize=3,
-    )
+    axis.scatter(estimates, y, color="#287271", s=42, zorder=3)
     axis.axvline(1, color="#222222", linestyle="--", linewidth=1)
     axis.set_yticks(
         y,
         labels(data, args.group_column, "comparison", "reference"),
     )
-    axis.set_xlabel("Odds ratio (95% confidence interval)")
+    axis.set_xlabel("Odds ratio")
     axis.set_title(args.title)
     axis.grid(axis="x", alpha=0.2)
     args.output.parent.mkdir(parents=True, exist_ok=True)
