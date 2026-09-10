@@ -157,6 +157,10 @@ carried through that working table.
   alternative analysis routes.
 - Preparation code does not draw thesis figures. Table code writes numerical
   results, and figure code reads those completed results.
+- `analysis/oe_core.py` contains the shared bins, expected-count calculation,
+  and station bootstrap used for wind, gust, and temperature. It has no command
+  line and writes no files; `analysis/oe.py` and `tables/oe.py` remain the two
+  visible O/E pipeline steps.
 - Legacy standalone accident classification and unused daily accident-adjustment
   code have been removed from the active modules.
 
@@ -220,14 +224,13 @@ to `reports/`.
 
 | Analysis stage | Main input | Main output | Purpose |
 |---|---|---|---|
-| Primary weather O/E | `accidents.csv`<br>`accident_conditions.csv`<br>`weather_frequency.csv` | *tables/*<br>`oe_results.csv`<br>`wind_oe_comparison.csv`<br>*figures/*<br>weather and traffic O/E | Compares accident conditions with local weather frequency and traffic-based checks. |
-| Matched-time analysis | `case_control.csv` | *tables/*<br>`matched_weather.csv`<br>`weather_model.csv`<br>`wind_season.csv`<br>*figures/*<br>matched estimates | Compares accident times with matched non-accident times. |
-| Annual traffic models | `road_rate.csv`<br>`road_temperature.csv`<br>`road_seasons.csv` | *tables/*<br>annual and seasonal rate ratios<br>*figures/*<br>traffic-model estimates | Estimates rates using annual traffic and road length. |
-| Daily traffic response | `daily_traffic.csv` | *tables/*<br>`traffic_wind.csv`<br>`traffic_period.csv`<br>`wind_duration.csv`<br>*figures/*<br>daily-traffic checks | Describes how daily traffic changes with wind. |
-| Daily traffic allocation | `accidents.csv`<br>`counter_wind.csv`<br>`daily_traffic.csv` | *tables/*<br>`allocated_rate*.csv`<br>*figures/*<br>`allocated_rate.png` | Allocates daily traffic among wind intervals and estimates accident rates. |
-| Seasonal daily traffic | `accidents.csv`<br>`counter_wind.csv`<br>`daily_traffic.csv` | `working/tables/daily_season_panel.csv`<br>*tables/*<br>`daily_season_oe.csv`<br>*working/tables/*<br>seasonal models and interaction tests<br>*figures/*<br>`daily_season_oe.png` | Supplies one shared panel for seasonal estimates and interaction tests. |
-| Severity and context | `accidents.csv`<br>`accident_conditions.csv`<br>`case_control.csv` | *tables/*<br>`severity_conditions.csv`<br>`daylight.csv`<br>`wind_profile.csv`<br>*figures/*<br>context summaries | Examines severity, daylight and strong-wind accident characteristics. |
-| Validation and thesis products | Analysis CSVs and retained results<br>`docs/pipeline.md` | *tables/*<br>`validation.md`<br>*thesis/generated/*<br>`*.tex`<br>`pipeline_*.tex` | Checks results and generates thesis tables. |
+| Accident data preparation | Source accident, road-link and urban-area files | `accidents.csv` | Selects rural injury accidents and keeps traceable source IDs. |
+| Weather preparation and matching | Ten-minute weather and station files<br>`accidents.csv` | `weather_frequency.csv`<br>`accident_conditions.csv`<br>`case_control.csv` | Cleans weather and links accident and control times. |
+| Weather-frequency analysis | `accident_conditions.csv`<br>`weather_frequency.csv` | `oe_results.csv`<br>`weather_oe_panels.csv`<br>three five-panel figures | Compares accident shares with local weather-time shares. |
+| Traffic data preparation | Annual road traffic, road geometry and daily counters | `road_rate.csv`<br>`daily_traffic.csv`<br>`counter_wind.csv` | Makes linked annual and daily traffic inputs. |
+| Traffic-adjusted wind analysis | Prepared traffic inputs<br>`accidents.csv` | annual rate results<br>`daily_season_panel.csv`<br>daily and seasonal estimates | Estimates rates using annual traffic and allocated daily vehicles. |
+| Supporting analyses | `case_control.csv`<br>weather and traffic analysis files | matched-time, daylight, severity and traffic-response results | Checks and helps interpret the main comparisons. |
+| Validation and thesis products | Analysis CSVs<br>`docs/pipeline.md` | validation report<br>thesis tables and figures | Checks numbers and builds reported products. |
 
 ## Detailed analysis inventory
 
@@ -239,9 +242,11 @@ is retained for exact file tracing but is not inserted into the thesis.
 | `tables/pipeline.py` | `docs/pipeline.md` | *reports/thesis/*<br>`pipeline_prepare.tex`<br>`pipeline_analysis.tex` | Generates the thesis pipeline tables. |
 | `analysis/oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_frequency.csv` | `reports/working/tables/oe_station_bins.csv` | Builds station-season observed and expected accident totals. |
 | `tables/oe.py` | `reports/working/tables/oe_station_bins.csv`<br>`analysis/accidents.csv`<br>`analysis/accident_conditions.csv` | `reports/main/tables/oe_results.csv`<br>`mean_wind_oe.csv`<br>`gust_oe.csv`<br>`temperature_oe.csv`<br>`wind_coverage.csv` | Calculates O/E results and uncertainty intervals. |
+| `tables/weather_oe_panels.py` | `reports/main/tables/oe_results.csv` | `reports/main/tables/weather_oe_panels.csv` | Selects the all-year and four-season results for both nested injury outcomes. |
 | `tables/year_oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_yearly.csv` | `reports/main/tables/year_oe.csv` | Repeats mean-wind and temperature O/E within station, season, and year. |
 | `tables/wind_radius.py` | `reports/main/tables/oe_results.csv` | `reports/main/tables/wind_radius.csv` | Selects upper-wind results for three distance limits. |
 | `figures/oe.py` | `reports/main/tables/oe_results.csv` | *reports/main/figures/*<br>`mean_wind_oe.png`<br>`gust_oe.png`<br>`temperature_oe.png`<br>`wind_season_oe.png`<br>`wind_vehicle.png`<br>`wind_type.png`<br>`temperature_season.png` | Draws the primary, supporting, and descriptive subgroup O/E figures. |
+| `figures/weather_oe_panels.py` | `reports/main/tables/weather_oe_panels.csv` | *reports/main/figures/*<br>`wind_oe_panels.png`<br>`gust_oe_panels.png`<br>`temperature_oe_panels.png` | Draws the five-period O/E figures with all injury and serious/fatal bars. |
 | `tables/wind_oe_comparison.py` | *reports/main/tables/*<br>`oe_results.csv`<br>*analysis/*<br>`road_rate.csv`<br>*reports/working/tables/*<br>`daily_season_panel.csv` | `reports/main/tables/wind_oe_comparison.csv` | Calculates comparable descriptive O/E summaries using weather frequency, estimated annual vehicle-kilometres, and allocated daily traffic. |
 | `figures/wind_oe_comparison.py` | `reports/main/tables/wind_oe_comparison.csv` | `reports/main/figures/wind_oe_comparison.png` | Draws the three O/E denominators together while retaining their different samples and wind intervals. |
 | `tables/annual_quality.py` | `analysis/annual_traffic.csv` | `reports/main/tables/annual_quality.csv` | Audits nonpositive and unusual published seasonal traffic values. |

@@ -12,18 +12,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.tables.oe import (
+from src.analysis.oe_core import (
     PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
     PRIMARY_VARIABLE,
-    VARIABLE_COLORS,
-    VARIABLE_LABELS,
-    VARIABLE_XLABELS,
 )
 from src.figures.common import interval_labels
 
 
 DEFAULT_INPUT = Path("reports/main/tables/oe_results.csv")
 DEFAULT_OUTPUT = Path("reports/main/figures")
+VARIABLE_COLORS = {"f": "#287271", "fg": "#C7522A", "temperature": "#555555"}
+VARIABLE_XLABELS = {
+    "f": "Mean wind-speed interval, f (m/s)",
+    "fg": "Wind-gust interval at matched time, fg (m/s)",
+    "temperature": "Temperature interval (°C)",
+}
 
 
 def plot_one_variable(data: pd.DataFrame, variable: str, path: Path) -> None:

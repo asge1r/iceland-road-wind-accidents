@@ -23,8 +23,11 @@ from src.accidents.match_weather import (
     weather_station_ids,
 )
 from src.accidents.types import broad_accident_family
-from src.analysis.oe import VARIABLES, one_analysis
-from src.tables.oe import cluster_bootstrap
+from src.analysis.oe_core import (
+    VARIABLES,
+    cluster_bootstrap,
+    station_frequency_scenario,
+)
 from src.weather.clean import (
     GUST_TOLERANCE,
     MAX_F,
@@ -169,7 +172,7 @@ def scenario_result(
     )
     data = analysis_accidents(events, matches)
     frequency = adjusted_frequency(base_frequency, returned_counts(returned))
-    _, details, coverage = one_analysis(
+    _, details, coverage = station_frequency_scenario(
         data, frequency, VARIABLES[0], 20, "Injury accidents", "All seasons"
     )
     station_bins = details.groupby(

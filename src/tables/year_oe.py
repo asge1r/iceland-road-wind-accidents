@@ -7,8 +7,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.analysis.oe import VARIABLES, load_data, one_analysis
-from src.tables.oe import BIN_ORDER, cluster_bootstrap
+from src.analysis.oe import load_data
+from src.analysis.oe_core import (
+    BIN_ORDER,
+    VARIABLES,
+    cluster_bootstrap,
+    station_frequency_scenario,
+)
 
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
@@ -30,7 +35,7 @@ def calculate(
     specs = {spec.variable: spec for spec in VARIABLES}
     outputs = []
     for offset, variable in enumerate(["f", "temperature"]):
-        _, details, coverage = one_analysis(
+        _, details, coverage = station_frequency_scenario(
             accidents, frequency, specs[variable], 20,
             "Injury accidents", "All seasons",
         )

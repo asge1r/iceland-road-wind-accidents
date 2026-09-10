@@ -8,11 +8,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.weather.frequency import (
-    FG_UPPER_BOUNDS,
-    F_UPPER_BOUNDS,
-    TEMPERATURE_LABELS,
-    labels,
+from src.analysis.oe_core import (
+    PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
+    PRIMARY_VARIABLE,
+    VARIABLES,
+    analyse_scenario,
+    prepare_details,
+    read_csv,
+    validate_totals,
 )
 
 
@@ -23,187 +26,6 @@ DEFAULT_SUBGROUP_OUTPUT = Path("reports/working/tables/mean_wind_subgroups.csv")
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
 DEFAULT_WEATHER_CLEANING = Path("data/analysis/weather_cleaning.csv")
-PRIMARY_MAX_TIME_DIFFERENCE_MINUTES = 5
-PRIMARY_VARIABLE = "f"
-
-VARIABLE_LABELS = {
-    "f": "Mean wind speed",
-    "fg": "Wind gust at matched accident time",
-    "temperature": "Temperature",
-}
-VARIABLE_COLORS = {"f": "#287271", "fg": "#C7522A", "temperature": "#555555"}
-VARIABLE_XLABELS = {
-    "f": "Mean wind-speed interval, f (m/s)",
-    "fg": "Wind-gust interval at matched time, fg (m/s)",
-    "temperature": "Temperature interval (°C)",
-}
-COARSE_BINS = {
-    "f": {value: value for value in labels(F_UPPER_BOUNDS)},
-    "fg": {value: value for value in labels(FG_UPPER_BOUNDS)},
-    "temperature": {
-        value: value for value in TEMPERATURE_LABELS
-    },
-}
-BIN_ORDER = {
-    "f": labels(F_UPPER_BOUNDS),
-    "fg": labels(FG_UPPER_BOUNDS),
-    "temperature": TEMPERATURE_LABELS,
-}
-def prepare_details(path: Path) -> pd.DataFrame:
-    details = pd.read_csv(path)
-    if "max_time_difference_minutes" not in details:
-        details["max_time_difference_minutes"] = PRIMARY_MAX_TIME_DIFFERENCE_MINUTES
-    details["coarse_bin"] = pd.NA
-    for variable, mapping in COARSE_BINS.items():
-        mask = details["variable"].eq(variable)
-        details.loc[mask, "coarse_bin"] = details.loc[mask, "weather_bin"].map(mapping)
-    if details["coarse_bin"].isna().any():
-        examples = details.loc[details["coarse_bin"].isna(), ["variable", "weather_bin"]]
-        raise ValueError(f"Unmapped detailed wind bins: {examples.drop_duplicates().to_dict('records')}")
-    return details
-
-
-def read_accidents(path: Path, columns: list[str]) -> pd.DataFrame:
-    if path.suffix != ".csv":
-        raise ValueError(f"Analysis input must be a CSV file: {path}")
-    return pd.read_csv(path, usecols=columns)
-
-
-def cluster_bootstrap(
-    station_bins: pd.DataFrame,
-    variable: str,
-    reps: int,
-    seed: int,
-    bins: list[str] | None = None,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    bins = BIN_ORDER[variable] if bins is None else bins
-    observed = (
-        station_bins.pivot(index="weather_station_id", columns="coarse_bin", values="observed_accidents")
-        .reindex(columns=bins, fill_value=0)
-        .fillna(0)
-    )
-    expected = (
-        station_bins.pivot(index="weather_station_id", columns="coarse_bin", values="expected_accidents")
-        .reindex(index=observed.index, columns=bins, fill_value=0)
-        .fillna(0)
-    )
-    station_count = len(observed)
-    rng = np.random.default_rng(seed)
-    weights = rng.multinomial(
-        station_count,
-        np.full(station_count, 1 / station_count),
-        size=reps,
-    )
-    observed_draws = weights @ observed.to_numpy(float)
-    expected_draws = weights @ expected.to_numpy(float)
-    ratios = np.divide(
-        observed_draws,
-        expected_draws,
-        out=np.full_like(observed_draws, np.nan),
-        where=expected_draws > 0,
-    )
-    intervals = pd.DataFrame(
-        {
-            "coarse_bin": bins,
-            "bootstrap_ci_95_low": np.nanpercentile(ratios, 2.5, axis=0),
-            "bootstrap_ci_95_high": np.nanpercentile(ratios, 97.5, axis=0),
-            "bootstrap_median": np.nanmedian(ratios, axis=0),
-            "bootstrap_standard_error": np.nanstd(ratios, axis=0, ddof=1),
-            "bootstrap_probability_above_1": np.nanmean(ratios > 1, axis=0),
-            "bootstrap_reps": reps,
-            "bootstrap_stations": station_count,
-        }
-    )
-    draws = pd.DataFrame(ratios, columns=bins)
-    draws.insert(0, "bootstrap_rep", np.arange(reps))
-    draws = draws.melt(
-        id_vars="bootstrap_rep",
-        var_name="coarse_bin",
-        value_name="relative_accident_frequency",
-    )
-    draws["variable"] = variable
-    return intervals, draws
-
-
-def analyse_scenario(
-    details: pd.DataFrame,
-    variable: str,
-    radius: int,
-    severity: str,
-    season: str,
-    reps: int,
-    seed: int,
-    max_time_difference_minutes: float = PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
-    bin_mapping: dict[str, str] | None = None,
-    bin_order: list[str] | None = None,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    subset = details[
-        details["variable"].eq(variable)
-        & details["radius_km"].eq(radius)
-        & details["severity_group"].eq(severity)
-        & details["analysis_season"].eq(season)
-        & details["max_time_difference_minutes"].eq(
-            max_time_difference_minutes
-        )
-    ].copy()
-    if bin_mapping is None:
-        subset["analysis_bin"] = subset["coarse_bin"]
-        active_order = BIN_ORDER[variable]
-    else:
-        subset["analysis_bin"] = subset["weather_bin"].map(bin_mapping)
-        active_order = bin_order or list(dict.fromkeys(bin_mapping.values()))
-        if subset["analysis_bin"].isna().any():
-            raise ValueError("Alternative bin mapping left detailed bins unmapped")
-    station_bins = (
-        subset.groupby(["weather_station_id", "analysis_bin"], as_index=False)
-        .agg(
-            observed_accidents=("observed_accidents", "sum"),
-            expected_accidents=("expected_accidents", "sum"),
-            background_measurements=("measurement_count", "sum"),
-        )
-        .rename(columns={"analysis_bin": "coarse_bin"})
-    )
-    intervals, draws = cluster_bootstrap(
-        station_bins, variable, reps, seed, bins=active_order
-    )
-    result = (
-        station_bins.groupby("coarse_bin", as_index=False)
-        .agg(
-            observed_accidents=("observed_accidents", "sum"),
-            expected_accidents=("expected_accidents", "sum"),
-            background_measurements=("background_measurements", "sum"),
-            stations=("weather_station_id", "nunique"),
-        )
-        .merge(intervals, on="coarse_bin", how="left", validate="one_to_one")
-    )
-    result["relative_accident_frequency"] = (
-        result["observed_accidents"] / result["expected_accidents"]
-    )
-    result["variable"] = variable
-    result["radius_km"] = radius
-    result["severity_group"] = severity
-    result["analysis_season"] = season
-    result["max_time_difference_minutes"] = max_time_difference_minutes
-    order = {value: index for index, value in enumerate(active_order)}
-    result["bin_order"] = result["coarse_bin"].map(order)
-    result = result.sort_values("bin_order")
-    for frame in (draws,):
-        frame["radius_km"] = radius
-        frame["severity_group"] = severity
-        frame["analysis_season"] = season
-        frame["max_time_difference_minutes"] = max_time_difference_minutes
-    return result, draws
-
-
-def validate_totals(result: pd.DataFrame, expected_accidents: int) -> None:
-    observed = int(result["observed_accidents"].sum())
-    expected = float(result["expected_accidents"].sum())
-    if observed != expected_accidents:
-        raise ValueError(f"Coarse-bin accidents changed: {observed} != {expected_accidents}")
-    if not np.isclose(expected, expected_accidents, atol=1e-6):
-        raise ValueError(f"Coarse-bin expected total changed: {expected} != {expected_accidents}")
-
-
 def write_weather_coverage(
     accidents_path: Path,
     conditions_path: Path,
@@ -211,8 +33,8 @@ def write_weather_coverage(
     output_path: Path,
 ) -> pd.DataFrame:
     """Write one audit table for accident matching and weather cleaning."""
-    events = read_accidents(accidents_path, ["id"])
-    conditions = read_accidents(
+    events = read_csv(accidents_path, ["id"])
+    conditions = read_csv(
         conditions_path,
         [
             "id",
@@ -453,7 +275,7 @@ def main() -> None:
     coverage = pd.read_csv(args.coverage)
     results: list[pd.DataFrame] = []
     scenarios: list[tuple[str, int, str, str]] = []
-    for variable in VARIABLE_LABELS:
+    for variable in (spec.variable for spec in VARIABLES):
         for radius in [10, 20, 30]:
             scenarios.append((variable, radius, "Injury accidents", "All seasons"))
         for severity in ["Serious or fatal", "Fatal"]:
@@ -465,6 +287,10 @@ def main() -> None:
             scenarios.append((variable, 20, vehicle_group, "All seasons"))
     for accident_type in ["Single-vehicle accident type", "Other accident types"]:
         scenarios.append(("f", 20, accident_type, "All seasons"))
+    # Append new scenarios so bootstrap seeds for established results do not move.
+    for variable in (spec.variable for spec in VARIABLES):
+        for season in ["Winter", "Spring", "Summer", "Fall"]:
+            scenarios.append((variable, 20, "Serious or fatal", season))
 
     for scenario_index, (variable, radius, severity, season) in enumerate(scenarios):
         result, _ = analyse_scenario(
@@ -531,7 +357,7 @@ def main() -> None:
         primary,
         coverage,
         args.output_dir,
-        len(read_accidents(args.accidents, ["id"])),
+        len(read_csv(args.accidents, ["id"])),
     )
 
     write_weather_coverage(
