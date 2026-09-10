@@ -7,7 +7,11 @@ from pathlib import Path
 
 from src.export_common import ROOT, season_from_month, traffic_period_from_month
 from src.export_docs import write_manifest, write_readme
-from src.exports_accidents import export_accident_tables, export_case_control
+from src.exports_accidents import (
+    export_accident_tables,
+    export_case_control,
+    export_temperature_matches,
+)
 from src.exports_counters import (
     export_counter_validation,
     export_daily_traffic,
@@ -21,6 +25,8 @@ from src.exports_traffic import (
 )
 from src.exports_weather import (
     export_frequency,
+    export_weather_source_audit,
+    export_temperature_frequency,
     export_weather_cleaning,
     export_yearly_frequency,
 )
@@ -39,6 +45,13 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     entries: list[tuple[str, int, list[str], str]] = []
     entries.extend(export_accident_tables(args.output))
+    records, columns = export_temperature_matches(args.output)
+    entries.append(
+        (
+            "temperature_matches.csv", records, columns,
+            "One row per accident with the selected temperature observation and source.",
+        )
+    )
     for filename, description, exporter in [
         (
             "weather_frequency.csv",
@@ -64,6 +77,16 @@ def main() -> None:
             "case_control.csv",
             "Time-stratified mean-wind, gust, and temperature samples.",
             export_case_control,
+        ),
+        (
+            "temperature_frequency.csv",
+            "Combined station-year-season temperature counts used for the updated denominator.",
+            export_temperature_frequency,
+        ),
+        (
+            "weather_source_audit.csv",
+            "Official source-file hashes, row checks and date coverage.",
+            export_weather_source_audit,
         ),
     ]:
         records, columns = exporter(args.output)

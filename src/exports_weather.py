@@ -68,3 +68,29 @@ def export_yearly_frequency(output: Path) -> tuple[int, list[str]]:
         ["station", "year", "season", "variable", "bin_lower_value"]
     )[columns]
     return write_csv(table, output / "weather_yearly.csv"), columns
+
+
+def export_temperature_frequency(output: Path) -> tuple[int, list[str]]:
+    """Export the combined station-year-season temperature counts."""
+    source = read_table(ROOT / "weather/temperature_frequency.csv")
+    source = source.rename(columns={"bin_lower_value": "bin_lower_c"})
+    columns = [
+        "station", "year", "season", "bin_label", "bin_lower_c", "measurement_count",
+        "total_measurements_in_period", "frequency_pct",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(
+            f"Temperature frequency data are missing columns: {sorted(missing)}"
+        )
+    table = source[columns].sort_values(
+        ["station", "year", "season", "bin_lower_c"]
+    )
+    return write_csv(table, output / "temperature_frequency.csv"), columns
+
+
+def export_weather_source_audit(output: Path) -> tuple[int, list[str]]:
+    """Export the file-level audit created while combining official weather."""
+    source = read_table(Path("data/raw/weather/weather_10min_raw_audit.csv"))
+    columns = list(source.columns)
+    return write_csv(source, output / "weather_source_audit.csv"), columns

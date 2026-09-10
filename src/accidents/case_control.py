@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-
 DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
 DEFAULT_OUTPUT = Path("data/processed/accidents/case_control.csv")

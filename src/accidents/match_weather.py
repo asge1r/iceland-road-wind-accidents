@@ -40,6 +40,7 @@ OUTPUT_COLUMNS = [
     "vehicle_count", "registered_road_section", "weather_station_id",
     "weather_station_dist_km", "weather_time_difference_minutes", "f", "fg",
     "temp_station_id", "temp_distance_km", "temp_time_diff_min", "temperature_c",
+    "temp_source",
     "within_20km", "wind_available",
 ]
 
@@ -190,7 +191,7 @@ def read_candidate_weather(
 
 def select_best(candidates: pd.DataFrame, weather: pd.DataFrame) -> pd.DataFrame:
     available = candidates.merge(
-        weather,
+        weather[weather["f"].notna() & weather["fg"].notna()],
         on=["weather_station_id", "weather_time"],
         how="inner",
         validate="many_to_one",
@@ -248,6 +249,7 @@ def select_best_temperature(
             "weather_station_dist_km",
             "weather_time_difference_minutes",
             "t",
+            "temp_source",
         ]
     ].rename(
         columns={
@@ -379,7 +381,12 @@ def main() -> None:
 
     candidates, has_station_within_30 = build_candidates(accidents, stations)
     weather = read_candidate_weather(weather_file, candidates)
-    best = select_best(candidates, weather)
+    weather["temp_source"] = np.where(
+        weather["t"].notna(), "official_weather_delivery", pd.NA
+    )
+    best = select_best(candidates, weather).drop(
+        columns=["temp_source"], errors="ignore"
+    )
     best_temperature = select_best_temperature(candidates, weather)
     output = assemble_output(
         accidents, stations, best, best_temperature, has_station_within_30

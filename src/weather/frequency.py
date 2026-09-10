@@ -14,6 +14,9 @@ DEFAULT_INPUT = Path("data/processed/weather/weather.parquet")
 DEFAULT_OUTPUT = Path("data/processed/weather/frequency.csv")
 DEFAULT_YEARLY_OUTPUT = Path("data/processed/weather/yearly_frequency.csv")
 DEFAULT_TRAFFIC_OUTPUT = Path("data/processed/weather/traffic_frequency.csv")
+DEFAULT_TEMPERATURE_OUTPUT = Path(
+    "data/processed/weather/temperature_frequency.csv"
+)
 FIRST_YEAR = 2007
 LAST_YEAR = 2025
 SEASONS = np.array(["Winter", "Spring", "Summer", "Fall"])
@@ -200,6 +203,10 @@ def main() -> None:
         "-t", "--traffic-output", type=Path, default=DEFAULT_TRAFFIC_OUTPUT
     )
     parser.add_argument("-m", "--max-row-groups", type=int)
+    parser.add_argument(
+        "--temperature-output", type=Path,
+        default=DEFAULT_TEMPERATURE_OUTPUT,
+    )
     args = parser.parse_args()
     started = time.perf_counter()
     parquet_file = pq.ParquetFile(args.input)
@@ -209,6 +216,10 @@ def main() -> None:
     stations = station_ids(parquet_file, row_groups)
     arrays = accumulate(parquet_file, row_groups, stations)
     yearly = make_yearly_table(stations, *arrays[:-1])
+    args.temperature_output.parent.mkdir(parents=True, exist_ok=True)
+    yearly[yearly["variable"].eq("temperature")].to_csv(
+        args.temperature_output, index=False
+    )
     pooled = make_pooled_table(yearly)
     for path in [args.output, args.yearly_output, args.traffic_output]:
         path.parent.mkdir(parents=True, exist_ok=True)

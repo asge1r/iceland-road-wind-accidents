@@ -9,7 +9,7 @@ small results. Raw and processed data remain on each researcher's computer.
 | Data family | Provider | Local directory | Contents used |
 |---|---|---|---|
 | Accidents | Icelandic Transport Authority / national accident register | `data/raw/accidents/` | Accident time, coordinates, injury code, accident type, vehicle count, and road link. |
-| Weather | [Icelandic Met Office API](https://api.vedur.is/weather/observations/aws/raw/10min) | `data/raw/weather/` | Ten-minute station, time, mean wind (`f`), reported wind gust (`fg`), and temperature (`t`). |
+| Weather | [Icelandic Met Office supplied extract](http://brunnur.vedur.is/pub/arason/asgeir/) | `data/raw/weather/` | Ten-minute station, time, mean wind (`f`), reported wind gust (`fg`), and temperature (`t`) from the complete `f`, `fj`, and `fv` station-file delivery. |
 | Annual traffic | [Icelandic Road and Coastal Administration](https://www.vegagerdin.is/vegakerfid/umferd-og-slys/umferd) | `data/raw/traffic/annual/` | Road section, start/end station, length, ADU, SDU, VDU, and vehicle-kilometres. |
 | Daily traffic | Icelandic Road and Coastal Administration counter PDFs | `data/raw/traffic/daily_pdf/` | Date, road section, reported station (`stöð`), direction/lane channel, and daily count. |
 | Road geography | [Road Administration MapServer](https://vegasja.vegagerdin.is/arcgis/rest/services/data/vegakerfi/MapServer) | `data/raw/traffic/reference/` | Road geometry and official start/end stations. |
@@ -25,7 +25,10 @@ not committed because it is derived from authorised local data deliveries.
 |---|---|---|
 | `analysis/accidents.csv` | One rural injury accident | `id`, time, coordinates, outcome fields, road section, hour, weekday, study season, and VDU/SDU/VHDU traffic period. |
 | `analysis/accident_conditions.csv` | One rural injury accident | Independent wind and temperature matches, match distances and time differences, solar elevation, and estimated daylight class. |
+| `analysis/temperature_matches.csv` | One rural injury accident | Selected temperature, station, distance, time difference, and source. |
 | `analysis/weather_frequency.csv` | Station, season, variable, and interval | Tidy wind and temperature counts pooled across 2007--2025. `unit` distinguishes m/s and degrees Celsius. |
+| `analysis/temperature_frequency.csv` | Station, year, season, and temperature interval | Directly inspectable temperature denominator counts. |
+| `analysis/weather_source_audit.csv` | Official source file | File hash, row checks, station, and date coverage. |
 | `analysis/weather_cleaning.csv` | Year and total | Counts retained and excluded by each fixed weather-quality rule. |
 | `analysis/case_control.csv` | Accident or matched control time | Same-station, same-hour, same-weekday mean-wind, gust, and temperature samples within month and year. |
 | `analysis/annual_traffic.csv` | Road section and year | road section, length, ADU, SDU, and VDU. |

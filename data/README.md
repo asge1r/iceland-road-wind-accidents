@@ -11,8 +11,8 @@ intermediate preparation files to `data/processed/` and the named, readable anal
 |---|---|---|
 | Accident register | `raw/accidents/accidents_2007_2024.txt`; `accidents_2025.txt`; `road_links_2007_2025.csv`; `vehicles_2007_2024.txt`; `vehicles_2025.txt` | `src/accidents/build.py` |
 | Urban boundaries | `raw/accidents/urban_boundaries_2020_2024.geojson` | `src/accidents/build.py` |
-| Ten-minute weather | `raw/weather/weather_10min_raw.parquet` | `src/weather/clean.py` |
-| Station reference | `raw/weather/stations.csv` | Weather and traffic matching scripts |
+| Ten-minute weather | Official `stod.txt`, `f_*.txt`, `fj_*.txt`, and `fv_*.txt` files in `raw/weather/supplied/` | `src/weather/download_weather.py`, then `src/weather/clean.py` |
+| Station reference | `raw/weather/supplied/stod.txt`, exported to `raw/weather/stations.csv` | `src/weather/download_weather.py`, then weather and traffic matching scripts |
 | Annual traffic | `raw/traffic/annual/*.xls` and `*.xlsx` | `src/traffic/annual.py` |
 | Road-section midpoints | `raw/traffic/reference/road_section_midpoints.csv` | `src/traffic/build_road_period.py` |
 | Road geometry fallback | `raw/traffic/reference/road_sections.parquet` | `src/traffic/build_road_period.py`, only when a required midpoint is absent |
@@ -30,6 +30,19 @@ placement.
 .venv/bin/python -m src.analyze
 ```
 
+To retrieve or refresh the complete official weather delivery, run:
+
+```bash
+.venv/bin/python -m src.weather.download_weather
+.venv/bin/python -m src.weather.clean
+.venv/bin/python -m src.accidents.match_weather
+```
+
+The downloader retains all listed station files, combines study-period rows in
+one raw Parquet file, and writes a file-level audit. The `f_` and `fj_` files
+for one station are complementary; in the current delivery the `fj_` records
+are all earlier than 2007. Raw and processed weather data remain local.
+
 Add daily traffic only when its PDF deliveries are present:
 
 ```bash
@@ -46,6 +59,8 @@ CSV files and creates tables and figures. If daily PDFs are absent,
 Use `data/analysis/` for normal work:
 
 - `accidents.csv`, `accident_conditions.csv`, and `weather_frequency.csv` for O/E results;
+- `temperature_matches.csv` and `temperature_frequency.csv` for direct
+  inspection of the independent temperature match and denominator;
 - `case_control.csv` for the time-stratified conditional logistic models;
 - `road_rate.csv`, `road_seasons.csv`, and
   `road_exposure.csv` for annual-traffic results;

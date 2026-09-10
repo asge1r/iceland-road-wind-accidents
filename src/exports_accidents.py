@@ -34,6 +34,7 @@ def export_accident_tables(output: Path) -> list[tuple[str, int, list[str], str]
         "id", "weather_station_id", "weather_station_dist_km",
         "weather_time_difference_minutes", "f", "fg",
         "temp_station_id", "temp_distance_km", "temp_time_diff_min", "temperature_c",
+        "temp_source",
         "solar_elevation_deg", "daylight_class",
     ]
     event_table = source[events].rename(columns={"registered_road_section": "road_section"})
@@ -90,3 +91,17 @@ def export_case_control(output: Path) -> tuple[int, list[str]]:
     if not source["case"].isin([0, 1]).all():
         raise ValueError("Case-crossover case indicator must contain only zero and one")
     return write_csv(source[columns], output / "case_control.csv"), columns
+
+
+def export_temperature_matches(output: Path) -> tuple[int, list[str]]:
+    """Export the one-row-per-accident temperature match for direct inspection."""
+    source = read_table(ROOT / "accidents/rural_injury.csv")
+    columns = [
+        "id", "timestamp", "temp_station_id", "temp_distance_km",
+        "temp_time_diff_min", "temperature_c", "temp_source",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Temperature matches are missing columns: {sorted(missing)}")
+    table = source[columns].sort_values(["timestamp", "id"])
+    return write_csv(table, output / "temperature_matches.csv"), columns

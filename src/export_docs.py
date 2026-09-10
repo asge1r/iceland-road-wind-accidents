@@ -24,8 +24,11 @@ they can be opened and checked directly. Do not edit them by hand.
 
 - `accidents.csv`: the {period} rural injury-accident events, outcomes, locations, and calendar classifications.
 - `accident_conditions.csv`: independently matched wind and temperature plus estimated astronomical daylight at each accident time.
+- `temperature_matches.csv`: one row per accident with temperature, station, distance, time difference, and source.
 - `weather_frequency.csv`: pooled 2007–2025 station-season wind and temperature counts. `f` and `fg` are in m/s and temperature is in degrees Celsius.
 - `weather_yearly.csv`: station-year-season mean-wind and temperature counts used only for the year-adjusted O/E comparison.
+- `temperature_frequency.csv`: inspectable station-year-season temperature counts from the clean official weather file.
+- `weather_source_audit.csv`: source-file hashes, row checks, and date coverage for the official delivery.
 - `weather_cleaning.csv`: annual and total counts from the fixed weather-quality rules.
 - `case_control.csv`: accident times and same-hour, same-weekday control times for mean wind, gust, and temperature models.
 - `annual_traffic.csv`: annual road-section traffic values (ADU, SDU and VDU).
