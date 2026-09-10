@@ -14,6 +14,7 @@ from src.tables.counter_rate import ACCIDENTS, DAILY, require_columns
 MATCHES = Path("data/analysis/counter_wind.csv")
 OUTPUT = Path("reports/working/tables/daily_season_panel.csv")
 LABELS = ["0-10", "10-15", ">=15"]
+EDGES = [0, 10, 15, np.inf]
 SEASONS = ["Winter", "Spring", "Summer", "Fall"]
 COUNT_COLUMNS = {
     "0-10": ["f_full_bin_0_5_count", "f_full_bin_5_10_count"],
@@ -23,6 +24,16 @@ COUNT_COLUMNS = {
         "f_full_bin_20_25_count",
         "f_full_bin_ge25_count",
     ],
+}
+FINE_LABELS = ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"]
+FINE_EDGES = [0, 5, 10, 15, 20, 25, np.inf]
+FINE_COUNT_COLUMNS = {
+    "0-5": ["f_full_bin_0_5_count"],
+    "5-10": ["f_full_bin_5_10_count"],
+    "10-15": ["f_full_bin_10_15_count"],
+    "15-20": ["f_full_bin_15_20_count"],
+    "20-25": ["f_full_bin_20_25_count"],
+    ">=25": ["f_full_bin_ge25_count"],
 }
 
 
@@ -42,6 +53,9 @@ def build_panel(
     matches_path: Path,
     daily_path: Path,
     max_distance_km: float,
+    labels: list[str] = LABELS,
+    edges: list[float] = EDGES,
+    count_columns: dict[str, list[str]] = COUNT_COLUMNS,
 ) -> pd.DataFrame:
     """Return one row per counter, year, season and wind category."""
     accidents = pd.read_csv(accidents_path)
@@ -59,7 +73,9 @@ def build_panel(
         },
         "Daily accident-weather input",
     )
-    all_bin_columns = [column for columns in COUNT_COLUMNS.values() for column in columns]
+    if len(edges) != len(labels) + 1 or set(labels) != set(count_columns):
+        raise ValueError("Wind-bin labels, edges, and count columns disagree")
+    all_bin_columns = [column for columns in count_columns.values() for column in columns]
     require_columns(
         daily,
         {"date", "counter_id", "traffic", "weather_station_id",
@@ -104,7 +120,7 @@ def build_panel(
 
     events = events[events["f"].between(0, 45, inclusive="left")].copy()
     events["wind_bin"] = pd.cut(
-        events["f"], [0, 10, 15, np.inf], labels=LABELS,
+        events["f"], edges, labels=labels,
         right=False, include_lowest=True,
     ).astype("string")
     if not events["season"].astype("string").eq(
@@ -118,7 +134,7 @@ def build_panel(
     ).agg(observed_accidents=("id", "nunique"))
 
     exposure_rows: list[pd.DataFrame] = []
-    for label, columns in COUNT_COLUMNS.items():
+    for label, columns in count_columns.items():
         frame = valid_daily[
             ["counter_id", "year", "date", "season", "traffic",
              "full_observation_count"]
@@ -166,7 +182,7 @@ def build_panel(
     has_accident = panel.groupby("stratum")["observed_accidents"].transform("sum").gt(0)
     panel = panel[has_accident].copy()
     panel["season"] = pd.Categorical(panel["season"], SEASONS, ordered=True)
-    panel["wind_bin"] = pd.Categorical(panel["wind_bin"], LABELS, ordered=True)
+    panel["wind_bin"] = pd.Categorical(panel["wind_bin"], labels, ordered=True)
     return panel.sort_values(["season", "counter_id", "year", "wind_bin"]).reset_index(drop=True)
 
 

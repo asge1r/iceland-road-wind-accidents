@@ -10,38 +10,34 @@
 \toprule
 Analysis stage & Main input & Main output & Purpose \\
 \midrule
-Primary weather O/E &
-\path{accidents.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{weather_frequency.csv} &
-\emph{\path{tables/}}\newline{}\path{oe_results.csv}\newline{}\path{wind_oe_comparison.csv}\newline{}\emph{\path{figures/}}\newline{}weather and traffic O/E &
-Compares accident conditions with local weather frequency and traffic-based checks. \\ \grayhline
-Matched-time analysis &
-\path{case_control.csv} &
-\emph{\path{tables/}}\newline{}\path{matched_weather.csv}\newline{}\path{weather_model.csv}\newline{}\path{wind_season.csv}\newline{}\emph{\path{figures/}}\newline{}matched estimates &
-Compares accident times with matched non-accident times. \\ \grayhline
-Annual traffic models &
-\path{road_rate.csv}\newline{}\path{road_temperature.csv}\newline{}\path{road_seasons.csv} &
-\emph{\path{tables/}}\newline{}annual and seasonal rate ratios\newline{}\emph{\path{figures/}}\newline{}traffic-model estimates &
-Estimates rates using annual traffic and road length. \\ \grayhline
-Daily traffic response &
-\path{daily_traffic.csv} &
-\emph{\path{tables/}}\newline{}\path{traffic_wind.csv}\newline{}\path{traffic_period.csv}\newline{}\path{wind_duration.csv}\newline{}\emph{\path{figures/}}\newline{}daily-traffic checks &
-Describes how daily traffic changes with wind. \\ \grayhline
-Daily traffic allocation &
-\path{accidents.csv}\newline{}\path{counter_wind.csv}\newline{}\path{daily_traffic.csv} &
-\emph{\path{tables/}}\newline{}\path{allocated_rate*.csv}\newline{}\emph{\path{figures/}}\newline{}\path{allocated_rate.png} &
-Allocates daily traffic among wind intervals and estimates accident rates. \\ \grayhline
-Seasonal daily traffic &
-\path{accidents.csv}\newline{}\path{counter_wind.csv}\newline{}\path{daily_traffic.csv} &
-\path{working/tables/daily_season_panel.csv}\newline{}\emph{\path{tables/}}\newline{}\path{daily_season_oe.csv}\newline{}\emph{\path{working/tables/}}\newline{}seasonal models and interaction tests\newline{}\emph{\path{figures/}}\newline{}\path{daily_season_oe.png} &
-Supplies one shared panel for seasonal estimates and interaction tests. \\ \grayhline
-Severity and context &
-\path{accidents.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{case_control.csv} &
-\emph{\path{tables/}}\newline{}\path{severity_conditions.csv}\newline{}\path{daylight.csv}\newline{}\path{wind_profile.csv}\newline{}\emph{\path{figures/}}\newline{}context summaries &
-Examines severity, daylight and strong-wind accident characteristics. \\ \grayhline
+Accident data preparation &
+Source accident, road-link and urban-area files &
+\path{accidents.csv} &
+Selects rural injury accidents and keeps traceable source IDs. \\ \grayhline
+Weather preparation and matching &
+Ten-minute weather and station files\newline{}\path{accidents.csv} &
+\path{weather_frequency.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{case_control.csv} &
+Cleans weather and links accident and control times. \\ \grayhline
+Weather-frequency analysis &
+\path{accident_conditions.csv}\newline{}\path{weather_frequency.csv} &
+\path{oe_results.csv}\newline{}\path{weather_oe_panels.csv}\newline{}three five-panel figures &
+Compares accident shares with local weather-time shares. \\ \grayhline
+Traffic data preparation &
+Annual road traffic, road geometry and daily counters &
+\path{road_rate.csv}\newline{}\path{daily_traffic.csv}\newline{}\path{counter_wind.csv} &
+Makes linked annual and daily traffic inputs. \\ \grayhline
+Traffic-adjusted wind analysis &
+Prepared traffic inputs\newline{}\path{accidents.csv} &
+annual rate results\newline{}\path{daily_season_panel.csv}\newline{}daily and seasonal estimates &
+Estimates rates using annual traffic and allocated daily vehicles. \\ \grayhline
+Supporting analyses &
+\path{case_control.csv}\newline{}weather and traffic analysis files &
+matched-time, daylight, severity and traffic-response results &
+Checks and helps interpret the main comparisons. \\ \grayhline
 Validation and thesis products &
-Analysis CSVs and retained results\newline{}\path{docs/pipeline.md} &
-\emph{\path{tables/}}\newline{}\path{validation.md}\newline{}\emph{\path{thesis/generated/}}\newline{}\path{*.tex}\newline{}\path{pipeline_*.tex} &
-Checks results and generates thesis tables. \\
+Analysis CSVs\newline{}\path{docs/pipeline.md} &
+validation report\newline{}thesis tables and figures &
+Checks numbers and builds reported products. \\
 \bottomrule
 \end{tabularx}
 \end{table}
