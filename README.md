@@ -73,8 +73,9 @@ For a focused rebuild, select one or more named analysis stages. This avoids
 rerunning unrelated 5,000-replicate bootstrap calculations:
 
 ```bash
-.venv/bin/python -m src.analyze --stage primary-weather
-.venv/bin/python -m src.analyze --stage daily-traffic --stage products
+.venv/bin/python -m src.analyze --stage weather-frequency
+.venv/bin/python -m src.analyze --stage traffic-adjusted --stage products
+.venv/bin/python -m src.analyze --stage supporting --stage products
 ```
 
 The available stages and their exact scripts are documented in

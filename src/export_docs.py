@@ -41,6 +41,7 @@ they can be opened and checked directly. Do not edit them by hand.
 - `counter_locations.csv`: one geometry-interpolated location per counter-site year for the selected-counter analyses.
 - `counter_wind.csv`: accident-time mean wind from the same station used for the assigned counter-day.
 - `counter_check.csv`: independent comparison of estimated counter locations with official 20 m road-station points.
+- `daily_season_panel.csv`: canonical counter-year-season input derived during analysis when optional daily-counter data are available.
 - {daily_text}
 - `manifest.csv`: row counts, columns, and a short description of each analysis file.
 """
@@ -55,3 +56,26 @@ def write_manifest(
     )
     manifest["columns"] = manifest["columns"].str.join(", ")
     manifest.to_csv(output / "manifest.csv", index=False)
+
+
+def register_manifest_file(output: Path, filename: str, description: str) -> None:
+    """Add or refresh one analysis-stage intermediate in the manifest."""
+    path = output / filename
+    manifest_path = output / "manifest.csv"
+    if not path.exists() or not manifest_path.exists():
+        return
+    data = pd.read_csv(path)
+    manifest = pd.read_csv(manifest_path)
+    row = pd.DataFrame(
+        [{
+            "file": filename,
+            "records": len(data),
+            "columns": ", ".join(data.columns),
+            "description": description,
+        }]
+    )
+    manifest = pd.concat(
+        [manifest[~manifest["file"].eq(filename)], row], ignore_index=True
+    )
+    manifest.loc[manifest["file"].eq("manifest.csv"), "records"] = len(manifest)
+    manifest.to_csv(manifest_path, index=False)

@@ -13,7 +13,7 @@ from src.tables.rate import prepare_data
 
 WEATHER = Path("reports/main/tables/oe_results.csv")
 ANNUAL = Path("data/analysis/road_rate.csv")
-DAILY = Path("reports/working/tables/daily_season_panel.csv")
+DAILY = Path("data/analysis/daily_season_panel.csv")
 OUTPUT = Path("reports/main/tables/wind_oe_comparison.csv")
 STANDARD_BINS = ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"]
 DAILY_BINS = ["0-10", "10-15", ">=15"]

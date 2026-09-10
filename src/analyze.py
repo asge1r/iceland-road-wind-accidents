@@ -24,14 +24,23 @@ class Task:
 
 STAGE_ORDER = (
     "workflow",
+    "weather-frequency",
+    "traffic-adjusted",
+    "supporting",
+    "products",
+)
+
+# Keep the former, narrower names as compatibility aliases for focused rebuilds.
+# They are implementation details rather than the public research workflow.
+LEGACY_STAGES = (
     "primary-weather",
     "annual-traffic",
     "daily-traffic",
     "sample-description",
     "matched-time",
     "severity-context",
-    "products",
 )
+AVAILABLE_STAGES = (*STAGE_ORDER, *LEGACY_STAGES)
 
 
 def task(module: str, *arguments: str) -> Task:
@@ -213,6 +222,21 @@ def stage_tasks(
     """Return tasks in reproducible dependency order for one stage."""
     if stage == "workflow":
         return [task("src.tables.pipeline")]
+    if stage == "weather-frequency":
+        return primary_weather_tasks(bootstrap_reps)
+    if stage == "traffic-adjusted":
+        return [
+            *annual_traffic_tasks(),
+            *(daily_traffic_tasks(bootstrap_reps) if include_daily else []),
+        ]
+    if stage == "supporting":
+        return [
+            *sample_description_tasks(),
+            *matched_time_tasks(),
+            *severity_context_tasks(),
+        ]
+    # Backward-compatible focused stages. These deliberately map to the same
+    # task builders used by the three thesis-facing analysis stages above.
     if stage == "primary-weather":
         return primary_weather_tasks(bootstrap_reps)
     if stage == "annual-traffic":
@@ -247,8 +271,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-b", "--bootstrap-reps", type=int, default=5000)
     parser.add_argument(
-        "-s", "--stage", action="append", choices=STAGE_ORDER,
-        help="Run only this stage; repeat the option for several stages.",
+        "-s", "--stage", action="append", choices=AVAILABLE_STAGES,
+        help=(
+            "Run one research stage; repeat for several stages. Former narrow "
+            "stage names remain available as compatibility aliases."
+        ),
     )
     parser.add_argument(
         "-D", "--skip-daily-traffic", action="store_true",
@@ -265,15 +292,17 @@ def main() -> None:
     stages = list(dict.fromkeys(args.stage or STAGE_ORDER))
     daily_path = Path("data/analysis/daily_traffic.csv")
     include_daily = not args.skip_daily_traffic and daily_path.exists()
-    if "daily-traffic" in stages and not include_daily:
+    if ({"daily-traffic", "traffic-adjusted"} & set(stages)) and not include_daily:
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
-        print(f"Skipping daily-traffic stage: {reason}.", flush=True)
-    for stage in STAGE_ORDER:
-        if stage not in stages:
-            continue
+        print(f"Skipping optional daily-traffic tasks: {reason}.", flush=True)
+    completed: set[Task] = set()
+    for stage in stages:
         print(f"\nAnalysis stage: {stage}", flush=True)
         for selected in stage_tasks(stage, args.bootstrap_reps, include_daily):
+            if selected in completed:
+                continue
             run(selected, dry_run=args.dry_run)
+            completed.add(selected)
 
 
 if __name__ == "__main__":

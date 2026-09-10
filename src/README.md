@@ -18,8 +18,10 @@ The folders below contain the small steps called by the entry points:
 - `accidents/`: build the accident table and attach weather.
 - `weather/`: clean wind measurements and calculate local wind frequency.
 - `traffic/`: read annual and optional daily traffic data.
-- `analysis/`: prepare station-season rows for O/E; `oe_analysis.py` holds the one
-  shared wind, gust, and temperature calculation without reading or writing files.
+- `analysis/`: shared calculations without command-line or file-output code.
+  `oe_analysis.py` contains wind, gust, and temperature O/E; `traffic_daily.py`
+  contains the seasonal daily-traffic models, with panel construction and the
+  reusable rate fit in `traffic_daily_panel.py` and `traffic_rate.py`.
 - `tables/`: calculate numerical results from the analysis CSVs.
 - `figures/`: create data-flow and descriptive figures.
 - `validation/`: check data contracts, sample counts, and reported results.
@@ -32,14 +34,17 @@ Every script called by `src.analyze` reads `data/analysis/*.csv` or small CSV
 results produced earlier in that same run. Optional source checks for daily
 traffic are kept outside these entry points.
 
-`src.analyze` is divided into named stages. Run it without `--stage` for the
-complete result set, or repeat `--stage` to rebuild only affected parts:
+`src.analyze` exposes the same three analytical stages as the thesis. Run it
+without `--stage` for the complete result set, or repeat `--stage` to rebuild
+only affected parts:
 
 ```bash
-python -m src.analyze --stage primary-weather
-python -m src.analyze --stage annual-traffic --stage products
-python -m src.analyze --stage daily-traffic --stage products
+python -m src.analyze --stage weather-frequency
+python -m src.analyze --stage traffic-adjusted --stage products
+python -m src.analyze --stage supporting --stage products
 ```
 
 Within a stage, numerical table scripts run before figure scripts. The
 `products` stage validates the retained results and generates thesis tables.
+The former narrow stage names, such as `primary-weather` and `daily-traffic`,
+remain available for focused rebuilds but are not the public workflow.

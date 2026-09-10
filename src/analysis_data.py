@@ -6,7 +6,7 @@ import argparse
 from pathlib import Path
 
 from src.export_common import ROOT, season_from_month, traffic_period_from_month
-from src.export_docs import write_manifest, write_readme
+from src.export_docs import register_manifest_file, write_manifest, write_readme
 from src.exports_accidents import (
     export_accident_tables,
     export_case_control,
@@ -132,6 +132,11 @@ def main() -> None:
         )
     )
     write_manifest(args.output, entries)
+    register_manifest_file(
+        args.output,
+        "daily_season_panel.csv",
+        "Canonical counter-year-season input for seasonal allocated-traffic analyses.",
+    )
     print(f"Wrote {len(entries)} analysis-layer files to {args.output}")
 
 

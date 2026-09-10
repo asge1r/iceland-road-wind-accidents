@@ -7,6 +7,16 @@ class AnalysisPipelineTest(unittest.TestCase):
     def test_complete_stage_order_ends_with_products(self) -> None:
         self.assertEqual(STAGE_ORDER[0], "workflow")
         self.assertEqual(STAGE_ORDER[-1], "products")
+        self.assertEqual(
+            STAGE_ORDER,
+            (
+                "workflow",
+                "weather-frequency",
+                "traffic-adjusted",
+                "supporting",
+                "products",
+            ),
+        )
 
     def test_seasonal_daily_tasks_share_one_panel(self) -> None:
         modules = [task.module for task in stage_tasks("daily-traffic", 5000, True)]
@@ -29,6 +39,14 @@ class AnalysisPipelineTest(unittest.TestCase):
 
     def test_daily_stage_can_be_disabled(self) -> None:
         self.assertEqual(stage_tasks("daily-traffic", 5000, False), [])
+
+    def test_public_traffic_stage_keeps_annual_tasks_without_daily_data(self) -> None:
+        modules = [
+            selected.module
+            for selected in stage_tasks("traffic-adjusted", 5000, False)
+        ]
+        self.assertIn("src.tables.annual_quality", modules)
+        self.assertNotIn("src.tables.daily_season_panel", modules)
 
 
 if __name__ == "__main__":

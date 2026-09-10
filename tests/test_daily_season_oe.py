@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.tables.daily_season_oe import calculate
+from src.analysis.traffic_daily import calculate_seasonal_oe
 
 
 class DailySeasonOETests(unittest.TestCase):
@@ -25,7 +25,7 @@ class DailySeasonOETests(unittest.TestCase):
                         "allocated_vehicles": vehicles,
                     }
                 )
-        result = calculate(pd.DataFrame(rows), replicates=100, seed=12)
+        result = calculate_seasonal_oe(pd.DataFrame(rows), replicates=100, seed=12)
         totals = result.groupby("season", observed=True).agg(
             observed=("observed_accidents", "sum"),
             expected=("traffic_expected_accidents", "sum"),
