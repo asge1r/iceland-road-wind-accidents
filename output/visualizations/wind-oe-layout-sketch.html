@@ -1,0 +1,271 @@
+<div id="wind-oe-layout-sketch">
+  <h2>Mean-wind O/E: proposed five-panel figure</h2>
+  <div class="viz-row sketch-legend" aria-label="Outcome series">
+    <button type="button" class="series-toggle" data-series="injury" aria-pressed="true">
+      <span class="legend-mark injury-mark"></span>All injury accidents
+    </button>
+    <button type="button" class="series-toggle" data-series="serious" aria-pressed="true">
+      <span class="legend-mark serious-mark"></span>Serious/fatal subset
+    </button>
+  </div>
+  <div class="panel-grid">
+    <section class="plot-panel primary-panel" data-period="All year">
+      <h3>All year</h3>
+      <p class="panel-sample">All injuries N = … · Serious/fatal N = …</p>
+      <svg role="img" aria-label="All-year observed to expected accident ratios by mean-wind interval"></svg>
+    </section>
+    <section class="plot-panel" data-period="Winter">
+      <h3>Winter</h3>
+      <p class="panel-sample">N = … · N = …</p>
+      <svg role="img" aria-label="Winter observed to expected accident ratios by mean-wind interval"></svg>
+    </section>
+    <section class="plot-panel" data-period="Spring">
+      <h3>Spring</h3>
+      <p class="panel-sample">N = … · N = …</p>
+      <svg role="img" aria-label="Spring observed to expected accident ratios by mean-wind interval"></svg>
+    </section>
+    <section class="plot-panel" data-period="Summer">
+      <h3>Summer</h3>
+      <p class="panel-sample">N = … · N = …</p>
+      <svg role="img" aria-label="Summer observed to expected accident ratios by mean-wind interval"></svg>
+    </section>
+    <section class="plot-panel" data-period="Autumn">
+      <h3>Autumn</h3>
+      <p class="panel-sample">N = … · N = …</p>
+      <svg role="img" aria-label="Autumn observed to expected accident ratios by mean-wind interval"></svg>
+    </section>
+  </div>
+  <p class="sketch-note">Layout sketch only — dots are O/E estimates, vertical whiskers are 95% intervals, and the dashed line marks O/E = 1.</p>
+</div>
+
+<style>
+  #wind-oe-layout-sketch {
+    width: 100%;
+    color: var(--foreground);
+  }
+  #wind-oe-layout-sketch h2 {
+    margin: 0 0 0.35rem;
+    text-align: center;
+  }
+  #wind-oe-layout-sketch .sketch-legend {
+    justify-content: center;
+    margin-bottom: 0.6rem;
+  }
+  #wind-oe-layout-sketch .series-toggle {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+    padding: 0.25rem 0.45rem;
+  }
+  #wind-oe-layout-sketch .series-toggle[aria-pressed="false"] {
+    opacity: 0.42;
+  }
+  #wind-oe-layout-sketch .legend-mark {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-right: 0.3rem;
+    vertical-align: -0.03rem;
+  }
+  #wind-oe-layout-sketch .injury-mark {
+    border-radius: 50%;
+    background: var(--viz-series-1);
+  }
+  #wind-oe-layout-sketch .serious-mark {
+    box-sizing: border-box;
+    border: 2px solid var(--viz-series-2);
+    background: transparent;
+  }
+  #wind-oe-layout-sketch .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem 0.9rem;
+  }
+  #wind-oe-layout-sketch .plot-panel {
+    min-width: 0;
+  }
+  #wind-oe-layout-sketch .primary-panel {
+    grid-column: 1 / -1;
+  }
+  #wind-oe-layout-sketch h3 {
+    margin: 0;
+    text-align: center;
+  }
+  #wind-oe-layout-sketch .panel-sample {
+    margin: 0.05rem 0 0;
+    color: var(--muted-foreground);
+    text-align: center;
+  }
+  #wind-oe-layout-sketch svg {
+    display: block;
+    width: 100%;
+    min-height: 215px;
+  }
+  #wind-oe-layout-sketch .primary-panel svg {
+    min-height: 245px;
+  }
+  #wind-oe-layout-sketch svg text {
+    fill: var(--foreground);
+    font-size: 12px;
+  }
+  #wind-oe-layout-sketch .axis-title {
+    fill: var(--foreground);
+  }
+  #wind-oe-layout-sketch .frame,
+  #wind-oe-layout-sketch .axis-line {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  #wind-oe-layout-sketch .grid-line {
+    stroke: var(--border);
+    stroke-width: 1;
+    opacity: 0.45;
+  }
+  #wind-oe-layout-sketch .reference-line {
+    stroke: var(--foreground);
+    stroke-width: 1;
+    stroke-dasharray: 5 4;
+    opacity: 0.75;
+  }
+  #wind-oe-layout-sketch .injury-series {
+    color: var(--viz-series-1);
+  }
+  #wind-oe-layout-sketch .serious-series {
+    color: var(--viz-series-2);
+  }
+  #wind-oe-layout-sketch .whisker {
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  #wind-oe-layout-sketch .injury-point {
+    fill: currentColor;
+  }
+  #wind-oe-layout-sketch .serious-point {
+    fill: var(--background);
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  #wind-oe-layout-sketch .series-hidden {
+    display: none;
+  }
+  #wind-oe-layout-sketch .sketch-note {
+    margin: 0.55rem 0 0;
+    color: var(--muted-foreground);
+    text-align: center;
+  }
+  @media (max-width: 560px) {
+    #wind-oe-layout-sketch .panel-grid {
+      grid-template-columns: 1fr;
+    }
+    #wind-oe-layout-sketch .primary-panel {
+      grid-column: auto;
+    }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>
+(() => {
+  const root = document.getElementById("wind-oe-layout-sketch");
+  const bins = ["0–5", "5–10", "10–15", "15–20", "20–25", "≥25"];
+  const patterns = {
+    "All year": { injury: [0.95, 1.02, 1.02, 1.42, 2.11, 2.49], serious: [0.96, 1.02, 1.00, 1.44, 1.84, 2.23] },
+    "Winter":   { injury: [0.96, 0.95, 1.06, 1.38, 1.84, 1.06], serious: [0.99, 1.00, 0.91, 1.41, 0.97, 0.25] },
+    "Spring":   { injury: [0.90, 1.08, 0.99, 1.68, 2.35, 2.75], serious: [0.91, 1.03, 1.24, 0.82, 2.05, 2.45] },
+    "Summer":   { injury: [0.92, 1.13, 1.03, 1.85, 1.20, 2.45], serious: [0.92, 1.09, 1.09, 2.13, 0.88, 2.20] },
+    "Autumn":   { injury: [1.03, 0.93, 0.94, 1.11, 2.45, 2.41], serious: [1.10, 0.83, 0.84, 1.12, 2.60, 2.70] }
+  };
+
+  function draw(panel) {
+    const width = Math.max(320, panel.getBoundingClientRect().width);
+    const primary = panel.classList.contains("primary-panel");
+    const height = primary ? 245 : 215;
+    const margin = { top: 10, right: 16, bottom: 50, left: 58 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const period = panel.dataset.period;
+    const svg = d3.select(panel).select("svg");
+    svg.selectAll("*").remove();
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
+    svg.append("title").text(`${period} mean-wind observed-to-expected layout`);
+    svg.append("desc").text("Two offset outcome series with confidence intervals and a reference line at one.");
+    const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    const x = d3.scalePoint().domain(bins).range([12, innerWidth - 12]).padding(0.35);
+    const y = d3.scaleLinear().domain([0, 3]).range([innerHeight, 0]);
+
+    [0, 1, 2, 3].forEach(value => {
+      chart.append("line")
+        .attr("class", value === 1 ? "reference-line" : "grid-line")
+        .attr("x1", 0).attr("x2", innerWidth)
+        .attr("y1", y(value)).attr("y2", y(value));
+      chart.append("text")
+        .attr("x", -10).attr("y", y(value) + 4)
+        .attr("text-anchor", "end").text(value);
+    });
+    chart.append("rect")
+      .attr("class", "frame")
+      .attr("data-chart-frame", "")
+      .attr("width", innerWidth).attr("height", innerHeight);
+
+    bins.forEach(bin => {
+      chart.append("text")
+        .attr("x", x(bin)).attr("y", innerHeight + 19)
+        .attr("text-anchor", "middle").text(bin);
+    });
+    chart.append("text")
+      .attr("class", "axis-title")
+      .attr("data-axis", "x")
+      .attr("x", innerWidth / 2).attr("y", innerHeight + 43)
+      .attr("text-anchor", "middle").text("Mean-wind interval (m/s)");
+    chart.append("text")
+      .attr("class", "axis-title")
+      .attr("data-axis", "y")
+      .attr("transform", `translate(${-43},${innerHeight / 2}) rotate(-90)`)
+      .attr("text-anchor", "middle").text("Accident O/E ratio");
+
+    const offsets = { injury: -5, serious: 5 };
+    ["injury", "serious"].forEach(series => {
+      const group = chart.append("g")
+        .attr("class", `${series}-series`)
+        .attr("data-series-group", series);
+      patterns[period][series].forEach((value, index) => {
+        const displayed = Math.min(value, 2.8);
+        const low = Math.max(0, displayed - (0.10 + index * 0.035));
+        const high = Math.min(3, displayed + (0.12 + index * 0.055));
+        const xpos = x(bins[index]) + offsets[series];
+        group.append("line")
+          .attr("class", "whisker")
+          .attr("x1", xpos).attr("x2", xpos)
+          .attr("y1", y(low)).attr("y2", y(high));
+        group.append(series === "injury" ? "circle" : "rect")
+          .attr("class", series === "injury" ? "injury-point" : "serious-point")
+          .attr("cx", series === "injury" ? xpos : null)
+          .attr("cy", series === "injury" ? y(displayed) : null)
+          .attr("r", series === "injury" ? 4 : null)
+          .attr("x", series === "serious" ? xpos - 4 : null)
+          .attr("y", series === "serious" ? y(displayed) - 4 : null)
+          .attr("width", series === "serious" ? 8 : null)
+          .attr("height", series === "serious" ? 8 : null);
+      });
+    });
+  }
+
+  function drawAll() {
+    root.querySelectorAll(".plot-panel").forEach(draw);
+  }
+  root.querySelectorAll(".series-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const pressed = button.getAttribute("aria-pressed") === "true";
+      button.setAttribute("aria-pressed", String(!pressed));
+      root.querySelectorAll(`[data-series-group="${button.dataset.series}"]`)
+        .forEach(group => group.classList.toggle("series-hidden", pressed));
+    });
+  });
+  const observer = new ResizeObserver(drawAll);
+  observer.observe(root);
+  drawAll();
+})();
+</script>
