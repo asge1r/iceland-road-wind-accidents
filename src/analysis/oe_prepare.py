@@ -1,18 +1,16 @@
-"""Calculate frequency-adjusted observed/expected ratios for defined samples."""
+"""Prepare station-level inputs for weather-frequency O/E analyses."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
-from src.accidents.types import broad_accident_family
 from src.analysis.oe_analysis import (
     PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
     VARIABLES,
-    read_csv,
+    load_data,
     station_frequency_scenario,
 )
 
@@ -30,91 +28,9 @@ RADII = [10, 20, 30]
 TIME_SENSITIVITY_MINUTES = [0, 2]
 
 
-def count_column(variable: str, bin_label: str) -> str:
-    safe_label = bin_label.replace(">=", "ge_").replace("-", "_")
-    return f"{variable}_{safe_label}_count"
-
-
-def frequency_to_long(frequency: pd.DataFrame) -> pd.DataFrame:
-    if "variable" in frequency:
-        if "frequency_pct" not in frequency:
-            frequency = frequency.copy()
-            frequency["frequency_pct"] = (
-                100
-                * frequency["measurement_count"]
-                / frequency["total_measurements_in_period"]
-            )
-        return frequency
-    keys = ["station", "name", "year", "season", "period", "total_measurements_in_period"]
-    missing = set(keys) - set(frequency)
-    if missing:
-        raise ValueError(f"Frequency table is missing required columns: {sorted(missing)}")
-    rows: list[pd.DataFrame] = []
-    for spec in VARIABLES:
-        for bin_label in spec.bin_labels:
-            column = count_column(spec.variable, bin_label)
-            if column not in frequency:
-                raise ValueError(f"Frequency table is missing {column}")
-            part = frequency[keys].copy()
-            part["variable"] = spec.variable
-            part["bin_label"] = bin_label
-            part["measurement_count"] = frequency[column]
-            part["frequency_pct"] = 100 * part["measurement_count"] / part["total_measurements_in_period"]
-            rows.append(part)
-    return pd.concat(rows, ignore_index=True)
-
-
-def load_data(
-    accidents_path: Path,
-    conditions_path: Path,
-    frequency_path: Path,
-    start: str | None,
-    end: str | None,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    event_columns = [
-        "id", "timestamp", "meidsli", "tegohapps", "vehicle_count", "season"
-    ]
-    condition_columns = [
-        "id",
-
-        "weather_station_id",
-        "weather_station_dist_km",
-        "weather_time_difference_minutes",
-        "f",
-        "fg",
-        "temp_station_id",
-        "temp_distance_km",
-        "temp_time_diff_min",
-        "temperature_c",
-    ]
-    events = read_csv(accidents_path, event_columns)
-    conditions = read_csv(conditions_path, condition_columns)
-    if not events["id"].is_unique or not conditions["id"].is_unique:
-        raise ValueError("Accident event and condition IDs must each be unique")
-    accidents = events.merge(conditions, on="id", how="left", validate="one_to_one")
-    accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
-    if start:
-        accidents = accidents[accidents["timestamp"].ge(pd.Timestamp(start))]
-    if end:
-        accidents = accidents[accidents["timestamp"].le(pd.Timestamp(end))]
-    accidents = accidents.copy()
-    accidents["vehicle_group"] = np.where(
-        accidents["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
-    )
-    accidents["accident_family"] = accidents["tegohapps"].map(broad_accident_family)
-    accidents["year"] = accidents["timestamp"].dt.year
-
-    frequency = frequency_to_long(read_csv(frequency_path))
-    frequency = frequency.rename(columns={"station": "weather_station_id"})
-    frequency["weather_station_id"] = pd.to_numeric(
-        frequency["weather_station_id"], errors="raise"
-    ).astype(int)
-    return accidents, frequency
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Station-frequency-adjusted wind risk using cleaned 10-minute data."
+        description="Prepare weather-frequency O/E inputs from cleaned data."
     )
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
     parser.add_argument("-C", "--conditions", type=Path, default=DEFAULT_CONDITIONS)

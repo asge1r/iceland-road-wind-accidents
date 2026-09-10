@@ -159,7 +159,7 @@ carried through that working table.
   results, and figure code reads those completed results.
 - `analysis/oe_analysis.py` contains the shared bins, expected-count calculation,
   and station bootstrap used for wind, gust, and temperature. It has no command
-  line and writes no files; `analysis/oe.py` and `tables/oe.py` remain the two
+  line and writes no files; `analysis/oe_prepare.py` and `tables/oe.py` remain the two
   visible O/E pipeline steps.
 - Legacy standalone accident classification and unused daily accident-adjustment
   code have been removed from the active modules.
@@ -240,7 +240,7 @@ is retained for exact file tracing but is not inserted into the thesis.
 | Script | Input | Output | Description |
 |---|---|---|---|
 | `tables/pipeline.py` | `docs/pipeline.md` | *reports/thesis/*<br>`pipeline_prepare.tex`<br>`pipeline_analysis.tex` | Generates the thesis pipeline tables. |
-| `analysis/oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_frequency.csv` | `reports/working/tables/oe_station_bins.csv` | Builds station-season observed and expected accident totals. |
+| `analysis/oe_prepare.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_frequency.csv` | `reports/working/tables/oe_station_bins.csv` | Builds station-season observed and expected accident totals. |
 | `tables/oe.py` | `reports/working/tables/oe_station_bins.csv`<br>`analysis/accidents.csv`<br>`analysis/accident_conditions.csv` | `reports/main/tables/oe_results.csv`<br>`mean_wind_oe.csv`<br>`gust_oe.csv`<br>`temperature_oe.csv`<br>`wind_coverage.csv` | Calculates O/E results and uncertainty intervals. |
 | `tables/weather_oe_panels.py` | `reports/main/tables/oe_results.csv` | `reports/main/tables/weather_oe_panels.csv` | Selects the all-year and four-season results for both nested injury outcomes. |
 | `tables/year_oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_yearly.csv` | `reports/main/tables/year_oe.csv` | Repeats mean-wind and temperature O/E within station, season, and year. |

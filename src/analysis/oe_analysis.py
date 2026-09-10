@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2
 
-from src.accidents.types import SINGLE_VEHICLE_FAMILY
+from src.accidents.types import SINGLE_VEHICLE_FAMILY, broad_accident_family
 from src.weather.frequency import (
     FG_UPPER_BOUNDS,
     F_UPPER_BOUNDS,
@@ -106,6 +106,107 @@ def read_csv(path: Path, columns: list[str] | None = None) -> pd.DataFrame:
     return pd.read_csv(path, usecols=columns)
 
 
+def count_column(variable: str, bin_label: str) -> str:
+    """Return the legacy wide-format frequency column for one weather bin."""
+    safe_label = bin_label.replace(">=", "ge_").replace("-", "_")
+    return f"{variable}_{safe_label}_count"
+
+
+def frequency_to_long(frequency: pd.DataFrame) -> pd.DataFrame:
+    """Normalize current or legacy weather-frequency input to long form."""
+    if "variable" in frequency:
+        if "frequency_pct" not in frequency:
+            frequency = frequency.copy()
+            frequency["frequency_pct"] = (
+                100
+                * frequency["measurement_count"]
+                / frequency["total_measurements_in_period"]
+            )
+        return frequency
+    keys = [
+        "station",
+        "name",
+        "year",
+        "season",
+        "period",
+        "total_measurements_in_period",
+    ]
+    missing = set(keys) - set(frequency)
+    if missing:
+        raise ValueError(
+            f"Frequency table is missing required columns: {sorted(missing)}"
+        )
+    rows: list[pd.DataFrame] = []
+    for spec in VARIABLES:
+        for bin_label in spec.bin_labels:
+            column = count_column(spec.variable, bin_label)
+            if column not in frequency:
+                raise ValueError(f"Frequency table is missing {column}")
+            part = frequency[keys].copy()
+            part["variable"] = spec.variable
+            part["bin_label"] = bin_label
+            part["measurement_count"] = frequency[column]
+            part["frequency_pct"] = (
+                100
+                * part["measurement_count"]
+                / part["total_measurements_in_period"]
+            )
+            rows.append(part)
+    return pd.concat(rows, ignore_index=True)
+
+
+def load_data(
+    accidents_path: Path,
+    conditions_path: Path,
+    frequency_path: Path,
+    start: str | None,
+    end: str | None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load and combine the compact inputs used by O/E analyses."""
+    event_columns = [
+        "id", "timestamp", "meidsli", "tegohapps", "vehicle_count", "season"
+    ]
+    condition_columns = [
+        "id",
+        "weather_station_id",
+        "weather_station_dist_km",
+        "weather_time_difference_minutes",
+        "f",
+        "fg",
+        "temp_station_id",
+        "temp_distance_km",
+        "temp_time_diff_min",
+        "temperature_c",
+    ]
+    events = read_csv(accidents_path, event_columns)
+    conditions = read_csv(conditions_path, condition_columns)
+    if not events["id"].is_unique or not conditions["id"].is_unique:
+        raise ValueError("Accident event and condition IDs must each be unique")
+    accidents = events.merge(
+        conditions, on="id", how="left", validate="one_to_one"
+    )
+    accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
+    if start:
+        accidents = accidents[accidents["timestamp"].ge(pd.Timestamp(start))]
+    if end:
+        accidents = accidents[accidents["timestamp"].le(pd.Timestamp(end))]
+    accidents = accidents.copy()
+    accidents["vehicle_group"] = np.where(
+        accidents["vehicle_count"].eq(1), "1 vehicle", "2 or more vehicles"
+    )
+    accidents["accident_family"] = accidents["tegohapps"].map(
+        broad_accident_family
+    )
+    accidents["year"] = accidents["timestamp"].dt.year
+
+    frequency = frequency_to_long(read_csv(frequency_path))
+    frequency = frequency.rename(columns={"station": "weather_station_id"})
+    frequency["weather_station_id"] = pd.to_numeric(
+        frequency["weather_station_id"], errors="raise"
+    ).astype(int)
+    return accidents, frequency
+
+
 def prepare_details(path: Path) -> pd.DataFrame:
     """Load station-bin counts and attach the common analysis bins."""
     details = read_csv(path)
@@ -161,7 +262,7 @@ def station_frequency_scenario(
     if analysis_season != "All seasons":
         scoped = scoped[scoped["season"].eq(analysis_season)].copy()
 
-    # Both variables use this internal name after their independent match.
+    # All variables use this internal name after their independent match.
     scoped["weather_station_id"] = scoped[spec.station_column].astype(int)
     scoped["weather_bin"] = pd.cut(
         scoped[spec.accident_column],

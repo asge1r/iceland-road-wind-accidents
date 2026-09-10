@@ -7,11 +7,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.analysis.oe import load_data
 from src.analysis.oe_analysis import (
     BIN_ORDER,
     VARIABLES,
     cluster_bootstrap,
+    load_data,
     station_frequency_scenario,
 )
 
