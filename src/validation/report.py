@@ -6,10 +6,7 @@ from pathlib import Path
 
 def write_report(values: dict[str, object], output: Path) -> None:
     weather = values["weather"]
-    highest = values["highest"]
-    main_upper = values["main_upper"]
-    coverage = values["coverage"]
-    radius_sensitivity = values["radius_sensitivity"]
+    main_upper = values["main_upper"].set_index("outcome")
     traffic_audit = values["traffic_audit"]
     lines = [
         "# Final analysis validation",
@@ -22,7 +19,7 @@ def write_report(values: dict[str, object], output: Path) -> None:
         f"- Primary weather match: {values['primary_accidents']:,} accidents within 20 km and 5 minutes.",
         "- Primary weather measure: accident-time ten-minute mean wind speed (`f`) in 5 m/s intervals.",
         "- Standardisation: weather station and season; weather frequency is pooled across 2007--2025.",
-        "- Uncertainty: 5,000 weather-station-clustered bootstrap samples.",
+        "- The O/E table is descriptive; formal uncertainty is assessed in the matched-time and traffic models.",
         "",
         "## Data checks",
         "",
@@ -51,17 +48,13 @@ def write_report(values: dict[str, object], output: Path) -> None:
             "",
             "## Primary O/E result",
             "",
-            "| Mean wind-speed interval | Observed | Expected | O/E | 95% interval |",
-            "|---|---:|---:|---:|---:|",
-            f"| 20--25 m/s | {int(main_upper['observed_accidents'])} | {main_upper['expected_accidents']:.1f} | {main_upper['observed_expected_ratio']:.2f} | {main_upper['station_bootstrap_ci_95_low']:.2f}--{main_upper['station_bootstrap_ci_95_high']:.2f} |",
-            f"| >=25 m/s | {int(highest['observed_accidents'])} | {highest['expected_accidents']:.1f} | {highest['observed_expected_ratio']:.2f} | {highest['station_bootstrap_ci_95_low']:.2f}--{highest['station_bootstrap_ci_95_high']:.2f} |",
+            "| Mean wind >=20 m/s | Observed | Expected | O/E |",
+            "|---|---:|---:|---:|",
+            f"| Minor injury | {int(main_upper.loc['Minor injury accidents', 'observed_accidents'])} | {main_upper.loc['Minor injury accidents', 'expected_accidents']:.1f} | {main_upper.loc['Minor injury accidents', 'relative_accident_frequency']:.2f} |",
+            f"| Severe/fatal | {int(main_upper.loc['Severe/fatal accidents', 'observed_accidents'])} | {main_upper.loc['Severe/fatal accidents', 'expected_accidents']:.1f} | {main_upper.loc['Severe/fatal accidents', 'relative_accident_frequency']:.2f} |",
             "",
             f"Observed counts sum to {values['primary_accidents']:,}. Expected counts are rounded to one decimal in this table.",
-            "The >=25 m/s O/E interval includes one; this sparse upper bin is descriptive rather than a separate precise result.",
-            "",
-            "## Weather-station distance check",
-            "",
-            "At 20--25 m/s, O/E remains above one under 10, 20, and 30 km weather-station limits.",
+            "The O/E values are descriptive and are not presented with confidence intervals.",
             "",
             "## Stratified vehicle-kilometre result",
             "",
@@ -81,7 +74,6 @@ def write_report(values: dict[str, object], output: Path) -> None:
             f"The joint matched-time model retains {int(values['joint_high_wind']['strata']):,} accidents with both wind and temperature. Its adjusted >=15 versus 0--5 m/s wind odds ratio is {values['joint_high_wind']['adjusted_odds_ratio']:.2f} (95% CI {values['joint_high_wind']['ci_95_low']:.2f}--{values['joint_high_wind']['ci_95_high']:.2f}).",
             f"The matched daylight comparison uses all {values['study_accidents']:,} accidents, but only {int(values['daylight']['informative_strata'].iloc[0]):,} strata change daylight class within the matched month and hour.",
             f"The severity-composition model contains {int(values['severity']['accidents'].iloc[0]):,} complete accidents and {int(values['severity']['serious_or_fatal_accidents'].iloc[0]):,} serious-or-fatal outcomes. It estimates severity among recorded accidents, not accident occurrence.",
-            "Separate mean-wind O/E results are present for single-vehicle accident types and all other accident types.",
             "",
             "## Results using traffic data",
             "",
@@ -89,6 +81,7 @@ def write_report(values: dict[str, object], output: Path) -> None:
             f"The illustrative denominator direction check changes the 20--25 m/s annual-model RR from {values['allocation_check'].loc[values['allocation_check']['bin_label'].eq('20-25'), 'time_proportional_rate_ratio'].iloc[0]:.2f} to {values['allocation_check'].loc[values['allocation_check']['bin_label'].eq('20-25'), 'illustrative_rate_ratio'].iloc[0]:.2f} when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.",
             f"The sustained-wind table contains {int(values['daily_duration']['counter_days'].sum()):,} sufficiently complete counter-days. Traffic is {values['daily_duration'].iloc[-1]['relative_traffic_pct']:.1f}% of its calendar expectation on days with at least six hours at f >=15 m/s.",
             f"The allocated daily-counter model retains {int(values['daily_allocated']['observed_accidents'].sum()):,} accidents. Its >=15 versus 0--10 m/s rate ratio is {values['daily_allocated'].iloc[-1]['rate_ratio']:.2f} (95% CI {values['daily_allocated'].iloc[-1]['ci_95_low']:.2f}--{values['daily_allocated'].iloc[-1]['ci_95_high']:.2f}). The within-day traffic split is estimated, not observed hourly traffic.",
+            "The counter-section weather-rate table partitions 615 linked daytime accidents into non-overlapping minor-injury and severe/fatal groups for wind, gust, and temperature. Daily totals are observed; their 07:00--24:00 weather-bin allocation is estimated.",
             f"The temperature vehicle-kilometre model retains {int(values['temperature_rate']['observed_accidents'].sum()):,} accidents. Relative to 0--3 degrees C, its below--6 estimate is {values['temperature_rate'].iloc[0]['time_proportional_rate_ratio']:.2f} and its 3--6 estimate is {values['temperature_rate'].loc[values['temperature_rate']['bin_label'].eq('3-6'), 'time_proportional_rate_ratio'].iloc[0]:.2f}.",
             f"The coarse >=15 m/s estimates are {values['vehicle_rates']['one'].iloc[-1]['time_proportional_rate_ratio']:.2f} for one-vehicle accidents and {values['vehicle_rates']['two-plus'].iloc[-1]['time_proportional_rate_ratio']:.2f} for accidents involving two or more vehicles. These are separate subgroup estimates, not a formal test of their difference.",
             f"This retained sample is {values['daily_sample'].loc['Allocated-rate sample', 'share_of_all_pct']:.1f}% of the 2019--2024 rural injury accidents. The generated appendix audit compares its severity, vehicle-count, season, and road-section composition with retained and excluded accidents.",
@@ -98,19 +91,8 @@ def write_report(values: dict[str, object], output: Path) -> None:
             f"The appendix full-day-mean check retains {values['daily_rate_total']:,} accidents. At >=15 m/s versus 0--10 m/s, RR is {values['daily_rate_high']['rate_ratio']:.2f} (95% CI {values['daily_rate_high']['ci_95_low']:.2f}--{values['daily_rate_high']['ci_95_high']:.2f}), based on {int(values['daily_rate_high']['observed_accidents'])} upper-category accidents.",
             "The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.",
             "",
-            "## Weather-station distance comparison for fg >=35 m/s (secondary analysis)",
-            "",
-            "| Maximum distance | Matched accidents | O/E | 95% interval |",
-            "|---|---:|---:|---:|",
         ]
     )
-    for radius in [10, 20, 30]:
-        row = radius_sensitivity.loc[radius]
-        lines.append(
-            f"| {radius} km | {int(coverage.loc[radius, 'analysed_accidents']):,} | "
-            f"{row['relative_accident_frequency']:.2f} | "
-            f"{row['bootstrap_ci_95_low']:.2f}--{row['bootstrap_ci_95_high']:.2f} |"
-        )
     lines.extend(
         [
             "",

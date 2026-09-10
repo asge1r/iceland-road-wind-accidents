@@ -1,9 +1,0 @@
-gust_interval_ms,observed_accidents,expected_accidents,observed_expected_ratio,station_bootstrap_ci_95_low,station_bootstrap_ci_95_high,bootstrap_probability_above_1,sparse_bin_fewer_than_20_accidents
-0-5,1976,2206.0,0.9,0.87,0.93,0.0,False
-5-10,2233,2146.2,1.04,1.0,1.08,0.9744,False
-10-15,1186,1188.0,1.0,0.94,1.06,0.47,False
-15-20,520,487.6,1.07,0.97,1.17,0.897,False
-20-25,206,164.1,1.26,1.06,1.47,0.9956,False
-25-30,77,48.7,1.58,1.22,1.94,0.999,False
-30-35,36,13.3,2.72,1.78,3.68,1.0,False
->=35,25,5.0,5.01,2.95,7.48,1.0,False

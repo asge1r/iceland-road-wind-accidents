@@ -70,6 +70,25 @@ def export_yearly_frequency(output: Path) -> tuple[int, list[str]]:
     return write_csv(table, output / "weather_yearly.csv"), columns
 
 
+def export_monthly_frequency(output: Path) -> tuple[int, list[str]]:
+    """Export pooled station-calendar-month frequencies in the O/E plotting bins."""
+    source = read_table(ROOT / "weather/monthly_frequency.csv").copy()
+    source["unit"] = source["variable"].map(
+        {"f": "m/s", "fg": "m/s", "temperature": "deg C"}
+    )
+    columns = [
+        "station", "month", "time_window", "variable", "bin_label", "unit",
+        "measurement_count", "total_measurements_in_month", "frequency_pct",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Monthly weather frequency is missing columns: {sorted(missing)}")
+    table = source.sort_values(
+        ["station", "month", "time_window", "variable", "bin_lower_value"]
+    )[columns]
+    return write_csv(table, output / "weather_monthly.csv"), columns
+
+
 def export_temperature_frequency(output: Path) -> tuple[int, list[str]]:
     """Export the combined station-year-season temperature counts."""
     source = read_table(ROOT / "weather/temperature_frequency.csv")

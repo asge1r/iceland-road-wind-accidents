@@ -11,7 +11,6 @@ from src.validation.common import (
     DEFAULT_CASE_CONTROL,
     DEFAULT_CASE_CONTROL_RESULT,
     DEFAULT_CONDITIONS,
-    DEFAULT_COVERAGE,
     DEFAULT_DAILY,
     DEFAULT_DAILY_07_24,
     DEFAULT_DAILY_ACCIDENT_WEATHER,
@@ -22,16 +21,13 @@ from src.validation.common import (
     DEFAULT_DAILY_RATE_RADIUS,
     DEFAULT_DAILY_SAMPLE,
     DEFAULT_DAILY_SERIOUS,
-    DEFAULT_MEAN_WIND,
-    DEFAULT_OE_RESULTS,
     DEFAULT_OUTPUT,
-    DEFAULT_RADIUS_RESULT,
     DEFAULT_RATE_INPUT,
     DEFAULT_RATE_MODEL,
     DEFAULT_RATE_SERIOUS,
     DEFAULT_SEASONAL_RATE,
     DEFAULT_SEASONAL_SERIOUS,
-    DEFAULT_TEMPERATURE,
+    DEFAULT_WEATHER_OE,
     DEFAULT_TRAFFIC_AUDIT,
     DEFAULT_TRAFFIC_CHECKS,
     DEFAULT_WEATHER_AUDIT,
@@ -43,10 +39,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
     parser.add_argument("-C", "--conditions", type=Path, default=DEFAULT_CONDITIONS)
     parser.add_argument("-w", "--weather-audit", type=Path, default=DEFAULT_WEATHER_AUDIT)
-    parser.add_argument("-m", "--mean-wind", type=Path, default=DEFAULT_MEAN_WIND)
-    parser.add_argument("-p", "--temperature", type=Path, default=DEFAULT_TEMPERATURE)
-    parser.add_argument("-c", "--coverage", type=Path, default=DEFAULT_COVERAGE)
-    parser.add_argument("-O", "--oe-results", type=Path, default=DEFAULT_OE_RESULTS)
+    parser.add_argument("-O", "--weather-oe", type=Path, default=DEFAULT_WEATHER_OE)
     parser.add_argument("-d", "--daily", type=Path, default=DEFAULT_DAILY)
     parser.add_argument("--daily-accident-weather", type=Path, default=DEFAULT_DAILY_ACCIDENT_WEATHER)
     parser.add_argument("-t", "--traffic-audit", type=Path, default=DEFAULT_TRAFFIC_AUDIT)
@@ -57,7 +50,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seasonal-serious", type=Path, default=DEFAULT_SEASONAL_SERIOUS)
     parser.add_argument("-x", "--case-control", type=Path, default=DEFAULT_CASE_CONTROL)
     parser.add_argument("-X", "--case-control-result", type=Path, default=DEFAULT_CASE_CONTROL_RESULT)
-    parser.add_argument("-S", "--radius-result", type=Path, default=DEFAULT_RADIUS_RESULT)
     parser.add_argument("-T", "--traffic-checks", type=Path, default=DEFAULT_TRAFFIC_CHECKS)
     parser.add_argument("-D", "--daily-rate", type=Path, default=DEFAULT_DAILY_RATE)
     parser.add_argument("-Q", "--daily-rate-coarse", type=Path, default=DEFAULT_DAILY_RATE_COARSE)
@@ -76,10 +68,7 @@ def main() -> None:
         args.accidents,
         args.conditions,
         args.weather_audit,
-        args.mean_wind,
-        args.temperature,
-        args.coverage,
-        args.oe_results,
+        args.weather_oe,
         args.daily,
         args.daily_accident_weather,
         args.traffic_audit,
@@ -90,7 +79,6 @@ def main() -> None:
         args.seasonal_serious,
         args.case_control,
         args.case_control_result,
-        args.radius_result,
         args.traffic_checks,
         args.daily_rate,
         args.daily_rate_coarse,

@@ -17,7 +17,7 @@ from src.validation.common import (
 
 def validate_models(
     case_control_path: Path, case_control_result_path: Path,
-    accidents: pd.DataFrame, oe_results: pd.DataFrame,
+    accidents: pd.DataFrame,
 ) -> dict[str, object]:
     case_control = pd.read_csv(case_control_path)
     require(
@@ -112,17 +112,6 @@ def validate_models(
         and int(daylight["total_strata"].iloc[0]) == len(accidents)
         and int(daylight["informative_strata"].iloc[0]) > 0,
         "Matched daylight comparison is incomplete",
-    )
-    accident_type_rows = oe_results[
-        oe_results["severity_group"].isin(
-            ["Single-vehicle accident type", "Other accident types"]
-        )
-    ]
-    require(
-        set(accident_type_rows["severity_group"])
-        == {"Single-vehicle accident type", "Other accident types"}
-        and accident_type_rows["variable"].eq("f").all(),
-        "Accident-type mean-wind O/E result is incomplete",
     )
     return {
         "high_wind_case_control": high_wind_case_control,

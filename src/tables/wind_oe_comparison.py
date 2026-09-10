@@ -11,7 +11,7 @@ import pandas as pd
 from src.tables.rate import prepare_data
 
 
-WEATHER = Path("reports/main/tables/oe_results.csv")
+WEATHER = Path("reports/main/tables/weather_oe.csv")
 ANNUAL = Path("data/analysis/road_rate.csv")
 DAILY = Path("data/analysis/daily_season_panel.csv")
 OUTPUT = Path("reports/main/tables/wind_oe_comparison.csv")
@@ -92,35 +92,42 @@ def standardised_oe(
 def weather_rows(path: Path) -> pd.DataFrame:
     source = pd.read_csv(path)
     required = {
-        "coarse_bin", "observed_accidents", "expected_accidents",
-        "relative_accident_frequency", "bootstrap_ci_95_low",
-        "bootstrap_ci_95_high", "variable", "radius_km", "severity_group",
-        "analysis_season", "max_time_difference_minutes", "bin_order",
+        "bin_label", "observed_accidents", "expected_accidents",
+        "relative_accident_frequency", "variable", "outcome", "period",
+        "max_distance_km", "max_time_difference_minutes", "bin_order",
     }
     if not required <= set(source):
         raise ValueError("Primary mean-wind O/E table is incomplete")
     source = source[
         source["variable"].eq("f")
-        & source["radius_km"].eq(20)
-        & source["severity_group"].eq("Injury accidents")
-        & source["analysis_season"].eq("All seasons")
+        & source["max_distance_km"].eq(20)
+        & source["period"].eq("All year")
         & source["max_time_difference_minutes"].eq(5)
     ].sort_values("bin_order")
-    result = source.rename(columns={
-        "coarse_bin": "wind_bin",
-        "relative_accident_frequency": "observed_expected_ratio",
-        "bootstrap_ci_95_low": "ci_95_low",
-        "bootstrap_ci_95_high": "ci_95_high",
-    })[[
+    # The two outcome groups partition all injury accidents. Add their counts
+    # before calculating the combined descriptive O/E curve.
+    result = source.groupby(
+        ["bin_label", "bin_order"], as_index=False, observed=True
+    ).agg(
+        observed_accidents=("observed_accidents", "sum"),
+        expected_accidents=("expected_accidents", "sum"),
+    ).rename(columns={"bin_label": "wind_bin"})
+    result["observed_expected_ratio"] = (
+        result["observed_accidents"] / result["expected_accidents"]
+    )
+    result = result.sort_values("bin_order")
+    result = result[[
         "wind_bin", "observed_accidents", "expected_accidents",
-        "observed_expected_ratio", "ci_95_low", "ci_95_high",
+        "observed_expected_ratio", "bin_order",
     ]].copy()
-    result["bootstrap_replicates"] = 5000
-    result["bootstrap_cluster"] = "weather station"
+    result["ci_95_low"] = np.nan
+    result["ci_95_high"] = np.nan
+    result["bootstrap_replicates"] = 0
+    result["bootstrap_cluster"] = "not applicable"
     result["analysis_accidents"] = int(result["observed_accidents"].sum())
     result["method"] = "Weather frequency"
     result["analysis_period"] = "2007-2025"
-    result["standardisation"] = "weather station and season"
+    result["standardisation"] = "weather station and season; descriptive"
     result["exposure_method"] = "frequency of valid 10-minute weather observations"
     return result
 

@@ -51,6 +51,11 @@ also describe whether traffic changes with wind at selected sites. These
 analyses estimate different quantities and are compared by direction, not by
 the numerical size of their estimates.
 
+The weather-frequency O/E values are descriptive and are shown with observed
+counts but without bootstrap intervals. Minor-injury (`meidsli = 3`) and
+serious/fatal (`meidsli <= 2`) accidents are non-overlapping groups. Formal
+uncertainty is reported for the matched-time and traffic models.
+
 The main comparison figure therefore keeps three denominators separate. The
 weather panel uses local observation frequency, the annual panel uses estimated
 vehicle-kilometres allocated by local wind frequency, and the daily panel uses
@@ -63,7 +68,7 @@ Temperature, hour, daylight, matched-time wind gust, and subgroup results
 answer supporting research questions. They remain exploratory or descriptive
 and do not replace the primary mean-wind result.
 Temperature O/E uses the intervals below −6, −6 to −3, −3 to 0, 0 to 3,
-3 to 6, 6 to 9, 9 to 12, 12 to 15, and at least 15°C. The case-crossover
+3 to 6, 6 to 9, 9 to 12, and at least 12°C. The case-crossover
 model uses the same categories for stability.
 
 The joint matched-time model includes categorical mean wind and temperature
@@ -125,6 +130,14 @@ supporting because it covers selected counters in 2019--2024 and cannot show
 that an accident vehicle passed the assigned counter. The former full-day-mean
 model is retained only as an appendix day-level check.
 
+The counter-section weather-rate calculation is a separate descriptive route.
+It multiplies each observed daily count by its assigned section length and
+allocates that vehicle-kilometre total using the nearest station's pooled
+07:00--24:00 weather frequencies for the same calendar month. It retains 615
+linked daytime accidents and reports wind, gust, and temperature rates for the
+year and four seasons. The daily total is observed, but traffic in a weather
+interval is estimated; this method cannot measure same-day traffic avoidance.
+
 The traffic-allocation direction check applies the observed daily traffic
 percentage for each full-day mean-wind interval to the corresponding annual
 model rate ratio. It is explicitly illustrative: daily mean categories do not
@@ -132,6 +145,15 @@ measure traffic during individual ten-minute wind intervals, and the daily
 data cover only selected counters in 2019--2024.
 
 ## Counter coordinates
+
+A counter-section is the portion of an official road section assigned to one
+physical traffic-counter site. Within each road section and calendar year,
+distinct `fastnr` channels whose complete range of PDF `stöð` values is at
+most 20 m are assigned to one physical site. Their daily counts are summed
+when daily exposure is constructed. Counter-section boundaries are the
+midpoints between the resulting sites; the first and last sections extend to
+the ends of the annual official road section. The counter-sections therefore
+partition, rather than duplicate, the source road-section length.
 
 In the current reproducible pipeline, a PDF `stöð` is the primary location
 evidence. It is interpolated along the Road Administration's official road

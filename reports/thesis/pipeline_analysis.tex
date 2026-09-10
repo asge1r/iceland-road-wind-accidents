@@ -13,31 +13,31 @@ Analysis stage & Main input & Main output & Purpose \\
 Accident data preparation &
 Source accident, road-link and urban-area files &
 \path{accidents.csv} &
-Selects rural injury accidents. \\ \grayhline
+Selects rural injury accidents and keeps traceable source IDs. \\ \grayhline
 Weather preparation and matching &
 Ten-minute weather and station files\newline{}\path{accidents.csv} &
 \path{weather_frequency.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{case_control.csv} &
-Cleans weather and matches accident and control times. \\ \grayhline
+Cleans weather and links accident and control times. \\ \grayhline
 Weather-frequency analysis &
-\path{accident_conditions.csv}\newline{}\path{weather_frequency.csv} &
-\path{oe_results.csv}\newline{}\path{weather_oe_panels.csv}\newline{}three five-panel figures &
+\path{accidents.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{weather_frequency.csv} &
+\path{weather_oe.csv}\newline{}one annual and three seasonal figures &
 Compares accident shares with local weather-time shares. \\ \grayhline
 Traffic data preparation &
-Annual road traffic, road geometry and daily counters &
-\path{road_rate.csv}\newline{}\path{daily_traffic.csv}\newline{}\path{counter_wind.csv} &
-Links annual and daily traffic inputs. \\ \grayhline
+Annual traffic, road geometry and daily counters &
+\path{road_rate.csv}\newline{}\path{counter_sections.csv}\newline{}\path{daily_weather_rate.csv} &
+Links road sections, counters, accidents and weather. \\ \grayhline
 Traffic-adjusted analysis &
 Prepared traffic inputs\newline{}\path{accidents.csv} &
-annual rate results\newline{}\path{daily_season_panel.csv}\newline{}daily and seasonal estimates &
-Estimates rates from annual and allocated daily traffic. \\ \grayhline
+annual and daily rate results\newline{}seasonal estimates &
+Estimates accidents per vehicle-kilometre. \\ \grayhline
 Supporting analyses &
 \path{case_control.csv}\newline{}weather and traffic analysis files &
 matched-time, daylight, severity and traffic-response results &
-Checks and interprets the main comparisons. \\ \grayhline
+Checks and helps interpret the main comparisons. \\ \grayhline
 Validation and thesis products &
 Analysis CSVs\newline{}\path{docs/pipeline.md} &
 validation report\newline{}thesis tables and figures &
-Checks numbers and builds thesis products. \\
+Checks numbers and builds reported products. \\
 \bottomrule
 \end{tabularx}
 \end{table}

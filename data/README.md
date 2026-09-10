@@ -59,6 +59,7 @@ CSV files and creates tables and figures. If daily PDFs are absent,
 Use `data/analysis/` for normal work:
 
 - `accidents.csv`, `accident_conditions.csv`, and `weather_frequency.csv` for O/E results;
+- `weather_monthly.csv` for 07:00–24:00 station-calendar-month weather frequencies in the O/E bins;
 - `temperature_matches.csv` and `temperature_frequency.csv` for direct
   inspection of the independent temperature match and denominator;
 - `case_control.csv` for the time-stratified conditional logistic models;
@@ -66,6 +67,9 @@ Use `data/analysis/` for normal work:
   `road_exposure.csv` for annual-traffic results;
 - `daily_traffic.csv` for the sustained-wind and allocated daily-counter results;
 - `counter_locations.csv` for selected-counter rate analyses;
+- `counter_sections.csv` for daily vehicle-kilometre exposure preparation;
+- `daily_weather_rate.csv` for the selected-counter 07:00--24:00 rates by
+  wind, gust, temperature, season, and injury group;
 - `manifest.csv` for each file's record count, columns and description.
 
 The large clean-weather Parquet file and optional daily matching Parquet files

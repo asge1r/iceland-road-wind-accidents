@@ -13,7 +13,7 @@ import pandas as pd
 
 OUT = Path("reports/main/figures")
 SELECTION = Path("data/analysis/selection_summary.csv")
-WEATHER_AUDIT = Path("reports/main/tables/weather_audit.csv")
+WEATHER_AUDIT = Path("data/analysis/weather_cleaning.csv")
 
 KEEP = "#5F8F78"
 DROP = "#C96A5B"
@@ -72,17 +72,17 @@ def accident_figure() -> None:
 
 def weather_figure() -> None:
     audit = pd.read_csv(WEATHER_AUDIT)
-    raw = int(audit.loc[audit.metric.eq("raw_10_minute_rows"), "value"].iloc[0])
-    wind_capable = raw - int(
-        audit.loc[audit.metric.eq("station_year_without_wind_data"), "value"].iloc[0]
-    )
-    retained = int(audit.loc[audit.metric.eq("clean_wind_rows"), "value"].iloc[0])
+    total = audit[audit["year"].astype(str).eq("total")]
+    if len(total) != 1:
+        raise ValueError("Weather cleaning table must contain one total row")
+    total = total.iloc[0]
+    raw = int(total["input_rows"])
+    wind_capable = raw - int(total["no_wind_station_year"])
+    retained = int(total["clean_wind_rows"])
     no_wind_year = raw - wind_capable
-    missing = int(audit.loc[audit.metric.eq("missing_wind_in_wind_capable_station_year"), "value"].iloc[0])
-    inconsistent = int(audit.loc[audit.metric.eq("fg_zero_with_positive_f"), "value"].iloc[0]) + int(
-        audit.loc[audit.metric.eq("fg_below_f_beyond_tolerance"), "value"].iloc[0]
-    )
-    frozen = int(audit.loc[audit.metric.eq("frozen_zero_runs"), "value"].iloc[0])
+    missing = int(total["missing_wind"])
+    inconsistent = int(total["inconsistent_zero_gust"] + total["gust_below_mean"])
+    frozen = int(total["frozen_zero"])
     quality_excluded = wind_capable - retained
     invalid = quality_excluded - missing - inconsistent - frozen
     flow(

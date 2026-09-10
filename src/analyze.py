@@ -56,15 +56,8 @@ def run(selected: Task, dry_run: bool = False) -> None:
 
 def primary_weather_tasks(bootstrap_reps: int) -> list[Task]:
     return [
-        task("src.analysis.oe"),
-        task("src.tables.oe", "-b", str(bootstrap_reps)),
-        task("src.tables.weather_oe_panels"),
-        task("src.tables.year_oe", "-b", str(bootstrap_reps)),
-        task("src.tables.wind_radius"),
-        task("src.figures.oe"),
-        task("src.figures.weather_oe_panels", "-v", "f"),
-        task("src.figures.weather_oe_panels", "-v", "fg"),
-        task("src.figures.weather_oe_panels", "-v", "temperature"),
+        task("src.analysis.oe_analysis"),
+        task("src.figures.oe_histo"),
     ]
 
 
@@ -117,8 +110,10 @@ def annual_traffic_tasks() -> list[Task]:
     ]
 
 
-def daily_traffic_tasks(bootstrap_reps: int) -> list[Task]:
-    return [
+def daily_traffic_tasks(
+    bootstrap_reps: int, include_weather_rate: bool = False
+) -> list[Task]:
+    tasks = [
         task("src.tables.daily_traffic"),
         task("src.tables.wind_duration"),
         task("src.tables.allocated_rate"),
@@ -152,6 +147,9 @@ def daily_traffic_tasks(bootstrap_reps: int) -> list[Task]:
         task("src.figures.daily_traffic"),
         task("src.figures.daily_season_oe"),
     ]
+    if include_weather_rate:
+        tasks.append(task("src.figures.weather_rate"))
+    return tasks
 
 
 def sample_description_tasks() -> list[Task]:
@@ -217,7 +215,8 @@ def severity_context_tasks() -> list[Task]:
 
 
 def stage_tasks(
-    stage: str, bootstrap_reps: int, include_daily: bool
+    stage: str, bootstrap_reps: int, include_daily: bool,
+    include_weather_rate: bool = False,
 ) -> list[Task]:
     """Return tasks in reproducible dependency order for one stage."""
     if stage == "workflow":
@@ -227,7 +226,7 @@ def stage_tasks(
     if stage == "traffic-adjusted":
         return [
             *annual_traffic_tasks(),
-            *(daily_traffic_tasks(bootstrap_reps) if include_daily else []),
+            *(daily_traffic_tasks(bootstrap_reps, include_weather_rate) if include_daily else []),
         ]
     if stage == "supporting":
         return [
@@ -242,7 +241,7 @@ def stage_tasks(
     if stage == "annual-traffic":
         return annual_traffic_tasks()
     if stage == "daily-traffic":
-        return daily_traffic_tasks(bootstrap_reps) if include_daily else []
+        return daily_traffic_tasks(bootstrap_reps, include_weather_rate) if include_daily else []
     if stage == "sample-description":
         return sample_description_tasks()
     if stage == "matched-time":
@@ -292,13 +291,16 @@ def main() -> None:
     stages = list(dict.fromkeys(args.stage or STAGE_ORDER))
     daily_path = Path("data/analysis/daily_traffic.csv")
     include_daily = not args.skip_daily_traffic and daily_path.exists()
+    include_weather_rate = Path("data/analysis/daily_weather_rate.csv").exists()
     if ({"daily-traffic", "traffic-adjusted"} & set(stages)) and not include_daily:
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
         print(f"Skipping optional daily-traffic tasks: {reason}.", flush=True)
     completed: set[Task] = set()
     for stage in stages:
         print(f"\nAnalysis stage: {stage}", flush=True)
-        for selected in stage_tasks(stage, args.bootstrap_reps, include_daily):
+        for selected in stage_tasks(
+            stage, args.bootstrap_reps, include_daily, include_weather_rate
+        ):
             if selected in completed:
                 continue
             run(selected, dry_run=args.dry_run)

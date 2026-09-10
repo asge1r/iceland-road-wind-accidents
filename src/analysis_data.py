@@ -13,6 +13,8 @@ from src.exports_accidents import (
     export_temperature_matches,
 )
 from src.exports_counters import (
+    export_counter_sections,
+    export_daily_weather_rate,
     export_counter_validation,
     export_daily_traffic,
     export_selection_summary,
@@ -25,6 +27,7 @@ from src.exports_traffic import (
 )
 from src.exports_weather import (
     export_frequency,
+    export_monthly_frequency,
     export_weather_source_audit,
     export_temperature_frequency,
     export_weather_cleaning,
@@ -62,6 +65,11 @@ def main() -> None:
             "weather_yearly.csv",
             "Station-year-season mean-wind and temperature frequencies used for the year-adjusted O/E check.",
             export_yearly_frequency,
+        ),
+        (
+            "weather_monthly.csv",
+            "Pooled station-calendar-month frequencies in the O/E plotting bins.",
+            export_monthly_frequency,
         ),
         (
             "weather_cleaning.csv",
@@ -105,6 +113,12 @@ def main() -> None:
     )
     daily_entries = export_daily_traffic(args.output)
     entries.extend(daily_entries)
+    counter_sections = export_counter_sections(args.output)
+    if counter_sections is not None:
+        entries.append(counter_sections)
+    daily_weather_rate = export_daily_weather_rate(args.output)
+    if daily_weather_rate is not None:
+        entries.append(daily_weather_rate)
     counter_validation = ROOT / "traffic/daily_counter_station_validation.csv"
     if counter_validation.exists():
         records, columns = export_counter_validation(args.output)

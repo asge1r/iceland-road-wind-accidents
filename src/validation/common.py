@@ -9,9 +9,7 @@ import pandas as pd
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")
 DEFAULT_CONDITIONS = Path("data/analysis/accident_conditions.csv")
 DEFAULT_WEATHER_AUDIT = Path("data/analysis/weather_cleaning.csv")
-DEFAULT_MEAN_WIND = Path("reports/main/tables/mean_wind_oe.csv")
-DEFAULT_TEMPERATURE = Path("reports/main/tables/temperature_oe.csv")
-DEFAULT_COVERAGE = Path("reports/main/tables/wind_coverage.csv")
+DEFAULT_WEATHER_OE = Path("reports/main/tables/weather_oe.csv")
 DEFAULT_DAILY = Path("data/analysis/daily_traffic.csv")
 DEFAULT_DAILY_ACCIDENT_WEATHER = Path("data/analysis/counter_wind.csv")
 DEFAULT_TRAFFIC_AUDIT = Path("reports/main/tables/annual_quality.csv")
@@ -35,8 +33,6 @@ DEFAULT_SEASON_INTERACTION = Path(
 DEFAULT_JOINT_WEATHER = Path("reports/main/tables/weather_model.csv")
 DEFAULT_SEVERITY = Path("reports/main/tables/severity_conditions.csv")
 DEFAULT_DAYLIGHT = Path("reports/main/tables/daylight.csv")
-DEFAULT_OE_RESULTS = Path("reports/main/tables/oe_results.csv")
-DEFAULT_RADIUS_RESULT = Path("reports/main/tables/wind_radius.csv")
 DEFAULT_TRAFFIC_CHECKS = Path("reports/main/tables/traffic_checks.csv")
 DEFAULT_DAILY_RATE = Path("reports/main/tables/day_rate.csv")
 DEFAULT_DAILY_RATE_COARSE = Path("reports/main/tables/day_rate_coarse.csv")
@@ -50,6 +46,7 @@ DEFAULT_DAILY_SEASON_PANEL = Path(
     "data/analysis/daily_season_panel.csv"
 )
 DEFAULT_DAILY_SEASON_OE = Path("reports/main/tables/daily_season_oe.csv")
+DEFAULT_DAILY_WEATHER_RATE = Path("data/analysis/daily_weather_rate.csv")
 DEFAULT_DAILY_SEASON_INTERACTION = Path(
     "reports/working/tables/daily_season_interaction.csv"
 )

@@ -21,6 +21,61 @@ def export_counter_validation(output: Path) -> tuple[int, list[str]]:
     table = source[columns].sort_values(["status", "road_section", "station_id"])
     return write_csv(table, output / "counter_check.csv"), columns
 
+def export_counter_sections(
+    output: Path,
+) -> tuple[str, int, list[str], str] | None:
+    path = ROOT / "traffic/counter_sections.csv"
+    if not path.exists():
+        return None
+    source = read_table(path)
+    columns = [
+        "year", "counter_section_id", "road_section",
+        "counter_location_lat", "counter_location_lon",
+        "counter_section_length_km", "weather_station_id",
+        "weather_station_name", "weather_station_dist_km",
+        "weather_station_within_limit", "counter_station_m",
+        "counter_section_start_km", "counter_section_end_km",
+        "source_station_min_m", "source_station_max_m", "channel_count",
+        "source_fastnr",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Counter sections are missing columns: {sorted(missing)}")
+    table = source[columns].sort_values(
+        ["year", "road_section", "counter_station_m"]
+    )
+    table["weather_station_id"] = pd.to_numeric(
+        table["weather_station_id"], errors="coerce"
+    ).astype("Int64")
+    count = write_csv(table, output / "counter_sections.csv")
+    return (
+        "counter_sections.csv", count, columns,
+        "Counter-section lengths, locations, source channels, and nearest weather stations.",
+    )
+
+
+def export_daily_weather_rate(
+    output: Path,
+) -> tuple[str, int, list[str], str] | None:
+    path = ROOT / "traffic/daily_weather_rate.csv"
+    if not path.exists():
+        return None
+    source = read_table(path)
+    columns = [
+        "variable", "outcome", "period", "bin_label", "bin_order", "accidents",
+        "estimated_vehicle_km", "rate_per_100m_vehicle_km", "counter_days",
+        "counter_sections",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Daily weather rate is missing columns: {sorted(missing)}")
+    table = source[columns].sort_values(["variable", "outcome", "period", "bin_order"])
+    count = write_csv(table, output / "daily_weather_rate.csv")
+    return (
+        "daily_weather_rate.csv", count, columns,
+        "07:00--24:00 daily-counter accident rates per 100 million vehicle-km by weather interval.",
+    )
+
 def export_selection_summary(output: Path) -> tuple[int, list[str]]:
     """Write the small count table used for the three data-selection figures."""
     all_accidents = read_table(ROOT / "accidents/all.csv")

@@ -144,7 +144,7 @@ def weather_cleaning(output: Path) -> None:
 
 
 def coverage(output: Path) -> None:
-    match = pd.read_csv("reports/main/tables/wind_coverage.csv")
+    weather_oe = pd.read_csv("reports/main/tables/weather_oe.csv")
     temp = pd.read_csv("reports/main/tables/temperature_coverage.csv").iloc[0]
     accidents = pd.read_csv("data/analysis/accidents.csv", usecols=["id", "year", "road_section"])
     annual = pd.read_csv("data/analysis/annual_traffic.csv", usecols=["year", "road_section"])
@@ -157,17 +157,24 @@ def coverage(output: Path) -> None:
     daily_wind = int(selection.loc[selection["step"].eq("counter_days_with_daytime_wind"), "records"].iloc[0])
     allocated = pd.read_csv("reports/working/tables/allocated_rate_audit.csv").set_index("metric")["value"]
     full = pd.read_csv("reports/working/tables/day_rate_audit.csv").set_index("metric")["value"]
-    total = int(match["scope_accidents"].max())
-    rows = []
-    for radius in [10, 20, 30]:
-        row = match[match["radius_km"].eq(radius)].iloc[0]
-        name = f"Wind match within {radius} km" + (" (primary)" if radius == 20 else "")
-        rows.append([name, f"{int(row.analysed_accidents):,}", f"{total:,}", f"{row.coverage_pct:.2f}%"])
+    total = len(accidents)
+    wind = weather_oe[
+        weather_oe["variable"].eq("f")
+        & weather_oe["period"].eq("All year")
+        & weather_oe["outcome"].eq("Minor injury accidents")
+    ]
+    severe = weather_oe[
+        weather_oe["variable"].eq("f")
+        & weather_oe["period"].eq("All year")
+        & weather_oe["outcome"].eq("Severe/fatal accidents")
+    ]
+    wind_matched = int(wind["observed_accidents"].sum() + severe["observed_accidents"].sum())
+    rows = [["Wind match within 20 km", f"{wind_matched:,}", f"{total:,}", f"{100*wind_matched/total:.2f}%"]]
     rows.extend(
         [
             ["Temperature match within 20 km", f"{int(temp.temperature_available):,}", f"{total:,}", f"{temp.temperature_coverage_pct:.2f}%"],
             ["Exact annual road-section match, 2007--2025", f"{exact:,}", f"{total:,}", f"{100*exact/total:.2f}%"],
-            ["Stratified accident-rate analysis", f"{int(rate.model_accidents):,}", f"{int(match.loc[match['radius_km'].eq(20), 'analysed_accidents'].iloc[0]):,}", f"{100*rate.model_accidents/int(match.loc[match['radius_km'].eq(20), 'analysed_accidents'].iloc[0]):.2f}%"],
+            ["Stratified accident-rate analysis", f"{int(rate.model_accidents):,}", f"{wind_matched:,}", f"{100*rate.model_accidents/wind_matched:.2f}%"],
             ["Daily counter-days with daytime wind", f"{daily_wind:,}", f"{daily_total:,}", f"{100*daily_wind/daily_total:.2f}%"],
             ["Allocated daily-counter rate, 2019--2024", f"{int(allocated['same_station_valid_daily_traffic_and_accident_wind']):,}", "1,863", f"{100*allocated['same_station_valid_daily_traffic_and_accident_wind']/1863:.2f}%"],
             ["Full-day-mean daily-counter check, 2019--2024", f"{int(full['with_valid_counter_day']):,}", "1,863", f"{100*full['with_valid_counter_day']/1863:.2f}%"],
@@ -204,37 +211,30 @@ def match_quality(output: Path) -> None:
 
 def year_comparison(output: Path) -> None:
     yearly = pd.read_csv("reports/main/tables/year_oe.csv")
-    pooled_sources = {
-        "f": ("reports/main/tables/mean_wind_oe.csv", "mean_wind_interval_ms"),
-        "temperature": (
-            "reports/main/tables/temperature_oe.csv", "temperature_interval_c"
-        ),
-    }
+    pooled = pd.read_csv("reports/main/tables/weather_oe.csv")
+    pooled = pooled[pooled["period"].eq("All year")].groupby(
+        ["variable", "bin_label"], as_index=False, observed=True
+    ).agg(observed_accidents=("observed_accidents", "sum"),
+          expected_accidents=("expected_accidents", "sum"))
+    pooled["observed_expected_ratio"] = pooled["observed_accidents"] / pooled["expected_accidents"]
     selected = {
-        "f": ["15-20", "20-25", ">=25"],
-        "temperature": ["-3-0", "0-3", "3-6"],
+        "f": ["15-20", ">=20"],
+        "temperature": ["-3-0", "0-3", "3-6", ">=12"],
     }
     names = {"f": "Mean wind (m/s)", "temperature": "Temperature (deg C)"}
     rows = []
     for variable, intervals in selected.items():
-        path, bin_column = pooled_sources[variable]
-        pooled = pd.read_csv(path).set_index(bin_column)
+        pooled_variable = pooled[pooled["variable"].eq(variable)].set_index("bin_label")
         adjusted = yearly[yearly["variable"].eq(variable)].set_index("coarse_bin")
         for bin_label in intervals:
-            first = pooled.loc[bin_label]
+            first = pooled_variable.loc[bin_label]
             second = adjusted.loc[bin_label]
             display_interval = interval(bin_label)
             rows.append([
                 names[variable], display_interval,
                 f"{int(second.observed_accidents):,}",
-                estimate(
-                    first, "observed_expected_ratio",
-                    "station_bootstrap_ci_95_low", "station_bootstrap_ci_95_high"
-                ),
-                estimate(
-                    second, "observed_expected_ratio",
-                    "bootstrap_ci_95_low", "bootstrap_ci_95_high"
-                ),
+                f"{first.observed_expected_ratio:.2f}",
+                f"{second.observed_expected_ratio:.2f}",
             ])
     write_table(
         output / "year_oe.tex",
@@ -242,36 +242,11 @@ def year_comparison(output: Path) -> None:
         "tab:year-oe", r"L{0.17\textwidth}L{0.09\textwidth}rL{0.27\textwidth}X",
         [
             "Variable", "Interval", "Observed",
-            r"Station + season O/E (95\% interval)",
-            r"Station + season + year O/E (95\% interval)",
+            r"Station + season O/E",
+            r"Station + season + year O/E",
         ],
         rows, size="footnotesize", width=r"\textwidth",
     )
-
-
-def radius_tables(output: Path) -> None:
-    wind = pd.read_csv("reports/main/tables/wind_radius.csv")
-    rows = []
-    for item in wind.itertuples(index=False):
-        rows.append([
-            f"{item.radius_km} km", "Yes" if item.primary_radius else "No",
-            interval(item.coarse_bin), f"{item.observed_accidents:,}", f"{item.expected_accidents:.1f}",
-            f"{item.relative_accident_frequency:.2f} ({item.bootstrap_ci_95_low:.2f}--{item.bootstrap_ci_95_high:.2f})",
-        ])
-    write_table(output / "mean_wind_radius.tex", "Primary mean-wind O/E under three weather-station distance limits", "tab:mean-wind-radius", "rrlrrr", ["Radius", "Primary", "Mean wind", "Observed", "Expected", r"O/E (95\% interval)"], rows)
-    results = pd.read_csv("reports/main/tables/oe_results.csv")
-    gust = results[
-        results["variable"].eq("fg") & results["severity_group"].eq("Injury accidents")
-        & results["analysis_season"].eq("All seasons") & results["coarse_bin"].eq(">=35")
-        & results["radius_km"].isin([10, 20, 30])
-    ].sort_values("radius_km")
-    rows = [[
-        f"{int(row.radius_km)} km" + (" (primary)" if row.radius_km == 20 else ""),
-        f"{int(results[(results.variable.eq('fg')) & (results.radius_km.eq(row.radius_km)) & (results.severity_group.eq('Injury accidents')) & (results.analysis_season.eq('All seasons'))].observed_accidents.sum()):,}",
-        f"{int(row.observed_accidents):,}", f"{row.relative_accident_frequency:.2f}",
-        f"{row.bootstrap_ci_95_low:.2f}--{row.bootstrap_ci_95_high:.2f}",
-    ] for row in gust.itertuples(index=False)]
-    write_table(output / "gust_radius.tex", "Highest-gust result under three weather-station distance limits", "tab:radius-comparison", "rrrrr", ["Maximum distance", "Matched accidents", r"Observed at $\geq35$", "O/E", r"95\% interval"], rows)
 
 
 def traffic_tables(output: Path) -> None:
@@ -411,16 +386,21 @@ def traffic_tables(output: Path) -> None:
 
 
 def evidence(output: Path) -> None:
-    oe = pd.read_csv("reports/main/tables/mean_wind_oe.csv")
+    oe = pd.read_csv("reports/main/tables/weather_oe.csv")
     case = pd.read_csv("reports/main/tables/matched_weather.csv")
     rate = pd.read_csv("reports/main/tables/wind_rate.csv")
     daily = pd.read_csv("reports/main/tables/allocated_rate.csv")
-    a = oe[oe["mean_wind_interval_ms"].eq("20-25")].iloc[0]
+    a_rows = oe[
+        oe["variable"].eq("f") & oe["period"].eq("All year")
+        & oe["bin_label"].eq(">=20")
+    ]
+    a_observed = int(a_rows["observed_accidents"].sum())
+    a_expected = float(a_rows["expected_accidents"].sum())
     b = case[(case["exposure"].eq("mean_wind")) & (case["comparison"].eq(">=15"))].iloc[0]
     c = rate[rate["bin_label"].eq("20-25")].iloc[0]
     d = daily[daily["wind_bin"].eq(">=15")].iloc[0]
     rows = [
-        ["Primary O/E", "20--25 m/s", estimate(a, "observed_expected_ratio", "station_bootstrap_ci_95_low", "station_bootstrap_ci_95_high"), "Accident occurrence relative to local wind frequency; traffic is not included."],
+        ["Weather-frequency O/E", r"$\geq20$ m/s", f"O/E {a_observed/a_expected:.2f}", "Descriptive accident occurrence relative to local wind frequency; traffic is not included."],
         ["Matched time", r"$\geq15$ vs 0--5 m/s", estimate(b, "odds_ratio", "ci_95_low", "ci_95_high", "OR "), "Same calendar time; no direct measure of unusual daily travel changes."],
         ["Road-section traffic", "20--25 vs 0--5 m/s", estimate(c, "time_proportional_rate_ratio", "time_proportional_ci_95_low", "time_proportional_ci_95_high", "RR "), "Within road, year and traffic period; traffic is estimated from annual values."],
         ["Allocated daily rate", r"$\geq15$ vs 0--10 m/s", estimate(d, "rate_ratio", "ci_95_low", "ci_95_high", "RR "), f"Observed daily total with estimated within-day allocation; {int(d.model_accidents)} linked accidents."],
@@ -437,7 +417,6 @@ def main() -> None:
     match_quality(args.output)
     year_comparison(args.output)
     coverage(args.output)
-    radius_tables(args.output)
     traffic_tables(args.output)
     evidence(args.output)
     print(f"wrote generated thesis tables to {args.output}")

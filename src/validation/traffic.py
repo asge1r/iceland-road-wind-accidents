@@ -12,6 +12,7 @@ from src.validation.common import (
     DEFAULT_DAILY_SEASON_INTERACTION,
     DEFAULT_DAILY_SEASON_OE,
     DEFAULT_DAILY_SEASON_PANEL,
+    DEFAULT_DAILY_WEATHER_RATE,
     DEFAULT_TEMPERATURE_RATE,
     DEFAULT_RATE_MODEL,
     DEFAULT_TRAFFIC_ALLOCATION_CHECK,
@@ -121,7 +122,7 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
     """Check the three denominators shown in the main wind O/E figure."""
     result = pd.read_csv(DEFAULT_WIND_OE_COMPARISON)
     expected_bins = {
-        "Weather frequency": ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"],
+        "Weather frequency": ["0-5", "5-10", "10-15", "15-20", ">=20"],
         "Annual traffic": ["0-5", "5-10", "10-15", "15-20", "20-25", ">=25"],
         "Daily traffic": ["0-10", "10-15", ">=15"],
     }
@@ -132,7 +133,8 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
     }
     require(
         set(result["method"]) == set(expected_bins)
-        and result["bootstrap_replicates"].eq(5000).all(),
+        and result.loc[result["method"].eq("Weather frequency"), "bootstrap_replicates"].eq(0).all()
+        and result.loc[~result["method"].eq("Weather frequency"), "bootstrap_replicates"].eq(5000).all(),
         "Main wind O/E comparison has unexpected methods or bootstrap scope",
     )
     for method, bins in expected_bins.items():
@@ -142,8 +144,13 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
             and rows["analysis_accidents"].eq(expected_samples[method]).all()
             and int(rows["observed_accidents"].sum()) == expected_samples[method]
             and np.isclose(rows["expected_accidents"].sum(), expected_samples[method])
-            and rows["ci_95_low"].le(rows["observed_expected_ratio"]).all()
-            and rows["observed_expected_ratio"].le(rows["ci_95_high"]).all(),
+            and (
+                method == "Weather frequency"
+                or (
+                    rows["ci_95_low"].le(rows["observed_expected_ratio"]).all()
+                    and rows["observed_expected_ratio"].le(rows["ci_95_high"]).all()
+                )
+            ),
             f"Main wind O/E comparison is inconsistent for {method}",
         )
     require(
@@ -157,6 +164,36 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
         ]["observed_expected_ratio"].iloc[0]) > 1,
         "Traffic-standardised upper-wind O/E no longer supports the main direction",
     )
+    return result
+
+
+def validate_daily_weather_rate() -> pd.DataFrame:
+    """Check Kristján's counter-section vehicle-kilometre result."""
+    result = pd.read_csv(DEFAULT_DAILY_WEATHER_RATE)
+    required = {
+        "variable", "outcome", "period", "bin_label", "accidents",
+        "estimated_vehicle_km", "rate_per_100m_vehicle_km",
+    }
+    require(required <= set(result), "Daily counter-section rate table is incomplete")
+    require(
+        set(result["variable"]) == {"f", "fg", "temperature"}
+        and set(result["outcome"]) == {
+            "Minor injury accidents", "Severe/fatal accidents"
+        }
+        and set(result["period"]) == {
+            "All year", "Winter", "Spring", "Summer", "Autumn"
+        }
+        and result["estimated_vehicle_km"].gt(0).all()
+        and result["rate_per_100m_vehicle_km"].ge(0).all(),
+        "Daily counter-section rate categories or exposure are invalid",
+    )
+    annual = result[result["period"].eq("All year")]
+    for variable in ["f", "fg", "temperature"]:
+        rows = annual[annual["variable"].eq(variable)]
+        require(
+            int(rows["accidents"].sum()) == 615,
+            f"Annual {variable} counter-section outcomes do not partition 615 accidents",
+        )
     return result
 
 
@@ -263,44 +300,12 @@ def validate_traffic_models(
 
 
 def validate_traffic_checks(
-    radius_result_path: Path, traffic_checks_path: Path,
+    traffic_checks_path: Path,
     daily_rate_path: Path, daily_rate_coarse_path: Path,
     daily_rate_radius_path: Path, daily_duration_path: Path,
     daily_allocated_path: Path, daily_sample_path: Path, daily_serious_path: Path,
-    daily_07_24_path: Path, mean_wind: pd.DataFrame,
+    daily_07_24_path: Path,
 ) -> dict[str, object]:
-    radius_result = pd.read_csv(radius_result_path)
-    require(len(radius_result) == 9, "Primary radius table must contain nine rows")
-    primary_radius = radius_result[radius_result["primary_radius"]].sort_values("coarse_bin")
-    primary_wind = mean_wind[
-        mean_wind["mean_wind_interval_ms"].isin(primary_radius["coarse_bin"])
-    ].sort_values("mean_wind_interval_ms")
-    require(
-        primary_radius["coarse_bin"].tolist()
-        == primary_wind["mean_wind_interval_ms"].tolist()
-        and np.allclose(
-            primary_radius["relative_accident_frequency"],
-            primary_wind["observed_expected_ratio"],
-            atol=0.01,
-        )
-        and np.allclose(
-            primary_radius["bootstrap_ci_95_low"],
-            primary_wind["station_bootstrap_ci_95_low"],
-            atol=0.01,
-        )
-        and np.allclose(
-            primary_radius["bootstrap_ci_95_high"],
-            primary_wind["station_bootstrap_ci_95_high"],
-            atol=0.01,
-        ),
-        "Primary radius rows do not match the primary mean-wind table",
-    )
-    radius_20_25 = radius_result[radius_result["coarse_bin"].eq("20-25")]
-    require(
-        set(radius_20_25["radius_km"]) == {10, 20, 30}
-        and radius_20_25["relative_accident_frequency"].gt(1).all(),
-        "Primary 20--25 m/s radius sensitivity is incomplete or inconsistent",
-    )
     traffic_checks = pd.read_csv(traffic_checks_path)
     official_20_25 = traffic_checks[
         traffic_checks["check"].eq("Rate model, 20-25 m/s")
@@ -456,8 +461,8 @@ def validate_traffic_checks(
         )
     seasonal_checks = validate_daily_season_results()
     wind_oe_comparison = validate_wind_oe_comparison()
+    daily_weather_rate = validate_daily_weather_rate()
     return {
-        "radius_20_25": radius_20_25,
         "official_20_25": official_20_25.iloc[0],
         "allocation_check": allocation_check, "daily_20_25": daily_20_25,
         "daily_rate_high": daily_rate_high,
@@ -470,4 +475,5 @@ def validate_traffic_checks(
         "daily_07_24": daily_07_24,
         **seasonal_checks,
         "wind_oe_comparison": wind_oe_comparison,
+        "daily_weather_rate": daily_weather_rate,
     }

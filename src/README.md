@@ -18,10 +18,10 @@ The folders below contain the small steps called by the entry points:
 - `accidents/`: build the accident table and attach weather.
 - `weather/`: clean wind measurements and calculate local wind frequency.
 - `traffic/`: read annual and optional daily traffic data.
-- `analysis/`: shared calculations without command-line or file-output code.
-  `oe_analysis.py` contains wind, gust, and temperature O/E; `traffic_daily.py`
-  contains the seasonal daily-traffic models, with panel construction and the
-  reusable rate fit in `traffic_daily_panel.py` and `traffic_rate.py`.
+- `analysis/`: shared analytical calculations. `oe_analysis.py` writes the one
+  weather O/E result table; `traffic_daily.py` contains the seasonal
+  daily-traffic calculations, with panel construction and the reusable rate
+  fit in `traffic_daily_panel.py` and `traffic_rate.py`.
 - `tables/`: calculate numerical results from the analysis CSVs.
 - `figures/`: create data-flow and descriptive figures.
 - `validation/`: check data contracts, sample counts, and reported results.

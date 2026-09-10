@@ -25,7 +25,7 @@ from src.accidents.match_weather import (
 from src.accidents.types import broad_accident_family
 from src.analysis.oe_analysis import (
     VARIABLES,
-    cluster_bootstrap,
+    prepare_frequency,
     station_frequency_scenario,
 )
 from src.weather.clean import (
@@ -119,7 +119,9 @@ def adjusted_frequency(base: pd.DataFrame, returned: pd.DataFrame) -> pd.DataFra
         100 * frequency["measurement_count"]
         / frequency["total_measurements_in_period"]
     )
-    return frequency.rename(columns={"station": "weather_station_id"})
+    return prepare_frequency(frequency).rename(
+        columns={"station": "weather_station_id"}
+    )
 
 
 def valid_wind(weather: pd.DataFrame) -> pd.Series:
@@ -156,8 +158,6 @@ def scenario_result(
     base_frequency: pd.DataFrame,
     all_runs: dict[int, list[tuple[np.datetime64, np.datetime64]]],
     threshold_hours: int | None,
-    reps: int,
-    seed: int,
 ) -> pd.DataFrame:
     excluded, returned = split_runs(all_runs, threshold_hours)
     weather = candidate_weather[valid_wind(candidate_weather)].copy()
@@ -182,11 +182,10 @@ def scenario_result(
         expected_accidents=("expected_accidents", "sum"),
         background_measurements=("measurement_count", "sum"),
     ).rename(columns={"weather_bin": "coarse_bin"})
-    intervals, _ = cluster_bootstrap(station_bins, "f", reps, seed)
     result = station_bins.groupby("coarse_bin", as_index=False, observed=False).agg(
         observed_accidents=("observed_accidents", "sum"),
         expected_accidents=("expected_accidents", "sum"),
-    ).merge(intervals, on="coarse_bin", how="left", validate="one_to_one")
+    )
     result["observed_expected_ratio"] = (
         result["observed_accidents"] / result["expected_accidents"]
     )
@@ -196,7 +195,6 @@ def scenario_result(
     return result[[
         "zero_run_rule", "matched_accidents", "coarse_bin",
         "observed_accidents", "expected_accidents", "observed_expected_ratio",
-        "bootstrap_ci_95_low", "bootstrap_ci_95_high",
     ]]
 
 
@@ -208,7 +206,6 @@ def main() -> None:
     parser.add_argument("-s", "--stations", type=Path, default=STATIONS)
     parser.add_argument("-f", "--frequency", type=Path, default=BASE_FREQUENCY)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
-    parser.add_argument("-b", "--bootstrap-reps", type=int, default=5000)
     args = parser.parse_args()
 
     source = pq.ParquetFile(args.weather)
@@ -224,9 +221,9 @@ def main() -> None:
     results = [
         scenario_result(
             events, accidents, candidates, candidate_weather, base_frequency,
-            all_runs, threshold, args.bootstrap_reps, 20260908 + index,
+            all_runs, threshold,
         )
-        for index, threshold in enumerate((2, 24, None))
+        for threshold in (2, 24, None)
     ]
     output = pd.concat(results, ignore_index=True)
     args.output.parent.mkdir(parents=True, exist_ok=True)

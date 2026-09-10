@@ -21,11 +21,7 @@ non-overlapping fatal-or-serious group. Percentages sum to 100 within each
 severity group.}
 \end{figure}
 
-\section{Wind Gust Distance Check}
-
-\input{generated/gust_radius.tex}
-
-\section{Mean-Wind Subgroups}
+\section{Serious-or-Fatal Annual-Traffic Model}
 
 \begin{figure}[htbp]
 \centering
@@ -36,34 +32,7 @@ so the estimates show direction and uncertainty rather than
 precise differences between seasons.}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{wind_season_oe.png}
-\caption{Mean-wind O/E estimates by study season. These estimates are
-shown as a descriptive subgroup analysis; high-wind bins are sparse after the
-sample is divided by season. All panels share one vertical scale; grey bars
-contain fewer than 20 accidents.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{wind_vehicle.png}
-\caption{Mean-wind O/E estimates by the number of registered vehicles involved.
-This is a descriptive subgroup analysis; it does not establish accident type or
-vehicle count as an explanatory variable. Both panels share one vertical scale;
-grey bars contain fewer than 20 accidents.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{wind_type.png}
-\caption{Mean-wind O/E estimates for single-vehicle run-off-road, rollover,
-fall, or other events and for all other accident types. At least 20 m/s, the
-combined O/E is 2.37 for the single-vehicle family and 1.75 for other types.
-The figure is descriptive and is not a formal test of interaction.}
-\end{figure}
-
-\section{Raw Condition Counts, Temperature by Season, and Adjusted Severity}
+\section{Raw Condition Counts and Adjusted Severity}
 
 \begin{figure}[htbp]
 \centering
@@ -74,15 +43,6 @@ serious-or-fatal accidents. Labels give total accidents. Hour, season, and
 daylight use all 6,414 accidents; temperature uses the 6,259 qualifying
 matches. These panels describe the sample and do not estimate risk.}
 \label{fig:accident-conditions}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{temperature_season.png}
-\caption{Temperature O/E by season using three broad intervals formed by
-summing the fixed temperature bins. The changing direction between seasons
-shows why the pooled temperature result should be interpreted cautiously. Labels are
-observed accidents.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -122,6 +82,32 @@ Grey bars contain fewer than 20 counters.}
 \end{figure}
 
 \input{generated/adu_quality.tex}
+
+\section{Seasonal Counter-Section Weather Rates}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{f_traffic_rate_panels.png}
+\caption{Seasonal mean-wind accident rates at selected counter-sections,
+2019--2024. Daily traffic totals are observed; their allocation among weather
+intervals is estimated from 07:00--24:00 station--month frequencies. Counts
+above bars show why upper seasonal rates are descriptive.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fg_traffic_rate_panels.png}
+\caption{Seasonal wind-gust accident rates using the same counter-section
+traffic allocation. Upper intervals contain few accidents.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{temperature_traffic_rate_panels.png}
+\caption{Seasonal temperature accident rates using the same counter-section
+traffic allocation. These selected-counter rates are supporting results, not
+national rates.}
+\end{figure}
 
 \section{Full-Day-Mean Daily-Counter Check}
 \label{app:daily-counter-rate}
@@ -199,8 +185,6 @@ Table~\ref{tab:traffic-scope} compares the all-period conditional model
 with a model restricted to official VDU and SDU traffic periods. The latter
 excludes April--May and October--November, for which VHDU is derived from ADU,
 SDU and VDU.
-
-\input{generated/estimated_rate.tex}
 
 \input{generated/traffic_scope.tex}
 
