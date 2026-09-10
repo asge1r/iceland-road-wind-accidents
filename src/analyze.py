@@ -47,15 +47,8 @@ def run(selected: Task, dry_run: bool = False) -> None:
 
 def primary_weather_tasks(bootstrap_reps: int) -> list[Task]:
     return [
-        task("src.analysis.oe_prepare"),
-        task("src.tables.oe", "-b", str(bootstrap_reps)),
-        task("src.tables.weather_oe_panels"),
-        task("src.tables.year_oe", "-b", str(bootstrap_reps)),
-        task("src.tables.wind_radius"),
-        task("src.figures.oe"),
-        task("src.figures.weather_oe_panels", "-v", "f"),
-        task("src.figures.weather_oe_panels", "-v", "fg"),
-        task("src.figures.weather_oe_panels", "-v", "temperature"),
+        task("src.analysis.oe_analysis"),
+        task("src.figures.oe_histo"),
     ]
 
 

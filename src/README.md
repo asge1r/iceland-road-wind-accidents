@@ -18,8 +18,8 @@ The folders below contain the small steps called by the entry points:
 - `accidents/`: build the accident table and attach weather.
 - `weather/`: clean wind measurements and calculate local wind frequency.
 - `traffic/`: read annual and optional daily traffic data.
-- `analysis/`: prepare station-season rows for O/E; `oe_analysis.py` holds the one
-  shared wind, gust, and temperature calculation without reading or writing files.
+- `analysis/`: run the weather O/E transformation; `oe_analysis.py` reads the
+  compact inputs and writes the shared wind, gust, and temperature result table.
 - `tables/`: calculate numerical results from the analysis CSVs.
 - `figures/`: create data-flow and descriptive figures.
 - `validation/`: check data contracts, sample counts, and reported results.

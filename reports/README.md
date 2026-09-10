@@ -7,8 +7,12 @@ temperature, wind gust, and the available traffic data.
 
 Key outputs are:
 
-- `figures/mean_wind_oe.png` and `tables/mean_wind_oe.csv`: the primary result
-  and its plotted values.
+- `figures/weather_oe_annual.png`: all three weather variables for the complete
+  year.
+- `figures/wind_oe_panels.png`, `figures/gust_oe_panels.png`, and
+  `figures/temperature_oe_panels.png`: the four seasonal panels for each
+  weather variable.
+- `tables/weather_oe.csv`: the plotted values for all four figures.
 - `tables/wind_radius.csv`: the upper-wind estimates under
   10, 20, and 30 km weather-station limits.
 - `tables/match_quality.csv`: transparent wind and temperature match counts,
@@ -23,8 +27,6 @@ Key outputs are:
 - `figures/wind_rate_severity.png`: the
   serious-or-fatal result retained in the appendix because its highest
   interval contains only four accidents.
-- `figures/gust_oe.png`: matched-time wind-gust O/E.
-- `figures/temperature_oe.png`: exploratory temperature O/E.
 - `figures/wind_season_oe.png` and
   `figures/wind_vehicle.png`: descriptive mean-wind subgroups.
 - `figures/wind_duration.png` and

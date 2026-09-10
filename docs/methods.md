@@ -133,6 +133,15 @@ data cover only selected counters in 2019--2024.
 
 ## Counter coordinates
 
+A counter-section is the portion of an official road section assigned to one
+physical traffic-counter site. Within each road section and calendar year,
+distinct `fastnr` channels whose complete range of PDF `stöð` values is at
+most 20 m are assigned to one physical site. Their daily counts are summed
+when daily exposure is constructed. Counter-section boundaries are the
+midpoints between the resulting sites; the first and last sections extend to
+the ends of the annual official road section. The counter-sections therefore
+partition, rather than duplicate, the source road-section length.
+
 In the current reproducible pipeline, a PDF `stöð` is the primary location
 evidence. It is interpolated along the Road Administration's official road
 geometry using the official start/end station values from MapServer/6. The

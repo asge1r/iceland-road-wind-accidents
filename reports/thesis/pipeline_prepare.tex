@@ -24,8 +24,8 @@ Downloads the complete official station-file delivery and combines study-period 
 Applies the fixed weather-quality rules and records annual counts. \\ \grayhline
 \path{weather/frequency.py} &
 \emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
-\emph{\path{processed/weather/}}\newline{}\path{frequency.csv}\newline{}\path{yearly_frequency.csv}\newline{}\path{temperature_frequency.csv}\newline{}\path{traffic_frequency.csv} &
-Counts pooled and yearly local weather frequency for O/E and traffic models. \\ \grayhline
+\emph{\path{processed/weather/}}\newline{}\path{frequency.csv}\newline{}\path{yearly_frequency.csv}\newline{}\path{monthly_frequency.csv}\newline{}\path{temperature_frequency.csv}\newline{}\path{traffic_frequency.csv} &
+Counts pooled station-season, station-year-season, and station-calendar-month weather frequencies for O/E and traffic models. \\ \grayhline
 \path{traffic/annual.py} &
 \emph{\path{raw/traffic/annual/}}\newline{}\path{*.xls*} &
 \emph{\path{processed/traffic/}}\newline{}\path{annual.csv} &
@@ -49,15 +49,27 @@ Aligns accident wind and temperature with the road-exposure station. \\ \grayhli
 \path{traffic/daily.py} &
 \emph{\path{raw/traffic/daily_pdf/}}\newline{}\path{*.pdf} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv} &
-Parses one daily count per counter channel and date. \\ \grayhline
+Parses daily lane/channel counts and sums channels with identical road section and \texttt{stöð}. \\ \grayhline
 \path{traffic/download_roads.py} &
 VGD-R MapServer layer 6 &
 \emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
 Downloads the unchanged public road reference. \\ \grayhline
+\path{traffic/counter_sections.py} &
+\emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}, \path{annual.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
+\emph{\path{processed/traffic/}}\newline{}\path{counter_sections.csv} &
+Combines counter channels within a 20 m complete span, divides each annual road section at counter midpoints, and attaches the nearest valid weather station. \\ \grayhline
+\path{traffic/assign_counter_sections.py} &
+\emph{\path{processed/accidents/}}\newline{}\path{all.csv}\newline{}\emph{\path{processed/traffic/}}\newline{}\path{counter_sections.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
+\emph{\path{processed/accidents/}}\newline{}\path{accidents-near-counter.csv} &
+Selects 2019--2024 rural injury accidents, projects them to their registered road geometry, and retains those within 100 m of the road and a valid counter-section. \\ \grayhline
+\path{traffic/daily_weather_rate.py} &
+\emph{\path{processed/accidents/}}\newline{}\path{accidents-near-counter.csv}\newline{}\emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}, \path{counter_sections.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{monthly_frequency.csv}, \path{weather.parquet} &
+\emph{\path{processed/traffic/}}\newline{}\path{daily_weather_rate.csv} &
+Allocates 07:00--24:00 daily counter vehicle-km by station-calendar-month weather frequency and reports injury and severe/fatal accident rates per million vehicle-km. \\ \grayhline
 \path{traffic/locate_counters.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily.csv} &
-Combines directional channels and locates counters. \\ \grayhline
+Locates the exact-\texttt{stöð} counter records along official road geometry. \\ \grayhline
 \path{traffic/daily_weather.py} &
 \emph{\path{processed/}}\newline{}\path{traffic/daily.csv}\newline{}\path{weather/weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_match.parquet}\newline{}\path{daily_weather.csv} &

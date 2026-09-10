@@ -27,6 +27,9 @@ CORE_PREPARE_STEPS = [
 DAILY_TRAFFIC_STEPS = [
     "src.traffic.daily",
     "src.traffic.download_roads",
+    "src.traffic.counter_sections",
+    "src.traffic.assign_counter_sections",
+    "src.traffic.daily_weather_rate",
     "src.traffic.locate_counters",
     "src.traffic.daily_weather",
     "src.traffic.accident_wind",
