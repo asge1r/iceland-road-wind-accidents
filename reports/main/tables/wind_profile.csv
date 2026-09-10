@@ -1,45 +1,45 @@
 dimension,category,scope,accidents,percent,scope_accidents
-vehicle_group,1 vehicle,Primary wind sample,4464,72.09302325581395,6192
-vehicle_group,2 or more vehicles,Primary wind sample,1728,27.906976744186046,6192
-vehicle_group,1 vehicle,Mean wind >=15 m/s,189,63.0,300
-vehicle_group,2 or more vehicles,Mean wind >=15 m/s,111,37.0,300
-severity,Fatal,Primary wind sample,139,2.244832041343669,6192
-severity,Serious,Primary wind sample,1265,20.429586563307492,6192
-severity,Minor injury,Primary wind sample,4788,77.32558139534883,6192
-severity,Fatal,Mean wind >=15 m/s,8,2.6666666666666665,300
-severity,Serious,Mean wind >=15 m/s,52,17.333333333333332,300
-severity,Minor injury,Mean wind >=15 m/s,240,80.0,300
-season,Winter,Primary wind sample,2033,32.832687338501295,6192
-season,Spring,Primary wind sample,790,12.758397932816537,6192
-season,Summer,Primary wind sample,2273,36.708656330749356,6192
-season,Fall,Primary wind sample,1096,17.700258397932817,6192
-season,Winter,Mean wind >=15 m/s,155,51.666666666666664,300
-season,Spring,Mean wind >=15 m/s,39,13.0,300
-season,Summer,Mean wind >=15 m/s,50,16.666666666666668,300
-season,Fall,Mean wind >=15 m/s,56,18.666666666666668,300
-daylight_class,Darkness,Primary wind sample,1444,23.320413436692508,6192
-daylight_class,Civil twilight,Primary wind sample,654,10.562015503875969,6192
-daylight_class,Daylight,Primary wind sample,4094,66.11757105943153,6192
-daylight_class,Darkness,Mean wind >=15 m/s,77,25.666666666666668,300
-daylight_class,Civil twilight,Mean wind >=15 m/s,29,9.666666666666666,300
-daylight_class,Daylight,Mean wind >=15 m/s,194,64.66666666666667,300
-accident_family,"Animals, fixed objects, and other events",Primary wind sample,389,6.282299741602067,6192
-accident_family,Bicycles,Primary wind sample,122,1.9702842377260983,6192
-accident_family,"Junctions, roundabouts, and priority",Primary wind sample,184,2.9715762273901807,6192
-accident_family,"Opposing, overtaking, or reversing vehicles",Primary wind sample,542,8.753229974160206,6192
-accident_family,Pedestrians and horse riders,Primary wind sample,97,1.5665374677002584,6192
-accident_family,"Same direction: overtaking, lane change, or rear-end",Primary wind sample,498,8.042635658914728,6192
-accident_family,"Single vehicle: run-off-road, rollover, fall, or other",Primary wind sample,4154,67.08656330749353,6192
-accident_family,Stopped or parked vehicles,Primary wind sample,27,0.436046511627907,6192
-accident_family,Turning and changes in direction,Primary wind sample,178,2.8746770025839794,6192
-accident_family,Unclassified,Primary wind sample,1,0.01614987080103359,6192
-accident_family,"Animals, fixed objects, and other events",Mean wind >=15 m/s,18,6.0,300
-accident_family,Bicycles,Mean wind >=15 m/s,1,0.3333333333333333,300
-accident_family,"Junctions, roundabouts, and priority",Mean wind >=15 m/s,7,2.3333333333333335,300
-accident_family,"Opposing, overtaking, or reversing vehicles",Mean wind >=15 m/s,32,10.666666666666666,300
-accident_family,Pedestrians and horse riders,Mean wind >=15 m/s,5,1.6666666666666667,300
-accident_family,"Same direction: overtaking, lane change, or rear-end",Mean wind >=15 m/s,38,12.666666666666666,300
-accident_family,"Single vehicle: run-off-road, rollover, fall, or other",Mean wind >=15 m/s,188,62.666666666666664,300
-accident_family,Stopped or parked vehicles,Mean wind >=15 m/s,5,1.6666666666666667,300
-accident_family,Turning and changes in direction,Mean wind >=15 m/s,6,2.0,300
-accident_family,Unclassified,Mean wind >=15 m/s,0,0.0,300
+vehicle_group,1 vehicle,Primary wind sample,4522,72.24796293337594,6259
+vehicle_group,2 or more vehicles,Primary wind sample,1737,27.752037066624062,6259
+vehicle_group,1 vehicle,Mean wind >=15 m/s,177,62.10526315789474,285
+vehicle_group,2 or more vehicles,Mean wind >=15 m/s,108,37.89473684210526,285
+severity,Fatal,Primary wind sample,141,2.2527560313149064,6259
+severity,Serious,Primary wind sample,1283,20.49848218565266,6259
+severity,Minor injury,Primary wind sample,4835,77.24876178303244,6259
+severity,Fatal,Mean wind >=15 m/s,6,2.1052631578947367,285
+severity,Serious,Mean wind >=15 m/s,51,17.894736842105264,285
+severity,Minor injury,Mean wind >=15 m/s,228,80.0,285
+season,Winter,Primary wind sample,2055,32.83272088193002,6259
+season,Spring,Primary wind sample,795,12.701709538264899,6259
+season,Summer,Primary wind sample,2300,36.7470841987538,6259
+season,Fall,Primary wind sample,1109,17.718485381051288,6259
+season,Winter,Mean wind >=15 m/s,145,50.87719298245614,285
+season,Spring,Mean wind >=15 m/s,37,12.982456140350877,285
+season,Summer,Mean wind >=15 m/s,49,17.19298245614035,285
+season,Fall,Mean wind >=15 m/s,54,18.94736842105263,285
+daylight_class,Darkness,Primary wind sample,1459,23.31043297651382,6259
+daylight_class,Civil twilight,Primary wind sample,662,10.576769451989136,6259
+daylight_class,Daylight,Primary wind sample,4138,66.11279757149704,6259
+daylight_class,Darkness,Mean wind >=15 m/s,72,25.263157894736842,285
+daylight_class,Civil twilight,Mean wind >=15 m/s,26,9.12280701754386,285
+daylight_class,Daylight,Mean wind >=15 m/s,187,65.6140350877193,285
+accident_family,"Animals, fixed objects, and other events",Primary wind sample,391,6.247004313788145,6259
+accident_family,Bicycles,Primary wind sample,122,1.9491931618469405,6259
+accident_family,"Junctions, roundabouts, and priority",Primary wind sample,185,2.9557437290301967,6259
+accident_family,"Opposing, overtaking, or reversing vehicles",Primary wind sample,548,8.755392235181338,6259
+accident_family,Pedestrians and horse riders,Primary wind sample,97,1.5497683335996166,6259
+accident_family,"Same direction: overtaking, lane change, or rear-end",Primary wind sample,498,7.956542578686691,6259
+accident_family,"Single vehicle: run-off-road, rollover, fall, or other",Primary wind sample,4212,67.29509506310912,6259
+accident_family,Stopped or parked vehicles,Primary wind sample,27,0.43137881450710974,6259
+accident_family,Turning and changes in direction,Primary wind sample,178,2.843904777120946,6259
+accident_family,Unclassified,Primary wind sample,1,0.015976993129892956,6259
+accident_family,"Animals, fixed objects, and other events",Mean wind >=15 m/s,14,4.912280701754386,285
+accident_family,Bicycles,Mean wind >=15 m/s,1,0.3508771929824561,285
+accident_family,"Junctions, roundabouts, and priority",Mean wind >=15 m/s,6,2.1052631578947367,285
+accident_family,"Opposing, overtaking, or reversing vehicles",Mean wind >=15 m/s,29,10.175438596491228,285
+accident_family,Pedestrians and horse riders,Mean wind >=15 m/s,4,1.4035087719298245,285
+accident_family,"Same direction: overtaking, lane change, or rear-end",Mean wind >=15 m/s,39,13.68421052631579,285
+accident_family,"Single vehicle: run-off-road, rollover, fall, or other",Mean wind >=15 m/s,182,63.85964912280702,285
+accident_family,Stopped or parked vehicles,Mean wind >=15 m/s,4,1.4035087719298245,285
+accident_family,Turning and changes in direction,Mean wind >=15 m/s,6,2.1052631578947367,285
+accident_family,Unclassified,Mean wind >=15 m/s,0,0.0,285

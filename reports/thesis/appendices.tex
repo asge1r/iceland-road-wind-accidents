@@ -71,7 +71,7 @@ The figure is descriptive and is not a formal test of interaction.}
 \caption{Raw counts of rural injury accidents by recorded hour, season,
 estimated daylight, and matched temperature, divided into minor-injury and
 serious-or-fatal accidents. Labels give total accidents. Hour, season, and
-daylight use all 6,414 accidents; temperature uses the 5,707 qualifying
+daylight use all 6,414 accidents; temperature uses the 6,259 qualifying
 matches. These panels describe the sample and do not estimate risk.}
 \label{fig:accident-conditions}
 \end{figure}
@@ -89,7 +89,7 @@ observed accidents.}
 \centering
 \includegraphics[width=\textwidth]{severity_conditions.png}
 \caption{Adjusted odds of serious-or-fatal rather than minor injury among
-5,707 recorded injury accidents with complete wind and temperature matches.
+6,259 recorded injury accidents with complete wind and temperature matches.
 The model contains all displayed variables together. It describes severity
 conditional on an accident and does not estimate accident occurrence.}
 \end{figure}
@@ -121,6 +121,20 @@ Grey bars contain fewer than 20 counters.}
 \label{fig:traffic-wind-period}
 \end{figure}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{daily_season_oe.png}
+\caption{Traffic-standardised rural injury-accident occurrence by wind speed
+and season at selected daily counters, 2019--2024. Expected counts are
+allocated within counter--year--season groups in proportion to estimated
+vehicle exposure. Each observed daily traffic total is allocated across wind
+intervals by the fraction of valid ten-minute observations in each interval;
+traffic within an interval is therefore estimated rather than directly
+observed. Labels show accidents; confidence intervals are reported in the
+result table.}
+\label{fig:daily-season-oe}
+\end{figure}
+
 \input{generated/adu_quality.tex}
 
 \section{Full-Day-Mean Daily-Counter Check}
@@ -132,8 +146,8 @@ Grey bars contain fewer than 20 counters.}
 \centering
 \includegraphics[width=\textwidth]{counter_coverage.png}
 \caption{Locations of the 1,863 rural injury accidents in 2019--2024 and the
-473 located daily counters. Colours distinguish the 758 accidents included in
-the allocated-rate model, the 106 with an exact link but another exclusion,
+473 located daily counters. Colours distinguish the 762 accidents included in
+the allocated-rate model, the 102 with an exact link but another exclusion,
 and the 999 without an exact same-year counter link. The map displays the
 geographic selectivity of the daily-counter sample; it is not a road-network
 rate map.}
@@ -159,7 +173,7 @@ serious-or-fatal accidents than the full 2019--2024 rural injury-accident set.
 The detailed table documents the standard wind intervals but is not used for
 upper-tail inference: the final two estimates are determined by one accident
 each and are extremely unstable. The coarse version combines the upper tail
-and gives a rate ratio of 2.42 (95\% CI 1.38--4.24) for at least 15 m/s. Both
+and gives a rate ratio of 2.73 (95\% CI 1.55--4.78) for at least 15 m/s. Both
 versions use the same 767 accidents, exact road-section/year assignment within
 20 km, and observed 24-hour traffic as the offset. Because a full-day mean
 does not represent conditions at the accident time, this is only a day-level
@@ -179,7 +193,7 @@ at least 15 m/s; stability across radii does not remove that limitation.
 \caption{Estimated mean-wind rate ratios from separate one-vehicle and
 multiple-vehicle models. The upper category contains 150 and 97 accidents,
 respectively, in the upper category. Comparisons are within road section, year,
-and traffic period; error bars are 95\% confidence intervals.}
+and traffic period. Confidence intervals are reported in the result tables.}
 \label{fig:traffic-rate-vehicle}
 \end{figure}
 

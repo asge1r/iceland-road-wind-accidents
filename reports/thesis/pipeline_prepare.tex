@@ -14,13 +14,17 @@ Script & Input file(s) & Output file(s) & Description \\
 \emph{\path{raw/accidents/}}\newline{}\path{accidents_*.txt}\newline{}\path{vehicles_*.txt}\newline{}\path{road_links_2007_2025.csv}\newline{}\path{urban_boundaries_2020_2024.geojson} &
 \emph{\path{processed/accidents/}}\newline{}\path{all.csv} &
 Joins accident, vehicle, road-link, and boundary data. \\ \grayhline
+\path{weather/download_weather.py} &
+\emph{\path{official supplied URL/}}\newline{}\path{stod.txt}, \path{f_*.txt}, \path{fj_*.txt}, \path{fv_*.txt} &
+\emph{\path{raw/weather/}}\newline{}\path{stations.csv}\newline{}\path{weather_10min_raw.parquet}\newline{}\path{weather_10min_raw_audit.csv} &
+Downloads the complete official station-file delivery and combines study-period rows without filtering. \\ \grayhline
 \path{weather/clean.py} &
 \emph{\path{raw/weather/}}\newline{}\path{weather_10min_raw.parquet} &
 \emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\path{cleaning.csv} &
 Applies the fixed weather-quality rules and records annual counts. \\ \grayhline
 \path{weather/frequency.py} &
 \emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
-\emph{\path{processed/weather/}}\newline{}\path{frequency.csv}\newline{}\path{yearly_frequency.csv}\newline{}\path{traffic_frequency.csv} &
+\emph{\path{processed/weather/}}\newline{}\path{frequency.csv}\newline{}\path{yearly_frequency.csv}\newline{}\path{temperature_frequency.csv}\newline{}\path{traffic_frequency.csv} &
 Counts pooled and yearly local weather frequency for O/E and traffic models. \\ \grayhline
 \path{traffic/annual.py} &
 \emph{\path{raw/traffic/annual/}}\newline{}\path{*.xls*} &
@@ -29,11 +33,11 @@ Standardises road section, length, ADU, SDU and VDU. \\ \grayhline
 \path{accidents/match_weather.py} &
 \emph{\path{processed/accidents/}}\newline{}\path{all.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv} &
 \emph{\path{processed/accidents/}}\newline{}\path{rural_injury.csv} &
-Matches wind and temperature; retains 10, 20, and 30 km results. \\ \grayhline
+Matches wind and temperature independently within the stated time and distance limits. \\ \grayhline
 \path{accidents/case_control.py} &
 \emph{\path{processed/accidents/}}\newline{}\path{rural_injury.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
 \emph{\path{processed/accidents/}}\newline{}\path{case_control.csv} &
-Selects matched non-accident weather times. \\ \grayhline
+Selects matched non-accident weather times from the same clean weather source. \\ \grayhline
 \path{traffic/build_road_period.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{annual.csv}\newline{}\emph{\path{processed/accidents/}}\newline{}\path{rural_injury.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{road_section_midpoints.csv}, \path{road_sections.parquet} &
 \emph{\path{processed/}}\newline{}\path{weather/road_period_frequency.csv}\newline{}\path{traffic/road_period.csv} &

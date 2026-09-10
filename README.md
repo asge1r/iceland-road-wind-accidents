@@ -35,10 +35,11 @@ remain local and are excluded by `.gitignore`.
 
 ## Working data
 
-- `data/raw/weather/weather_10min_raw.parquet`: raw continuous 10-minute weather observations.
-- `data/processed/weather/weather.parquet` is the only very large
-  temporary file: the 211.5 million cleaned 10-minute observations. It is used
-  while creating the CSV frequency table, never by `src.analyze`.
+- `data/raw/weather/weather_10min_raw.parquet` contains 232.5 million raw
+  ten-minute weather rows assembled from the supplied IMO station files.
+- `data/processed/weather/weather.parquet` contains 230.5 million cleaned
+  ten-minute observations. It is used to create the compact analysis CSVs and
+  is never read by `src.analyze`.
 - `data/analysis/accidents.csv`, `accident_conditions.csv`, and
   `weather_frequency.csv` are the complete inputs to the primary O/E analysis.
 - `data/analysis/road_rate.csv` is the compact input to the
@@ -51,6 +52,9 @@ remain local and are excluded by `.gitignore`.
   within-road-section injury-accident rate ratios by 5 m/s mean-wind interval.
   It reports time-proportional annual-traffic allocation across local wind
   frequency intervals.
+- `reports/main/figures/wind_oe_comparison.png`: the primary weather-frequency
+  O/E beside annual-traffic and daily-traffic standardisations. The three
+  panels retain separate samples and denominator definitions.
 
 ## Rebuild the results
 
@@ -64,6 +68,18 @@ needed for all daily-counter comparisons.
 .venv/bin/python -m src.prepare --stage prepare
 .venv/bin/python -m src.analyze
 ```
+
+For a focused rebuild, select one or more named analysis stages. This avoids
+rerunning unrelated 5,000-replicate bootstrap calculations:
+
+```bash
+.venv/bin/python -m src.analyze --stage primary-weather
+.venv/bin/python -m src.analyze --stage daily-traffic --stage products
+```
+
+The available stages and their exact scripts are documented in
+[`docs/pipeline.md`](docs/pipeline.md). Running without `--stage` still rebuilds
+the complete result set in dependency order.
 
 Or, after raw preparation has completed, run both stages in one command:
 

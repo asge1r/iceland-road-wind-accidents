@@ -1,6 +1,6 @@
 result,season,comparison,reference,odds_ratio,ci_95_low,ci_95_high,p_value,likelihood_ratio_chi2,degrees_of_freedom,strata,cases,control_times,matching
-Season interaction test,All seasons,All wind-by-season interaction terms,Common wind association across seasons,,,,0.07211407053531174,11.576399900477554,6.0,6190,6190,20869,"same station, year, month, weekday, and clock time"
-Season-specific estimate,Winter,>=15 m/s,0-10 m/s,1.5107817546513624,1.2355752158479583,1.8472865762534965,5.775123602793352e-05,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
-Season-specific estimate,Spring,>=15 m/s,0-10 m/s,1.9881005966305905,1.3082347495963713,3.0212803807133124,0.0012894162687690808,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
-Season-specific estimate,Summer,>=15 m/s,0-10 m/s,2.3654121031946396,1.6219651681847465,3.449626741492628,7.737698642062741e-06,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
-Season-specific estimate,Autumn,>=15 m/s,0-10 m/s,1.3177390610179576,0.9442708093304764,1.8389176238156588,0.10464223520581734,,,6190,6190,20869,"same station, year, month, weekday, and clock time"
+Season interaction test,All seasons,All wind-by-season interaction terms,Common wind association across seasons,,,,0.026409434712110793,14.304920545844652,6.0,6257,6257,21139,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Winter,>=15 m/s,0-10 m/s,1.4415015066410988,1.1726432098939084,1.772002409698473,0.0005162626815381596,,,6257,6257,21139,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Spring,>=15 m/s,0-10 m/s,2.022455002301593,1.3133023656952387,3.114533517320965,0.0013876259726111142,,,6257,6257,21139,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Summer,>=15 m/s,0-10 m/s,2.526150137343608,1.7184948138198408,3.7133859614138642,2.4207355495638174e-06,,,6257,6257,21139,"same station, year, month, weekday, and clock time"
+Season-specific estimate,Autumn,>=15 m/s,0-10 m/s,1.3685046252474233,0.9752429137899788,1.9203471082353374,0.06952866488823035,,,6257,6257,21139,"same station, year, month, weekday, and clock time"
