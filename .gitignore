@@ -34,6 +34,7 @@ __pycache__/
 # selected thesis result; intermediate and diagnostic outputs stay in working.
 !/reports/main/figures/
 !/reports/main/figures/*.png
+/reports/main/figures/*.pdf
 !/reports/main/tables/
 !/reports/main/tables/*.csv
 !/reports/main/tables/*.md
@@ -43,6 +44,8 @@ __pycache__/
 !/reports/thesis/*.md
 !/reports/thesis/generated/
 !/reports/thesis/generated/*.tex
+/reports/thesis/content_before_*.tex
+/reports/thesis/generated/*.bak_*
 /reports/thesis/*.bbl
 /reports/thesis/*.blg
 

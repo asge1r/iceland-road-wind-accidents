@@ -54,32 +54,33 @@ def export_counter_sections(
     )
 
 
-def export_daily_weather_rate(
+def export_daily_vkt(
     output: Path,
 ) -> tuple[str, int, list[str], str] | None:
-    path = ROOT / "traffic/daily_weather_rate.csv"
+    path = ROOT / "traffic/daily_vkt.csv"
     if not path.exists():
         return None
     source = read_table(path)
     columns = [
         "variable", "outcome", "period", "bin_label", "bin_order", "accidents",
         "estimated_vehicle_km", "rate_per_100m_vehicle_km", "counter_days",
-        "counter_sections",
+        "counter_sections", "allocation_method",
     ]
     missing = set(columns) - set(source)
     if missing:
         raise ValueError(f"Daily weather rate is missing columns: {sorted(missing)}")
     table = source[columns].sort_values(["variable", "outcome", "period", "bin_order"])
-    count = write_csv(table, output / "daily_weather_rate.csv")
+    count = write_csv(table, output / "daily_vkt.csv")
     return (
-        "daily_weather_rate.csv", count, columns,
-        "07:00--24:00 daily-counter accident rates per 100 million vehicle-km by weather interval.",
+        "daily_vkt.csv", count, columns,
+        "Same-day 07:00--24:00 counter-section accident rates per 100 million vehicle-km.",
     )
 
 def export_selection_summary(output: Path) -> tuple[int, list[str]]:
     """Write the small count table used for the three data-selection figures."""
     all_accidents = read_table(ROOT / "accidents/all.csv")
     study = read_table(ROOT / "accidents/rural_injury.csv")
+    study["year"] = pd.to_datetime(study["timestamp"], errors="raise").dt.year
     valid_coordinates = int(all_accidents["urban_rural"].ne("Unknown").sum())
     rural = int(all_accidents["urban_rural"].eq("Rural").sum())
     primary = int(
@@ -90,6 +91,8 @@ def export_selection_summary(output: Path) -> tuple[int, list[str]]:
             & study["fg"].notna()
         ).sum()
     )
+    case_control = read_table(ROOT / "accidents/case_control.csv")
+    matched_time = int(case_control.loc[case_control["case"].eq(1), "stratum_id"].nunique())
     panel = read_table(ROOT / "traffic/road_period.csv")
     annual_total = int(panel[["year", "road_section", "traffic_period"]].drop_duplicates().shape[0])
     annual_wind = panel[
@@ -100,6 +103,36 @@ def export_selection_summary(output: Path) -> tuple[int, list[str]]:
     annual_wind = int(
         annual_wind[["year", "road_section", "traffic_period"]].drop_duplicates().shape[0]
     )
+    model_accidents = int(read_table(ROOT / "accidents/rate.csv")["id"].nunique())
+    annual_keys = read_table(ROOT / "traffic/annual.csv")[["year", "road_section"]].drop_duplicates()
+    annual_keys["road_section"] = (
+        annual_keys["road_section"].astype("string").str.strip().str.lower()
+    )
+    study_links = study.rename(columns={"registered_road_section": "road_section"}).copy()
+    study_links["road_section"] = (
+        study_links["road_section"].astype("string").str.strip().str.lower()
+    )
+    annual_links = int(
+        study_links.merge(annual_keys, on=["year", "road_section"], how="inner")["id"]
+        .nunique()
+    )
+    rural_2019_2024 = int(study["timestamp"].pipe(pd.to_datetime).dt.year.between(2019, 2024).sum())
+    counter_assignments_path = ROOT / "accidents/accidents-near-counter.csv"
+    counter_assignments = (
+        len(read_table(counter_assignments_path)) if counter_assignments_path.exists() else 0
+    )
+    counter_accidents_path = ROOT / "traffic/counter_accidents.csv"
+    counter_accidents = (
+        len(read_table(counter_accidents_path)) if counter_accidents_path.exists() else 0
+    )
+    daily_vkt_path = ROOT / "traffic/daily_vkt.csv"
+    daily_vkt_accidents = 0
+    if daily_vkt_path.exists():
+        daily_vkt = read_table(daily_vkt_path)
+        annual_vkt = daily_vkt[
+            daily_vkt["variable"].eq("f") & daily_vkt["period"].eq("All year")
+        ]
+        daily_vkt_accidents = int(annual_vkt["accidents"].sum())
     daily_path = ROOT / "traffic/daily_weather.csv"
     if daily_path.exists():
         daily = read_table(daily_path)
@@ -118,6 +151,16 @@ def export_selection_summary(output: Path) -> tuple[int, list[str]]:
             ("annual_traffic", "road_periods_with_wind", annual_wind),
             ("daily_traffic", "counter_days", daily_total),
             ("daily_traffic", "counter_days_with_daytime_wind", daily_wind),
+            ("analysis_samples", "source_accidents", len(all_accidents)),
+            ("analysis_samples", "rural_injury_2007_2025", len(study)),
+            ("analysis_samples", "weather_oe", primary),
+            ("analysis_samples", "matched_time", matched_time),
+            ("analysis_samples", "annual_road_link", annual_links),
+            ("analysis_samples", "annual_rate", model_accidents),
+            ("analysis_samples", "rural_injury_2019_2024", rural_2019_2024),
+            ("analysis_samples", "counter_section_assigned", counter_assignments),
+            ("analysis_samples", "counter_accident_weather", counter_accidents),
+            ("analysis_samples", "same_day_vkt", daily_vkt_accidents),
         ],
         columns=["dataset", "step", "records"],
     )

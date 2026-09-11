@@ -46,7 +46,7 @@ DEFAULT_DAILY_SEASON_PANEL = Path(
     "data/analysis/daily_season_panel.csv"
 )
 DEFAULT_DAILY_SEASON_OE = Path("reports/main/tables/daily_season_oe.csv")
-DEFAULT_DAILY_WEATHER_RATE = Path("data/analysis/daily_weather_rate.csv")
+DEFAULT_DAILY_VKT = Path("data/analysis/daily_vkt.csv")
 DEFAULT_DAILY_SEASON_INTERACTION = Path(
     "reports/working/tables/daily_season_interaction.csv"
 )

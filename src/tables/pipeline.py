@@ -102,6 +102,12 @@ def render_part(
         "Script", "Input file(s)", "Output file(s)", "Description"
     ),
     font_size: str = r"\tiny",
+    placement: str = "p",
+    column_spec: str = (
+        r"L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}"
+        r"L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}"
+        r"L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X"
+    ),
 ) -> str:
     body = []
     for index, row in enumerate(rows):
@@ -111,7 +117,7 @@ def render_part(
     label_line = rf"\label{{{label}}}" if label else ""
     continuation = r"\ContinuedFloat" if continued else ""
     return "\n".join([
-        r"\begin{table}[p]",
+        rf"\begin{{table}}[{placement}]",
         continuation,
         r"\centering",
         font_size,
@@ -119,7 +125,7 @@ def render_part(
         r"\renewcommand{\arraystretch}{1.08}",
         rf"\caption{{{caption}}}",
         label_line,
-        r"\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}",
+        rf"\begin{{tabularx}}{{\textwidth}}{{{column_spec}}}",
         r"\toprule",
         " & ".join(headers) + r" \\",
         r"\midrule",
@@ -140,9 +146,18 @@ def render(
         "Script", "Input file(s)", "Output file(s)", "Description"
     ),
     font_size: str = r"\tiny",
+    placement: str = "p",
+    column_spec: str = (
+        r"L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}"
+        r"L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}"
+        r"L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X"
+    ),
 ) -> str:
     if split_at is None or len(rows) <= split_at:
-        return render_part(rows, caption, label, headers=headers, font_size=font_size)
+        return render_part(
+            rows, caption, label, headers=headers, font_size=font_size,
+            placement=placement, column_spec=column_spec,
+        )
     parts = [rows[index:index + split_at] for index in range(0, len(rows), split_at)]
     return "\n".join(
         render_part(
@@ -152,6 +167,8 @@ def render(
             continued=index > 0,
             headers=headers,
             font_size=font_size,
+            placement=placement,
+            column_spec=column_spec,
         )
         for index, part in enumerate(parts)
     )
@@ -176,11 +193,16 @@ def main() -> None:
         (
             args.analysis_output,
             render(
-                markdown_table(text, "Analysis scripts", "Analysis stage"),
-                "Main analysis pipeline and reproducible data products",
+                markdown_table(text, "Analysis scripts", "Stage"),
+                "Data preparation and analysis workflow",
                 "tab:analysis-pipeline",
-                headers=("Analysis stage", "Main input", "Main output", "Purpose"),
+                headers=("Stage", "Main data", "Output", "Role in thesis"),
                 font_size=r"\footnotesize",
+                placement="H",
+                column_spec=(
+                    r"L{0.16\textwidth}L{0.27\textwidth}"
+                    r"L{0.27\textwidth}L{0.18\textwidth}"
+                ),
             ),
         ),
     ]

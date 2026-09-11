@@ -104,14 +104,11 @@ def weather_rows(path: Path) -> pd.DataFrame:
         & source["period"].eq("All year")
         & source["max_time_difference_minutes"].eq(5)
     ].sort_values("bin_order")
-    # The two outcome groups partition all injury accidents. Add their counts
-    # before calculating the combined descriptive O/E curve.
-    result = source.groupby(
-        ["bin_label", "bin_order"], as_index=False, observed=True
-    ).agg(
-        observed_accidents=("observed_accidents", "sum"),
-        expected_accidents=("expected_accidents", "sum"),
-    ).rename(columns={"bin_label": "wind_bin"})
+    # The all-injury outcome already contains the serious/fatal subset. Use it
+    # directly rather than double-counting the overlapping outcome groups.
+    result = source[source["outcome"].eq("All injury accidents")][
+        ["bin_label", "bin_order", "observed_accidents", "expected_accidents"]
+    ].rename(columns={"bin_label": "wind_bin"})
     result["observed_expected_ratio"] = (
         result["observed_accidents"] / result["expected_accidents"]
     )

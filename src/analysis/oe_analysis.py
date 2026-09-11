@@ -47,7 +47,7 @@ PERIODS = {
     "Fall": "Autumn",
 }
 OUTCOMES = {
-    "Minor injury": "Minor injury accidents",
+    "Injury accidents": "All injury accidents",
     "Severe or fatal": "Severe/fatal accidents",
 }
 

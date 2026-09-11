@@ -28,7 +28,6 @@ not committed because it is derived from authorised local data deliveries.
 | `analysis/accident_conditions.csv` | One rural injury accident | Independent wind and temperature matches, match distances and time differences, solar elevation, and estimated daylight class. |
 | `analysis/temperature_matches.csv` | One rural injury accident | Selected temperature, station, distance, time difference, and source. |
 | `analysis/weather_frequency.csv` | Station, season, variable, and interval | Tidy wind and temperature counts pooled across 2007--2025. `unit` distinguishes m/s and degrees Celsius. |
-| `analysis/weather_monthly.csv` | Station, calendar month, variable, and interval | Tidy pooled 2007--2025 07:00--24:00 counts and frequencies in the O/E plotting bins. |
 | `analysis/temperature_frequency.csv` | Station, year, season, and temperature interval | Directly inspectable temperature denominator counts. |
 | `analysis/weather_source_audit.csv` | Official source file | File hash, row checks, station, and date coverage. |
 | `analysis/weather_cleaning.csv` | Year and total | Counts retained and excluded by each fixed weather-quality rule. |
@@ -41,7 +40,7 @@ not committed because it is derived from authorised local data deliveries.
 | `analysis/daily_traffic.csv` | Counter site and date | Optional large CSV containing the observed daily count, mean-wind summaries, and observation counts in six mean-wind intervals. |
 | `analysis/counter_locations.csv` | Counter site and year | Road section and geometry-interpolated coordinates used by selected-counter rate analyses. |
 | `analysis/counter_sections.csv` | Counter-section and year | Counter location, assigned road length, source `fastnr` channels, and nearest weather station. |
-| `analysis/daily_weather_rate.csv` | Weather variable, outcome, period, and interval | 07:00--24:00 accident counts, allocated vehicle-km, and rates per 100 million vehicle-km from daily counters. |
+| `analysis/daily_vkt.csv` | Weather variable, outcome, period, and interval | Accident counts and rates per 100 million vehicle-km using actual same-day 07:00--24:00 weather fractions. |
 | `analysis/counter_wind.csv` | Accident assigned to a counter | Accident-time mean wind from the same weather station used for that counter-day's traffic allocation. |
 | `analysis/counter_check.csv` | Counter site | Independent comparison with official 20 m road-station points. |
 | `analysis/manifest.csv` | One analysis file | record count, available columns, and a short description. |

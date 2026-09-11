@@ -1,0 +1,31 @@
+variable,outcome,period,analysed_accidents,observed_total,expected_total,contributing_stations,sparse_intervals
+f,All injury accidents,All year,6259,6259,6259.0,279,0
+f,All injury accidents,Autumn,1109,1109,1109.0,196,1
+f,All injury accidents,Spring,795,795,795.0,194,1
+f,All injury accidents,Summer,2300,2300,2300.0,261,1
+f,All injury accidents,Winter,2055,2055,2055.0,215,0
+f,Severe/fatal accidents,All year,1424,1424,1424.0,238,1
+f,Severe/fatal accidents,Autumn,214,214,214.0,123,2
+f,Severe/fatal accidents,Spring,196,196,196.0,95,2
+f,Severe/fatal accidents,Summer,636,636,636.0,205,2
+f,Severe/fatal accidents,Winter,378,378,378.0,139,1
+fg,All injury accidents,All year,6259,6259,6259.0,279,0
+fg,All injury accidents,Autumn,1109,1109,1109.0,196,2
+fg,All injury accidents,Spring,795,795,795.0,194,3
+fg,All injury accidents,Summer,2300,2300,2300.0,261,2
+fg,All injury accidents,Winter,2055,2055,2055.0,215,1
+fg,Severe/fatal accidents,All year,1424,1424,1424.0,238,1
+fg,Severe/fatal accidents,Autumn,214,214,214.0,123,4
+fg,Severe/fatal accidents,Spring,196,196,196.0,95,3
+fg,Severe/fatal accidents,Summer,636,636,636.0,205,3
+fg,Severe/fatal accidents,Winter,378,378,378.0,139,3
+temperature,All injury accidents,All year,6259,6259,6259.0,279,0
+temperature,All injury accidents,Autumn,1109,1109,1109.0,196,1
+temperature,All injury accidents,Spring,795,795,795.0,194,1
+temperature,All injury accidents,Summer,2300,2300,2300.0,261,3
+temperature,All injury accidents,Winter,2055,2055,2055.0,215,2
+temperature,Severe/fatal accidents,All year,1424,1424,1424.0,238,0
+temperature,Severe/fatal accidents,Autumn,214,214,214.0,123,4
+temperature,Severe/fatal accidents,Spring,196,196,196.0,95,4
+temperature,Severe/fatal accidents,Summer,636,636,636.0,205,4
+temperature,Severe/fatal accidents,Winter,378,378,378.0,139,2

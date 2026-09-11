@@ -57,7 +57,7 @@ def validate_weather(
     require(result_required <= set(result), "Weather O/E table is incomplete")
     require(set(result["variable"]) == {"f", "fg", "temperature"}, "Weather O/E variables changed")
     require(
-        set(result["outcome"]) == {"Minor injury accidents", "Severe/fatal accidents"},
+        set(result["outcome"]) == {"All injury accidents", "Severe/fatal accidents"},
         "Weather O/E outcomes changed",
     )
     require(
@@ -78,16 +78,26 @@ def validate_weather(
     annual = result[result["period"].eq("All year")]
     for variable, matched in expected_matches.items():
         variable_rows = annual[annual["variable"].eq(variable)]
-        for outcome in ["Minor injury accidents", "Severe/fatal accidents"]:
+        for outcome in ["All injury accidents", "Severe/fatal accidents"]:
             rows = variable_rows[variable_rows["outcome"].eq(outcome)]
             require(len(rows) > 0, f"Missing annual {variable} O/E rows for {outcome}")
             require(
                 np.isclose(rows["expected_accidents"].sum(), rows["observed_accidents"].sum()),
                 f"Expected {variable} counts do not reconstruct {outcome}",
             )
+        all_injury = variable_rows[
+            variable_rows["outcome"].eq("All injury accidents")
+        ]
+        severe = variable_rows[
+            variable_rows["outcome"].eq("Severe/fatal accidents")
+        ]
         require(
-            int(variable_rows["observed_accidents"].sum()) == matched,
-            f"Annual {variable} outcome groups do not partition matched accidents",
+            int(all_injury["observed_accidents"].sum()) == matched,
+            f"Annual {variable} all-injury outcome does not reconstruct matched accidents",
+        )
+        require(
+            int(severe["observed_accidents"].sum()) <= matched,
+            f"Annual {variable} severe/fatal outcome is not a subset of all injuries",
         )
 
     main_upper = annual[

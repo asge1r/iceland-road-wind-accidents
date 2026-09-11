@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 
-INPUT = Path("data/analysis/daily_weather_rate.csv")
+INPUT = Path("data/analysis/daily_vkt.csv")
 OUTPUT = Path("reports/main/figures")
 VARIABLES = ("f", "fg", "temperature")
 OUTCOMES = ("Minor injury accidents", "Severe/fatal accidents")

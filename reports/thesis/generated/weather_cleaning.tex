@@ -1,19 +1,18 @@
 \begin{table}[H]
 \centering
 \small
-\caption{Wind-data scope and quality audit, 2007--2025. Quality-rule shares use the rows in station-years containing wind data as their denominator. Every delivered station-year contains at least one wind measurement.}
+\caption{Wind-data scope and quality audit, 2007--2025. Quality-rule shares use all supplied observations. Every supplied station-year contains at least one wind measurement.}
 \label{tab:weather-cleaning}
 \begin{tabular}{lrr}
 \toprule
 Category & Records & Share \\
 \midrule
-All delivered station-time rows & 232,459,562 & 100.00\% \\ \grayhline
-Rows in station-years containing wind data & 232,459,562 & 100.00\% \\ \grayhline
+All supplied station-time observations & 232,459,562 & 100.00\% \\ \grayhline
 Missing \texttt{f} or \texttt{fg} & 261,519 & 0.11\% \\ \grayhline
 Negative or upper-threshold wind & 8,766 & 0.00\% \\ \grayhline
 Internally inconsistent \texttt{f}/\texttt{fg} & 257,245 & 0.11\% \\ \grayhline
 Frozen all-zero runs ($\geq 2$ hours) & 1,473,082 & 0.63\% \\ \grayhline
-Clean wind observations retained & 230,458,950 & 99.14\% \\
+Quality-controlled wind observations retained & 230,458,950 & 99.14\% \\
 \bottomrule
 \end{tabular}
 \end{table}

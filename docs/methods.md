@@ -52,8 +52,8 @@ analyses estimate different quantities and are compared by direction, not by
 the numerical size of their estimates.
 
 The weather-frequency O/E values are descriptive and are shown with observed
-counts but without bootstrap intervals. Minor-injury (`meidsli = 3`) and
-serious/fatal (`meidsli <= 2`) accidents are non-overlapping groups. Formal
+counts but without bootstrap intervals. All injury accidents (`meidsli <= 3`)
+are shown together with their serious/fatal subset (`meidsli <= 2`). Formal
 uncertainty is reported for the matched-time and traffic models.
 
 The main comparison figure therefore keeps three denominators separate. The
@@ -132,11 +132,11 @@ model is retained only as an appendix day-level check.
 
 The counter-section weather-rate calculation is a separate descriptive route.
 It multiplies each observed daily count by its assigned section length and
-allocates that vehicle-kilometre total using the nearest station's pooled
-07:00--24:00 weather frequencies for the same calendar month. It retains 615
-linked daytime accidents and reports wind, gust, and temperature rates for the
-year and four seasons. The daily total is observed, but traffic in a weather
-interval is estimated; this method cannot measure same-day traffic avoidance.
+allocates that vehicle-kilometre total using the actual 07:00--24:00 weather
+distribution at the assigned station on the same date. It requires at least 92
+of the expected 102 observations and retains 613 linked daytime accidents. The
+daily total is observed and therefore reflects same-day traffic changes, but
+traffic within each ten-minute interval remains estimated rather than observed.
 
 The traffic-allocation direction check applies the observed daily traffic
 percentage for each full-day mean-wind interval to the corresponding annual

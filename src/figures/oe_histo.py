@@ -1,4 +1,4 @@
-"""Draw the four retained weather O/E histogram figures."""
+"""Draw one five-panel O/E figure for each weather variable."""
 
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 INPUT = Path("reports/main/tables/weather_oe.csv")
 OUTPUT_DIRECTORY = Path("reports/main/figures")
-ANNUAL_OUTPUT = "weather_oe_annual.png"
 SEASON_OUTPUTS = {
     "f": "wind_oe_panels.png",
     "fg": "gust_oe_panels.png",
@@ -27,6 +26,7 @@ SEASON_OUTPUTS = {
 }
 VARIABLES = ("f", "fg", "temperature")
 SEASONS = ("Winter", "Spring", "Summer", "Autumn")
+PERIODS = ("All year", *SEASONS)
 SEASON_LABELS = {
     "Winter": "Winter (Dec–Mar)",
     "Spring": "Spring (Apr–May)",
@@ -34,9 +34,9 @@ SEASON_LABELS = {
     "Autumn": "Autumn (Oct–Nov)",
 }
 VARIABLE_TITLES = {
-    "f": "Mean wind — All year (Jan–Dec)",
-    "fg": "Wind gust — All year (Jan–Dec)",
-    "temperature": "Temperature — All year (Jan–Dec)",
+    "f": "All year (Jan–Dec)",
+    "fg": "All year (Jan–Dec)",
+    "temperature": "All year (Jan–Dec)",
 }
 X_LABELS = {
     "f": "Mean wind, f (m/s)",
@@ -44,7 +44,7 @@ X_LABELS = {
     "temperature": "Temperature °C",
 }
 OUTCOMES = (
-    "Minor injury accidents",
+    "All injury accidents",
     "Severe/fatal accidents",
 )
 COLORS = ("#0072B2", "#D55E00")
@@ -191,25 +191,19 @@ def add_legend(figure: plt.Figure, axis: Axes) -> None:
     )
 
 
-def plot_annual(data: pd.DataFrame, output: Path) -> None:
-    """Draw all three weather variables for the complete year."""
-    figure, axes = plt.subplots(3, 1, figsize=(10.125, 12), layout="constrained")
-    for axis, variable in zip(axes, VARIABLES, strict=True):
-        draw_panel(axis, data, variable, "All year", VARIABLE_TITLES[variable])
-        axis.set_xlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE)
-    add_legend(figure, axes[0])
-    figure.supylabel(
-        "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE
+def plot_variable(data: pd.DataFrame, variable: str, output: Path) -> None:
+    """Draw the complete year and four seasons for one weather variable."""
+    figure, axes = plt.subplots(
+        3, 2, figsize=(14.5, 13), sharey=True, layout="constrained"
     )
-    figure.savefig(output, dpi=240)
-    plt.close(figure)
-
-
-def plot_seasons(data: pd.DataFrame, variable: str, output: Path) -> None:
-    """Draw the four seasons for one weather variable."""
-    figure, axes = plt.subplots(2, 2, figsize=(14.5, 9.5), layout="constrained")
-    for axis, period in zip(axes.flat, SEASONS, strict=True):
-        draw_panel(axis, data, variable, period, SEASON_LABELS[period])
+    titles = {"All year": VARIABLE_TITLES[variable], **SEASON_LABELS}
+    for axis, period in zip(axes.flat[:5], PERIODS, strict=True):
+        draw_panel(axis, data, variable, period, titles[period])
+    axes.flat[5].axis("off")
+    panels = data[
+        data["variable"].eq(variable) & data["period"].isin(PERIODS)
+    ]
+    axes.flat[0].set_ylim(0, display_limit(panels))
     add_legend(figure, axes.flat[0])
     figure.supxlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE)
     figure.supylabel(
@@ -220,14 +214,13 @@ def plot_seasons(data: pd.DataFrame, variable: str, output: Path) -> None:
 
 
 def plot_all(data: pd.DataFrame, output_directory: Path) -> list[Path]:
-    """Validate the result table and write the four retained figures."""
+    """Validate the result table and write the three retained figures."""
     validate(data)
     output_directory.mkdir(parents=True, exist_ok=True)
-    outputs = [output_directory / ANNUAL_OUTPUT]
-    plot_annual(data, outputs[0])
+    outputs = []
     for variable in VARIABLES:
         output = output_directory / SEASON_OUTPUTS[variable]
-        plot_seasons(data, variable, output)
+        plot_variable(data, variable, output)
         outputs.append(output)
     return outputs
 

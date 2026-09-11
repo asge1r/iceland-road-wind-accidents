@@ -57,6 +57,7 @@ def run(selected: Task, dry_run: bool = False) -> None:
 def primary_weather_tasks(bootstrap_reps: int) -> list[Task]:
     return [
         task("src.analysis.oe_analysis"),
+        task("src.tables.oe_audit"),
         task("src.figures.oe_histo"),
     ]
 
@@ -291,7 +292,7 @@ def main() -> None:
     stages = list(dict.fromkeys(args.stage or STAGE_ORDER))
     daily_path = Path("data/analysis/daily_traffic.csv")
     include_daily = not args.skip_daily_traffic and daily_path.exists()
-    include_weather_rate = Path("data/analysis/daily_weather_rate.csv").exists()
+    include_weather_rate = Path("data/analysis/daily_vkt.csv").exists()
     if ({"daily-traffic", "traffic-adjusted"} & set(stages)) and not include_daily:
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
         print(f"Skipping optional daily-traffic tasks: {reason}.", flush=True)

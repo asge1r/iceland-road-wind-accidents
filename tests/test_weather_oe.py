@@ -32,7 +32,7 @@ class WeatherOETests(unittest.TestCase):
         self.assertEqual(
             set(result["outcome"]),
             {
-                "Minor injury accidents",
+                "All injury accidents",
                 "Severe/fatal accidents",
             },
         )
@@ -47,10 +47,9 @@ class WeatherOETests(unittest.TestCase):
         self.assertEqual(bins["fg"][-1], ">=30")
         self.assertEqual(bins["temperature"][-1], ">=12")
 
-    def test_four_weather_figures_exist(self) -> None:
+    def test_three_weather_figures_exist(self) -> None:
         directory = Path("reports/main/figures")
         expected = {
-            "weather_oe_annual.png",
             "wind_oe_panels.png",
             "gust_oe_panels.png",
             "temperature_oe_panels.png",

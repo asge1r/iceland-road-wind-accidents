@@ -17,7 +17,9 @@ The folders below contain the small steps called by the entry points:
 
 - `accidents/`: build the accident table and attach weather.
 - `weather/`: clean wind measurements and calculate local wind frequency.
-- `traffic/`: read annual and optional daily traffic data.
+- `traffic/`: read annual and optional daily traffic data. The strict daily
+  route builds counter sections, aggregates actual same-day weather, matches
+  accidents to the denominator station, and then calculates vehicle-kilometres.
 - `analysis/`: shared analytical calculations. `oe_analysis.py` writes the one
   weather O/E result table; `traffic_daily.py` contains the seasonal
   daily-traffic calculations, with panel construction and the reusable rate

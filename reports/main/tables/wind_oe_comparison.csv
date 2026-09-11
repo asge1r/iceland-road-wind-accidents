@@ -1,9 +1,9 @@
 wind_bin,observed_accidents,expected_accidents,observed_expected_ratio,bin_order,ci_95_low,ci_95_high,bootstrap_replicates,bootstrap_cluster,analysis_accidents,method,analysis_period,standardisation,exposure_method
 0-5,3156,3339.117924105387,0.9451597912180811,0,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
 5-10,2123,2068.845376894629,1.0261762544993371,1,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
-10-15,695,670.1999490278286,1.0370039583084805,2,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
+10-15,695,670.1999490278284,1.0370039583084805,2,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
 15-20,217,149.24046003954382,1.4540292889910829,3,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
->=20,68,31.596289932611676,2.1521514122395344,4,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
+>=20,68,31.59628993261168,2.152151412239534,4,,,0,not applicable,6259,Weather frequency,2007-2025,weather station and season; descriptive,frequency of valid 10-minute weather observations
 0-5,2424,2566.143954182507,0.9446079578073437,0,0.9174796660485858,0.9721050198271167,5000,road section,4933,Annual traffic,2007-2025,"road section, year, and traffic period",annual traffic allocated by local wind frequency
 5-10,1684,1655.3178856051898,1.0173272545679792,1,0.979021317502335,1.057801771508793,5000,road section,4933,Annual traffic,2007-2025,"road section, year, and traffic period",annual traffic allocated by local wind frequency
 10-15,578,558.1186440479357,1.0356220960616336,2,0.954373041220429,1.116474461573443,5000,road section,4933,Annual traffic,2007-2025,"road section, year, and traffic period",annual traffic allocated by local wind frequency

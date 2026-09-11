@@ -7,12 +7,10 @@ temperature, wind gust, and the available traffic data.
 
 Key outputs are:
 
-- `figures/weather_oe_annual.png`: all three weather variables for the complete
-  year.
 - `figures/wind_oe_panels.png`, `figures/gust_oe_panels.png`, and
-  `figures/temperature_oe_panels.png`: the four seasonal panels for each
-  weather variable.
-- `tables/weather_oe.csv`: the plotted values for all four figures.
+  `figures/temperature_oe_panels.png`: the full-year and four seasonal panels
+  for each weather variable.
+- `tables/weather_oe.csv`: the plotted values for all three figures.
 - `tables/match_quality.csv`: transparent wind and temperature match counts,
   station use, distances, and time differences.
 - `tables/year_oe.csv`: supporting O/E comparison that also controls for year
@@ -24,7 +22,8 @@ Key outputs are:
   traffic, including the four-season comparison.
 - `figures/weather_rate_annual.png` and `figures/*_traffic_rate_panels.png`:
   selected-counter rates per estimated vehicle-kilometre for wind, gust, and
-  temperature; daily totals are observed and weather-bin allocation is estimated.
+  temperature; daily totals are observed and allocated using actual 10-minute
+  weather on the same date.
 - `figures/wind_rate_severity.png`: the
   serious-or-fatal result retained in the appendix because its highest
   interval contains only four accidents.

@@ -1,43 +1,39 @@
-\begin{table}[p]
+\begin{table}[H]
 
 \centering
 \footnotesize
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{1.08}
-\caption{Main analysis pipeline and reproducible data products}
+\caption{Data preparation and analysis workflow}
 \label{tab:analysis-pipeline}
-\begin{tabularx}{\textwidth}{L{0.18\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.27\textwidth}!{\color{gray!45}\vrule width 0.3pt}L{0.29\textwidth}!{\color{gray!45}\vrule width 0.3pt}X}
+\begin{tabularx}{\textwidth}{L{0.16\textwidth}L{0.27\textwidth}L{0.27\textwidth}L{0.18\textwidth}}
 \toprule
-Analysis stage & Main input & Main output & Purpose \\
+Stage & Main data & Output & Role in thesis \\
 \midrule
-Accident data preparation &
-Source accident, road-link and urban-area files &
-\path{accidents.csv} &
-Selects rural injury accidents and keeps traceable source IDs. \\ \grayhline
-Weather preparation and matching &
-Ten-minute weather and station files\newline{}\path{accidents.csv} &
-\path{weather_frequency.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{case_control.csv} &
-Cleans weather and links accident and control times. \\ \grayhline
-Weather-frequency analysis &
-\path{accidents.csv}\newline{}\path{accident_conditions.csv}\newline{}\path{weather_frequency.csv} &
-\path{weather_oe.csv}\newline{}one annual and three seasonal figures &
-Compares accident shares with local weather-time shares. \\ \grayhline
-Traffic data preparation &
-Annual traffic, road geometry and daily counters &
-\path{road_rate.csv}\newline{}\path{counter_sections.csv}\newline{}\path{daily_weather_rate.csv} &
-Links road sections, counters, accidents and weather. \\ \grayhline
-Traffic-adjusted analysis &
-Prepared traffic inputs\newline{}\path{accidents.csv} &
-annual and daily rate results\newline{}seasonal estimates &
-Estimates accidents per vehicle-kilometre. \\ \grayhline
-Supporting analyses &
-\path{case_control.csv}\newline{}weather and traffic analysis files &
-matched-time, daylight, severity and traffic-response results &
-Checks and helps interpret the main comparisons. \\ \grayhline
-Validation and thesis products &
-Analysis CSVs\newline{}\path{docs/pipeline.md} &
-validation report\newline{}thesis tables and figures &
-Checks numbers and builds reported products. \\
+Data preparation &
+Accident, weather, road and traffic data &
+Quality-controlled datasets &
+Defines the study data. \\ \grayhline
+Accident selection &
+Accident data and urban boundaries &
+Rural injury accidents &
+Defines the study population. \\ \grayhline
+Weather matching &
+Accidents, weather observations and stations &
+Accident weather, local frequencies and control times &
+Creates the weather comparisons. \\ \grayhline
+Weather-frequency O/E &
+Accident weather and local frequencies &
+Observed and expected counts &
+Primary analysis. \\ \grayhline
+Matched-time analysis &
+Accident and control times &
+Matched odds ratios &
+Time-matched supporting comparison. \\ \grayhline
+Traffic analyses &
+Accident weather, traffic and road lengths &
+Traffic-linked rates &
+Supporting analyses in smaller samples. \\
 \bottomrule
 \end{tabularx}
 \end{table}

@@ -28,10 +28,10 @@ All checks below passed against the current local analysis files.
 
 | Mean wind >=20 m/s | Observed | Expected | O/E |
 |---|---:|---:|---:|
-| Minor injury | 56 | 25.2 | 2.22 |
+| All injury (meidsli <=3) | 68 | 31.6 | 2.15 |
 | Severe/fatal | 12 | 6.4 | 1.87 |
 
-Observed counts sum to 6,259. Expected counts are rounded to one decimal in this table.
+The all-injury row reconstructs all 6,259 matched accidents; serious/fatal accidents are its meidsli <=2 subset. Expected counts are rounded to one decimal.
 The O/E values are descriptive and are not presented with confidence intervals.
 
 ## Stratified vehicle-kilometre result
@@ -59,7 +59,7 @@ Restricting the 20--25 m/s rate model to official VDU and SDU gives RR 1.82. Exc
 The illustrative denominator direction check changes the 20--25 m/s annual-model RR from 2.27 to 3.32 when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.
 The sustained-wind table contains 759,037 sufficiently complete counter-days. Traffic is 86.8% of its calendar expectation on days with at least six hours at f >=15 m/s.
 The allocated daily-counter model retains 762 accidents. Its >=15 versus 0--10 m/s rate ratio is 3.62 (95% CI 2.65--4.94). The within-day traffic split is estimated, not observed hourly traffic.
-The counter-section weather-rate table partitions 615 linked daytime accidents into non-overlapping minor-injury and severe/fatal groups for wind, gust, and temperature. Daily totals are observed; their 07:00--24:00 weather-bin allocation is estimated.
+The counter-section vehicle-kilometre table partitions 613 linked daytime accidents into non-overlapping minor-injury and severe/fatal groups for wind, gust, and temperature. Daily totals are observed and allocated using actual 07:00--24:00 weather on the same date; traffic within each ten-minute interval remains estimated.
 The temperature vehicle-kilometre model retains 4,921 accidents. Relative to 0--3 degrees C, its below--6 estimate is 0.79 and its 3--6 estimate is 0.60.
 The coarse >=15 m/s estimates are 1.42 for one-vehicle accidents and 2.37 for accidents involving two or more vehicles. These are separate subgroup estimates, not a formal test of their difference.
 This retained sample is 40.9% of the 2019--2024 rural injury accidents. The generated appendix audit compares its severity, vehicle-count, season, and road-section composition with retained and excluded accidents.

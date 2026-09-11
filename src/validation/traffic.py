@@ -12,7 +12,7 @@ from src.validation.common import (
     DEFAULT_DAILY_SEASON_INTERACTION,
     DEFAULT_DAILY_SEASON_OE,
     DEFAULT_DAILY_SEASON_PANEL,
-    DEFAULT_DAILY_WEATHER_RATE,
+    DEFAULT_DAILY_VKT,
     DEFAULT_TEMPERATURE_RATE,
     DEFAULT_RATE_MODEL,
     DEFAULT_TRAFFIC_ALLOCATION_CHECK,
@@ -167,12 +167,12 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
     return result
 
 
-def validate_daily_weather_rate() -> pd.DataFrame:
+def validate_daily_vkt() -> pd.DataFrame:
     """Check Kristján's counter-section vehicle-kilometre result."""
-    result = pd.read_csv(DEFAULT_DAILY_WEATHER_RATE)
+    result = pd.read_csv(DEFAULT_DAILY_VKT)
     required = {
         "variable", "outcome", "period", "bin_label", "accidents",
-        "estimated_vehicle_km", "rate_per_100m_vehicle_km",
+        "estimated_vehicle_km", "rate_per_100m_vehicle_km", "allocation_method",
     }
     require(required <= set(result), "Daily counter-section rate table is incomplete")
     require(
@@ -187,13 +187,28 @@ def validate_daily_weather_rate() -> pd.DataFrame:
         and result["rate_per_100m_vehicle_km"].ge(0).all(),
         "Daily counter-section rate categories or exposure are invalid",
     )
+    require(
+        result["allocation_method"].eq(
+            "observed daily traffic allocated by same-day 10-minute weather"
+        ).all(),
+        "Daily counter-section rates do not use the same-day allocation",
+    )
     annual = result[result["period"].eq("All year")]
     for variable in ["f", "fg", "temperature"]:
         rows = annual[annual["variable"].eq(variable)]
         require(
-            int(rows["accidents"].sum()) == 615,
-            f"Annual {variable} counter-section outcomes do not partition 615 accidents",
+            int(rows["accidents"].sum()) == 613,
+            f"Annual {variable} counter-section outcomes do not partition 613 accidents",
         )
+    wind = annual[
+        annual["variable"].eq("f")
+        & annual["outcome"].eq("Minor injury accidents")
+    ].set_index("bin_label")
+    require(
+        wind.loc[">=20", "rate_per_100m_vehicle_km"]
+        > wind.loc["0-5", "rate_per_100m_vehicle_km"],
+        "Same-day upper-wind rate no longer exceeds the reference rate",
+    )
     return result
 
 
@@ -461,7 +476,7 @@ def validate_traffic_checks(
         )
     seasonal_checks = validate_daily_season_results()
     wind_oe_comparison = validate_wind_oe_comparison()
-    daily_weather_rate = validate_daily_weather_rate()
+    daily_vkt = validate_daily_vkt()
     return {
         "official_20_25": official_20_25.iloc[0],
         "allocation_check": allocation_check, "daily_20_25": daily_20_25,
@@ -475,5 +490,5 @@ def validate_traffic_checks(
         "daily_07_24": daily_07_24,
         **seasonal_checks,
         "wind_oe_comparison": wind_oe_comparison,
-        "daily_weather_rate": daily_weather_rate,
+        "daily_vkt": daily_vkt,
     }
