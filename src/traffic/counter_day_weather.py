@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+from functools import reduce
+from operator import or_
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +13,7 @@ import pyarrow.parquet as pq
 
 from src.export_common import season_from_month
 from src.traffic.counter_weather import row_group_can_contain_station
+from src.weather.eligibility import valid_temperature
 from src.weather.frequency import (
     OE_FG_UPPER_BOUNDS,
     OE_F_UPPER_BOUNDS,
@@ -35,6 +38,19 @@ VARIABLES = {
     "fg": (OE_FG_UPPER_BOUNDS, labels(OE_FG_UPPER_BOUNDS)),
     "temperature": (OE_TEMPERATURE_UPPER_BOUNDS, OE_TEMPERATURE_LABELS),
 }
+
+
+def distinct_slot_mask(times: np.ndarray) -> int:
+    """Occupied [07:00, 24:00) ten-minute slots for one station/date.
+
+    Off-grid readings occupy their containing interval. The mask can be ORed
+    across parquet row groups, so repeated slots never increase coverage.
+    This measures coverage only; it does not choose a within-slot weather value.
+    """
+    times = np.asarray(times, dtype="datetime64[us]")
+    minutes = (times - times.astype("datetime64[D]")).astype("timedelta64[m]").astype(int)
+    slots = np.unique((minutes[minutes >= START_HOUR * 60] - START_HOUR * 60) // 10)
+    return sum(1 << int(slot) for slot in slots if 0 <= slot < EXPECTED_OBSERVATIONS)
 
 
 def require_columns(data: pd.DataFrame, columns: set[str], name: str) -> None:
@@ -135,6 +151,7 @@ def aggregate_weather(
             {
                 "weather_station_id": station[keep],
                 "date": timestamp[keep].astype("datetime64[D]"),
+                "time": timestamp[keep],
                 "f": table.column("f").to_numpy(zero_copy_only=False)[keep],
                 "fg": table.column("fg").to_numpy(zero_copy_only=False)[keep],
                 "temperature": table.column("t").to_numpy(zero_copy_only=False)[keep],
@@ -150,9 +167,13 @@ def aggregate_weather(
             for variable, (bounds, bin_labels) in VARIABLES.items():
                 values = pd.to_numeric(group[variable], errors="coerce").to_numpy(float)
                 if variable == "temperature":
-                    values = values[np.isfinite(values) & (values >= -30) & (values <= 30)]
+                    valid = valid_temperature(values)
                 else:
-                    values = values[np.isfinite(values)]
+                    valid = np.isfinite(values)
+                record[f"{variable}_slot_mask"] = distinct_slot_mask(
+                    group["time"].to_numpy()[valid]
+                )
+                values = values[valid]
                 record[f"{variable}_valid_observations"] = len(values)
                 counts = _bin_counts(values, np.asarray(bounds, dtype=float))
                 for label, count in zip(bin_labels, counts, strict=True):
@@ -165,10 +186,18 @@ def aggregate_weather(
     count_columns = [
         column for column in weather
         if column not in {"weather_station_id", "date"}
+        and not column.endswith("_slot_mask")
     ]
-    return weather.groupby(
+    grouped = weather.groupby(
         ["weather_station_id", "date"], as_index=False, observed=True
-    )[count_columns].sum()
+    )
+    result = grouped[count_columns].sum()
+    for variable in VARIABLES:
+        slots = grouped[f"{variable}_slot_mask"].agg(
+            lambda masks: reduce(or_, map(int, masks), 0).bit_count()
+        ).rename(columns={f"{variable}_slot_mask": f"{variable}_distinct_slots"})
+        result = result.merge(slots, on=["weather_station_id", "date"], validate="one_to_one")
+    return result
 
 
 def build(
@@ -189,7 +218,11 @@ def build(
         panel[bin_columns] = panel[bin_columns].fillna(0).astype(int)
         if not panel[bin_columns].sum(axis=1).eq(panel[valid]).all():
             raise ValueError(f"{variable} bins do not reconstruct valid observations")
-        panel[f"{variable}_coverage_ok"] = panel[valid].ge(minimum)
+        slots = f"{variable}_distinct_slots"
+        panel[slots] = panel[slots].fillna(0).astype(int)
+        if not panel[slots].between(0, EXPECTED_OBSERVATIONS).all():
+            raise ValueError(f"{variable} distinct coverage exceeds the daily window")
+        panel[f"{variable}_coverage_ok"] = panel[slots].ge(minimum)
     panel = panel.sort_values(["counter_section_id", "date"]).reset_index(drop=True)
     summary = {
         "counter_days": len(panel),

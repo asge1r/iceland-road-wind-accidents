@@ -1,0 +1,11 @@
+variable,outcome,period,bin_label,field,decimals,old,new
+temperature,Severe/fatal accidents,All year,<-6,relative_accident_frequency,2,0.91,0.92
+temperature,Severe/fatal accidents,Spring,0-3,relative_accident_frequency,2,0.83,0.82
+temperature,All injury accidents,All year,0-3,expected_accidents,1,1122.6,1122.7
+temperature,All injury accidents,All year,3-6,expected_accidents,1,1137.0,1137.1
+temperature,All injury accidents,All year,<-6,expected_accidents,1,265.3,265.2
+temperature,All injury accidents,Summer,<-6,expected_accidents,1,0.2,0.1
+temperature,All injury accidents,Winter,0-3,expected_accidents,1,571.1,571.2
+temperature,Severe/fatal accidents,All year,<-6,expected_accidents,1,51.4,51.3
+temperature,Severe/fatal accidents,Summer,<-6,expected_accidents,1,0.1,0.0
+temperature,Severe/fatal accidents,Winter,-3-0,expected_accidents,1,88.9,89.0

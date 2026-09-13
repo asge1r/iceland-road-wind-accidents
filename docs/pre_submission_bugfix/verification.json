@@ -1,0 +1,9 @@
+{
+  "weather_frequency.csv": "wind/gust unchanged; bin counts conserve all eligible observations",
+  "weather_yearly.csv": "wind/gust unchanged; bin counts conserve all eligible observations",
+  "oe_strata": "all 30 panels: eligible=analysed; expected counts conserve each contributing station-season",
+  "strict_coverage": "all variable-specific coverage flags equal distinct_slots >= 92; maximum 102",
+  "joint_input": "complete-case wind/temperature input exactly identical",
+  "control_QC": "all five raw observations fall inside independently re-read archived frozen intervals",
+  "protected_snapshot": "All 187 initial analysis/prepared/result/thesis files have identical SHA-256 and nanosecond mtimes"
+}

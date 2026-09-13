@@ -1,0 +1,31 @@
+sample,season,variable,radius_km,severity_group,analysis_season,max_time_difference_minutes,eligible_accidents,analysed_accidents,coverage_pct,expected_sum,observed_sum
+Injury accidents,All seasons,f,20,Injury accidents,All seasons,5,6259,6259,100.0,6259.0,6259
+Injury accidents,Winter,f,20,Injury accidents,Winter,5,2055,2055,100.0,2055.0,2055
+Injury accidents,Spring,f,20,Injury accidents,Spring,5,795,795,100.0,795.0,795
+Injury accidents,Summer,f,20,Injury accidents,Summer,5,2300,2300,100.0,2300.0,2300
+Injury accidents,Fall,f,20,Injury accidents,Fall,5,1109,1109,100.0,1109.0,1109
+Severe or fatal,All seasons,f,20,Severe or fatal,All seasons,5,1424,1424,100.0,1424.0,1424
+Severe or fatal,Winter,f,20,Severe or fatal,Winter,5,378,378,100.0,378.0,378
+Severe or fatal,Spring,f,20,Severe or fatal,Spring,5,196,196,100.0,196.0,196
+Severe or fatal,Summer,f,20,Severe or fatal,Summer,5,636,636,100.0,636.0,636
+Severe or fatal,Fall,f,20,Severe or fatal,Fall,5,214,214,100.0,214.0,214
+Injury accidents,All seasons,fg,20,Injury accidents,All seasons,5,6259,6259,100.0,6259.0,6259
+Injury accidents,Winter,fg,20,Injury accidents,Winter,5,2055,2055,100.0,2055.0,2055
+Injury accidents,Spring,fg,20,Injury accidents,Spring,5,795,795,100.0,795.0,795
+Injury accidents,Summer,fg,20,Injury accidents,Summer,5,2300,2300,100.0,2300.0,2300
+Injury accidents,Fall,fg,20,Injury accidents,Fall,5,1109,1109,100.0,1109.0,1109
+Severe or fatal,All seasons,fg,20,Severe or fatal,All seasons,5,1424,1424,100.0,1424.0,1424
+Severe or fatal,Winter,fg,20,Severe or fatal,Winter,5,378,378,100.0,378.0,378
+Severe or fatal,Spring,fg,20,Severe or fatal,Spring,5,196,196,100.0,196.0,196
+Severe or fatal,Summer,fg,20,Severe or fatal,Summer,5,636,636,100.0,636.0,636
+Severe or fatal,Fall,fg,20,Severe or fatal,Fall,5,214,214,100.0,214.0,214
+Injury accidents,All seasons,temperature,20,Injury accidents,All seasons,5,6259,6259,100.0,6259.0,6259
+Injury accidents,Winter,temperature,20,Injury accidents,Winter,5,2055,2055,100.0,2055.0,2055
+Injury accidents,Spring,temperature,20,Injury accidents,Spring,5,795,795,100.0,795.0,795
+Injury accidents,Summer,temperature,20,Injury accidents,Summer,5,2300,2300,100.0,2300.0,2300
+Injury accidents,Fall,temperature,20,Injury accidents,Fall,5,1109,1109,100.0,1109.0,1109
+Severe or fatal,All seasons,temperature,20,Severe or fatal,All seasons,5,1424,1424,100.0,1424.0,1424
+Severe or fatal,Winter,temperature,20,Severe or fatal,Winter,5,378,378,100.0,378.0,378
+Severe or fatal,Spring,temperature,20,Severe or fatal,Spring,5,196,196,100.0,196.0,196
+Severe or fatal,Summer,temperature,20,Severe or fatal,Summer,5,636,636,100.0,636.0,636
+Severe or fatal,Fall,temperature,20,Severe or fatal,Fall,5,214,214,100.0,214.0,214

@@ -9,6 +9,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
+
+from src.weather.eligibility import MAX_TEMPERATURE_C, MIN_TEMPERATURE_C
 from sklearn.neighbors import BallTree
 
 
@@ -32,8 +34,6 @@ PRIMARY_DISTANCE_KM = 20.0
 SENSITIVITY_DISTANCE_KM = 30.0
 TIME_TOLERANCE_MINUTES = 5.0
 EARTH_RADIUS_KM = 6371.0
-MIN_TEMPERATURE_C = -30.0
-MAX_TEMPERATURE_C = 30.0
 
 OUTPUT_COLUMNS = [
     "id", "timestamp", "lat", "lon", "meidsli", "tegohapps",

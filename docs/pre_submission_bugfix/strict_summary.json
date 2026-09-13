@@ -1,0 +1,26 @@
+{
+  "f": {
+    "matched": 615,
+    "retained": 613,
+    "positive_coverage_days": 549450,
+    "total_vkt": 7337374054.08825,
+    "max_conservation_error": 5.820766091346741e-11,
+    "midnight_crossings": 1
+  },
+  "fg": {
+    "matched": 615,
+    "retained": 613,
+    "positive_coverage_days": 549450,
+    "total_vkt": 7337374054.088249,
+    "max_conservation_error": 5.820766091346741e-11,
+    "midnight_crossings": 1
+  },
+  "temperature": {
+    "matched": 615,
+    "retained": 613,
+    "positive_coverage_days": 549389,
+    "total_vkt": 7337052213.078249,
+    "max_conservation_error": 5.820766091346741e-11,
+    "midnight_crossings": 1
+  }
+}

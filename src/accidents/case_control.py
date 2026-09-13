@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
+from src.weather.eligibility import valid_temperature
+
 DEFAULT_ACCIDENTS = Path("data/processed/accidents/rural_injury.csv")
 DEFAULT_WEATHER = Path("data/processed/weather/weather.parquet")
 DEFAULT_OUTPUT = Path("data/processed/accidents/case_control.csv")
@@ -127,10 +129,10 @@ def assemble(
         [controls["f"], controls["fg"], controls["t"]],
         default=np.nan,
     )
-    valid_temperature = controls["t"].between(-30, 30, inclusive="both")
+    temperature_eligible = valid_temperature(controls["t"])
     controls = controls[
         controls["value"].notna()
-        & (~controls["exposure"].eq("temperature") | valid_temperature)
+        & (~controls["exposure"].eq("temperature") | temperature_eligible)
     ]
     controls = (
         controls.sort_values(

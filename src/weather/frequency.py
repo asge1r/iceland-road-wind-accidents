@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
+from src.weather.eligibility import valid_temperature
+
 DEFAULT_INPUT = Path("data/processed/weather/weather.parquet")
 DEFAULT_OUTPUT = Path("data/processed/weather/frequency.csv")
 DEFAULT_YEARLY_OUTPUT = Path("data/processed/weather/yearly_frequency.csv")
@@ -103,7 +105,7 @@ def accumulate(
         fg_counts += np.bincount(
             group * fg_counts.shape[1] + fg_bin, minlength=fg_counts.size
         ).reshape(fg_counts.shape)
-        valid = np.isfinite(temperature)
+        valid = valid_temperature(temperature)
         temp_group = group[valid]
         temperature_totals += np.bincount(temp_group, minlength=group_count)
         temp_bin = np.searchsorted(

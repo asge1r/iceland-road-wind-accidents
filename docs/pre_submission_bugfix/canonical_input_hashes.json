@@ -1,0 +1,21 @@
+{
+  "data/raw/weather/weather_10min_raw.parquet": "5a74fc7989110f5d7204cf7989d9cfa589af72608802101053d3c6a063d1ef4c",
+  "data/raw/weather/stations.csv": "af458f9fc34856af890c38f6bb8812a745fbbcb902f32c59e0df2319d697d36b",
+  "data/raw/traffic/reference/roads.geojson": "9136ea369a2c3727e7ffe4ce74669b14a75dbac25e3e60945bf5509eaf6950f5",
+  "data/processed/weather/weather.parquet": "dab4b873702ade2cda78f759d3656cef5a0f57ef392a0ff8648a78e6318a6b18",
+  "data/processed/accidents/rural_injury.csv": "c5afb19f121dca17fe961a5593554de6f83f92125d86981846c088b08c8dc702",
+  "data/processed/accidents/all.csv": "3c0a65f5937faff5e2a9d841ead0fb0146c672531ba9d4ad2b1c910944a0c111",
+  "data/processed/accidents/rate.csv": "9ea6664b61e27b3483595adb7b34759f9ac5f40ef9817b6c12170f1d578474ca",
+  "data/processed/traffic/daily_raw.csv": "59cce56e7b4e84f7116f8d0a0aa99d1b51a2cb89dd22e432bace374a60e53d3e",
+  "data/processed/traffic/annual.csv": "47973c7f19b4f88e201dce4cee76a65b6c29d42e1e8f6b7ed50213aa5c5ada61",
+  "data/processed/traffic/road_period.csv": "05aac53a0ce8f7413bd086d13817ba4213ef0eb9dc021937bdb8b8b4dedcf5c0",
+  "archive/generated_diagnostics/weather_frozen_zero_intervals.csv": "821641145d86c57fdca3669a9ac80d54b2c0383691a401aa8e24d5b977c2344a",
+  "versions": {
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "pyarrow": "23.0.0",
+    "statsmodels": "0.14.6",
+    "scipy": "1.17.0",
+    "python": "3.13.2"
+  }
+}

@@ -1,0 +1,750 @@
+{
+  "data/analysis/weather_yearly.csv": {
+    "sha256": "6300aeb3632fe891b54adaaad2d82f3690a313144c11aedc57df27ec4ed0fd1b",
+    "mtime_ns": 1789075464946630349
+  },
+  "data/analysis/daily_traffic.csv": {
+    "sha256": "4ba0e6f2d9e19d0e28a4533a5efb96ce910abad7618b7bf3320819b30dd06de7",
+    "mtime_ns": 1789075483870657699
+  },
+  "data/analysis/annual_traffic.csv": {
+    "sha256": "ec0447a70f25097094b0c481263300d505deca2ba70f46d5c60275747470bfc9",
+    "mtime_ns": 1789075465104548128
+  },
+  "data/analysis/counter_locations.csv": {
+    "sha256": "013a1860fb3b573973b816a434c13487665b157f2f12cdb9c4fe05a6f26bed99",
+    "mtime_ns": 1789075483895817478
+  },
+  "data/analysis/accidents.csv": {
+    "sha256": "3000fdedd607d99532c17dbca4a5d1d57586c52ce29b8b9ab0ba898ee1c1cc78",
+    "mtime_ns": 1789075463778691959
+  },
+  "data/analysis/road_rate.csv": {
+    "sha256": "b52b1d7e5b7edcd069318c85503432d22c3ec4aa9eb7ab4e3e5897c7e1d33a6e",
+    "mtime_ns": 1789323793066288650
+  },
+  "data/analysis/counter_wind.csv": {
+    "sha256": "c986533163f35ff7eef67916381cc1b0dde2cc35d732a06098925abaf0cac3e0",
+    "mtime_ns": 1789075463837212106
+  },
+  "data/analysis/counter_check.csv": {
+    "sha256": "c40025dd200dc9e056a69a121fe3aef8eedd71c919575770dae61b50dc28e303",
+    "mtime_ns": 1789075483965855701
+  },
+  "data/analysis/selection_summary.csv": {
+    "sha256": "557fb417278e2a81f45cc20969043e081fe11db7dcdbce02c23948876bd2d1d0",
+    "mtime_ns": 1789323802025521555
+  },
+  "data/analysis/weather_cleaning.csv": {
+    "sha256": "25b3bfee7d7d9250cd67175e9ce01f73de1a0531c60626abab4f4d6c45e52f25",
+    "mtime_ns": 1789075464958041256
+  },
+  "data/analysis/road_exposure.csv": {
+    "sha256": "4ea44477ee115cf12c17111ec12d9cea71ad5ef126ffbb39a5309064cbb56324",
+    "mtime_ns": 1789323793067681154
+  },
+  "data/analysis/case_control.csv": {
+    "sha256": "ec76ec789a1686ab0feb6b14775de6b0a168320f88182c97452b3c45f0a4420f",
+    "mtime_ns": 1789075465372759059
+  },
+  "data/analysis/README.md": {
+    "sha256": "4dbbe90be34dfa07a10c9638e0128ea44e92e35152137dce65b1bdb04159ebb4",
+    "mtime_ns": 1789075483976756222
+  },
+  "data/analysis/weather_source_audit.csv": {
+    "sha256": "c679fb89dc6a0aa17eaaa997e077e636d51b52423a61d4b8bd09f7232e42c1d9",
+    "mtime_ns": 1789075465851384789
+  },
+  "data/analysis/manifest.csv": {
+    "sha256": "945e2047c164294536d71fd4b330966fa752539734a1ea8137b8dbe86573b34e",
+    "mtime_ns": 1789323802057689970
+  },
+  "data/analysis/temperature_frequency.csv": {
+    "sha256": "b687d0cb0f7d10627fbe223fadd19479a7ab52d07c33588aa847a0a1f5c491c3",
+    "mtime_ns": 1789075465838463934
+  },
+  "data/analysis/road_temperature.csv": {
+    "sha256": "68e66361ffea0e9e490b3569c69ef8e9f7f5b3ee0d0ba17a3fecfd81daa19b3d",
+    "mtime_ns": 1789323795967111984
+  },
+  "data/analysis/temperature_matches.csv": {
+    "sha256": "0e0c2311bb0ac06c11e43a1073b534ea2a6695331313b15ec3f650407688faa4",
+    "mtime_ns": 1789075463878814565
+  },
+  "data/analysis/accident_conditions.csv": {
+    "sha256": "170af091c057936dd0d7a03e4b30f0174039bcc545ed0496bb7cbc705baa1bbe",
+    "mtime_ns": 1789075463827836659
+  },
+  "data/analysis/daily_season_panel.csv": {
+    "sha256": "9c17a1b5b880e2b3bbea1cd52ac1519f2498a3bd1f29682ec7b02a1662e71619",
+    "mtime_ns": 1789145866335467262
+  },
+  "data/analysis/daily_vkt.csv": {
+    "sha256": "c57feb887c08fa74379519c4e3262ec454a482f80333aa0d393bf30a0a8888c0",
+    "mtime_ns": 1789075483961803574
+  },
+  "data/analysis/road_seasons.csv": {
+    "sha256": "16511087ba5f9545d22c477910a120e163f86eecfce44e21703bdb84fb383a0e",
+    "mtime_ns": 1789323798715504889
+  },
+  "data/analysis/counter_sections.csv": {
+    "sha256": "1ea26efecf9f66631c2314967c3acedb9e145740ae74dbdfbb86effcaa04f991",
+    "mtime_ns": 1789075483958097454
+  },
+  "data/analysis/weather_frequency.csv": {
+    "sha256": "b20c2f187cd963b2ddd2db48a698c75b97160a822e1b7902b4a5488a10406c17",
+    "mtime_ns": 1789075464013704692
+  },
+  "data/processed/.DS_Store": {
+    "sha256": "63deced53a4a3ad3d899f2b0e03241d164c27407b3257248ee62a3805001b29c",
+    "mtime_ns": 1789138743752775164
+  },
+  "data/processed/README.md": {
+    "sha256": "15d330852dfd320766493afd15147da351ecdcad8dd8a5bfe87d82afcad7714c",
+    "mtime_ns": 1787847296252811916
+  },
+  "data/processed/traffic/counter_day_weather.parquet": {
+    "sha256": "6e546ea08455069099cbf3ea1f613f1029005a4d14cf4491530878ac8706d293",
+    "mtime_ns": 1789098603472407501
+  },
+  "data/processed/traffic/accident_wind.csv": {
+    "sha256": "ddf630f5cb47ef6ffdeb58ce5583ae2ef0022a0a4e3f2cb289d2c9c3f3b72854",
+    "mtime_ns": 1788982887017988647
+  },
+  "data/processed/traffic/locations.csv": {
+    "sha256": "4262910d75d2b28ed8278b265fdfde9cfcd2a661462701d34331b4432751fbf0",
+    "mtime_ns": 1787853803008997792
+  },
+  "data/processed/traffic/daily.csv": {
+    "sha256": "179fcef7b0fc8b8f17d1c42d370fbaad6689cae28f39d0fa7fe15efc5f98dc2e",
+    "mtime_ns": 1787853806771332547
+  },
+  "data/processed/traffic/daily_counter_station_validation.csv": {
+    "sha256": "4dc559902f2db7a0f48bf94f9d6b800d79f309468fdc41132a7c8a394a5992a9",
+    "mtime_ns": 1787854142321763583
+  },
+  "data/processed/traffic/annual.csv": {
+    "sha256": "47973c7f19b4f88e201dce4cee76a65b6c29d42e1e8f6b7ed50213aa5c5ada61",
+    "mtime_ns": 1787851456320886774
+  },
+  "data/processed/traffic/daily_raw.csv": {
+    "sha256": "59cce56e7b4e84f7116f8d0a0aa99d1b51a2cb89dd22e432bace374a60e53d3e",
+    "mtime_ns": 1787853721475347466
+  },
+  "data/processed/traffic/road_period.csv": {
+    "sha256": "05aac53a0ce8f7413bd086d13817ba4213ef0eb9dc021937bdb8b8b4dedcf5c0",
+    "mtime_ns": 1789323775955203519
+  },
+  "data/processed/traffic/daily_vkt.csv": {
+    "sha256": "3ffe1faec89ce90fe5e04bd0d14e216691eebab8010a52b9b4650a8cf27b555b",
+    "mtime_ns": 1789098621804223212
+  },
+  "data/processed/traffic/daily_match.parquet": {
+    "sha256": "c18949296e5aabe29cb7f05ef5faa644b51642499eacb4d52b80018ead00df63",
+    "mtime_ns": 1788982842880189492
+  },
+  "data/processed/traffic/counter_sections.csv": {
+    "sha256": "66756d7fb6c7d38844e96d048988d7a87e74dd0ee8f0c1a6b7bfd2589d60a5b8",
+    "mtime_ns": 1789061166502584076
+  },
+  "data/processed/traffic/daily_weather.csv": {
+    "sha256": "8d970f80409e1a0ea5cddf39acfd8a92067c0c56ae224b06cb96e6dee5107b82",
+    "mtime_ns": 1788982858304028186
+  },
+  "data/processed/traffic/counter_accidents.csv": {
+    "sha256": "3a2248ebcf7e92cd7207b37f50c4368e101030b966a6c682cec4becbbf15eb89",
+    "mtime_ns": 1789098613360757482
+  },
+  "data/processed/accidents/accidents-near-counter.csv": {
+    "sha256": "0f4ac648d7ecc1ea614e80f90aedbef37a1d86e6cf6b762990164068b78d6c43",
+    "mtime_ns": 1789098542486107289
+  },
+  "data/processed/accidents/rate.csv": {
+    "sha256": "9ea6664b61e27b3483595adb7b34759f9ac5f40ef9817b6c12170f1d578474ca",
+    "mtime_ns": 1789323789773182527
+  },
+  "data/processed/accidents/case_control.csv": {
+    "sha256": "5849c02461dcc28ab7d49a6f553fd1b8dd4a8e17ba983a9cd7a4f8fc17866548",
+    "mtime_ns": 1788981663029574832
+  },
+  "data/processed/accidents/all.csv": {
+    "sha256": "3c0a65f5937faff5e2a9d841ead0fb0146c672531ba9d4ad2b1c910944a0c111",
+    "mtime_ns": 1787851109797668254
+  },
+  "data/processed/accidents/rural_injury.csv": {
+    "sha256": "c5afb19f121dca17fe961a5593554de6f83f92125d86981846c088b08c8dc702",
+    "mtime_ns": 1788981445546065192
+  },
+  "data/processed/accidents/rural_injury_new_weather.csv": {
+    "sha256": "c5afb19f121dca17fe961a5593554de6f83f92125d86981846c088b08c8dc702",
+    "mtime_ns": 1788979900479225820
+  },
+  "data/processed/accidents/rural_injury_new.csv": {
+    "sha256": "416a03726f60ebdbfdb5a349fc29bea8f94d802224e72b0a757edccb2d8c3a60",
+    "mtime_ns": 1788975761455455229
+  },
+  "data/processed/weather/station_coverage_new.csv": {
+    "sha256": "236ebffedc9bf9ae269c2bacd0ac2021c9ecd946c8f2e5880912136a036d3a25",
+    "mtime_ns": 1788975288128558693
+  },
+  "data/processed/weather/cleaning_old.csv": {
+    "sha256": "7fcd1b9d68aa19b118928fefca46c5db55cdb5cd2bc6da6812c5540d12d4d9cb",
+    "mtime_ns": 1788647564562235622
+  },
+  "data/processed/weather/weather.parquet": {
+    "sha256": "dab4b873702ade2cda78f759d3656cef5a0f57ef392a0ff8648a78e6318a6b18",
+    "mtime_ns": 1788975288055280072
+  },
+  "data/processed/weather/frequency.csv": {
+    "sha256": "5551734a591f4642819a2aa4415c52e8ac7040f118cd07ba8c34989fdcefd5bc",
+    "mtime_ns": 1789061246153546048
+  },
+  "data/processed/weather/cleaning.csv": {
+    "sha256": "1f80f42f77d2d4cc36379a91feeae96b94a0286b48d471fd0827d414fdf9bfd0",
+    "mtime_ns": 1788985025661896560
+  },
+  "data/processed/weather/frozen_zero_new.csv": {
+    "sha256": "f5c95dda493e25471fb235a96500f173cb93bed512316d6574eac26308ba048c",
+    "mtime_ns": 1788975031342891510
+  },
+  "data/processed/weather/traffic_frequency.csv": {
+    "sha256": "fa8c7a77826b4184b2dae6d711f94cf00645fa4964235f03da34b083a289a015",
+    "mtime_ns": 1789061247579176643
+  },
+  "data/processed/weather/yearly_frequency.csv": {
+    "sha256": "0bd6d9a81a029e9011c121e67d54ff260b91e216ccad1bea0123369042c2bc2e",
+    "mtime_ns": 1789061247276337087
+  },
+  "data/processed/weather/temperature_frequency.csv": {
+    "sha256": "5ca71a7590cc58b8870b3c6a6f3d16183e38107b111c7fa83f99a0843705c0c4",
+    "mtime_ns": 1789061245952955670
+  },
+  "data/processed/weather/road_period_frequency.csv": {
+    "sha256": "f494ab7c2b4e6cacd99abf1340be479a76c1600097d4d1b897a5e6d0e0a263bb",
+    "mtime_ns": 1789323771324198619
+  },
+  "data/processed/weather/cleaning_new.csv": {
+    "sha256": "1f80f42f77d2d4cc36379a91feeae96b94a0286b48d471fd0827d414fdf9bfd0",
+    "mtime_ns": 1788975288138229364
+  },
+  "data/processed/weather/temperature_audit.csv": {
+    "sha256": "2f2e8bbaef50453fa8295f785cc2a7b3eb771bc3862ef0cf607b77a7c94779a7",
+    "mtime_ns": 1788970693234468369
+  },
+  "reports/main/.DS_Store": {
+    "sha256": "2508a06d8d9702684dc543327067eced205952cdb30ba4f18a70a581180d1bd6",
+    "mtime_ns": 1789229610962508328
+  },
+  "reports/main/tables/severity_conditions.csv": {
+    "sha256": "8316fca5214eb9aa724de4336ce496e051f846fb9e6712213fd0a1ef0b3817fb",
+    "mtime_ns": 1789145970444366441
+  },
+  "reports/main/tables/allocated_rate_day.csv": {
+    "sha256": "40655bbb833f226c0d6a62ad77934d13407ec424608ddded926bed95523944f4",
+    "mtime_ns": 1789145845674243023
+  },
+  "reports/main/tables/wind_rate_multiple.csv": {
+    "sha256": "33ec9a7ca4b7f3d6186bcffeb6f123cbe34158726becaef6ec50e68dee7dc4a3",
+    "mtime_ns": 1789323816956494018
+  },
+  "reports/main/tables/daily_sample.csv": {
+    "sha256": "708f5c04af73062d5fa68fcc10a44f0e485eee03ae65d4d1d3aab706270653ec",
+    "mtime_ns": 1789145838944182877
+  },
+  "reports/main/tables/annual_quality.csv": {
+    "sha256": "16d0fedf77392cfacb50c09fb3022a0975edf5c7718eaab92c3229dba075d291",
+    "mtime_ns": 1789323803160034898
+  },
+  "reports/main/tables/daylight.csv": {
+    "sha256": "d7549c8a35b7975f41676ab339e5de7cce3fd7e0cec8db2e3be07fc3ca764dd6",
+    "mtime_ns": 1789145976186531336
+  },
+  "reports/main/tables/weather_coverage.csv": {
+    "sha256": "dd0cee22b6625431ea2c2a9507631162c8b3e820c41de5e91f7c8f249e9365b6",
+    "mtime_ns": 1789145883393489652
+  },
+  "reports/main/tables/wind_rate.csv": {
+    "sha256": "cdb021262edd1042045079a1298550efa7dde3faa6d2d429ed8c7aab31184af0",
+    "mtime_ns": 1789323808136825969
+  },
+  "reports/main/tables/matched_weather.csv": {
+    "sha256": "e15c0c2a6aa7f98b9fd0de3d439530b02463d2220ba16e2d7a2a6ed97664063a",
+    "mtime_ns": 1789145927895002863
+  },
+  "reports/main/tables/allocated_rate_severity.csv": {
+    "sha256": "4585787e6e650a0f2d8e0ec0e8739ee08e2ee948db7f20e3762511b23a96afc9",
+    "mtime_ns": 1789145842323262556
+  },
+  "reports/main/tables/absolute_rate.csv": {
+    "sha256": "3b6b00c2e0786bfa08c2f36d1a53dacebadd6dbf42e243440259e7867a686c8e",
+    "mtime_ns": 1789323803758867795
+  },
+  "reports/main/tables/validation.md": {
+    "sha256": "4e7f15097e946d5da6709c0b4cbe9210182821ac5cbbe590462a36d50cd5f0fa",
+    "mtime_ns": 1789323898614325599
+  },
+  "reports/main/tables/daily_exclusions.csv": {
+    "sha256": "a889ff710276d057dd383e8623494529a222c2533ec90fa10fd0f12180a8c98b",
+    "mtime_ns": 1789145838950381029
+  },
+  "reports/main/tables/weather_model.csv": {
+    "sha256": "89b0be0373cda494794152aae3407f69429d900d8d3f175346c99b94e80a1f09",
+    "mtime_ns": 1789145965892796254
+  },
+  "reports/main/tables/wind_duration.csv": {
+    "sha256": "9f20f80a3cf99e382780cd6517f291eb810dbeb3674cfef5b3eb8a50aeda92a5",
+    "mtime_ns": 1789145833941037030
+  },
+  "reports/main/tables/wind_profile.csv": {
+    "sha256": "529afd966365a4876ef509dd56e08bdee857776769c902ec4a96abedd4aa4ecd",
+    "mtime_ns": 1789145976790133921
+  },
+  "reports/main/tables/day_rate.csv": {
+    "sha256": "a9d3ec2bd4ee4de729689e881edcded6a3e4e8af387056f226c890cbcd248415",
+    "mtime_ns": 1789145849071155563
+  },
+  "reports/main/tables/temperature_rate.csv": {
+    "sha256": "b152df8df7e36cd6d0c88db477371839f20841d842438c5082885274a4ea30b5",
+    "mtime_ns": 1789323812964311076
+  },
+  "reports/main/tables/weather_oe_audit.csv": {
+    "sha256": "b37b890ae241a08da0b2669bd9ad09ab969b11f85732fb83abdaefe30e6d00f5",
+    "mtime_ns": 1789145794421446877
+  },
+  "reports/main/tables/counter_radius.csv": {
+    "sha256": "0ba29a6b1e244e882f771ab9cdb7984967a886cec97d84d4bbab78d581590d5a",
+    "mtime_ns": 1789145857001639885
+  },
+  "reports/main/tables/year_oe.csv": {
+    "sha256": "2d4facf4810045bc13d5025af83ef15ee6723bb3712b8493bae3472ec53c5592",
+    "mtime_ns": 1789061556601642061
+  },
+  "reports/main/tables/conditions.csv": {
+    "sha256": "61c118e5458fe81f0413a51d7cf4660624be9c73e614877ecb7c7db9d1ac1837",
+    "mtime_ns": 1789145884494314816
+  },
+  "reports/main/tables/allocated_rate.csv": {
+    "sha256": "e50996ff3b2e4141adc7535b8dd077e8914baa87455d28d6e5c3be6d34bc0fe2",
+    "mtime_ns": 1789145837457396331
+  },
+  "reports/main/tables/wind_oe_comparison.csv": {
+    "sha256": "e5d631bed4ccd1d2bb9ca07a09cfe78e987219ed39ba6b753bf43f2e0f485b1d",
+    "mtime_ns": 1789323840857984456
+  },
+  "reports/main/tables/season_rate_severity.csv": {
+    "sha256": "24a1db4b275bae6a87f96b3381f0e258822d0f24531c337b66924a1efa5cdf8d",
+    "mtime_ns": 1789323823164910721
+  },
+  "reports/main/tables/wind_rate_severity.csv": {
+    "sha256": "fe512a31c6c0e401e6bbdcc3239dea8005c42e138e18048ac5951dda8ac69611",
+    "mtime_ns": 1789323819148667884
+  },
+  "reports/main/tables/temperature_coverage.csv": {
+    "sha256": "ce234bc436811828cdab2cc49890741b94c171244467e892b2026426f1d2d4d3",
+    "mtime_ns": 1789145884495079913
+  },
+  "reports/main/tables/season_rate.csv": {
+    "sha256": "99c4e5b370727b38226aabdc098e1d50373f09f131b9d74b47c5a15778460d19",
+    "mtime_ns": 1789323821444781721
+  },
+  "reports/main/tables/traffic_period.csv": {
+    "sha256": "6ba37ce7bfa3e756be61144e2b9ecdfb04af94ee46e54ae03c3ff0e37c362784",
+    "mtime_ns": 1789145831756895470
+  },
+  "reports/main/tables/daily_map.csv": {
+    "sha256": "de24eff435240b306ae245c6c935b22810adbb77f1bc7cb78efe96e6bb024811",
+    "mtime_ns": 1789145838962040071
+  },
+  "reports/main/tables/counter_adu.csv": {
+    "sha256": "00cdbce556fc945c91980a34b6f98dec62d8a4e664fe6f3080de4ddee02f163b",
+    "mtime_ns": 1789145860436294683
+  },
+  "reports/main/tables/traffic_wind.csv": {
+    "sha256": "97405d36f55b94d97c9cb0c361dde9181c0bfb0d5758547771325e320f7765a1",
+    "mtime_ns": 1789145831756224458
+  },
+  "reports/main/tables/match_quality.csv": {
+    "sha256": "555323b89e1b592e4f291b65462038360b66c31e6244aed6969310f4e9557847",
+    "mtime_ns": 1789145883921453190
+  },
+  "reports/main/tables/wind_season.csv": {
+    "sha256": "f2d011b52e1525903a75ff4ad6102405f33c787aed91e6c7a0c4ccf5e9cab2e8",
+    "mtime_ns": 1789145946131565615
+  },
+  "reports/main/tables/zero_run_check.csv": {
+    "sha256": "3cc451ffb1dd4834ea10d54b2923074ec9b0c020cd2bb1a43cc6487b8dc0c9e4",
+    "mtime_ns": 1788965760080105741
+  },
+  "reports/main/tables/weather_oe.csv": {
+    "sha256": "4de84efe767444be4d8c2423abad8ebd6bc2ebc16f35883268760c1daa1c96c0",
+    "mtime_ns": 1789145793864394040
+  },
+  "reports/main/tables/day_rate_coarse.csv": {
+    "sha256": "b034c2bb094967f309af291c2b089f3d7fb51eca61b9ce9174eb5e528e6ad0f9",
+    "mtime_ns": 1789145852266471914
+  },
+  "reports/main/tables/traffic_checks.csv": {
+    "sha256": "5857f946758d72f1a5b5094010d95e60517981bb2fed17bde9ace861d653a597",
+    "mtime_ns": 1789323837778367001
+  },
+  "reports/main/tables/wind_rate_one.csv": {
+    "sha256": "440f2b134b2ff02adf149cb916356614c6f651da3d071fd01b9141af17bfad81",
+    "mtime_ns": 1789323815115500587
+  },
+  "reports/main/tables/daily_season_oe.csv": {
+    "sha256": "b00d25588bfce4448c2a0296f8b4535727fb692833e494b568be8688914cb67a",
+    "mtime_ns": 1789145873949885974
+  },
+  "reports/main/tables/allocation_check.csv": {
+    "sha256": "280db2b9a82802eb45d23e5d5d7c8ad73d93a7cc97090a81f387eb34c2de27a9",
+    "mtime_ns": 1789323838537409889
+  },
+  "reports/main/figures/f_traffic_rate_panels.png": {
+    "sha256": "3d1b3490970062df3027290ebb5da768384c59d62559cc3b331a02f7fcdafe50",
+    "mtime_ns": 1789145881925112262
+  },
+  "reports/main/figures/accident_flow.png": {
+    "sha256": "9210bb16b57d972b029bec67293c387e5480b24ab8e1e3406645dc25ab9d6fdf",
+    "mtime_ns": 1789147152323905729
+  },
+  "reports/main/figures/accident_flow.pdf": {
+    "sha256": "2142ff7a8367388ba38b43badd4a0a6c096eec3539fb4bbedaeb234121b1d1aa",
+    "mtime_ns": 1789147155009034688
+  },
+  "reports/main/figures/traffic_wind_period.png": {
+    "sha256": "89584225d928feb8c2fec8dc22788850ebbd1c3bc4b3aac82779c9b80c693d2d",
+    "mtime_ns": 1789145879164216243
+  },
+  "reports/main/figures/temperature_traffic_rate_panels.png": {
+    "sha256": "0929e67a56ee6f87c3203c9d6894360b677f87353b0d37465f8860dcac497c12",
+    "mtime_ns": 1789145882801430657
+  },
+  "reports/main/figures/accident_map.png": {
+    "sha256": "fac6ab63320acd3d8e025aae9dd9f97ecec0831716182273599fb8c1d253487d",
+    "mtime_ns": 1789145890410787106
+  },
+  "reports/main/figures/daily_season_oe.png": {
+    "sha256": "b62ff92df63abd10505ddaaeefc361ceef2228f32a6a7031c00cb8506572c7eb",
+    "mtime_ns": 1789145880288146798
+  },
+  "reports/main/figures/season_rate.png": {
+    "sha256": "bc03af16ab14a49f168da3586ecc171bd13f95f6e831cae2088c3ba2da46c389",
+    "mtime_ns": 1789323831774619820
+  },
+  "reports/main/figures/wind_rate_severity.png": {
+    "sha256": "59f560a94d4ed51b127045e9c86580286e1fda3264b4bd40b2e25afe7ab1c934",
+    "mtime_ns": 1789323830569243130
+  },
+  "reports/main/figures/allocated_rate.png": {
+    "sha256": "06804af2d6bafd72ca5ac622a3a11d661515d67917a52bf5b39cc5e6124db142",
+    "mtime_ns": 1789145876932745900
+  },
+  "reports/main/figures/season_rate_severity.png": {
+    "sha256": "0b99b44a5e245d324ca5a3e019abd4b04559a6e1ba987e2b843d6cd005b12b8e",
+    "mtime_ns": 1789323832958689747
+  },
+  "reports/main/figures/wind_oe_comparison.png": {
+    "sha256": "8b6fc6829e38dac203be9c0359e4319bca129cbaef1e1c27b3b1988ec4c464c5",
+    "mtime_ns": 1789323843416844546
+  },
+  "reports/main/figures/conditions.png": {
+    "sha256": "efb52da8e53b3471fac4f4891415adb5454507ecc4c89671c8fb848c2793f56a",
+    "mtime_ns": 1789145892794487780
+  },
+  "reports/main/figures/wind_season.png": {
+    "sha256": "a977cf57461add16358cd028c042f8b5009a4063b3933df610a4765eaeeaac91",
+    "mtime_ns": 1789145967025270048
+  },
+  "reports/main/figures/traffic_wind.png": {
+    "sha256": "d2d47d2198fe8cecfd9beb1fc6c6568b47dbd05de21696482bf3f05cb51e680a",
+    "mtime_ns": 1789145878845844255
+  },
+  "reports/main/figures/wind_duration.png": {
+    "sha256": "d09c89d159a7305d418d0aabaf08954f450a7408a65b77ea1489b94934a4e3bf",
+    "mtime_ns": 1789145874953468171
+  },
+  "reports/main/figures/wind_oe_panels.png": {
+    "sha256": "2b928c5cb414ae6c8f7861e4654b2f078bcdc1edecb54e4820d130ad3654deee",
+    "mtime_ns": 1789145795751006237
+  },
+  "reports/main/figures/weather_model.png": {
+    "sha256": "59678c24212e9957b2e530c6b192ef81a8f44198c5f619dde34428cbc5fc32e2",
+    "mtime_ns": 1789145968027039795
+  },
+  "reports/main/figures/weather_oe_annual.png": {
+    "sha256": "c540ef33bd974d3ebd9a48ca10b518de460d504c4d07b5b205eca5fc1088c137",
+    "mtime_ns": 1789076170910566246
+  },
+  "reports/main/figures/accident_types.png": {
+    "sha256": "6a2d58d616143db0be0e1e05ca27db27be0df2c39f48dbc48d2c21d7045e022d",
+    "mtime_ns": 1789145886665636382
+  },
+  "reports/main/figures/accident_types_by_severity.png": {
+    "sha256": "861c3fd95978576c9b11a8d278b522a5032866213a8b8d1a0b02b273d966c08c",
+    "mtime_ns": 1789145886953293125
+  },
+  "reports/main/figures/fg_traffic_rate_panels.png": {
+    "sha256": "9eeedf89b993d89512f8c638266b190187e89ab3f1679ed4c5e959caef040fff",
+    "mtime_ns": 1789145882361580970
+  },
+  "reports/main/figures/weather_rate_annual.png": {
+    "sha256": "d184658fb1b9679f4b46f1969551d9fb07d932f66720dfacf0cad4c879479f2f",
+    "mtime_ns": 1789145881527727160
+  },
+  "reports/main/figures/counter_coverage.png": {
+    "sha256": "603f65388c12af6a6b053df30fccb0bb58d28f2ddee11ce510d2a0cb3347fcac",
+    "mtime_ns": 1789145875978596878
+  },
+  "reports/main/figures/weather_flow.png": {
+    "sha256": "f7edbdfc5be02ff48861c1e233427f7d608c0fe99a4a7322f244e63c4da2700d",
+    "mtime_ns": 1789147155075688304
+  },
+  "reports/main/figures/temperature_rate.png": {
+    "sha256": "0dd53d86c8b642e19e417d9baf0ccbd58c95ed47d3765ce375b8abb97472e3a3",
+    "mtime_ns": 1789323828527341563
+  },
+  "reports/main/figures/weather_flow.pdf": {
+    "sha256": "8e051472146165a37cb8f1b7b15c752f807b1af12e48ad238c0ffe7736d4bf6e",
+    "mtime_ns": 1789147155116620871
+  },
+  "reports/main/figures/day_rate.png": {
+    "sha256": "093d3e7db4a51dc8870bc369ce1304c6742df8d3e4ef62abb58a1c36c43f83e1",
+    "mtime_ns": 1789145877876808533
+  },
+  "reports/main/figures/gust_oe_panels.png": {
+    "sha256": "c202916318d719999b17b951c366227ffa1239a5c97c788825297f1d0ef9c627",
+    "mtime_ns": 1789145796236642088
+  },
+  "reports/main/figures/severity_conditions.png": {
+    "sha256": "b214955f2b99f6f181bed8722890e9987fa0a9ad7320dc1fe410d8a65db0f910",
+    "mtime_ns": 1789145977812720416
+  },
+  "reports/main/figures/severity_context.png": {
+    "sha256": "a2b32d84064ffa617fcfc0911b6c2d039731867290d17c07464558217a3c0b57",
+    "mtime_ns": 1789145978792764568
+  },
+  "reports/main/figures/weather_coverage.png": {
+    "sha256": "1d69d37855d3d6f96fdeba8d1650a38afbb69758b1869016deed47f22c8a725f",
+    "mtime_ns": 1789145891534811671
+  },
+  "reports/main/figures/wind_rate.png": {
+    "sha256": "2f83b68eb25bfaa4e438529aaaea17815cf8526bd5aa9db4e5434dea3b314400",
+    "mtime_ns": 1789323827505157922
+  },
+  "reports/main/figures/traffic_flow.png": {
+    "sha256": "c6ac3b8b63f1866994ad2d7d96590c986c5024629736867606d56082b9c3b1ac",
+    "mtime_ns": 1789323865077026619
+  },
+  "reports/main/figures/vehicles_per_accident.png": {
+    "sha256": "eb505b45352b03826d379974614844bbf9ee712ac7076cfbadd8ccfecfcb1fa4",
+    "mtime_ns": 1789145886767472720
+  },
+  "reports/main/figures/daylight.png": {
+    "sha256": "52dbe329ddef6e3c8d09a0f51e583b7f1243e13baef2d7b823f884aa0982397c",
+    "mtime_ns": 1789145979713246278
+  },
+  "reports/main/figures/temperature_oe_panels.png": {
+    "sha256": "f879ee375bd4e9f3de90b9715a70ca721d7de514bbd895d7455980418b17dd71",
+    "mtime_ns": 1789145796789063009
+  },
+  "reports/main/figures/wind_rate_vehicle.png": {
+    "sha256": "e13f50480d6f0d44dd25039d3c6c42c9fcdbfe0ba7ff082c90145a32bb8e747d",
+    "mtime_ns": 1789323829566329580
+  },
+  "reports/main/figures/traffic_flow.pdf": {
+    "sha256": "6d4ae14178a68eea83c6b0384672d09aa82613d00c1b18cd81140d35646a41a1",
+    "mtime_ns": 1789323865271017446
+  },
+  "reports/thesis/draft_en.tex.bak_2026-09-11": {
+    "sha256": "1fb8d89dd90d9831e15880d1c7218f21a7ab6bb71f1885271ecaf9b08fb26ba2",
+    "mtime_ns": 1789147766761492391
+  },
+  "reports/thesis/content.tex": {
+    "sha256": "98efc94fe6abb93935bd115221250e6196206a22c0d8df8539d1f20c441060d1",
+    "mtime_ns": 1789323816056354521
+  },
+  "reports/thesis/TEMPLATE.md": {
+    "sha256": "4739485d5bc51bc9f481f17a3cf1956c52158ee2bd24b352f724663dd838161c",
+    "mtime_ns": 1788829716920420613
+  },
+  "reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.lof": {
+    "sha256": "0b8e6f61238f7b4b2509a5023e4f089073290b745921eb46654b75e7befbc44c",
+    "mtime_ns": 1789323931288691093
+  },
+  "reports/thesis/.DS_Store": {
+    "sha256": "2c402a47341b85db97fa8b09fe61aa96a57bb6ca39f3b2c8d89815e9062d63a0",
+    "mtime_ns": 1789200370030453697
+  },
+  "reports/thesis/pipeline_prepare.tex": {
+    "sha256": "56ffaece0f8be44586a4dc881fb1fa190171bab6fff74cb514933c24b82594ad",
+    "mtime_ns": 1789156656771348826
+  },
+  "reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.lot": {
+    "sha256": "878fca50a1b0d114a5e197137da6611201ca061fca0cdf04f4d63cbe3d5cab90",
+    "mtime_ns": 1789323931288745510
+  },
+  "reports/thesis/appendices.tex.bak_before_trim": {
+    "sha256": "b85d9d7fa870d75f24c2a92321e17cfb0be02315e2ed57305642d9482d25446f",
+    "mtime_ns": 1789148491674740903
+  },
+  "reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.log": {
+    "sha256": "90686cf48eb1cfc1ff65c82dff55ef872d88f63a47e07df986cfd36083ee03cc",
+    "mtime_ns": 1789323931372780307
+  },
+  "reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.aux": {
+    "sha256": "6dd6fb63900a998a0cb14209ee8cfef4e1955de65539bceec14cac84d051e5e4",
+    "mtime_ns": 1789323931279667612
+  },
+  "reports/thesis/content.tex.bak_2026-09-11": {
+    "sha256": "9d03242c840e06c053ab4fad2933f422f580fbcf889e030d82c62c7db9c3fb91",
+    "mtime_ns": 1789147766736230098
+  },
+  "reports/thesis/banner.png": {
+    "sha256": "dfec02030b25b1d1a268bc2d22a37812a906184273691648529b862d0e574163",
+    "mtime_ns": 1787231599117588887
+  },
+  "reports/thesis/content_before_primary12.tex": {
+    "sha256": "1a6f93a851b2db70fe1d86053c48ceaca08eaa9e9c3ba3f8f1e48322bd451db3",
+    "mtime_ns": 1789139619120705568
+  },
+  "reports/thesis/draft_en.lof": {
+    "sha256": "0b8e6f61238f7b4b2509a5023e4f089073290b745921eb46654b75e7befbc44c",
+    "mtime_ns": 1789156730377994063
+  },
+  "reports/thesis/draft_en.lot": {
+    "sha256": "878fca50a1b0d114a5e197137da6611201ca061fca0cdf04f4d63cbe3d5cab90",
+    "mtime_ns": 1789156730378029272
+  },
+  "reports/thesis/appendices.tex.bak_2026-09-11": {
+    "sha256": "b85d9d7fa870d75f24c2a92321e17cfb0be02315e2ed57305642d9482d25446f",
+    "mtime_ns": 1789147766749782508
+  },
+  "reports/thesis/draft_en.log": {
+    "sha256": "ae8e07f561c573bb4a9f6d1ab8f2e3ec2be53484b69ca7098e5f0312cf2bd251",
+    "mtime_ns": 1789156730465791927
+  },
+  "reports/thesis/draft_en.aux": {
+    "sha256": "6a4e02d3fda9cfbe3dd9d17fd3029c61b9769fb6d5cde0a45b55f2cb048422a7",
+    "mtime_ns": 1789156730368901232
+  },
+  "reports/thesis/draft_en.blg": {
+    "sha256": "1dcc15531302185f4b63fc383c02e427a7fcc2f6ccddb84c979e10d072621b96",
+    "mtime_ns": 1789145251173117305
+  },
+  "reports/thesis/appendices.tex": {
+    "sha256": "706c665b3e41d7d9bcaa62d8c86ac87005c1c2d9814d28dd92e535e6c26a124b",
+    "mtime_ns": 1789153269093729820
+  },
+  "reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.toc": {
+    "sha256": "aa7d80a1b852e29001784f0b1ebade197587a4bdbb25d06569bb02e557973b5b",
+    "mtime_ns": 1789323931288604218
+  },
+  "reports/thesis/draft_en.bbl": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mtime_ns": 1789145251167745334
+  },
+  "reports/thesis/pipeline_analysis.tex": {
+    "sha256": "75285fec07810f4d5920ac82f6b46888705f31235f46401d3290951d2455774c",
+    "mtime_ns": 1789156656771726210
+  },
+  "reports/thesis/content_before_polish.tex": {
+    "sha256": "4b8fb3b283f0549b005180a7ba170c7b3a3e83b2120f0f5cfea1d338b80f3257",
+    "mtime_ns": 1789143650124576043
+  },
+  "reports/thesis/draft_en.tex": {
+    "sha256": "b4da8f18feeefdc8064da485d5974314fbe7a1aeee45d470c5842d3f1c74d712",
+    "mtime_ns": 1789155005541248611
+  },
+  "reports/thesis/draft_en.toc": {
+    "sha256": "aa7d80a1b852e29001784f0b1ebade197587a4bdbb25d06569bb02e557973b5b",
+    "mtime_ns": 1789156730377933812
+  },
+  "reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.pdf": {
+    "sha256": "72c9a42b7cdda16f7a4293d531d2e4167312640e5d64ad8e153e573728d884dc",
+    "mtime_ns": 1789323931372607973
+  },
+  "reports/thesis/appendices.tex.bak_before_trim2": {
+    "sha256": "b85d9d7fa870d75f24c2a92321e17cfb0be02315e2ed57305642d9482d25446f",
+    "mtime_ns": 1789148526963872159
+  },
+  "reports/thesis/generated/match_quality.tex": {
+    "sha256": "81fda75c09eef2d8f40bac81b3858949e0417adb0f147fb8dd93c6a71b5b20c6",
+    "mtime_ns": 1789156657721172006
+  },
+  "reports/thesis/generated/adu_quality.tex": {
+    "sha256": "67f58ab9be92098adc95f94b8534a6b7fa23121c9b86eeaff02b033ba1646f26",
+    "mtime_ns": 1789156657746296408
+  },
+  "reports/thesis/generated/estimated_rate.tex": {
+    "sha256": "31e3697a067a39bed884050c5a39039b331be42316a2a1d70335142ed5b95b8d",
+    "mtime_ns": 1789323865895024615
+  },
+  "reports/thesis/generated/traffic_quality.tex": {
+    "sha256": "216b7eca73e2064a930ed8640168ba56beeda1d651269f92cef028f6d55de5aa",
+    "mtime_ns": 1789323865898964334
+  },
+  "reports/thesis/generated/year_oe.tex": {
+    "sha256": "ae66e39d41193079a4bda5de4a14846e5961e6044927b5f00b0b6bcdd51c44e2",
+    "mtime_ns": 1789156657732919022
+  },
+  "reports/thesis/generated/traffic_methods.tex": {
+    "sha256": "bd5fae02088bd30ea27a821ace391e443c12260cda0865bc412583d244c72b77",
+    "mtime_ns": 1789323865877277154
+  },
+  "reports/thesis/generated/allocation_check.tex": {
+    "sha256": "3821e2f705e330368d814605dd4a28e6fedca955ae81516ba35754efb6bdce6e",
+    "mtime_ns": 1789323865900079545
+  },
+  "reports/thesis/generated/traffic_scope.tex": {
+    "sha256": "a7ecb66d87a6bd2159ffe93a7e0a2fa76384920ac00554c9d925e6d32cee4100",
+    "mtime_ns": 1789323865897757206
+  },
+  "reports/thesis/generated/daily_radius.tex": {
+    "sha256": "0727ba0dcbcffd83a47a7baded50f4ba7ef81b80523ea92060f3439835f2bf14",
+    "mtime_ns": 1789156657752579384
+  },
+  "reports/thesis/generated/daily_selection.tex": {
+    "sha256": "6796daa2ea32d4d11283da0c80cfee5de89c1990fbbccbe14e900bf5232c9f30",
+    "mtime_ns": 1789156657747394224
+  },
+  "reports/thesis/generated/daily_rate.tex": {
+    "sha256": "b5cb599461c3765530432e2d4da1d737fbae28f8973c6b6a6e0df21afd20691c",
+    "mtime_ns": 1789156657751146934
+  },
+  "reports/thesis/generated/counter_locations.tex": {
+    "sha256": "5ff5a7929c3ccf4ab64f3b9d900b03505118f933f5086a8f8351c9ecc6f3777a",
+    "mtime_ns": 1789156657745150632
+  },
+  "reports/thesis/generated/year_oe.tex.bak_2026-09-11": {
+    "sha256": "76b77cd83e6dbcb24dc1db94bb4101439c0e635888b4093c96e1c45eb54896fa",
+    "mtime_ns": 1789147767887633214
+  },
+  "reports/thesis/generated/evidence.tex": {
+    "sha256": "7fb6da4771fb8961bb1bce916cbfaa975cec3dea16f4be5ab3a3704b1d05fa16",
+    "mtime_ns": 1789323865906952521
+  },
+  "reports/thesis/generated/coverage.tex": {
+    "sha256": "9288d5fb9c0ea6ec6c84cd591d3e141923bef4c0d5f46354a612231a3c5e3096",
+    "mtime_ns": 1789323865874934439
+  },
+  "reports/thesis/generated/daily_sample.tex": {
+    "sha256": "3a84d385269c54165e6e999522716f0183e982847853fe603d21ba86220a1784",
+    "mtime_ns": 1789156657748953802
+  },
+  "reports/thesis/generated/accident_sample.tex": {
+    "sha256": "35df319b0f1083176f414817933b512b8db533fe01cffba2ad9a66f9ac03b368",
+    "mtime_ns": 1789156657716176851
+  },
+  "reports/thesis/generated/severity_conditions.tex": {
+    "sha256": "43baccd93d93b07a045b8039ac97f03f8db85d1a1f5df3a30648a1e8e3123ef7",
+    "mtime_ns": 1789156657736838819
+  },
+  "reports/thesis/generated/weather_cleaning.tex": {
+    "sha256": "2142b7ef5d1e61f0aeb60b63fe7d198fedbf57933cf99e8a3f27c1ab0194ff32",
+    "mtime_ns": 1789156657719437841
+  },
+  "reports/thesis/generated/daily_exclusions.tex": {
+    "sha256": "21c56454daacfb26bb05e455b7ae55941b3c996fa9b0fa61484b051abafeee44",
+    "mtime_ns": 1789156657749795154
+  }
+}

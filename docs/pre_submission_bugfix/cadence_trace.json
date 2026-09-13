@@ -1,0 +1,47 @@
+{
+  "total_rows": 230458950,
+  "off_ten_minute_grid_rows": 8724,
+  "off_grid_stations": {
+    "1474": 3,
+    "1496": 17,
+    "1881": 202,
+    "2631": 1,
+    "3754": 1,
+    "6300": 8369,
+    "6472": 128,
+    "7477": 1,
+    "32355": 1,
+    "34075": 1
+  },
+  "counter_days_over102": 28,
+  "unique_station_days_over102": 11,
+  "days_passing_with_fewer_than92_unique_slots": 2,
+  "days_passing_with_fewer_than92_exact_grid_points": 6,
+  "max_rows_per_station_day": 985,
+  "top_days": [
+    {
+      "station": 6300,
+      "date": "2019-06-12 00:00:00",
+      "rows": 985,
+      "unique_times": 985,
+      "unique_10min_slots": 102,
+      "on_grid_observations": 95
+    },
+    {
+      "station": 6300,
+      "date": "2019-06-17 00:00:00",
+      "rows": 974,
+      "unique_times": 974,
+      "unique_10min_slots": 102,
+      "on_grid_observations": 97
+    },
+    {
+      "station": 6300,
+      "date": "2019-06-16 00:00:00",
+      "rows": 971,
+      "unique_times": 971,
+      "unique_10min_slots": 102,
+      "on_grid_observations": 94
+    }
+  ]
+}

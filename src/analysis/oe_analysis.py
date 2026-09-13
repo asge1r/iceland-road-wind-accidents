@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from src.weather.eligibility import valid_temperature
 from src.weather.frequency import labels
 
 
@@ -217,6 +218,8 @@ def station_frequency_scenario(
         & accidents[spec.station_column].notna()
         & SAMPLES[severity](accidents)
     ].copy()
+    if spec.variable == "temperature":
+        scoped = scoped[valid_temperature(scoped[spec.accident_column])].copy()
     if analysis_season != "All seasons":
         scoped = scoped[scoped["season"].eq(analysis_season)].copy()
 

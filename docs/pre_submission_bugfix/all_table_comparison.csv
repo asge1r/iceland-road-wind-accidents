@@ -1,0 +1,41 @@
+table,comparison,changed_numeric_cells,verification_scope
+absolute_rate.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+allocated_rate.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+allocated_rate_day.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+allocated_rate_severity.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+allocation_check.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+annual_quality.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+conditions.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+counter_adu.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+counter_radius.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+daily_exclusions.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+daily_map.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+daily_sample.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+daily_season_oe.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+day_rate.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+day_rate_coarse.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+daylight.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+match_quality.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+matched_weather.csv,changed,43,fresh calculation from canonical analysis inputs
+season_rate.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+season_rate_severity.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+severity_conditions.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+temperature_coverage.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+temperature_rate.csv,changed,38,fresh calculation from canonical analysis inputs
+traffic_checks.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+traffic_period.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+traffic_wind.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+weather_coverage.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+weather_model.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+weather_oe.csv,changed,177,fresh calculation from canonical analysis inputs
+weather_oe_audit.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+wind_duration.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+wind_oe_comparison.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+wind_profile.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
+wind_rate.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+wind_rate_multiple.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+wind_rate_one.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+wind_rate_severity.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+wind_season.csv,equal within 1e-10 relative/1e-12 absolute,0,fresh calculation from canonical analysis inputs
+year_oe.csv,changed,18,fresh calculation from canonical analysis inputs
+zero_run_check.csv,equal within 1e-10 relative/1e-12 absolute,0,preserved unchanged baseline dependency; not re-fitted
