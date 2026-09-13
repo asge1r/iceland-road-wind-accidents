@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -16,6 +17,7 @@ from src.traffic.counter_day_weather import (
 )
 from src.analysis.oe_analysis import VARIABLES, station_frequency_scenario
 from src.accidents.case_control import build_candidates, read_weather, assemble
+from src.exports_accidents import export_case_control
 
 
 class EligibilityTests(unittest.TestCase):
@@ -138,8 +140,17 @@ class ControlReproductionTests(unittest.TestCase):
         rebuilt=assemble(accidents,candidates,weather).reset_index(drop=True)
         self.assertEqual(
             rebuilt.to_csv(index=False),
-            (output/'data/analysis/case_control.csv').read_text(),
+            (output/'data/processed/accidents/case_control.csv').read_text(),
         )
+        # The canonical export deliberately reorders columns and reads the CSV
+        # before serializing it. Verify that real path, not a raw file copy.
+        with tempfile.TemporaryDirectory() as directory:
+            with patch('src.exports_accidents.ROOT', output/'data/processed'):
+                export_case_control(Path(directory))
+            self.assertEqual(
+                (Path(directory)/'case_control.csv').read_text(),
+                (output/'data/analysis/case_control.csv').read_text(),
+            )
         # Input order must not change a nearest-time tie choice.
         shuffled=assemble(accidents,candidates.sample(frac=1,random_state=42),weather.sample(frac=1,random_state=42)).reset_index(drop=True)
         pd.testing.assert_frame_equal(rebuilt,shuffled,check_exact=True)
