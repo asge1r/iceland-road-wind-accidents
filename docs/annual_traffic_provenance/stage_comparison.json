@@ -1,0 +1,143 @@
+{
+  "replay": [
+    {
+      "file": "data/processed/traffic/road_period.csv",
+      "old_rows": 413676,
+      "replay_rows": 413676,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "data/processed/accidents/rate.csv",
+      "old_rows": 4933,
+      "replay_rows": 4933,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "data/analysis/road_rate.csv",
+      "old_rows": 19832,
+      "replay_rows": 19832,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "data/analysis/road_exposure.csv",
+      "old_rows": 18,
+      "replay_rows": 18,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "data/analysis/road_temperature.csv",
+      "old_rows": 29352,
+      "replay_rows": 29352,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "data/analysis/road_seasons.csv",
+      "old_rows": 20033,
+      "replay_rows": 20033,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "results/wind_rate.csv",
+      "old_rows": 6,
+      "replay_rows": 6,
+      "status": "equal within float tolerance"
+    },
+    {
+      "file": "results/absolute_rate.csv",
+      "old_rows": 6,
+      "replay_rows": 6,
+      "status": "equal within float tolerance"
+    }
+  ],
+  "frequency": {
+    "old_rows": 63340,
+    "fresh_rows": 68046,
+    "shared_keys": 61800,
+    "changed_shared_counts": 18033,
+    "old_only_keys": 1540,
+    "fresh_only_keys": 6246,
+    "old_observations": 207792101,
+    "fresh_observations": 227083410,
+    "old_stations": 325,
+    "fresh_stations": 322
+  },
+  "fresh_vs_current_seasonal": {
+    "shared": 68046,
+    "nonshared": 0,
+    "unequal_counts": 0
+  },
+  "old_road_period": {
+    "rows": 413676,
+    "strata": 68946,
+    "strata_with_weather": 60595,
+    "eligible_exposure_strata": 59011,
+    "eligible_sections": 1178
+  },
+  "fresh_road_period": {
+    "rows": 413676,
+    "strata": 68946,
+    "strata_with_weather": 61442,
+    "eligible_exposure_strata": 59874,
+    "eligible_sections": 1177
+  },
+  "assignments": {
+    "different_including_availability": 8870,
+    "old_missing_now_available": 1006,
+    "old_available_now_missing": 159,
+    "changed_station_both_available": 7705
+  },
+  "old_sample": {
+    "rematched_ids": 4933,
+    "model_ids": 4933,
+    "model_rows_input": 19832,
+    "model_strata_input": 3988,
+    "model_accidents": 4933
+  },
+  "fresh_sample": {
+    "rematched_ids": 5125,
+    "model_ids": 5125,
+    "model_rows_input": 20405,
+    "model_strata_input": 4135,
+    "model_accidents": 5125
+  },
+  "accident_changes": {
+    "shared": 4928,
+    "added": 197,
+    "removed": 5,
+    "shared_changed_station": 520,
+    "shared_changed_wind": 519,
+    "shared_changed_wind_bin": 209
+  },
+  "road_rate": {
+    "old_rows": 19832,
+    "fresh_rows": 20405,
+    "old_accidents": 4933,
+    "fresh_accidents": 5125,
+    "old_vkt": 10027367823.94,
+    "fresh_vkt": 10287292978.34
+  },
+  "road_exposure": {
+    "old_rows": 18,
+    "fresh_rows": 18,
+    "old_accidents": 4933,
+    "fresh_accidents": 5125,
+    "old_vkt": 45909574582.11,
+    "fresh_vkt": 46105848304.23
+  },
+  "road_temperature": {
+    "old_rows": 29352,
+    "fresh_rows": 30609,
+    "old_accidents": 4921,
+    "fresh_accidents": 5118,
+    "old_vkt": 10016250729.849998,
+    "fresh_vkt": 10280506965.06
+  },
+  "road_seasons": {
+    "old_rows": 20033,
+    "fresh_rows": 20555,
+    "old_accidents": 4933,
+    "fresh_accidents": 5125,
+    "old_vkt": 8919449831.256395,
+    "fresh_vkt": 9133245347.806396
+  }
+}

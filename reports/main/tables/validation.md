@@ -20,7 +20,7 @@ All checks below passed against the current local analysis files.
 | Clean weather observations retained | 230,458,950 |
 | Weather observations excluded by fixed rules | 2,000,612 |
 | Clean weather retention, all delivered rows | 99.14% |
-| Rate-analysis accidents with shared station within 20 km and 5 minutes | 4,933 |
+| Rate-analysis accidents with shared station within 20 km and 5 minutes | 5,125 |
 | Daily counter-days | 774,274 |
 | Daily counter-days with daytime wind | 763,171 (98.57%) |
 
@@ -36,8 +36,8 @@ The O/E values are descriptive and are not presented with confidence intervals.
 
 ## Stratified vehicle-kilometre result
 
-The shared-station rate model retains 4,933 accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is 4.95 (95% CI 3.07--7.98).
-The serious/fatal version retains 1,055 accidents. Its 15--20 m/s rate ratio is 1.92.
+The shared-station rate model retains 5,125 accidents. At >=25 m/s, the within-stratum time-proportional rate ratio is 5.16 (95% CI 3.15--8.44).
+The serious/fatal version retains 1,088 accidents. Its 15--20 m/s rate ratio is 2.04.
 The seasonal model uses coarse 0--10, 10--15, and >=15 m/s intervals; all four >=15 m/s estimates are above one.
 The serious-or-fatal seasonal model uses the same intervals; its spring upper category contains only six accidents and is interpreted cautiously.
 
@@ -55,17 +55,17 @@ The severity-composition model contains 6,259 complete accidents and 1,424 serio
 
 ## Results using traffic data
 
-Restricting the 20--25 m/s rate model to official VDU and SDU gives RR 1.82. Excluding zero counter-days changes the corresponding daily-traffic percentage by less than two percentage points.
-The illustrative denominator direction check changes the 20--25 m/s annual-model RR from 2.27 to 3.32 when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.
+Restricting the 20--25 m/s rate model to official VDU and SDU gives RR 2.03. Excluding zero counter-days changes the corresponding daily-traffic percentage by less than two percentage points.
+The illustrative denominator direction check changes the 20--25 m/s annual-model RR from 2.34 to 3.41 when the observed daily traffic percentage is applied mechanically. This is not a corrected estimate because full-day traffic does not identify traffic in ten-minute wind intervals.
 The sustained-wind table contains 759,037 sufficiently complete counter-days. Traffic is 86.8% of its calendar expectation on days with at least six hours at f >=15 m/s.
 The allocated daily-counter model retains 762 accidents. Its >=15 versus 0--10 m/s rate ratio is 3.62 (95% CI 2.65--4.94). The within-day traffic split is estimated, not observed hourly traffic.
 The counter-section vehicle-kilometre table partitions 613 linked daytime accidents into non-overlapping minor-injury and severe/fatal groups for wind, gust, and temperature. Daily totals are observed and allocated using actual 07:00--24:00 weather on the same date; traffic within each ten-minute interval remains estimated.
-The temperature vehicle-kilometre model retains 4,921 accidents. Relative to 0--3 degrees C, its below--6 estimate is 0.79 and its 3--6 estimate is 0.60.
-The coarse >=15 m/s estimates are 1.42 for one-vehicle accidents and 2.37 for accidents involving two or more vehicles. These are separate subgroup estimates, not a formal test of their difference.
+The temperature vehicle-kilometre model retains 5,118 accidents. Relative to 0--3 degrees C, its below--6 estimate is 0.77 and its 3--6 estimate is 0.61.
+The coarse >=15 m/s estimates are 1.45 for one-vehicle accidents and 2.40 for accidents involving two or more vehicles. These are separate subgroup estimates, not a formal test of their difference.
 This retained sample is 40.9% of the 2019--2024 rural injury accidents. The generated appendix audit compares its severity, vehicle-count, season, and road-section composition with retained and excluded accidents.
 The serious/fatal daily model retains 164 accidents; its upper rate ratio is 4.53. Restricting the all-injury allocation to 07:00--24:00 gives 3.74, versus 3.62 for the full day.
 The shared seasonal daily panel reconstructs expected accidents within every counter-year-season group. Its full interaction test gives p=0.050; the secondary >=15 m/s interaction gives p=0.032. Both are retained, and the seasonal O/E uses 5,000 whole-counter bootstrap samples.
-The main comparison figure retains separate denominators: annual-traffic O/E is 1.98 at 20--25 m/s, and daily-traffic O/E is 2.36 at >=15 m/s.
+The main comparison figure retains separate denominators: annual-traffic O/E is 2.02 at 20--25 m/s, and daily-traffic O/E is 2.36 at >=15 m/s.
 The appendix full-day-mean check retains 767 accidents. At >=15 m/s versus 0--10 m/s, RR is 2.73 (95% CI 1.55--4.78), based on 14 upper-category accidents.
 The 5, 10, and 20 km counter-assignment table confirms that both non-reference coarse estimates are generated reproducibly and retain valid confidence-interval ordering.
 

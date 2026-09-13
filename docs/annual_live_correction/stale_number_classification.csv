@@ -1,0 +1,508 @@
+file,matching_lines,classification
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/accident_conditions.csv,97,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/accidents.csv,46,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/annual_traffic.csv,113,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/case_control.csv,219,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/counter_locations.csv,18,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/counter_sections.csv,25,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/counter_wind.csv,10,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/daily_season_panel.csv,11,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/daily_traffic.csv,7039,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/daily_vkt.csv,2,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/road_rate.csv,76,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/road_seasons.csv,71,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/road_temperature.csv,113,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/temperature_frequency.csv,461,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/temperature_matches.csv,32,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/weather_frequency.csv,75,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/analysis/weather_yearly.csv,770,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/processed/accidents/rate.csv,110,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/processed/traffic/road_period.csv,4138,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/data/processed/weather/road_period_frequency.csv,231,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/docs/annual_traffic_provenance.md,14,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/docs/annual_traffic_provenance/wind_rate_comparison.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/docs/methods.md,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/docs/pipeline_summary.md,7,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/allocation_check.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/daily_map.csv,13,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/day_rate.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/matched_weather.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/traffic_checks.csv,2,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/validation.md,4,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/main/tables/wind_rate.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/content.tex,6,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/content.tex.bak_2026-09-11,11,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/content_before_polish.tex,11,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/content_before_primary12.tex,11,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/draft_en.log,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/draft_en.tex.bak_2026-09-11,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/allocation_check.tex,3,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/coverage.tex,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/estimated_rate.tex,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/evidence.tex,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/traffic_methods.tex,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/traffic_quality.tex,2,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/thesis/generated/traffic_scope.tex,3,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/conditional_poisson_rate_ratio_sdu.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/daily_highwind_season_interaction.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/daily_season_interaction.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/daily_season_rate.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/daily_traffic_adu_validation.csv,12,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/daily_traffic_wind_detailed.csv,2,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/mean_wind_subgroups.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/oe_scenarios.csv,8,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/oe_scenarios_new_weather.csv,6,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/oe_station_bins.csv,582,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/oe_station_bins_new_weather.csv,530,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/rate_ratio_summer_sdu.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/road_wind_full.csv,2386,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/season_method_comparison.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/temp_bad_periods.csv,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/files/reports/working/tables/temperature_extremes.csv,197,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/old_annual_sample_ids.csv,110,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/old_headlines.json,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/regeneration/finalize_annual_evidence.py,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/regeneration/scan_annual_stale.py,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/regeneration/src_tables_season_method_comparison.log,1,Historical archive or dated correction evidence
+archive/annual_provenance_correction_20260913T181844Z/regeneration/update_annual_prose.py,8,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_main_old/traffic_period_scope_comparison.csv,2,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_supporting_old/mechanism_severity/mechanism_oe_results.csv,4,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_supporting_old/mechanism_severity/mechanism_runoff_vs_other_contrast.csv,1,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_supporting_old/oe/bootstrap_notes.txt,1,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_supporting_old/oe/calculation_notes.txt,1,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_supporting_old/road_section_wind_traffic_adjusted_rates.csv,1,Historical archive or dated correction evidence
+archive/cleanup_2026-07-28/reports_supporting_old/road_section_wind_traffic_adjusted_rates_sdu_vdu.csv,1,Historical archive or dated correction evidence
+archive/cleanup_2026-08-26/data_analysis_previous/oe_station_bins.csv,534,Historical archive or dated correction evidence
+archive/cleanup_2026-08-26/data_analysis_previous/rural_injury_base.csv,46,Historical archive or dated correction evidence
+archive/cleanup_2026-08-26/data_analysis_previous/stations.csv,3,Historical archive or dated correction evidence
+archive/data_legacy_2026-07-22/external/vegagerdin_pdf_2019_2024_daily_traffic_total.csv,8,Historical archive or dated correction evidence
+archive/data_legacy_2026-07-22/processed/wind_frequency_readable.csv,1809,Historical archive or dated correction evidence
+archive/data_legacy_2026-07-22/supporting_diagnostics/accident_weather_traffic_exact.csv,26,Historical archive or dated correction evidence
+archive/data_legacy_2026-07-22/supporting_diagnostics/daily_counter_location_audit.csv,1,Historical archive or dated correction evidence
+archive/generated_diagnostics/accidents_urban_rural.csv,154,Historical archive or dated correction evidence
+archive/generated_diagnostics/daily_traffic_adu_validation.csv,12,Historical archive or dated correction evidence
+archive/generated_diagnostics/daily_traffic_channels_2019_2024.csv,59,Historical archive or dated correction evidence
+archive/generated_diagnostics/daily_traffic_total_2019_2024.csv,8,Historical archive or dated correction evidence
+archive/generated_diagnostics/obsolete_weather_analysis/accident_conditions_new_weather.csv,97,Historical archive or dated correction evidence
+archive/generated_diagnostics/obsolete_weather_analysis/accidents_new_weather.csv,46,Historical archive or dated correction evidence
+archive/generated_diagnostics/obsolete_weather_analysis/temperature_frequency_new.csv,461,Historical archive or dated correction evidence
+archive/generated_diagnostics/obsolete_weather_analysis/weather_frequency_new.csv,75,Historical archive or dated correction evidence
+archive/generated_diagnostics/obsolete_weather_analysis/weather_frequency_traffic_new.csv,309,Historical archive or dated correction evidence
+archive/generated_diagnostics/obsolete_weather_analysis/weather_yearly_new.csv,1130,Historical archive or dated correction evidence
+archive/generated_diagnostics/oe/detailed_results.csv,2,Historical archive or dated correction evidence
+archive/generated_diagnostics/road_wind_accident_rows.csv,228,Historical archive or dated correction evidence
+archive/generated_diagnostics/traffic_pdf_2024_daily_long.csv,9,Historical archive or dated correction evidence
+archive/generated_diagnostics/traffic_pdf_2024_daily_total.csv,1,Historical archive or dated correction evidence
+archive/generated_diagnostics/traffic_pdf_2024_repeated_2007_2024.csv,18,Historical archive or dated correction evidence
+archive/generated_diagnostics/traffic_rates.csv,1,Historical archive or dated correction evidence
+archive/generated_diagnostics/traffic_rates_sdu_vdu.csv,1,Historical archive or dated correction evidence
+archive/generated_diagnostics/traffic_scope.csv,2,Historical archive or dated correction evidence
+archive/generated_diagnostics/urban_rural_notes.txt,1,Historical archive or dated correction evidence
+archive/generated_diagnostics/weather_station_year_coverage.csv,1,Historical archive or dated correction evidence
+archive/generated_diagnostics/wind_frequency_readable.csv,1330,Historical archive or dated correction evidence
+archive/legacy_outputs/2026-07-29_renamed_traffic/daily_counter_traffic_2019_2024.csv,11408,Historical archive or dated correction evidence
+archive/private_notes/tegohapps_full_audit.csv,1,Historical archive or dated correction evidence
+archive/private_notes/temperature_station_coverage.csv,1,Historical archive or dated correction evidence
+data/analysis/accident_conditions.csv,97,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/accidents.csv,46,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/annual_traffic.csv,113,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/case_control.csv,219,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/counter_locations.csv,18,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/counter_sections.csv,25,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/counter_wind.csv,10,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/daily_season_panel.csv,11,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/daily_traffic.csv,7039,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/daily_vkt.csv,2,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/road_rate.csv,74,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/road_seasons.csv,74,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/road_temperature.csv,110,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/temperature_frequency.csv,461,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/temperature_matches.csv,32,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/weather_frequency.csv,75,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/analysis/weather_yearly.csv,770,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/accidents-near-counter.csv,14,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/all.csv,160,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/case_control.csv,219,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/rate.csv,128,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/rural_injury.csv,123,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/rural_injury_new.csv,123,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/accidents/rural_injury_new_weather.csv,123,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/accident_wind.csv,10,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/annual.csv,314,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/counter_accidents.csv,11,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/counter_sections.csv,25,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/daily.csv,6243,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/daily_raw.csv,366,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/daily_vkt.csv,2,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/daily_weather.csv,15893,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/locations.csv,42,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/traffic/road_period.csv,4315,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/weather/frequency.csv,75,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/weather/road_period_frequency.csv,240,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/weather/station_coverage_new.csv,1,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/weather/temperature_frequency.csv,461,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/weather/traffic_frequency.csv,309,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/processed/weather/yearly_frequency.csv,1130,"Measurement, coordinate, frequency, or exposure numeric substring; not an annual headline or sample total"
+data/raw/accidents/urban_boundaries_2020_2024.geojson,357,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/reference/countries.geojson,4307,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/traffic/reference/counter_locations.csv,9,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/traffic/reference/road_section_geometries.csv,886,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/traffic/reference/road_section_midpoints.csv,2,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/traffic/reference/roads.geojson,15159,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/stations.csv,1,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1350.txt,7607,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1361.txt,9366,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1368.txt,1342,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1370.txt,5702,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1395.txt,10391,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1453.txt,7481,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1469.txt,2335,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1470.txt,3479,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1472.txt,3535,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1473.txt,11885,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1475.txt,14311,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1477.txt,12685,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1478.txt,4658,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1479.txt,12679,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1480.txt,12496,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1481.txt,12288,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1482.txt,5290,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1483.txt,3149,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1486.txt,9484,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1487.txt,10429,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1490.txt,8249,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1493.txt,11357,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1496.txt,6896,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1578.txt,14008,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1579.txt,651,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1590.txt,8869,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1596.txt,14239,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1672.txt,606,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1673.txt,9615,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1679.txt,6612,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1685.txt,8983,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1689.txt,10790,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1777.txt,2450,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1779.txt,11758,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1781.txt,4843,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1868.txt,8859,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1881.txt,6410,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1919.txt,11629,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1924.txt,12851,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1936.txt,9760,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_1938.txt,10602,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2050.txt,11955,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2175.txt,9364,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2197.txt,8538,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2266.txt,8427,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2304.txt,7375,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2315.txt,11543,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2319.txt,11459,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2320.txt,6537,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2323.txt,12327,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2370.txt,4482,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2390.txt,3761,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2428.txt,14877,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2480.txt,6334,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2481.txt,12605,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2530.txt,3950,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2630.txt,2845,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2631.txt,10830,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2636.txt,11536,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2640.txt,153,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_26400.txt,734,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2641.txt,14834,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2642.txt,14825,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2643.txt,3185,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2644.txt,271,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2646.txt,15148,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2655.txt,7772,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2691.txt,148,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2692.txt,11168,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2738.txt,13258,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2841.txt,2452,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2862.txt,8702,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_2941.txt,4943,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3007.txt,8353,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3054.txt,11821,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3103.txt,9706,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3122.txt,3454,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3128.txt,1094,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3223.txt,12889,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3225.txt,10729,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3229.txt,37,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3242.txt,10357,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3292.txt,9507,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3317.txt,13092,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3371.txt,10308,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3380.txt,10289,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3433.txt,12049,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3463.txt,14759,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3471.txt,15301,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3474.txt,12897,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3477.txt,11380,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3482.txt,504,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3490.txt,6262,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3585.txt,2347,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3591.txt,9880,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3595.txt,4949,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3596.txt,3781,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3658.txt,14623,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3692.txt,2279,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3695.txt,2395,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3696.txt,14021,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3720.txt,7859,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3751.txt,3766,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3752.txt,16807,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3754.txt,9122,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3779.txt,7644,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3797.txt,12130,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3975.txt,144,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_3976.txt,10873,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4019.txt,12199,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4060.txt,14994,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4180.txt,13744,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4182.txt,8412,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4193.txt,11884,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4271.txt,13537,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4275.txt,10945,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4300.txt,13710,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4303.txt,4690,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4323.txt,5299,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4404.txt,1208,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4406.txt,8204,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4455.txt,13336,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4472.txt,7426,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4500.txt,11806,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4614.txt,9748,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4652.txt,10122,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4828.txt,11189,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4830.txt,9193,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4867.txt,8043,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4912.txt,10265,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_4921.txt,3929,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5210.txt,7342,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5309.txt,8916,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5544.txt,12313,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5548.txt,1097,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5777.txt,6926,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5825.txt,10319,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5847.txt,3193,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5860.txt,1203,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5872.txt,11731,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5885.txt,9033,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5932.txt,8755,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5933.txt,11579,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5940.txt,13374,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5943.txt,12015,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5960.txt,11097,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5965.txt,5420,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5968.txt,6361,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5969.txt,8683,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5970.txt,7996,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5975.txt,11576,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5981.txt,15995,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5982.txt,12577,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5988.txt,8953,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5990.txt,15452,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_5993.txt,6724,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6012.txt,8188,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6015.txt,10241,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6016.txt,985,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6017.txt,10053,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6045.txt,11891,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6049.txt,779,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6134.txt,9892,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6176.txt,8134,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6208.txt,11199,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6222.txt,13190,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6235.txt,6422,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6237.txt,13303,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6272.txt,13987,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6300.txt,4273,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6310.txt,12360,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6315.txt,9707,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6420.txt,9602,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6424.txt,9654,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6430.txt,12180,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6459.txt,11796,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6472.txt,9678,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6499.txt,12705,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6515.txt,11983,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6546.txt,10641,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6657.txt,11822,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6670.txt,11739,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6745.txt,2314,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6748.txt,13057,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6760.txt,12356,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6776.txt,10368,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6802.txt,15015,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6935.txt,11429,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_6975.txt,11124,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7002.txt,425,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7091.txt,1053,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7092.txt,1080,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7093.txt,549,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7094.txt,932,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7475.txt,4809,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7633.txt,34,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7738.txt,4542,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7752.txt,236,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/f_7790.txt,285,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fj_1570.txt,1,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fj_1590.txt,2,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fj_1779.txt,1,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fj_1925.txt,2,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fj_4275.txt,1,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fj_5777.txt,1,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31109.txt,4039,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31122.txt,6245,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31361.txt,819,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31363.txt,6732,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31364.txt,4911,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31365.txt,5141,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31372.txt,539,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31374.txt,702,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31380.txt,5907,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31387.txt,6876,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31392.txt,6689,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31399.txt,6615,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31474.txt,565,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31475.txt,4034,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31484.txt,994,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31488.txt,5528,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31572.txt,7076,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31577.txt,5696,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31578.txt,2115,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31579.txt,7186,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31591.txt,5668,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31599.txt,5314,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31640.txt,1833,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31674.txt,7043,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31840.txt,6842,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31882.txt,6098,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31931.txt,6686,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31932.txt,5777,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31942.txt,6732,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31943.txt,103,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31948.txt,6785,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31950.txt,5858,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31958.txt,6449,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31985.txt,6666,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_31986.txt,320,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32097.txt,7173,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32179.txt,6680,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32190.txt,6846,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32224.txt,6841,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32250.txt,1310,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32282.txt,684,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32322.txt,6810,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32336.txt,636,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32355.txt,6672,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32363.txt,546,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32365.txt,4543,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32372.txt,6574,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32377.txt,6126,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32390.txt,7008,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32474.txt,6672,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32533.txt,10115,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32635.txt,5408,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32643.txt,1363,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_32654.txt,7024,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33023.txt,369,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33142.txt,221,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33204.txt,7190,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33357.txt,7747,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33394.txt,8132,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33419.txt,6938,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33420.txt,795,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33424.txt,7998,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33431.txt,7080,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33451.txt,3995,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33480.txt,5381,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33487.txt,5674,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33495.txt,6802,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33563.txt,7269,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33576.txt,7580,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33643.txt,5537,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33652.txt,2627,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33654.txt,6345,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33661.txt,6051,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33750.txt,7245,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_33751.txt,5579,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34073.txt,7724,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34081.txt,3787,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34087.txt,7289,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34148.txt,5407,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34175.txt,6658,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34238.txt,7293,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34326.txt,6763,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34347.txt,1197,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34348.txt,6147,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34382.txt,6722,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34413.txt,7817,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34415.txt,1513,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34450.txt,5867,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34559.txt,7740,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34700.txt,8283,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34732.txt,5494,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_34733.txt,6912,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35107.txt,3947,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35116.txt,2870,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35305.txt,7998,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35315.txt,8052,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35545.txt,75,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35666.txt,6809,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35769.txt,6108,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35880.txt,6472,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35884.txt,5477,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35963.txt,6382,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35965.txt,6642,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_35985.txt,3514,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36049.txt,5961,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36122.txt,6284,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36127.txt,7910,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36132.txt,7174,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36156.txt,6452,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36270.txt,5164,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36308.txt,6945,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36382.txt,1024,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36386.txt,8250,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36391.txt,5072,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36411.txt,7636,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36415.txt,5636,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36504.txt,5984,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/fv_36519.txt,7255,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+data/raw/weather/supplied/stations.csv,1,"Source observation, coordinate, or other raw numeric value; not a reported annual estimate"
+docs/annual_live_correction.md,14,Explicitly labelled historical audit and old-versus-fresh comparison
+docs/annual_live_correction/annual_model_comparison.csv,1,Explicitly labelled historical audit and old-versus-fresh comparison
+docs/annual_live_correction/stale_number_classification.csv,2,Explicitly labelled historical audit and old-versus-fresh comparison
+docs/annual_live_correction/thesis_changes.diff,18,Explicitly labelled historical audit and old-versus-fresh comparison
+docs/annual_traffic_provenance.md,14,Explicitly labelled historical audit and old-versus-fresh comparison
+docs/annual_traffic_provenance/wind_rate_comparison.csv,1,Explicitly labelled historical audit and old-versus-fresh comparison
+docs/pipeline_summary.md,7,Explicitly labelled historical audit and old-versus-fresh comparison
+reports/main/tables/daily_map.csv,13,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/main/tables/day_rate.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/main/tables/matched_weather.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/thesis/Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.log,1,Unrelated TeX geometry constant: 72.27 points per inch
+reports/thesis/content.tex.bak_2026-09-11,11,"Historical thesis backup, not included in active build"
+reports/thesis/content_before_polish.tex,11,"Historical thesis backup, not included in active build"
+reports/thesis/content_before_primary12.tex,11,"Historical thesis backup, not included in active build"
+reports/thesis/draft_en.log,1,Unrelated TeX geometry constant: 72.27 points per inch
+reports/thesis/draft_en.tex.bak_2026-09-11,1,"Historical thesis backup, not included in active build"
+reports/working/tables/conditional_poisson_rate_ratio_sdu.csv,1,Historical unconsumed annual diagnostic; see reports/working/ANNUAL_PROVENANCE_STATUS.md
+reports/working/tables/daily_highwind_season_interaction.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/daily_season_interaction.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/daily_season_rate.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/daily_traffic_adu_validation.csv,12,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/daily_traffic_wind_detailed.csv,2,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/mean_wind_subgroups.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/oe_scenarios.csv,8,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/oe_scenarios_new_weather.csv,6,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/oe_station_bins.csv,582,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/oe_station_bins_new_weather.csv,530,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/rate_ratio_summer_sdu.csv,1,Historical unconsumed annual diagnostic; see reports/working/ANNUAL_PROVENANCE_STATUS.md
+reports/working/tables/road_wind_full.csv,2386,Historical unconsumed annual diagnostic; see reports/working/ANNUAL_PROVENANCE_STATUS.md
+reports/working/tables/season_method_comparison.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/temp_bad_periods.csv,1,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"
+reports/working/tables/temperature_extremes.csv,197,"Unrelated nonannual estimate, diagnostic, coordinate, or numeric substring; nonannual values preserved"

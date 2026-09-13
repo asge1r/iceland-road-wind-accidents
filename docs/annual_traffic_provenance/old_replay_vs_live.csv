@@ -1,0 +1,9 @@
+file,old_rows,replay_rows,status
+data/processed/traffic/road_period.csv,413676,413676,equal within float tolerance
+data/processed/accidents/rate.csv,4933,4933,equal within float tolerance
+data/analysis/road_rate.csv,19832,19832,equal within float tolerance
+data/analysis/road_exposure.csv,18,18,equal within float tolerance
+data/analysis/road_temperature.csv,29352,29352,equal within float tolerance
+data/analysis/road_seasons.csv,20033,20033,equal within float tolerance
+results/wind_rate.csv,6,6,equal within float tolerance
+results/absolute_rate.csv,6,6,equal within float tolerance

@@ -1,0 +1,99 @@
+--- before/reports/thesis/content.tex
++++ after/reports/thesis/content.tex
+@@ -335 +335 @@
+-Of 68,946 annual road-section--year--period records, 60,595 have nearby usable
++Of 68,946 annual road-section--year--period records, 61,442 have nearby usable
+@@ -456 +456 @@
+-conditional model has a narrower purpose and sample: it includes 4,933
++conditional model has a narrower purpose and sample: its analysis retains 5,125
+@@ -788 +788 @@
+-0--5 m/s is 2.27. The descriptive and conditional estimates differ because
++0--5 m/s is 2.34. The descriptive and conditional estimates differ because
+@@ -791,6 +791,6 @@
+-The conditional Poisson model includes 4,933 accidents in 3,984
+-road-section--year--traffic-period groups that contain accidents. Relative to
+-0--5 m/s, the estimated
+-within-stratum rate ratio is 1.63 (95\% CI 1.39--1.90) at 15--20 m/s, 2.27
+-(1.68--3.07) at 20--25 m/s, and 4.95 (3.07--7.98) at 25 m/s or above. The
+-uppermost estimate contains 18 accidents and is less precise. Traffic is
++The annual analysis retains 5,125 accidents. The conditional Poisson fit uses
++5,122 of these in 4,133 informative road-section--year--traffic-period groups.
++Relative to 0--5 m/s, the estimated
++within-stratum rate ratio is 1.67 (95\% CI 1.44--1.95) at 15--20 m/s, 2.34
++(1.72--3.17) at 20--25 m/s, and 5.16 (3.15--8.44) at 25 m/s or above. The
++uppermost estimate contains 17 accidents and is less precise. Traffic is
+@@ -799,5 +799,6 @@
+-The serious-or-fatal model includes 1,055 accidents. Relative to 0--5 m/s, its
+-rate ratio is 1.92 (95\% CI 1.40--2.64) at 15--20 m/s and 2.23
+-(1.14--4.37) at 20--25 m/s. The at-least-25 m/s estimate is 4.91
+-(1.76--13.64), but contains only four accidents and is correspondingly
+-imprecise.
++The serious-or-fatal model includes 1,088 accidents. Relative to 0--5 m/s, its
++rate ratio is 2.04 (95\% CI 1.49--2.79) at 15--20 m/s and 1.88
++(0.88--4.02) at 20--25 m/s. The latter interval includes one and does not
++provide clear evidence of an elevated rate in that bin. The at-least-25 m/s
++estimate is 5.51 (1.97--15.40), but contains only four accidents and is
++correspondingly imprecise.
+--- before/reports/thesis/generated/allocation_check.tex
++++ after/reports/thesis/generated/allocation_check.tex
+@@ -11,5 +11,5 @@
+-5--10 & 1.09 & 99.2\% & 1.11 \\ \grayhline
+-10--15 & 1.13 & 94.2\% & 1.21 \\ \grayhline
+-15--20 & 1.63 & 84.0\% & 1.95 \\ \grayhline
+-20--25 & 2.27 & 68.9\% & 3.32 \\ \grayhline
+-$\geq$25 & 4.95 & 51.0\% & 9.77 \\
++5--10 & 1.10 & 99.2\% & 1.11 \\ \grayhline
++10--15 & 1.14 & 94.2\% & 1.22 \\ \grayhline
++15--20 & 1.67 & 84.0\% & 2.01 \\ \grayhline
++20--25 & 2.34 & 68.9\% & 3.41 \\ \grayhline
++$\geq$25 & 5.16 & 51.0\% & 10.18 \\
+--- before/reports/thesis/generated/coverage.tex
++++ after/reports/thesis/generated/coverage.tex
+@@ -14 +14 @@
+-Annual traffic & 4,933 & Broader traffic analysis. \\ \grayhline
++Annual traffic & 5,125 & Broader traffic analysis. \\ \grayhline
+--- before/reports/thesis/generated/estimated_rate.tex
++++ after/reports/thesis/generated/estimated_rate.tex
+@@ -10,6 +10,6 @@
+-0--5 & 2,424 & 8.5 \\ \grayhline
+-5--10 & 1,684 & 13.0 \\ \grayhline
+-10--15 & 578 & 16.6 \\ \grayhline
+-15--20 & 184 & 27.7 \\ \grayhline
+-20--25 & 45 & 40.5 \\ \grayhline
+-$\geq$25 & 18 & 58.6 \\
++0--5 & 2,539 & 9.0 \\ \grayhline
++5--10 & 1,755 & 12.8 \\ \grayhline
++10--15 & 584 & 16.7 \\ \grayhline
++15--20 & 186 & 30.0 \\ \grayhline
++20--25 & 44 & 46.3 \\ \grayhline
++$\geq$25 & 17 & 98.9 \\
+--- before/reports/thesis/generated/evidence.tex
++++ after/reports/thesis/generated/evidence.tex
+@@ -12 +12 @@
+-Annual traffic & 20--25 vs 0--5 m/s: RR 2.27 (1.68--3.07) & Broader traffic sample; traffic allocated within periods. \\ \grayhline
++Annual traffic & 20--25 vs 0--5 m/s: RR 2.34 (1.72--3.17) & Broader traffic sample; traffic allocated within periods. \\ \grayhline
+--- before/reports/thesis/generated/traffic_methods.tex
++++ after/reports/thesis/generated/traffic_methods.tex
+@@ -10 +10 @@
+-Annual road sections & 2007--2025 (4,933) & VDU, SDU and derived VHDU & Traffic is allocated by wind frequency within each period. \\ \grayhline
++Annual road sections & 2007--2025 (5,125) & VDU, SDU and derived VHDU & Traffic is allocated by wind frequency within each period. \\ \grayhline
+--- before/reports/thesis/generated/traffic_quality.tex
++++ after/reports/thesis/generated/traffic_quality.tex
+@@ -10,4 +10,4 @@
+-Rate model, 20-25 m/s & All VDU, SDU, and derived VHDU periods & RR 2.27 (1.68--3.07) & 45 accidents \\ \grayhline
+-Rate model, 20-25 m/s & Official VDU and SDU periods only & RR 1.82 (1.23--2.70) & 26 accidents \\ \grayhline
+-Rate model, $\geq$25 m/s & All VDU, SDU, and derived VHDU periods & RR 4.95 (3.07--7.98) & 18 accidents \\ \grayhline
+-Rate model, $\geq$25 m/s & Official VDU and SDU periods only & RR 2.97 (1.47--6.02) & 8 accidents \\ \grayhline
++Rate model, 20-25 m/s & All VDU, SDU, and derived VHDU periods & RR 2.34 (1.72--3.17) & 44 accidents \\ \grayhline
++Rate model, 20-25 m/s & Official VDU and SDU periods only & RR 2.03 (1.38--2.96) & 28 accidents \\ \grayhline
++Rate model, $\geq$25 m/s & All VDU, SDU, and derived VHDU periods & RR 5.16 (3.15--8.44) & 17 accidents \\ \grayhline
++Rate model, $\geq$25 m/s & Official VDU and SDU periods only & RR 2.84 (1.34--6.04) & 7 accidents \\ \grayhline
+--- before/reports/thesis/generated/traffic_scope.tex
++++ after/reports/thesis/generated/traffic_scope.tex
+@@ -10,3 +10,3 @@
+-15--20 & 1.63 (1.39--1.90), $n=184$ & 1.70 (1.41--2.04), $n=133$ \\ \grayhline
+-20--25 & 2.27 (1.68--3.07), $n=45$ & 1.82 (1.23--2.70), $n=26$ \\ \grayhline
+-$\geq$25 & 4.95 (3.07--7.98), $n=18$ & 2.97 (1.47--6.02), $n=8$ \\
++15--20 & 1.67 (1.44--1.95), $n=186$ & 1.70 (1.41--2.04), $n=132$ \\ \grayhline
++20--25 & 2.34 (1.72--3.17), $n=44$ & 2.03 (1.38--2.96), $n=28$ \\ \grayhline
++$\geq$25 & 5.16 (3.15--8.44), $n=17$ & 2.84 (1.34--6.04), $n=7$ \\

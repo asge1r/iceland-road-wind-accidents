@@ -128,7 +128,7 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
     }
     expected_samples = {
         "Weather frequency": 6259,
-        "Annual traffic": 4933,
+        "Annual traffic": 5125,
         "Daily traffic": 762,
     }
     require(

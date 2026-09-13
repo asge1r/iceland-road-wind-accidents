@@ -332,7 +332,7 @@ location. More than one counter may occur on a road section, and counter
 positions are estimated from the registered road geometry. These data remain
 separate from the primary O/E calculation.
 
-Of 68,946 annual road-section--year--period records, 60,595 have nearby usable
+Of 68,946 annual road-section--year--period records, 61,442 have nearby usable
 wind data; separately, 738,424 of 774,274 daily counter-days have a matched
 daytime wind summary. The more restrictive accident samples used by the
 traffic models are reported in Chapter 4.
@@ -453,7 +453,7 @@ remain unchanged, the accident-rate contrast per vehicle-kilometre would be
 larger than the O/E contrast. The traffic analyses examine this possibility.
 The descriptive estimated-rate calculation uses annual traffic on every
 eligible road section, including sections without an accident. The main
-conditional model has a narrower purpose and sample: it includes 4,933
+conditional model has a narrower purpose and sample: its analysis retains 5,125
 accidents in road-section--year--traffic-period strata that contain an accident
 and have a valid weather and traffic link. Both calculations use SDU and VDU
 where they are published,
@@ -785,22 +785,23 @@ minute.
 
 The descriptive rate rises across the wind intervals. After comparison within
 road section, year, and traffic period, the rate ratio for 20--25 versus
-0--5 m/s is 2.27. The descriptive and conditional estimates differ because
+0--5 m/s is 2.34. The descriptive and conditional estimates differ because
 they account for road-section and period differences in different ways.
 
-The conditional Poisson model includes 4,933 accidents in 3,984
-road-section--year--traffic-period groups that contain accidents. Relative to
-0--5 m/s, the estimated
-within-stratum rate ratio is 1.63 (95\% CI 1.39--1.90) at 15--20 m/s, 2.27
-(1.68--3.07) at 20--25 m/s, and 4.95 (3.07--7.98) at 25 m/s or above. The
-uppermost estimate contains 18 accidents and is less precise. Traffic is
+The annual analysis retains 5,125 accidents. The conditional Poisson fit uses
+5,122 of these in 4,133 informative road-section--year--traffic-period groups.
+Relative to 0--5 m/s, the estimated
+within-stratum rate ratio is 1.67 (95\% CI 1.44--1.95) at 15--20 m/s, 2.34
+(1.72--3.17) at 20--25 m/s, and 5.16 (3.15--8.44) at 25 m/s or above. The
+uppermost estimate contains 17 accidents and is less precise. Traffic is
 allocated within each period according to local wind frequency.
 
-The serious-or-fatal model includes 1,055 accidents. Relative to 0--5 m/s, its
-rate ratio is 1.92 (95\% CI 1.40--2.64) at 15--20 m/s and 2.23
-(1.14--4.37) at 20--25 m/s. The at-least-25 m/s estimate is 4.91
-(1.76--13.64), but contains only four accidents and is correspondingly
-imprecise.
+The serious-or-fatal model includes 1,088 accidents. Relative to 0--5 m/s, its
+rate ratio is 2.04 (95\% CI 1.49--2.79) at 15--20 m/s and 1.88
+(0.88--4.02) at 20--25 m/s. The latter interval includes one and does not
+provide clear evidence of an elevated rate in that bin. The at-least-25 m/s
+estimate is 5.51 (1.97--15.40), but contains only four accidents and is
+correspondingly imprecise.
 
 Using wider seasonal intervals, the estimated rate ratio for at least 15
 versus 0--10 m/s is above one in all four seasons. These values are supporting

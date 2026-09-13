@@ -1,0 +1,10 @@
+metric,old,fresh
+raw_rows,226580952,232459562
+no_wind_station_year,11810743,0
+missing_wind,427778,261519
+negative,255858,0
+upper_threshold,44791,8766
+inconsistent_zero_gust,76,255188
+gust_below_mean,2192,2057
+frozen_zero,2541617,1473082
+retained_wind_rows,211497897,230458950

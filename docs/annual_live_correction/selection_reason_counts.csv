@@ -1,0 +1,12 @@
+selection_status_old,selection_status_fresh,size
+assigned station >20 km from accident,assigned station >20 km from accident,182
+assigned station >20 km from accident,included,12
+included,included,4928
+included,no clean matched observation within 5 minutes,5
+no clean matched observation within 5 minutes,assigned station >20 km from accident,2
+no clean matched observation within 5 minutes,included,137
+no clean matched observation within 5 minutes,no clean matched observation within 5 minutes,143
+no clean matched observation within 5 minutes,no eligible road-period exposure,5
+no eligible road-period exposure,assigned station >20 km from accident,7
+no eligible road-period exposure,included,48
+no eligible road-period exposure,no eligible road-period exposure,945

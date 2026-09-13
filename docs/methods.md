@@ -87,7 +87,7 @@ assessment of seasonal differences; separate seasonal plots are supporting
 descriptions.
 
 The annual-traffic seasonal model is the broader traffic comparison and uses
-4,933 linked accidents. The selected-counter seasonal O/E uses observed daily
+5,125 linked accidents. The selected-counter seasonal O/E uses observed daily
 totals but only 762 accidents and is therefore an appendix check. Its full
 six-term interaction test is reported before the narrower test of the
 at-least-15 m/s terms. Neither set of separate seasonal estimates is used to

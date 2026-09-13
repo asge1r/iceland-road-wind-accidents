@@ -1,0 +1,27 @@
+{
+  "isolated_directory": "/private/tmp/annual_provenance_2ke2sn62",
+  "code_revision": "ee74db42d873f0d74a386fd036ac7fbd88534e4a",
+  "source_hashes": {
+    "data/processed/weather/road_period_frequency.csv": "34563bbd24c1faee5caf8959c4a52d8555ecdf6a9a53fd0f923bfff2c0286819",
+    "data/processed/weather/weather.parquet": "dab4b873702ade2cda78f759d3656cef5a0f57ef392a0ff8648a78e6318a6b18"
+  },
+  "historical_algorithm_check": {
+    "historical_commit": "dc06530",
+    "same_f_5m_rows": 68046,
+    "matches_current_algorithm": true
+  },
+  "weather_key_checks": [
+    {
+      "file": "data/raw/weather/weather_10min_raw.parquet",
+      "rows": 232459562,
+      "stations": 331,
+      "nonincreasing_times_within_station": 0
+    },
+    {
+      "file": "data/processed/weather/weather.parquet",
+      "rows": 230458950,
+      "stations": 329,
+      "nonincreasing_times_within_station": 0
+    }
+  ]
+}
