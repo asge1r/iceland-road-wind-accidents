@@ -2,12 +2,35 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
 from src.analysis.oe_analysis import OUTCOMES, PERIODS, VARIABLES
-from src.figures.oe_histo import interval_label
+from src.figures.oe_histo import disjoint_outcomes, interval_label
 
 
 class WeatherOETests(unittest.TestCase):
+    def test_disjoint_bars_match_direct_minor_injury_analysis(self) -> None:
+        from src.analysis.oe_analysis import (
+            DEFAULT_ACCIDENTS, DEFAULT_CONDITIONS, DEFAULT_FREQUENCY,
+            load_data, station_frequency_scenario,
+        )
+        events, frequency = load_data(
+            DEFAULT_ACCIDENTS, DEFAULT_CONDITIONS, DEFAULT_FREQUENCY, None, None
+        )
+        bars = disjoint_outcomes(pd.read_csv("reports/main/tables/weather_oe.csv"))
+        self.assertEqual(set(bars.outcome), {"Minor injury accidents", "Severe/fatal accidents"})
+        for spec in VARIABLES:
+            for season, period in PERIODS.items():
+                with self.subTest(variable=spec.variable, period=period):
+                    direct, _, _ = station_frequency_scenario(
+                        events, frequency, spec, 20, "Minor injury", season
+                    )
+                    shown = bars[bars.variable.eq(spec.variable) & bars.period.eq(period)
+                                 & bars.outcome.eq("Minor injury accidents")]
+                    direct = direct.set_index("weather_bin").reindex(shown.bin_label)
+                    for column in ["observed_accidents", "expected_accidents", "relative_accident_frequency"]:
+                        np.testing.assert_allclose(shown[column], direct[column], rtol=1e-10, atol=1e-10)
+
     def test_interval_labels_use_brackets(self) -> None:
         self.assertEqual(interval_label("-6--3", bracketed=True), "[−6,−3]")
         self.assertEqual(interval_label("0-5"), "0-5")

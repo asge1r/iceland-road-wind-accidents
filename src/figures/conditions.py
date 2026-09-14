@@ -16,7 +16,7 @@ from src.figures.common import interval_label
 
 DEFAULT_INPUT = Path("reports/main/tables/conditions.csv")
 DEFAULT_OUTPUT = Path("reports/main/figures/conditions.png")
-COLOR = "#547A99"
+COLOR = "#0072B2"
 
 
 def panel(axis: plt.Axes, data: pd.DataFrame, title: str, xlabel: str = "") -> None:
@@ -28,7 +28,7 @@ def panel(axis: plt.Axes, data: pd.DataFrame, title: str, xlabel: str = "") -> N
         categories,
         data["serious_or_fatal"],
         bottom=data["minor_injury"],
-        color="#B85C4A",
+        color="#B22222",
         label="Serious or fatal",
     )
     axis.set_title(title)

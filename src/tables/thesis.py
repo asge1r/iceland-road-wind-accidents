@@ -13,6 +13,61 @@ import pandas as pd
 OUTPUT = Path("reports/thesis/generated")
 
 
+def data_chapter_tables(output: Path) -> None:
+    """Write compact selection totals and disjoint high-wind O/E examples."""
+    from src.figures.oe_histo import disjoint_outcomes
+
+    plotted = disjoint_outcomes(pd.read_csv("reports/main/tables/weather_oe.csv"))
+    high = plotted[
+        plotted.variable.eq("f") & plotted.period.eq("All year")
+        & plotted.bin_label.eq(">=20")
+    ]
+    rows = []
+    for name, code in [("Minor injury accidents", "3"), ("Severe/fatal accidents", "1 or 2")]:
+        row = high[high.outcome.eq(name)].iloc[0]
+        rows.append([name, code, int(row.observed_accidents),
+                     f"{row.expected_accidents:.2f}", f"{row.relative_accident_frequency:.2f}"])
+    write_table(output / "windy_group_examples.tex",
+                "Worked examples for the two O/E groups: mean wind at least 20 m/s, all years and seasons pooled.",
+                "tab:windy-group-examples", "lrrrr",
+                ["Group", r"\texttt{meidsli}", "Observed", "Expected", "O/E"], rows)
+
+    selection = pd.read_csv("data/analysis/selection_summary.csv").set_index(["dataset", "step"]).records
+    samples = selection.loc["analysis_samples"]
+    weather = pd.read_csv("data/analysis/weather_cleaning.csv")
+    weather = weather[weather.year.astype(str).ne("total")]
+    road = pd.read_csv("data/processed/traffic/road_period.csv", low_memory=False)
+    road = road[road.variable.eq("f_5m")]
+    usable = road[road.wind_frequency_available.fillna(False)
+                  & road.weather_station_id.notna() & road.frequency_pct.notna()
+                  & road.section_length_km.gt(0) & road.traffic_reference_daily_volume.gt(0)]
+    road_kept = len(usable[["year", "road_section", "traffic_period"]].drop_duplicates())
+    daily = pd.read_csv("data/analysis/daily_traffic.csv", usecols=["f_mean"])
+    entries = [
+        ("Accidents", samples.source_accidents, samples.rural_injury_2007_2025,
+         "Invalid time/location, urban, or no injury."),
+        ("Weather observations", weather.input_rows.sum(), weather.clean_wind_rows.sum(),
+         "Missing, implausible, inconsistent or frozen wind."),
+        ("Annual traffic periods", selection.loc[("annual_traffic", "road_section_year_periods")], road_kept,
+         "No usable weather or nonpositive traffic/length."),
+        ("Daily counter-days", len(daily), daily.f_mean.notna().sum(),
+         "No usable daytime wind summary."),
+        ("Primary weather sample", samples.rural_injury_2007_2025, samples.weather_oe,
+         "No weather match within 20 km and five minutes."),
+        ("Annual traffic sample", samples.rural_injury_2007_2025, samples.annual_rate,
+         "Road linkage, exposure or weather eligibility."),
+        ("Strict daily sample", samples.rural_injury_2019_2024, samples.same_day_vkt,
+         "Counter linkage, matching, traffic or coverage eligibility."),
+    ]
+    rows = [[name, f"{int(before):,}", f"{int(before-after):,}", f"{int(after):,}", reason]
+            for name, before, after, reason in entries]
+    write_table(output / "data_trimming.tex",
+                "Simple overview of data selection. Rows are separate selections, not successive steps; the last three count accidents.",
+                "tab:data-trimming", r"L{0.20\textwidth}rrrX",
+                ["Dataset / selection", "Before", "Removed", "Retained", "Reason"], rows,
+                size="scriptsize", width=r"\textwidth")
+
+
 def tex(value: object) -> str:
     text = str(value)
     replacements = {
@@ -478,6 +533,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
+    data_chapter_tables(args.output)
     accident_sample(args.output)
     weather_cleaning(args.output)
     match_quality(args.output)
