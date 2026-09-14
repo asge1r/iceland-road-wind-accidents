@@ -129,14 +129,14 @@ def plot_severity(severity: pd.DataFrame, family: pd.DataFrame, path: Path) -> N
         pivot["Minor injury"],
         width,
         label="Minor injury (code 3)",
-        color=BLUE,
+        color="#0072B2",
     )
     axis.barh(
         y + width / 2,
         pivot["Fatal or serious"],
         width,
         label="Fatal or serious (codes 1–2)",
-        color=GOLD,
+        color="#B22222",
     )
     axis.set_yticks(y, wrap(pd.Series(pivot.index), width=38))
     axis.set_xlabel("Share within severity group (%)")

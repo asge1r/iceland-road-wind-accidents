@@ -44,10 +44,11 @@ X_LABELS = {
     "temperature": "Temperature °C",
 }
 OUTCOMES = (
-    "All injury accidents",
+    "Minor injury accidents",
     "Severe/fatal accidents",
 )
-COLORS = ("#0072B2", "#D55E00")
+SOURCE_OUTCOMES = ("All injury accidents", "Severe/fatal accidents")
+COLORS = ("#0072B2", "#B22222")
 BAR_WIDTH = 0.425
 TICK_FONT_SIZE = 12
 COUNT_FONT_SIZE = 11
@@ -60,6 +61,7 @@ REQUIRED_COLUMNS = {
     "bin_label",
     "bin_order",
     "observed_accidents",
+    "expected_accidents",
     "relative_accident_frequency",
 }
 
@@ -86,11 +88,41 @@ def validate(data: pd.DataFrame) -> None:
         raise ValueError(f"O/E table is missing columns: {sorted(missing)}")
     if set(data["variable"]) != set(VARIABLES):
         raise ValueError("O/E table does not contain exactly f, fg, and temperature")
-    if set(data["outcome"]) != set(OUTCOMES):
+    if set(data["outcome"]) != set(SOURCE_OUTCOMES):
         raise ValueError("O/E table does not contain the two expected outcomes")
     expected_periods = {"All year", *SEASONS}
     if set(data["period"]) != expected_periods:
         raise ValueError("O/E table does not contain the five expected periods")
+
+
+def disjoint_outcomes(data: pd.DataFrame) -> pd.DataFrame:
+    """Recover minor-injury counts from additive O and E, never from ratios.
+
+    Both source outcomes use identical station-season weather fractions, so
+    expected counts are additive across their disjoint severity components.
+    Keep only plotting columns; background station counts are not additive.
+    """
+    validate(data)
+    keys = ["variable", "period", "bin_label", "bin_order"]
+    counts = ["observed_accidents", "expected_accidents"]
+    total = data[data.outcome.eq(SOURCE_OUTCOMES[0])].set_index(keys)[counts]
+    severe = data[data.outcome.eq(SOURCE_OUTCOMES[1])].set_index(keys)[counts]
+    if not total.index.is_unique or not severe.index.is_unique:
+        raise ValueError("Duplicate O/E plot cells")
+    if set(total.index) != set(severe.index):
+        raise ValueError("Severity groups have different O/E cells")
+    minor = total - severe
+    if (minor < -1e-9).any().any():
+        raise ValueError("Severe/fatal counts exceed all-injury counts")
+    frames = []
+    for outcome, frame in zip(OUTCOMES, (minor, severe), strict=True):
+        frame = frame.copy()
+        frame["outcome"] = outcome
+        frame["relative_accident_frequency"] = (
+            frame.observed_accidents / frame.expected_accidents
+        )
+        frames.append(frame.reset_index())
+    return pd.concat(frames, ignore_index=True)
 
 
 def display_limit(panel: pd.DataFrame) -> float:
@@ -215,7 +247,7 @@ def plot_variable(data: pd.DataFrame, variable: str, output: Path) -> None:
 
 def plot_all(data: pd.DataFrame, output_directory: Path) -> list[Path]:
     """Validate the result table and write the three retained figures."""
-    validate(data)
+    data = disjoint_outcomes(data)
     output_directory.mkdir(parents=True, exist_ok=True)
     outputs = []
     for variable in VARIABLES:

@@ -1,0 +1,102 @@
+{
+  "main_text_floats": [
+    {
+      "label": "tab:sources",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:definitions",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:windy-group-examples",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "fig:accident-map",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:match-quality",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:weather-cleaning",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:traffic-periods",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:data-trimming",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "fig:accident-conditions",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:analysis-pipeline",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:coverage",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "fig:annual-coverage",
+      "introduced_before_float": true,
+      "references": 2
+    },
+    {
+      "label": "fig:wind-oe-panels",
+      "introduced_before_float": true,
+      "references": 2
+    },
+    {
+      "label": "fig:gust-oe-panels",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "fig:temperature-oe-panels",
+      "introduced_before_float": true,
+      "references": 2
+    },
+    {
+      "label": "tab:matched-time-summary",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:traffic-methods",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:estimated-rate",
+      "introduced_before_float": true,
+      "references": 1
+    },
+    {
+      "label": "tab:evidence-summary",
+      "introduced_before_float": true,
+      "references": 1
+    }
+  ],
+  "citation_keys": 23,
+  "undefined_citation_keys": [],
+  "preexisting_protected_files_unchanged": 246
+}
