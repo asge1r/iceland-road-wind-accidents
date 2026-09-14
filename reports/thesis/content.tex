@@ -388,7 +388,7 @@ separate from the primary O/E calculation.
 
 Of 68,946 annual road-section--year--period records, 61,442 have nearby usable
 wind data; separately, 763,171 of 774,274 daily counter-days have a matched
-daytime wind summary. The more restrictive accident samples used by the
+daytime wind summary. The smaller linked accident samples used by the
 traffic models are reported in Chapter 4.
 
 \subsection{Selection Summary}
@@ -396,7 +396,7 @@ traffic models are reported in Chapter 4.
 Table~\ref{tab:data-trimming} summarises what was removed from each dataset
 or analysis sample. Selection for the study area and injury outcome is
 distinguished from invalid or missing measurements: an excluded record is
-not necessarily an erroneous record. The strict daily sample starts with
+not necessarily an erroneous record. The same-day rural VKT sample starts with
 the 1,863 rural injury accidents in 2019--2024; the other accident samples
 cover 2007--2025. Traffic periods count road-section--year--period combinations,
 whereas daily traffic counts counter-days. Zero daily traffic is retained
@@ -680,22 +680,27 @@ estimated within-day traffic split, not observed hourly traffic. The
 main allocation uses all sufficiently complete 24-hour weather records.
 
 A second daily-counter calculation uses the counter-section construction.
-For each road section and day, the observed daily vehicle count is multiplied
-by the road length assigned to that counter. This daily vehicle-kilometre total
-is allocated among weather intervals using the actual 10-minute observations
-at the assigned station from 07:00 to midnight on that same date. Accidents
-outside this time window are omitted. At least 92 of the expected 102
-observations are required. For day \(i\), counter-section \(j\), and interval
-\(b\),
+For each counter-section and day, the observed daily vehicle count is
+multiplied by the rural part of the assigned road length. This daily
+vehicle-kilometre total is allocated among weather intervals using valid
+10-minute observations from the nearest available station within 20 km of the
+counter location at each timestamp. The exposure window is 07:00--24:00;
+the boundary observations at 07:00 and the following midnight each represent
+five minutes. Accidents outside this time window are omitted. For day \(i\),
+counter-section \(j\), and interval \(b\),
 
 \[
-\widehat V_{ijb}=Q_{ij}L_j\frac{N_{ijb}}{N_{ij}},
+\widehat V_{ijb}=Q_{ij}L^{\mathrm{rural}}_j\frac{M_{ijb}}{1020},
 \]
 
-where \(Q_{ij}\) is the observed 24-hour count, \(L_j\) is the assigned section
-length, \(N_{ijb}\) is the number of valid same-day observations in interval
-\(b\), and \(N_{ij}\) is the number of valid observations that day. The accident rate is
-the observed accidents divided by summed \(\widehat V_{ijb}\). This compares
+where \(Q_{ij}\) is the observed 24-hour count,
+\(L^{\mathrm{rural}}_j\) is the rural counter-section length, and \(M_{ijb}\)
+is the number of represented minutes with valid same-day weather in interval
+\(b\). Unobserved minutes contribute no exposure rather than being
+renormalised to a complete day. Accident-time weather is taken from the same
+time-specific station-selection rule within five minutes of the recorded
+time. The accident rate is the observed accidents divided by summed
+\(\widehat V_{ijb}\). This compares
 accidents per estimated vehicle-kilometre, but the weather-bin allocation is estimated:
 hourly traffic is not observed. Unlike the annual method, observed traffic on a
 windy date contributes its own daily total, so lower travel on that date is
@@ -938,7 +943,7 @@ seasons as different. Season-specific estimates are therefore not ranked.
 The annual analysis has broader coverage, whereas the daily-counter analysis
 uses observed daily totals at fewer locations. Both require traffic to be
 allocated among wind intervals; neither observes traffic at the accident
-minute. Table~\ref{tab:traffic-methods} contrasts the annual and strict
+minute. Table~\ref{tab:traffic-methods} contrasts the annual and same-day
 daily-counter exposure constructions and their main limitations.
 
 \input{generated/traffic_methods.tex}
@@ -997,15 +1002,15 @@ than supplying a numerical correction to primary O/E.
 
 The allocated daily-counter model retains 762 accidents. Its rate ratio for at
 least 15 versus 0--10 m/s is 3.62 (95\% CI 2.65--4.94), based on 47 accidents
-in the upper interval. A stricter counter-section calculation includes road
-length and actual same-day weather for 613 daytime accidents. Its upper
-mean-wind interval contains only ten accidents. Both calculations start from
+in the upper interval. A counter-section calculation includes rural road
+length and actual same-day weather for 694 daytime accidents. Its upper
+mean-wind interval contains only eleven accidents. Both calculations start from
 observed daily totals but estimate their within-day distribution, and both are
 limited to selected counter locations. They are therefore supporting checks,
 not the primary result.
 
 The two daily calculations also ask different exposure questions: one fits
-relative rates using allocated counter totals, while the stricter calculation
+relative rates using allocated counter totals, while the same-day calculation
 includes assigned road length and reports accidents per estimated VKT.
 Their agreement in direction is useful, but cannot remove the uncertainty
 in the within-day allocation or the sparse upper-wind counts.

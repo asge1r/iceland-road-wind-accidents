@@ -1,5 +1,11 @@
 # Analysis 3: which denominator adds traffic to O/E?
 
+> **Status:** This comparison records the 13 September review of the former
+> 613-accident coverage-threshold design. The later same-day rural VKT
+> implementation uses 694 accidents, rural section lengths, time-specific
+> station selection, and excludes unobserved minutes; its results supersede
+> the 613-case production description.
+
 **For discussion with Kristján — methodological comparison, not a proposed thesis change.**
 
 All three designs estimate the same type of descriptive quantity: observed accidents in wind bin \(j\), divided by accidents expected if each stratum's accident total were distributed proportionally to its chosen exposure. With \(A_{kj}\) observed accidents, \(A_k=\sum_jA_{kj}\), and exposure \(X_{kj}\):

@@ -56,8 +56,9 @@ def data_chapter_tables(output: Path) -> None:
          "No weather match within 20 km and five minutes."),
         ("Annual traffic sample", samples.rural_injury_2007_2025, samples.annual_rate,
          "Road linkage, exposure or weather eligibility."),
-        ("Strict daily sample", samples.rural_injury_2019_2024, samples.same_day_vkt,
-         "Counter linkage, matching, traffic or coverage eligibility."),
+        ("Same-day rural VKT", samples.rural_injury_2019_2024,
+         samples.same_day_weather_vkt,
+         "Counter linkage, positive rural traffic, or weather availability."),
     ]
     rows = [[name, f"{int(before):,}", f"{int(before-after):,}", f"{int(after):,}", reason]
             for name, before, after, reason in entries]
