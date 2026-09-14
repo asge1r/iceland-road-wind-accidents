@@ -57,23 +57,27 @@ Downloads the unchanged public road reference. \\ \grayhline
 \path{traffic/counter_sections.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}, \path{annual.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
 \emph{\path{processed/traffic/}}\newline{}\path{counter_sections.csv} &
-Combines counter channels within a 20 m complete span, divides each annual road section at counter midpoints, and attaches the nearest valid weather station. \\ \grayhline
+Combines channels within a 20 m complete span, divides annual road sections at counter midpoints, and attaches a nominal nearest station with actual valid daytime observations in that year (within 20 km). \\ \grayhline
 \path{traffic/assign_counter_sections.py} &
 \emph{\path{processed/accidents/}}\newline{}\path{all.csv}\newline{}\emph{\path{processed/traffic/}}\newline{}\path{counter_sections.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
 \emph{\path{processed/accidents/}}\newline{}\path{accidents-near-counter.csv} &
 Selects 2019--2024 rural injury accidents, projects them to their registered road geometry, and retains those within 100 m of the road and a valid counter-section. \\ \grayhline
-\path{traffic/counter_day_weather.py} &
-\emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}, \path{counter_sections.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
-\emph{\path{processed/traffic/}}\newline{}\path{counter_day_weather.parquet} &
-Combines observed daily traffic, assigned road length and actual 07:00--24:00 weather-bin counts for the same station and date. \\ \grayhline
+\path{traffic/counter_days.py} &
+\emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}, \path{counter_sections.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson}\newline{}\emph{\path{raw/accidents/}}\newline{}\path{urban_boundaries_2020_2024.geojson} &
+\emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv} &
+Sums channels per counter-section/day and multiplies actual daily vehicles by the rural road length, using geometric urban clipping (2019–2024, station within 20 km). Unmapped lengths are excluded and reported. \\ \grayhline
+\path{weather/monthly_frequency.py} (optional diagnostic) &
+\emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
+\emph{\path{processed/weather/}}\newline{}\path{monthly_frequency.csv} &
+Pools 07:00–24:00 ten-minute observations by station and calendar month across 2007–2025, in the O/E bins. Retained for inspection, not used by analysis \#2. \\ \grayhline
 \path{traffic/counter_accidents.py} &
-\emph{\path{processed/accidents/}}\newline{}\path{accidents-near-counter.csv}\newline{}\emph{\path{processed/traffic/}}\newline{}\path{counter_day_weather.parquet}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
+\emph{\path{processed/accidents/}}\newline{}\path{accidents-near-counter.csv}\newline{}\emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv}, \path{counter_sections.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson}\newline{}\emph{\path{raw/accidents/}}\newline{}\path{urban_boundaries_2020_2024.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{counter_accidents.csv} &
-Matches daytime accidents to weather at the same station used for their counter-section denominator. \\ \grayhline
+Requires rural daytime accidents and positive traffic. Selects the nearest station to the counter-section within 20 km that has valid observations within five minutes of the accident. \\ \grayhline
 \path{traffic/daily_vkt.py} &
-\emph{\path{processed/traffic/}}\newline{}\path{counter_day_weather.parquet}\newline{}\path{counter_accidents.csv} &
+\emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv}, \path{counter_sections.csv}\newline{}\path{counter_accidents.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_vkt.csv} &
-Allocates each observed daily vehicle-kilometre total using weather observed on that date and calculates rates by weather interval. \\ \grayhline
+Uses \texttt{daytime\_weather.py} and the shared \texttt{station\_selection.py} rule to choose the nearest available station at every timestamp. Allocates rural daily vehicle-km uniformly over 07:00–24:00, excludes unmatched time, and reports counts and rates by weather bin, injury group and season. \\ \grayhline
 \path{traffic/locate_counters.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily.csv} &
@@ -87,7 +91,7 @@ Matches counter-days to a nearby weather station. \\ \grayhline
 \emph{\path{processed/traffic/}}\newline{}\path{accident_wind.csv} &
 Matches accidents to the assigned counter-day station. \\ \grayhline
 \path{export_tables.py} &
-\emph{\path{processed/}}\newline{}\path{accidents/rural_injury.csv}\newline{}\path{accidents/rate.csv}\newline{}\path{accidents/case_control.csv}\newline{}\path{weather/frequency.csv}\newline{}\path{weather/yearly_frequency.csv}\newline{}\path{weather/traffic_frequency.csv}\newline{}\path{weather/cleaning.csv}\newline{}\path{traffic/annual.csv}\newline{}\path{traffic/road_period.csv}\newline{}\path{traffic/daily_weather.csv}\newline{}\path{traffic/accident_wind.csv}\newline{}\path{traffic/locations.csv}\newline{}\path{traffic/daily_vkt.csv} &
+\emph{\path{processed/}}\newline{}\path{accidents/rural_injury.csv}\newline{}\path{accidents/rate.csv}\newline{}\path{accidents/case_control.csv}\newline{}\path{weather/frequency.csv}\newline{}\path{weather/yearly_frequency.csv}\newline{}\path{weather/traffic_frequency.csv}\newline{}\path{weather/monthly_frequency.csv}\newline{}\path{weather/cleaning.csv}\newline{}\path{traffic/annual.csv}\newline{}\path{traffic/road_period.csv}\newline{}\path{traffic/daily_weather.csv}\newline{}\path{traffic/accident_wind.csv}\newline{}\path{traffic/locations.csv}\newline{}\path{traffic/daily_vkt.csv} &
 \emph{\path{analysis/}}\newline{}analysis CSV files listed below &
 Selects only the variables used by ordinary analysis. \\
 \bottomrule

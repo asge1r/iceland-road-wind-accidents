@@ -172,7 +172,7 @@ def coverage(output: Path) -> None:
         ("Matched-time", int(samples["matched_time"]), "Time-matched comparison."),
         ("Annual traffic", int(samples["annual_rate"]), "Broader traffic analysis."),
         ("Daily-counter", int(allocated_counts[0]), "Observed daily traffic totals."),
-        ("Same-day vehicle-kilometres", int(samples["same_day_vkt"]), "Stricter counter-section analysis."),
+        ("Same-day rural vehicle-kilometres", int(samples["same_day_weather_vkt"]), "Daily traffic; same-day daytime weather."),
     ]
     rows = [[label, f"{count:,}", purpose] for label, count, purpose in rows]
     write_table(
@@ -217,7 +217,7 @@ def traffic_methods(output: Path) -> None:
             "Traffic is allocated by wind frequency within each period.",
         ],
         [
-            "Daily counter sections", f"2019--2024 ({int(samples['same_day_vkt']):,})",
+            "Daily counter sections", f"2019--2024 ({int(samples['same_day_weather_vkt']):,})",
             "Observed daily totals",
             "Within-day traffic is estimated; locations and upper bins are sparse.",
         ],
@@ -455,12 +455,12 @@ def evidence(output: Path) -> None:
         accidents=("accidents", "sum"),
         estimated_vehicle_km=("estimated_vehicle_km", "first"),
     )
-    daily["rate"] = daily["accidents"] / daily["estimated_vehicle_km"] * 100_000_000
+    daily["rate"] = daily["accidents"] / daily["estimated_vehicle_km"] * 1_000_000
     rows = [
         ["Weather-frequency O/E", rf"$\geq20$ m/s: O/E {a_observed/a_expected:.2f}", "Primary result; local wind frequency, no traffic."],
         ["Matched time", r"$\geq15$ vs 0--5 m/s: " + estimate(b, "odds_ratio", "ci_95_low", "ci_95_high", "OR "), "Same station and calendar time."],
         ["Annual traffic", "20--25 vs 0--5 m/s: " + estimate(c, "time_proportional_rate_ratio", "time_proportional_ci_95_low", "time_proportional_ci_95_high", "RR "), "Broader traffic sample; traffic allocated within periods."],
-        ["Same-day traffic", rf"$\geq20$ vs 0--5 m/s: {daily.loc['>=20', 'rate']:.1f} vs {daily.loc['0-5', 'rate']:.1f} per 100 million VKT", "Observed daily totals; 613 accidents, 10 in the upper interval."],
+        ["Daily traffic, same-day weather", rf"$\geq20$ vs 0--5 m/s: {daily.loc['>=20', 'rate']:.2f} vs {daily.loc['0-5', 'rate']:.2f} per million VKT", f"Observed daily totals on rural road portions; {int(daily.accidents.sum())} accidents, {int(daily.loc['>=20', 'accidents'])} in the upper interval."],
     ]
     write_table(
         output / "evidence.tex",

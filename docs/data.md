@@ -40,7 +40,8 @@ not committed because it is derived from authorised local data deliveries.
 | `analysis/daily_traffic.csv` | Counter site and date | Optional large CSV containing the observed daily count, mean-wind summaries, and observation counts in six mean-wind intervals. |
 | `analysis/counter_locations.csv` | Counter site and year | Road section and geometry-interpolated coordinates used by selected-counter rate analyses. |
 | `analysis/counter_sections.csv` | Counter-section and year | Counter location, assigned road length, source `fastnr` channels, and nearest weather station. |
-| `analysis/daily_vkt.csv` | Weather variable, outcome, period, and interval | Accident counts and rates per 100 million vehicle-km using actual same-day 07:00--24:00 weather fractions. |
+| `analysis/weather_monthly.csv` | Station, calendar month, variable, interval | Daytime bin fractions pooled across 2007–2025; no calendar-year grouping. |
+| `analysis/daily_vkt.csv` | Weather variable, outcome, period, and interval | Accident counts and rates per million rural vehicle-km using actual daily traffic and same-day 07:00–24:00 weather, excluding unobserved time. |
 | `analysis/counter_wind.csv` | Accident assigned to a counter | Accident-time mean wind from the same weather station used for that counter-day's traffic allocation. |
 | `analysis/counter_check.csv` | Counter site | Independent comparison with official 20 m road-station points. |
 | `analysis/manifest.csv` | One analysis file | record count, available columns, and a short description. |

@@ -50,7 +50,7 @@ def export_counter_sections(
     count = write_csv(table, output / "counter_sections.csv")
     return (
         "counter_sections.csv", count, columns,
-        "Counter-section lengths, locations, source channels, and nearest weather stations.",
+        "Counter-section lengths, locations, source channels, and nominal nearest stations with observations in the counter year; event/exposure stations are selected per timestamp.",
     )
 
 
@@ -63,7 +63,7 @@ def export_daily_vkt(
     source = read_table(path)
     columns = [
         "variable", "outcome", "period", "bin_label", "bin_order", "accidents",
-        "estimated_vehicle_km", "rate_per_100m_vehicle_km", "counter_days",
+        "estimated_vehicle_km", "rate_per_million_vehicle_km", "counter_days",
         "counter_sections", "allocation_method",
     ]
     missing = set(columns) - set(source)
@@ -73,7 +73,7 @@ def export_daily_vkt(
     count = write_csv(table, output / "daily_vkt.csv")
     return (
         "daily_vkt.csv", count, columns,
-        "Same-day 07:00--24:00 counter-section accident rates per 100 million vehicle-km.",
+        "Rural accident rates per million vehicle-km; daily traffic and nearest available station per timestamp over 07:00–24:00, excluding unmatched time.",
     )
 
 def export_selection_summary(output: Path) -> tuple[int, list[str]]:
@@ -160,7 +160,7 @@ def export_selection_summary(output: Path) -> tuple[int, list[str]]:
             ("analysis_samples", "rural_injury_2019_2024", rural_2019_2024),
             ("analysis_samples", "counter_section_assigned", counter_assignments),
             ("analysis_samples", "counter_accident_weather", counter_accidents),
-            ("analysis_samples", "same_day_vkt", daily_vkt_accidents),
+            ("analysis_samples", "same_day_weather_vkt", daily_vkt_accidents),
         ],
         columns=["dataset", "step", "records"],
     )

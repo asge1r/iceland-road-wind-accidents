@@ -1,5 +1,12 @@
 # Theory, implementation, and thesis audit of the three intended analyses
 
+> Numbering note, 14 September 2026: this dated audit retains its original
+> numbering, in which matched-time analysis was Core 2. The current supervisor
+> review order is **1. Weather-frequency O/E; 2. Rural daily-traffic rates with
+> same-day weather; 3. Annual estimated VKT O/E**. See the
+> [current pipeline](pipeline.md#analysis-review-order) for the implementation
+> mapping. References to Core 2 and Core 3 below describe the historical audit.
+
 **Audit date: 13 September 2026. Read-only scientific audit.** This report uses the user's three-analysis hierarchy. “Kristján-style” means the operational same-date counter-section/VKT construction specified in the request, not an independently verified replication of an unspecified publication. Scientific code, prepared inputs, authoritative results, validation output, thesis sources, and PDF were not changed. Replays and diagnostic calculations used an isolated temporary directory.
 
 **Verdict: do not give the implementation a blanket PASS.** The stored calculations and figures reproduce, and the main matched-wind OR reproduces. There are nevertheless genuine eligibility/provenance failures that ordinary validation does not detect.

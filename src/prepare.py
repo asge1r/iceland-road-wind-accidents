@@ -29,7 +29,7 @@ DAILY_TRAFFIC_STEPS = [
     "src.traffic.download_roads",
     "src.traffic.counter_sections",
     "src.traffic.assign_counter_sections",
-    "src.traffic.counter_day_weather",
+    "src.traffic.counter_days",
     "src.traffic.counter_accidents",
     "src.traffic.daily_vkt",
     "src.traffic.locate_counters",

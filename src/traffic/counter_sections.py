@@ -12,12 +12,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 from pyproj import Transformer
-from sklearn.neighbors import BallTree
-
-from src.traffic.counter_weather import weather_station_ids
-from src.traffic.daily_common import EARTH_RADIUS_KM, normalize_section
+from src.traffic.daily_common import normalize_section
+from src.traffic.station_selection import available_station_years, station_candidates
 from src.traffic.locate_counters import interpolate, load_roads
 
 
@@ -173,36 +170,31 @@ def add_nearest_weather_station(
     weather_path: Path,
     distance_limit_km: float,
 ) -> pd.DataFrame:
-    """Attach the nearest station represented in the cleaned weather file."""
+    """Attach the nearest station with actual daytime data in the counter year.
+
+    This is the nominal/reference station. Event and exposure matching can use
+    a nearer available station at each timestamp, or fall back during outages.
+    """
     if distance_limit_km <= 0:
         raise ValueError("Weather-station distance limit must be positive")
-    valid_ids = weather_station_ids(pq.ParquetFile(weather_path))
+    available = available_station_years(weather_path)
     stations = pd.read_csv(
         stations_path, usecols=["station", "name", "lat", "lon"]
     ).dropna(subset=["station", "lat", "lon"])
     stations["station"] = pd.to_numeric(stations["station"], errors="raise").astype(int)
-    stations = stations[stations["station"].isin(valid_ids)].drop_duplicates("station")
-    if stations.empty:
-        raise ValueError("No station in the catalogue occurs in the cleaned weather data")
 
     result = counters.copy()
     result["weather_station_id"] = pd.NA
     result["weather_station_name"] = pd.NA
     result["weather_station_dist_km"] = np.nan
-    located = result.dropna(subset=["counter_location_lat", "counter_location_lon"])
-    if located.empty:
-        return result
-
-    tree = BallTree(np.radians(stations[["lat", "lon"]]), metric="haversine")
-    distance, indices = tree.query(
-        np.radians(located[["counter_location_lat", "counter_location_lon"]]), k=1
-    )
-    nearest = stations.iloc[indices[:, 0]].reset_index(drop=True)
-    result.loc[located.index, "weather_station_id"] = nearest["station"].to_numpy()
-    result.loc[located.index, "weather_station_name"] = nearest["name"].to_numpy()
-    result.loc[located.index, "weather_station_dist_km"] = (
-        distance[:, 0] * EARTH_RADIUS_KM
-    )
+    names = stations.drop_duplicates("station").set_index("station")["name"]
+    for year, group in result.groupby("year"):
+        eligible = stations[stations.station.isin(available.get(int(year), set()))]
+        nearest = station_candidates(group, eligible, distance_limit_km).drop_duplicates("counter_section_id")
+        nearest = nearest.set_index("counter_section_id").reindex(group.counter_section_id)
+        result.loc[group.index, "weather_station_id"] = nearest.weather_station_id.to_numpy()
+        result.loc[group.index, "weather_station_name"] = nearest.weather_station_id.map(names).to_numpy()
+        result.loc[group.index, "weather_station_dist_km"] = nearest.weather_station_dist_km.to_numpy(dtype=float)
     result["weather_station_within_limit"] = result[
         "weather_station_dist_km"
     ].le(distance_limit_km)

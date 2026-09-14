@@ -220,6 +220,11 @@ def stage_tasks(
     include_weather_rate: bool = False,
 ) -> list[Task]:
     """Return tasks in reproducible dependency order for one stage."""
+    daily_tasks = (
+        daily_traffic_tasks(bootstrap_reps, include_weather_rate)
+        if include_daily else
+        [task("src.figures.weather_rate")] if include_weather_rate else []
+    )
     if stage == "workflow":
         return [task("src.tables.pipeline")]
     if stage == "weather-frequency":
@@ -227,7 +232,7 @@ def stage_tasks(
     if stage == "traffic-adjusted":
         return [
             *annual_traffic_tasks(),
-            *(daily_traffic_tasks(bootstrap_reps, include_weather_rate) if include_daily else []),
+            *daily_tasks,
         ]
     if stage == "supporting":
         return [
@@ -242,7 +247,7 @@ def stage_tasks(
     if stage == "annual-traffic":
         return annual_traffic_tasks()
     if stage == "daily-traffic":
-        return daily_traffic_tasks(bootstrap_reps, include_weather_rate) if include_daily else []
+        return daily_tasks
     if stage == "sample-description":
         return sample_description_tasks()
     if stage == "matched-time":
@@ -292,10 +297,10 @@ def main() -> None:
     stages = list(dict.fromkeys(args.stage or STAGE_ORDER))
     daily_path = Path("data/analysis/daily_traffic.csv")
     include_daily = not args.skip_daily_traffic and daily_path.exists()
-    include_weather_rate = Path("data/analysis/daily_vkt.csv").exists()
+    include_weather_rate = not args.skip_daily_traffic and Path("data/analysis/daily_vkt.csv").exists()
     if ({"daily-traffic", "traffic-adjusted"} & set(stages)) and not include_daily:
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
-        print(f"Skipping optional daily-traffic tasks: {reason}.", flush=True)
+        print(f"Skipping tasks requiring the optional daily_traffic.csv input: {reason}.", flush=True)
     completed: set[Task] = set()
     for stage in stages:
         print(f"\nAnalysis stage: {stage}", flush=True)

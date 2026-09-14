@@ -27,6 +27,7 @@ from src.exports_traffic import (
 )
 from src.exports_weather import (
     export_frequency,
+    export_monthly_frequency,
     export_weather_source_audit,
     export_temperature_frequency,
     export_weather_cleaning,
@@ -110,6 +111,9 @@ def main() -> None:
     counter_sections = export_counter_sections(args.output)
     if counter_sections is not None:
         entries.append(counter_sections)
+    monthly_weather = export_monthly_frequency(args.output)
+    if monthly_weather is not None:
+        entries.append(monthly_weather)
     daily_vkt = export_daily_vkt(args.output)
     if daily_vkt is not None:
         entries.append(daily_vkt)

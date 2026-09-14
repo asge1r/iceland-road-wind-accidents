@@ -168,49 +168,42 @@ def validate_wind_oe_comparison() -> pd.DataFrame:
 
 
 def validate_daily_vkt() -> pd.DataFrame:
-    """Check Kristján's counter-section vehicle-kilometre result."""
-    result = pd.read_csv(DEFAULT_DAILY_VKT)
-    required = {
-        "variable", "outcome", "period", "bin_label", "accidents",
-        "estimated_vehicle_km", "rate_per_100m_vehicle_km", "allocation_method",
-    }
-    require(required <= set(result), "Daily counter-section rate table is incomplete")
-    require(
-        set(result["variable"]) == {"f", "fg", "temperature"}
-        and set(result["outcome"]) == {
-            "Minor injury accidents", "Severe/fatal accidents"
-        }
-        and set(result["period"]) == {
-            "All year", "Winter", "Spring", "Summer", "Autumn"
-        }
-        and result["estimated_vehicle_km"].gt(0).all()
-        and result["rate_per_100m_vehicle_km"].ge(0).all(),
-        "Daily counter-section rate categories or exposure are invalid",
-    )
-    require(
-        result["allocation_method"].eq(
-            "observed daily traffic allocated by same-day 10-minute weather"
-        ).all(),
-        "Daily counter-section rates do not use the same-day allocation",
-    )
-    annual = result[result["period"].eq("All year")]
-    for variable in ["f", "fg", "temperature"]:
-        rows = annual[annual["variable"].eq(variable)]
-        require(
-            int(rows["accidents"].sum()) == 613,
-            f"Annual {variable} counter-section outcomes do not partition 613 accidents",
-        )
-    wind = annual[
-        annual["variable"].eq("f")
-        & annual["outcome"].eq("Minor injury accidents")
-    ].set_index("bin_label")
-    require(
-        wind.loc[">=20", "rate_per_100m_vehicle_km"]
-        > wind.loc["0-5", "rate_per_100m_vehicle_km"],
-        "Same-day upper-wind rate no longer exceeds the reference rate",
-    )
-    return result
+    """Check rate arithmetic and seasonal conservation, not a desired result."""
+    from src.traffic.daily_vkt import ALLOCATION_METHOD
+    from src.weather.monthly_frequency import VARIABLES
 
+    result = pd.read_csv(DEFAULT_DAILY_VKT)
+    keys = ["variable", "outcome", "period", "bin_label"]
+    required = {*keys, "accidents", "estimated_vehicle_km",
+                "rate_per_million_vehicle_km", "allocation_method"}
+    require(required <= set(result), "Daily counter-section rate table is incomplete")
+    require(not result.duplicated(keys).any(), "Duplicate daily rate rows")
+    require(result["allocation_method"].eq(ALLOCATION_METHOD).all(),
+            "Daily rates do not use rural same-day weather allocation")
+    require(result["accidents"].ge(0).all() & result["estimated_vehicle_km"].ge(0).all(),
+            "Negative accident counts or exposure")
+    require(set(result["variable"]) == set(VARIABLES), "Unexpected weather variables")
+    require(set(result["outcome"]) == {"Minor injury accidents", "Severe/fatal accidents"},
+            "Unexpected injury outcomes")
+    require(set(result["period"]) == {"All year", "Winter", "Spring", "Summer", "Autumn"},
+            "Unexpected periods")
+    for variable, (_, labels) in VARIABLES.items():
+        rows = result[result["variable"].eq(variable)]
+        require(set(rows["bin_label"]) == set(labels), f"Incorrect {variable} bins")
+        require(len(rows) == len(labels) * 5 * 2, f"Incomplete {variable} results")
+    denominator = result["estimated_vehicle_km"].where(result["estimated_vehicle_km"].gt(0))
+    require(np.allclose(result["rate_per_million_vehicle_km"],
+                        result["accidents"] / denominator * 1_000_000, equal_nan=True),
+            "Incorrect rates per million vehicle-km")
+    groups = ["variable", "outcome", "bin_label"]
+    columns = ["accidents", "estimated_vehicle_km"]
+    annual = result[result["period"].eq("All year")].set_index(groups)[columns].sort_index()
+    seasonal = result[~result["period"].eq("All year")].groupby(groups)[columns].sum().sort_index()
+    require(annual.index.equals(seasonal.index) and np.allclose(annual, seasonal),
+            "Seasonal counts and exposure do not reconstruct annual totals")
+    paired = result.groupby(["variable", "period", "bin_label"])["estimated_vehicle_km"]
+    require(paired.nunique().eq(1).all(), "Outcome groups must share denominators")
+    return result
 
 def validate_traffic_models(
     daily_path: Path, daily_accident_weather_path: Path,

@@ -8,6 +8,18 @@ import pandas as pd
 
 from src.export_common import ROOT, read_table, write_csv
 
+def export_monthly_frequency(output: Path) -> tuple[str, int, list[str], str] | None:
+    path = ROOT / "weather/monthly_frequency.csv"
+    if not path.exists():
+        return None
+    table = read_table(path)
+    count = write_csv(table, output / "weather_monthly.csv")
+    return (
+        "weather_monthly.csv", count, list(table.columns),
+        "Station-calendar-month 07:00–24:00 weather frequencies pooled across 2007–2025.",
+    )
+
+
 def export_weather_cleaning(output: Path) -> tuple[int, list[str]]:
     """Copy the compact cleaning summary into the canonical analysis layer."""
     source = read_table(ROOT / "weather/cleaning.csv")

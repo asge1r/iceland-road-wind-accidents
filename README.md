@@ -12,6 +12,17 @@ Supporting analyses cover matched-time wind and temperature, adjusted injury
 severity, daylight, a formal seasonal comparison, accident type, and the
 available annual and daily traffic data.
 
+## Analysis review order
+
+1. Weather-frequency O/E, without traffic information.
+2. Rural daily-traffic rates with same-day weather (previously #3).
+3. Annual estimated VKT O/E (previously #2).
+
+See [the pipeline](docs/pipeline.md#analysis-review-order) for the current
+implementation mapping and the distinction between O/E ratios and absolute
+vehicle-kilometre rates. This is the supervisor review order, not the order
+of preparation dependencies.
+
 ## Repository scope
 
 This GitHub repository contains the analysis code, documentation, thesis draft,

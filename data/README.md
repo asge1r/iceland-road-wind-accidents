@@ -67,8 +67,9 @@ Use `data/analysis/` for normal work:
 - `daily_traffic.csv` for the sustained-wind and allocated daily-counter results;
 - `counter_locations.csv` for selected-counter rate analyses;
 - `counter_sections.csv` for daily vehicle-kilometre exposure preparation;
-- `daily_vkt.csv` for the selected-counter 07:00--24:00 rates by
-  wind, gust, temperature, season, and injury group;
+- `weather_monthly.csv` for station-calendar-month 07:00–24:00 frequencies pooled across 2007–2025;
+- `daily_vkt.csv` for selected-counter rates per million vehicle-km using actual
+  daily traffic and same-day weather on rural road portions, by weather bin, season and injury group;
 - `manifest.csv` for each file's record count, columns and description.
 
 The large clean-weather Parquet file and optional daily matching Parquet files

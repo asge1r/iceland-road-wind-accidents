@@ -7,14 +7,10 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import pyarrow as pa
 import pyarrow.parquet as pq
 
 from src.weather.eligibility import valid_temperature
 from src.weather.frequency import accumulate, make_yearly_table, make_pooled_table
-from src.traffic.counter_day_weather import (
-    aggregate_weather, build, distinct_slot_mask, EXPECTED_OBSERVATIONS,
-)
 from src.analysis.oe_analysis import VARIABLES, station_frequency_scenario
 from src.accidents.case_control import build_candidates, read_weather, assemble
 from src.exports_accidents import export_case_control
@@ -54,78 +50,6 @@ class EligibilityTests(unittest.TestCase):
             self.assertEqual(coverage['analysed_accidents'],11)
             self.assertAlmostEqual(result.expected_accidents.sum(),11)
             self.assertEqual(result.observed_accidents.sum(),11)
-
-
-class DistinctCoverageTests(unittest.TestCase):
-    def test_build_eligibility_uses_distinct_slots_and_window_boundaries(self):
-        dates = pd.to_datetime(["2024-01-01", "2024-01-03", "2024-01-05"])
-        slot_counts = [52, 91, 92]
-        observations = []
-        for date, count in zip(dates, slot_counts, strict=True):
-            grid = pd.date_range(date + pd.Timedelta(hours=7), periods=102, freq="10min")
-            # Include 07:00 and 23:50; the passing day needs both endpoints.
-            times = grid[:count - 1].append(grid[-1:])
-            observations.append(pd.DataFrame({
-                "station": 1, "time": times, "f": 2., "fg": 4., "t": 0.,
-            }))
-            # 24:00 is represented as the next date's 00:00 timestamp.
-            outside = [date, date + pd.Timedelta(hours=6, minutes=59),
-                       date + pd.Timedelta(days=1)]
-            observations.append(pd.DataFrame({
-                "station": 1, "time": outside, "f": 2., "fg": 4., "t": 0.,
-            }))
-        first_copy = pd.concat(observations, ignore_index=True)
-        weather = pd.concat([first_copy, first_copy], ignore_index=True)
-        daily = pd.DataFrame({
-            "date": dates, "year": 2024, "station_id": 100,
-            "road_section": "1-a", "traffic_volume": 100,
-        })
-        sections = pd.DataFrame({
-            "year": [2024], "road_section": ["1-a"], "counter_section_id": ["test"],
-            "source_station_min_m": [100], "source_station_max_m": [100],
-            "counter_section_length_km": [2.], "weather_station_id": [1],
-            "weather_station_dist_km": [1.],
-        })
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            daily.to_csv(root / "daily.csv", index=False)
-            sections.to_csv(root / "sections.csv", index=False)
-            # Every duplicated observation is in a different row group.
-            pq.write_table(pa.Table.from_pandas(weather), root / "weather.parquet",
-                           row_group_size=37)
-            panel, _ = build(root / "daily.csv", root / "sections.csv",
-                             root / "weather.parquet")
-        self.assertEqual(len(panel), 3)
-        for variable in ["f", "fg", "temperature"]:
-            with self.subTest(variable=variable):
-                self.assertEqual(panel[f"{variable}_distinct_slots"].tolist(), slot_counts)
-                # Outside-window rows must not enter even the allocation counts.
-                self.assertEqual(panel[f"{variable}_valid_observations"].tolist(),
-                                 [104, 182, 184])
-                self.assertEqual(panel[f"{variable}_coverage_ok"].tolist(),
-                                 [False, False, True])
-
-    def test_window_endpoints_and_expected_slots(self):
-        times=pd.date_range('2024-01-01 07:00', '2024-01-01 23:50',freq='10min').to_numpy()
-        self.assertEqual(EXPECTED_OBSERVATIONS,102)
-        self.assertEqual(distinct_slot_mask(times).bit_count(),102)
-        self.assertEqual(distinct_slot_mask(pd.to_datetime(['2024-01-01 06:59:59','2024-01-02 00:00:00']).to_numpy()),0)
-        self.assertEqual(distinct_slot_mask(pd.to_datetime(['2024-01-01 07:00:00','2024-01-01 07:09:59','2024-01-01 23:59:59']).to_numpy()).bit_count(),2)
-
-    def test_duplicates_across_row_groups_cannot_pass_coverage(self):
-        times=pd.date_range('2024-01-01 07:00',periods=52,freq='10min')
-        frame=pd.DataFrame({'station':1,'time':times,'f':1.,'fg':2.,'t':0.})
-        frame=pd.concat([frame,frame],ignore_index=True)
-        frame.loc[frame.time.eq(times[0]),'t']=31
-        with tempfile.TemporaryDirectory() as directory:
-            path=Path(directory)/'weather.parquet'
-            pq.write_table(pa.Table.from_pandas(frame),path,row_group_size=30)
-            result=aggregate_weather(path,np.array([1])).iloc[0]
-        self.assertEqual(result.f_valid_observations,104)
-        self.assertEqual(result.f_distinct_slots,52)
-        self.assertEqual(result.fg_distinct_slots,52)
-        self.assertEqual(result.temperature_distinct_slots,51)
-        self.assertLess(result.f_distinct_slots,92)
 
 
 class ControlReproductionTests(unittest.TestCase):

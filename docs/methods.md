@@ -130,13 +130,31 @@ supporting because it covers selected counters in 2019--2024 and cannot show
 that an accident vehicle passed the assigned counter. The former full-day-mean
 model is retained only as an appendix day-level check.
 
-The counter-section weather-rate calculation is a separate descriptive route.
-It multiplies each observed daily count by its assigned section length and
-allocates that vehicle-kilometre total using the actual 07:00--24:00 weather
-distribution at the assigned station on the same date. It requires at least 92
-of the expected 102 observations and retains 613 linked daytime accidents. The
-daily total is observed and therefore reflects same-day traffic changes, but
-traffic within each ten-minute interval remains estimated rather than observed.
+The counter-section weather-rate calculation (analysis #2) is a separate
+descriptive route. Each actual 2019–2024 daily count is spread uniformly across
+07:00–24:00 and multiplied by the rural portion of its counter-section length.
+At every ten-minute time, the nearest station to the counter-section location
+within 20 km with actual valid wind/gust observations supplies the weather.
+The identical rule applies to accidents (within five minutes) and exposure,
+including accident-free times. Outages trigger fallback to the next available
+station; observations from different stations never duplicate the same time.
+The nominal counter-section station must have observations in the relevant year.
+Urban portions are clipped geometrically using the accident study's boundaries;
+unmapped portions are excluded. Accidents must project onto rural road exposure.
+Nearest ten-minute observations represent +/-5 minutes, clipped to the window
+(07:00 and the following midnight each represent five minutes).
+Missing observations remove their time and corresponding vehicle-km, without
+renormalizing the remaining time to a full day. Wind and gust must both be valid;
+temperature additionally requires a valid temperature, matching case eligibility.
+Night-time accidents are omitted; event bins use actual accident-time weather.
+Accident-free days contribute. Outputs are rates per million estimated rural
+vehicle-km, for minor injury and severe/fatal accidents, annually and by season.
+
+This replaces the provisional monthly-weather allocation. It retains lower
+observed traffic on stormy days, without applying another reduction factor.
+There is no daily completeness threshold. Within-day avoidance remains
+unmeasured because only daily traffic counts are available. See docs/pipeline.md
+for the exact time-specific station-selection and missing-data rules.
 
 The traffic-allocation direction check applies the observed daily traffic
 percentage for each full-day mean-wind interval to the corresponding annual

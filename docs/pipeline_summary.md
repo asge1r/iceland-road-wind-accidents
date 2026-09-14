@@ -3,6 +3,10 @@
 > Historical audit, completed before the approved live correction on 13 September 2026.
 > Old annual values and pending-action statements below describe that earlier state.
 > See [the completed live correction](annual_live_correction.md) for current results and verification.
+> The current supervisor review order is **1. Weather-frequency O/E;
+> 2. Rural daily-traffic rates with same-day weather; 3. Annual estimated VKT O/E**.
+> See [the pipeline](pipeline.md#analysis-review-order); the audit's section,
+> figure, and table numbers below remain historical references.
 
 Audited 13 September 2026 against the local source, prepared data, analysis CSVs,
 retained results, tests and current thesis includes. This is a pipeline audit;
