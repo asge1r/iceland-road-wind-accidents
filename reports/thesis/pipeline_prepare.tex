@@ -66,10 +66,10 @@ Selects 2019--2024 rural injury accidents, projects them to their registered roa
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}, \path{counter_sections.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson}\newline{}\emph{\path{raw/accidents/}}\newline{}\path{urban_boundaries_2020_2024.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv} &
 Sums channels per counter-section/day and multiplies actual daily vehicles by the rural road length, using geometric urban clipping (2019–2024, station within 20 km). Unmapped lengths are excluded and reported. \\ \grayhline
-\path{weather/monthly_frequency.py} (optional diagnostic) &
+\path{weather/monthly_frequency.py} &
 \emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
 \emph{\path{processed/weather/}}\newline{}\path{monthly_frequency.csv} &
-Pools 07:00–24:00 ten-minute observations by station and calendar month across 2007–2025, in the O/E bins. Retained for inspection, not used by analysis \#2. \\ \grayhline
+Pools 07:00–24:00 ten-minute observations by station and calendar month across 2007–2025, in the O/E bins. Supplies the monthly-frequency VKT denominator. \\ \grayhline
 \path{traffic/counter_accidents.py} &
 \emph{\path{processed/accidents/}}\newline{}\path{accidents-near-counter.csv}\newline{}\emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv}, \path{counter_sections.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson}\newline{}\emph{\path{raw/accidents/}}\newline{}\path{urban_boundaries_2020_2024.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{counter_accidents.csv} &
@@ -78,6 +78,10 @@ Requires rural daytime accidents and positive traffic. Selects the nearest stati
 \emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv}, \path{counter_sections.csv}\newline{}\path{counter_accidents.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_vkt.csv}\newline{}\path{traffic_weather_response.csv} &
 Uses \texttt{daytime\_weather.py} and the shared \texttt{station\_selection.py} rule to choose the nearest available station at every timestamp. Allocates rural daily vehicle-km uniformly over 07:00–24:00 for direct rates, and compares observed daily traffic with its counter-section/year/month/weekday expectation for the O/E traffic correction. \\ \grayhline
+\path{traffic/monthly_vkt.py} &
+\emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv}, \path{counter_accidents.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{monthly_frequency.csv} &
+\emph{\path{processed/traffic/}}\newline{}\path{monthly_vkt.csv}\newline{}\path{monthly_vkt_section.csv} &
+Allocates every eligible counter-day's rural vehicle-kilometres by the assigned station's pooled calendar-month weather frequency; classifies numerator accidents by observed event-time weather. \\ \grayhline
 \path{traffic/locate_counters.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily.csv} &

@@ -11,16 +11,16 @@ import pandas as pd
 from src.analysis.oe_analysis import (
     DEFAULT_ACCIDENTS,
     DEFAULT_CONDITIONS,
+    DEFAULT_FREQUENCY,
     WHOLE_YEAR_PERIOD,
     analyse,
     load_data,
 )
 
 
-YEARLY_FREQUENCY = Path("data/analysis/weather_yearly.csv")
 TRAFFIC_RESPONSE = Path("data/analysis/traffic_weather_response.csv")
-UNCORRECTED = Path("reports/main/tables/weather_oe_2019_2024.csv")
-OUTPUT = Path("reports/main/tables/weather_oe_traffic_corrected_2019_2024.csv")
+UNCORRECTED = Path("reports/main/tables/weather_oe.csv")
+OUTPUT = Path("reports/main/tables/weather_oe_traffic_corrected.csv")
 
 
 def adjust_frequency(
@@ -97,6 +97,8 @@ def build_result(
             "relative_accident_frequency": "time_oe",
         }
     )
+    original = original[original["variable"].isin(["f", "fg"])]
+    corrected = corrected[corrected["variable"].isin(["f", "fg"])]
     corrected = corrected[
         [*keys, "observed_accidents", "expected_accidents",
          "relative_accident_frequency", "analysed_accidents"]
@@ -128,7 +130,8 @@ def build_result(
         how="left",
         validate="many_to_one",
     )
-    result["analysis_period"] = "2019-2024"
+    result["analysis_period"] = "2007-2025"
+    result["traffic_response_period"] = "2019-2024"
     columns = [
         *keys,
         "observed_accidents",
@@ -140,6 +143,7 @@ def build_result(
         "traffic_corrected_oe",
         "analysed_accidents",
         "analysis_period",
+        "traffic_response_period",
     ]
     return result[columns].sort_values(
         ["variable", "outcome", "period", "bin_order"]
@@ -150,11 +154,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--accidents", type=Path, default=DEFAULT_ACCIDENTS)
     parser.add_argument("-C", "--conditions", type=Path, default=DEFAULT_CONDITIONS)
-    parser.add_argument("-f", "--frequency", type=Path, default=YEARLY_FREQUENCY)
+    parser.add_argument("-f", "--frequency", type=Path, default=DEFAULT_FREQUENCY)
     parser.add_argument("-r", "--traffic-response", type=Path, default=TRAFFIC_RESPONSE)
     parser.add_argument("-u", "--uncorrected", type=Path, default=UNCORRECTED)
-    parser.add_argument("--start-year", type=int, default=2019)
-    parser.add_argument("--end-year", type=int, default=2024)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
     accidents, frequency = load_data(
@@ -163,8 +165,8 @@ def main() -> None:
         args.frequency,
         None,
         None,
-        args.start_year,
-        args.end_year,
+        None,
+        None,
     )
     result = build_result(
         accidents,

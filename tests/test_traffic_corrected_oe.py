@@ -9,7 +9,7 @@ from src.tables.traffic_corrected_oe import adjust_frequency
 class TrafficCorrectedOETests(unittest.TestCase):
     def test_current_result_reconstructs_every_analysis_sample(self) -> None:
         path = Path(
-            "reports/main/tables/weather_oe_traffic_corrected_2019_2024.csv"
+            "reports/main/tables/weather_oe_traffic_corrected.csv"
         )
         if not path.exists():
             self.skipTest("generated traffic-corrected O/E table is unavailable")

@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\caption{Selection for the monthly-frequency daily-counter rate. The final set contains all injury severities and is distinct from the earlier allocated daily samples.}
+\label{tab:monthly-vkt-selection}
+\small
+\begin{tabular}{p{0.64\textwidth}rr}
+\toprule
+Step & Removed & Remaining \\ \midrule
+All injury accidents, 2007-2025 & -- & 17,045 \\ \grayhline
+0) Restrict to 2019-2024 & 11,849 & 5,196 \\ \grayhline
+a) Exclude urban accidents & 3,333 & 1,863 \\ \grayhline
+b) Require counter-section road/year & 994 & 869 \\ \grayhline
+c) Require successful road-location assignment & 21 & 848 \\ \grayhline
+d) Exclude 00:00-07:00 & 67 & 781 \\ \grayhline
+e) Require usable wind and gust & 4 & 777 \\ \grayhline
+Require daily traffic count & 83 & 694 \\ \grayhline
+\bottomrule
+\end{tabular}
+\end{table}

@@ -15,6 +15,8 @@ from src.exports_accidents import (
 from src.exports_counters import (
     export_counter_sections,
     export_daily_vkt,
+    export_monthly_vkt,
+    export_monthly_vkt_section,
     export_traffic_weather_response,
     export_counter_validation,
     export_daily_traffic,
@@ -118,6 +120,12 @@ def main() -> None:
     daily_vkt = export_daily_vkt(args.output)
     if daily_vkt is not None:
         entries.append(daily_vkt)
+    monthly_vkt = export_monthly_vkt(args.output)
+    if monthly_vkt is not None:
+        entries.append(monthly_vkt)
+    monthly_vkt_section = export_monthly_vkt_section(args.output)
+    if monthly_vkt_section is not None:
+        entries.append(monthly_vkt_section)
     traffic_response = export_traffic_weather_response(args.output)
     if traffic_response is not None:
         entries.append(traffic_response)

@@ -77,6 +77,50 @@ def export_daily_vkt(
     )
 
 
+def export_monthly_vkt(
+    output: Path,
+) -> tuple[str, int, list[str], str] | None:
+    path = ROOT / "traffic/monthly_vkt.csv"
+    if not path.exists():
+        return None
+    source = read_table(path)
+    columns = [
+        "variable", "outcome", "bin_label", "bin_order", "observed_accidents",
+        "estimated_vehicle_km", "rate_per_million_vehicle_km", "counter_days",
+        "counter_sections", "analysed_accidents", "allocation_method",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Monthly VKT rate is missing columns: {sorted(missing)}")
+    table = source[columns].sort_values(["variable", "outcome", "bin_order"])
+    count = write_csv(table, output / "monthly_vkt.csv")
+    return (
+        "monthly_vkt.csv", count, columns,
+        "Rates per million VKT using all recorded nonnegative counter-days and pooled calendar-month 07:00-24:00 weather frequencies.",
+    )
+
+
+def export_monthly_vkt_section(
+    output: Path,
+) -> tuple[str, int, list[str], str] | None:
+    path = ROOT / "traffic/monthly_vkt_section.csv"
+    if not path.exists():
+        return None
+    source = read_table(path)
+    columns = [
+        "variable", "counter_section_id", "year", "season", "bin_label",
+        "bin_order", "estimated_vehicle_km", "counter_days", "observed_accidents",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(f"Monthly VKT section panel is missing columns: {sorted(missing)}")
+    count = write_csv(source[columns], output / "monthly_vkt_section.csv")
+    return (
+        "monthly_vkt_section.csv", count, columns,
+        "Section-year-season monthly-frequency VKT panel used for concentration and within-stratum checks.",
+    )
+
+
 def export_traffic_weather_response(
     output: Path,
 ) -> tuple[str, int, list[str], str] | None:

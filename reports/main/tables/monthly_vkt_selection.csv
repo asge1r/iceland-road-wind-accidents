@@ -1,0 +1,9 @@
+step,starting_count,removed,remaining,exact_exclusion_reason,geographic_or_time_rule,id_set_sha256
+"All injury accidents, 2007-2025",17045,0,17045,"Injury severity code 1, 2, or 3",2007-2025; all locations,c70cd38de3ffe63841d31af5bee2a41362744088e5923ba28cb1fd7b3f73e02a
+0) Restrict to 2019-2024,17045,11849,5196,Accident year outside 2019-2024,Timestamp calendar year,ee5e8e557d58815fc063d43c14192ee0368d6ba52eebe33bce9eb06fbd209e16
+a) Exclude urban accidents,5196,3333,1863,Urban or unclassified location,urban_rural = Rural,8b45094962dcf58bd66e76dac853f095078fb07c993101f29dcc6f55376e541b
+b) Require counter-section road/year,1863,994,869,No counter-section for registered road in accident year,Exact normalized road-section and year,46a1130434e162333894ed738fefee5810d52c18e90a5726159d6b5e703a8e72
+c) Require successful road-location assignment,869,21,848,5 no road geometry; 15 farther than 100 m; 1 outside counter-sections,Projected to registered road within 100 m and inside counter-section,e45f44855d0762252aa8187e483ae700e97c4ea5ef28674498f771d918014a77
+d) Exclude 00:00-07:00,848,67,781,Accident time before 07:00,07:00 <= event time < 24:00,8668f7858a439ec133827dfad0da6a242bc13b4fa1886b73d2e735307afb83ba
+e) Require usable wind and gust,781,4,777,No valid f and fg observation within limits,Station measured from counter-section; <=20 km and <=5 minutes,14ccc9ab4bdcd297631ff267c36f0813b09dae53c9021eef57c3faf82c2d8b35
+Require daily traffic count,777,83,694,No corresponding positive counter-day record; none were recorded zero,Exact counter-section and accident date,3b39b09f6bdad9b7701a449aa922fc2ff461ad2dd2d0af7fc4cf23be71531874

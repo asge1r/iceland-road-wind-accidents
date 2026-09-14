@@ -61,10 +61,13 @@ class AnalysisPipelineTest(unittest.TestCase):
             modules,
             [
                 "src.figures.weather_rate",
-                "src.analysis.oe_analysis",
                 "src.tables.traffic_corrected_oe",
                 "src.figures.traffic_corrected_oe",
                 "src.figures.traffic_weather_response",
+                "src.tables.counter_selection_audit",
+                "src.tables.monthly_vkt_rate",
+                "src.tables.monthly_vkt_discrepancy",
+                "src.figures.monthly_vkt_rate",
             ],
         )
 
@@ -80,8 +83,7 @@ class AnalysisPipelineTest(unittest.TestCase):
         ), patch("src.analyze.run") as run:
             main()
         tasks = [call.args[0] for call in run.call_args_list]
-        self.assertEqual(tasks[0], period_oe_task(2019, 2024))
-        self.assertEqual(tasks[1].module, "src.tables.traffic_corrected_oe")
+        self.assertEqual(tasks[0].module, "src.tables.traffic_corrected_oe")
 
 
 if __name__ == "__main__":

@@ -25,7 +25,8 @@ def data_chapter_tables(output: Path) -> None:
     rows = []
     for name, code in [("Minor injury accidents", "3"), ("Severe/fatal accidents", "1 or 2")]:
         row = high[high.outcome.eq(name)].iloc[0]
-        rows.append([name, code, int(row.observed_accidents),
+        display_name = "Serious or fatal injury accidents" if name == "Severe/fatal accidents" else name
+        rows.append([display_name, code, int(row.observed_accidents),
                      f"{row.expected_accidents:.2f}", f"{row.relative_accident_frequency:.2f}"])
     write_table(output / "windy_group_examples.tex",
                 "Worked examples for the two O/E groups: mean wind at least 20 m/s, all years and seasons pooled.",

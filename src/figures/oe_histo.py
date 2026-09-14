@@ -54,6 +54,10 @@ OUTCOMES = (
 )
 SOURCE_OUTCOMES = ("All injury accidents", "Severe/fatal accidents")
 COLORS = ("#0072B2", "#B22222")
+DISPLAY_OUTCOMES = {
+    "Minor injury accidents": "Minor injury accidents",
+    "Severe/fatal accidents": "Serious or fatal injury accidents",
+}
 BAR_WIDTH = 0.425
 TICK_FONT_SIZE = 12
 COUNT_FONT_SIZE = 11
@@ -87,14 +91,15 @@ def interval_label(value: str, bracketed: bool = False) -> str:
 
 
 def validate(
-    data: pd.DataFrame, expected_periods: tuple[str, ...] = PERIODS
+    data: pd.DataFrame, expected_periods: tuple[str, ...] = PERIODS,
+    expected_variables: tuple[str, ...] = VARIABLES,
 ) -> None:
     """Reject an incomplete or incompatible O/E result table."""
     missing = REQUIRED_COLUMNS - set(data)
     if missing:
         raise ValueError(f"O/E table is missing columns: {sorted(missing)}")
-    if set(data["variable"]) != set(VARIABLES):
-        raise ValueError("O/E table does not contain exactly f, fg, and temperature")
+    if set(data["variable"]) != set(expected_variables):
+        raise ValueError("O/E table does not contain the requested weather variables")
     if set(data["outcome"]) != set(SOURCE_OUTCOMES):
         raise ValueError("O/E table does not contain the two expected outcomes")
     if set(data["period"]) != set(expected_periods):
@@ -105,7 +110,8 @@ def validate(
 
 
 def disjoint_outcomes(
-    data: pd.DataFrame, expected_periods: tuple[str, ...] = PERIODS
+    data: pd.DataFrame, expected_periods: tuple[str, ...] = PERIODS,
+    expected_variables: tuple[str, ...] = VARIABLES,
 ) -> pd.DataFrame:
     """Recover minor-injury counts from additive O and E, never from ratios.
 
@@ -113,7 +119,7 @@ def disjoint_outcomes(
     expected counts are additive across their disjoint severity components.
     Keep only plotting columns; background station counts are not additive.
     """
-    validate(data, expected_periods)
+    validate(data, expected_periods, expected_variables)
     keys = ["variable", "period", "bin_label", "bin_order"]
     counts = ["observed_accidents", "expected_accidents"]
     total = data[data.outcome.eq(SOURCE_OUTCOMES[0])].set_index(keys)[counts]
@@ -192,7 +198,7 @@ def draw_panel(
             series["relative_accident_frequency"].to_numpy(float),
             width=BAR_WIDTH,
             color=color,
-            label=outcome,
+            label=DISPLAY_OUTCOMES[outcome],
             edgecolor="white",
             linewidth=0.6,
             zorder=2,
@@ -276,18 +282,20 @@ def plot_whole_year(
     x_labels: dict[str, str] | None = None,
     y_limits: dict[str, float] | None = None,
     y_steps: dict[str, float] | None = None,
+    variables: tuple[str, ...] = VARIABLES,
 ) -> Path:
-    """Draw wind, gust, and temperature panels for one selected year range."""
-    data = disjoint_outcomes(data, ("All year",))
+    """Draw whole-year panels for the requested weather variables."""
+    data = disjoint_outcomes(data, ("All year",), variables)
     labels = X_LABELS if x_labels is None else x_labels
     figure, axes = plt.subplots(
-        3,
+        len(variables),
         1,
-        figsize=(10.875, 13),
+        figsize=(10.875, 4.35 * len(variables)),
         sharey=y_limits is None,
         layout="constrained",
     )
-    for axis, variable in zip(axes, VARIABLES, strict=True):
+    axes = np.atleast_1d(axes)
+    for axis, variable in zip(axes, variables, strict=True):
         draw_panel(
             axis,
             data,

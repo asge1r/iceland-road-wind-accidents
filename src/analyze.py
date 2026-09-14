@@ -67,10 +67,13 @@ def period_oe_task(start_year: int, end_year: int) -> Task:
 
 def traffic_correction_tasks() -> list[Task]:
     return [
-        period_oe_task(2019, 2024),
         task("src.tables.traffic_corrected_oe"),
         task("src.figures.traffic_corrected_oe"),
         task("src.figures.traffic_weather_response"),
+        task("src.tables.counter_selection_audit"),
+        task("src.tables.monthly_vkt_rate"),
+        task("src.tables.monthly_vkt_discrepancy"),
+        task("src.figures.monthly_vkt_rate"),
     ]
 
 
@@ -319,6 +322,7 @@ def stage_tasks(
             *tasks,
             task("src.validate"),
             task("src.tables.thesis"),
+            *([task("src.tables.thesis_alignment")] if include_traffic_correction else []),
             *([task("src.figures.wind_oe_comparison")] if include_daily else []),
         ]
     raise ValueError(f"Unknown analysis stage: {stage}")

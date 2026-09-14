@@ -10,10 +10,8 @@ import pandas as pd
 from src.figures.oe_histo import plot_whole_year
 
 
-INPUT = Path("reports/main/tables/weather_oe_traffic_corrected_2019_2024.csv")
-OUTPUT = Path(
-    "reports/main/figures/weather_oe_traffic_corrected_2019_2024.png"
-)
+INPUT = Path("reports/main/tables/weather_oe_traffic_corrected.csv")
+OUTPUT = Path("reports/main/figures/weather_oe_traffic_corrected.png")
 X_LABELS = {
     "f": "Mean wind (m/s)",
     "fg": "Wind gust (m/s)",
@@ -54,10 +52,11 @@ def main() -> None:
     plot_whole_year(
         plotting_table(pd.read_csv(args.input)),
         args.output,
-        "2019–2024, approximate traffic adjustment",
+        "2007–2025, approximate adjustment from 2019–2024 daily counters",
         x_labels=X_LABELS,
         y_limits=Y_LIMITS,
         y_steps=Y_STEPS,
+        variables=("f", "fg"),
     )
     print(f"wrote={args.output}")
 
