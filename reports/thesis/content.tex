@@ -31,7 +31,7 @@ This links the engineering motivation to population-level accident records
 without treating station wind as a measurement of the force on a vehicle.
 
 This thesis studies rural accidents involving injury in Iceland from
-2007--2025. Accident times and locations are linked to nearby ten-minute
+2007--2025. Accident times and locations are linked to nearby 10-minute
 weather observations. The main comparison concerns mean wind speed. Wind
 gusts, temperature, season, time of day, daylight, and the available traffic
 data are then examined separately.
@@ -63,7 +63,8 @@ Three questions guide the analysis:
 
 The primary 2007--2025 analysis addresses the first question, the matched-time
 analysis the second, and the smaller traffic-linked samples the third.
-Serious-or-fatal accidents are a subset of all injury accidents. The study
+Minor-injury and serious-or-fatal accidents together form the all-injury
+outcome. The study
 estimates associations, not causal effects or a complete national accident
 rate per vehicle-kilometre.
 
@@ -176,7 +177,7 @@ Accident & Samgöngustofa &
 Accident events and road links &
 126,607 events and 126,610 road links, 2007--2025 \\
 Weather & Icelandic Meteorological Office (IMO) &
-Ten-minute weather observations and station metadata &
+10-minute weather observations and station metadata &
 232,459,562 observations from 338 stations; 438 station records, 2007--2025 \\
 Traffic and roads & Vegagerðin &
 Annual road traffic, daily counter reports, counter locations, and road geometry &
@@ -202,9 +203,9 @@ traffic quantities used in the subsequent comparisons.
 \toprule
 Term & Definition & Use in this thesis \\
 \midrule
-\texttt{f} & Ten-minute mean wind speed, m/s & Main weather measure, matched within five minutes of the accident time. \\ \grayhline
-\texttt{fg} & Wind gust reported in the same ten-minute observation, m/s & Additional weather measure; not a daily maximum. \\ \grayhline
-\texttt{t} & Air temperature reported with each ten-minute observation, \(^{\circ}\)C & Additional weather measure matched independently. \\ \grayhline
+\texttt{f} & 10-minute mean wind speed, m/s & Main weather measure, matched within five minutes of the accident time. \\ \grayhline
+\texttt{fg} & Wind gust reported in the same 10-minute observation, m/s & Additional weather measure; not a daily maximum. \\ \grayhline
+\texttt{t} & Air temperature reported with each 10-minute observation, \(^{\circ}\)C & Additional weather measure matched independently. \\ \grayhline
 O/E & Observed accidents divided by accidents expected from local weather frequency & Main relative-occurrence result; traffic is not included. \\ \grayhline
 ADU & Average vehicles per day over the year & Used to check and derive annual traffic quantities. \\ \grayhline
 SDU & Average vehicles per day in June--September & Official summer traffic value. \\ \grayhline
@@ -267,9 +268,9 @@ coverage of the study and is not a regional accident-rate map.}
 \subsection{Weather Data}
 
 The weather dataset contains 10-minute observations from Icelandic weather
-stations. The variables used here are ten-minute mean wind speed (\texttt{f}), reported
+stations. The variables used here are 10-minute mean wind speed (\texttt{f}), reported
 wind gust (\texttt{fg}), and temperature (\texttt{t}). For each accident, the
-gust is taken from the same matched ten-minute observation as mean wind; it is
+gust is taken from the same matched 10-minute observation as mean wind; it is
 not the maximum across the accident day. Mean wind speed remains the main
 weather measure. A wind observation is used when
 
@@ -443,7 +444,7 @@ additional assumptions needed to estimate traffic exposure.
 \subsection{Weather-Frequency Comparison}
 
 Accident-time mean wind speed \texttt{f} is the main weather
-measure and is divided into 5 m/s intervals. It is the ten-minute mean wind
+measure and is divided into 5 m/s intervals. It is the 10-minute mean wind
 observation matched within five minutes of the accident time, not an
 instantaneous measurement. Wind gust \texttt{fg} from the same observation and
 independently matched temperature are additional weather measures. For each
@@ -558,7 +559,7 @@ October--November.
 
 Adding these traffic data to the primary O/E calculation would replace the
 broad study population with a smaller linked sample and combine seasonal
-traffic averages with ten-minute weather. O/E is therefore interpreted as
+traffic averages with 10-minute weather. O/E is therefore interpreted as
 relative accident occurrence, not accident rate per vehicle.
 
 \subsection{Road-Section Traffic Comparison}
@@ -651,7 +652,7 @@ from counter downtime; the appendix reports a check excluding these records.
 For each located counter, the nearest station within 20 km having usable
 observations that day is selected.
 
-Sustained wind is described by the number of valid ten-minute observations in
+Sustained wind is described by the number of valid 10-minute observations in
 each counter-day with mean wind of at least 15 m/s; six observations equal one
 hour. Days must contain at least 108 valid observations. Traffic is compared
 across 0, more than 0--2, 2--6, and at least 6 hours of strong wind using the
@@ -661,7 +662,7 @@ The allocated daily-counter rate model uses a stricter accident linkage. Each
 2019--2024 accident requires a counter on the exact registered road section and
 year within 20 km, positive traffic on its date, and qualifying accident-time
 mean wind. For counter (c), date (d), and wind interval (j), the observed
-24-hour count is allocated according to the counter station's valid ten-minute
+24-hour count is allocated according to the counter station's valid 10-minute
 observations:
 
 \[
@@ -767,7 +768,7 @@ ratios are close to one at low and moderate wind speeds and rise from the
 15--20 m/s interval. Both severity groups show upper-wind over-representation
 when all seasons are pooled. The blue and red bars must nevertheless be read
 as separate descriptive comparisons: their heights alone do not test whether
-wind is associated with greater injury severity.
+injury severity differs between wind categories.
 
 \begin{figure}[H]
 \centering
@@ -820,7 +821,7 @@ independent replication of the association.
 \centering
 \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{gust_oe_panels.png}
 \caption{All-year and seasonal wind-gust O/E. Gust is taken
-from the ten-minute observation matched to the accident time; it is not a daily
+from the 10-minute observation matched to the accident time; it is not a daily
 maximum. Blue denotes minor injury and red denotes serious or fatal injury;
 the groups do not overlap. Numbers above bars are
 observed accidents.}
@@ -839,7 +840,7 @@ below one at 3--6\(^{\circ}\)C for minor-injury accidents (632 observed and
 881.7 expected; O/E 0.72), but above one at -3--0\(^{\circ}\)C. At
 12\(^{\circ}\)C or above, 563 minor-injury accidents were observed compared
 with 362.0 expected (O/E 1.56). This pattern may reflect travel
-behaviour or weather and road conditions associated with temperature. It is
+behaviour or weather and road conditions that vary with temperature. It is
 not interpreted as a causal temperature effect.
 For the serious-or-fatal group, all-year O/E is 0.69 at 3--6\(^{\circ}\)C
 and 1.71 at 12\(^{\circ}\)C or above (176 and 226 accidents, respectively).
@@ -952,10 +953,10 @@ compares intervals within road section, year and traffic period.
 
 \input{generated/estimated_rate.tex}
 
-The descriptive rate rises across the wind intervals. After comparison within
-road section, year, and traffic period, the rate ratio for 20--25 versus
-0--5 m/s is 2.34. The descriptive and conditional estimates differ because
-they account for road-section and period differences in different ways.
+The within-stratum model also shows higher rates in the upper wind intervals.
+Its estimate for 20--25 versus 0--5 m/s is 2.34. This conditional comparison
+differs from the pooled descriptive rates because it controls the comparison
+within road section, year and traffic period.
 
 The annual analysis retains 5,125 accidents. The conditional Poisson fit uses
 5,122 of these in 4,133 informative road-section--year--traffic-period groups.
@@ -1066,7 +1067,7 @@ demand \citep{sathiaraj2018}.
 
 \section{Strengths}
 
-The study combines a long accident series with ten-minute weather observations,
+The study combines a long accident series with 10-minute weather observations,
 local weather-frequency standardisation, and explicit reporting of match
 coverage and observed counts. The matched-time and traffic analyses address
 different weaknesses of the primary comparison. Documented transformations,
@@ -1130,8 +1131,8 @@ These analyses cover narrower, selected samples and estimate traffic within
 wind intervals from seasonal or daily totals; they do not provide complete
 hourly exposure at accident times.
 
-Strong mean wind is therefore associated with higher relative occurrence of
-rural injury accidents in Iceland. This is not a causal estimate or a complete
+The analyses therefore show that rural injury accidents are relatively more
+frequent during strong mean wind in Iceland. This is not a causal estimate or a complete
 national measure of accident risk per vehicle. Such a measure would require
 linked hourly traffic data with wider geographic coverage.
 

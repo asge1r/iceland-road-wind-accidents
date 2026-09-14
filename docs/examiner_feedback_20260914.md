@@ -19,7 +19,7 @@ All chapter/section names below refer to the final live thesis. `content.tex` me
 | 17: “why?” after the station-proxy claim | **Background → Wind and Rural Road Accidents:** explained point measurements versus road-relative wind, local road conditions and terrain. Removed the unsupported implication that the cited vehicle study itself establishes a preferred matching radius. |
 | 19: “2025 accidents” sounds like a count | **Data and Methods → Source Data:** explicitly says “Records from the year 2025”. |
 | 20: where is Table 3.2 cited? | **Source Data:** introduced the definitions table by `\ref{tab:definitions}` before it appears. Audited all other main-text floats similarly. |
-| 20: “1-minue”, attached near temperature definition | **Source Data → definitions table:** clarified “Air temperature reported with each ten-minute observation”. The string “1-minue” was not present in live source. Did not infer a one-minute averaging period from this ambiguous note. See human judgment below. |
+| 20: “1-minue”, attached near temperature definition | **Source Data → definitions table:** subsequently clarified by the author as a request for numeric “10-minute” rather than written “ten-minute”. The English thesis now uses “10-minute” consistently for the observation interval. |
 | 20: rural-classification ordering | **Accident Data:** moved the rural definition before the paragraph reporting counts obtained by that classification. Raw-record count still introduces the dataset. |
 | 23: IMO also uses June–September summer | **Traffic Data:** retained traffic-period alignment and added the examiner's specific IMO example. Verified the source's “Sumarið (júní til september)” section. Added only this necessary bibliography entry. |
 | 23: two-sentence workflow section needs a walkthrough | **Data Preparation and Reproducibility:** added source data → QC/selection → matching → primary O/E → matched time → traffic checks. Kept `pipeline_analysis.tex` unchanged. The annotated Table 3.6 is now **Table 3.8**, owing to previously added data-chapter tables; automatic numbering was preserved. |
@@ -42,9 +42,8 @@ The summer statement is supported by the [IMO's September 2025 report](https://w
 ## Deliberate limits and remaining human judgment
 
 1. The examiner's causal alternatives “impact/affect” were deliberately not adopted, following the user's explicit instruction to preserve non-causal interpretation.
-2. The isolated **“1-minue”** note may refer to a measurement averaging period rather than spelling. The revised definition distinguishes the ten-minute reporting cadence from an unspecified temperature averaging period. Confirm the intended metadata clarification with the examiner/IMO before stating a one-minute period. No sampling or matching method was changed.
-3. The bare highlight supplies no explicit requested edit. Its surrounding daylight rationale is now explained, but the examiner can confirm whether something else was intended.
-4. A final author read of Ágrip remains useful for preferred Icelandic terminology. The numbers and cautious interpretation match the English abstract.
+2. The bare highlight supplies no explicit requested edit. Its surrounding daylight rationale is now explained, but the examiner can confirm whether something else was intended.
+3. A final author read of Ágrip remains useful for preferred Icelandic terminology. The numbers and cautious interpretation match the English abstract.
 
 No proposed new Analysis 3 was promoted. The O/E → matched-time → supporting traffic hierarchy, annual/daily methods, thresholds and existing REVIEW assumptions remain intact.
 
