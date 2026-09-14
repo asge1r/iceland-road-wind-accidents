@@ -76,6 +76,35 @@ def export_daily_vkt(
         "Rural accident rates per million vehicle-km; daily traffic and nearest available station per timestamp over 07:00–24:00, excluding unmatched time.",
     )
 
+
+def export_traffic_weather_response(
+    output: Path,
+) -> tuple[str, int, list[str], str] | None:
+    path = ROOT / "traffic/traffic_weather_response.csv"
+    if not path.exists():
+        return None
+    source = read_table(path)
+    columns = [
+        "variable", "bin_label", "bin_order",
+        "observed_allocated_vehicles", "expected_allocated_vehicles",
+        "traffic_multiplier", "traffic_change_pct", "observed_minutes",
+        "counter_days", "counter_sections", "baseline_strata",
+        "analysis_period", "baseline", "allocation_method",
+    ]
+    missing = set(columns) - set(source)
+    if missing:
+        raise ValueError(
+            f"Traffic-weather response is missing columns: {sorted(missing)}"
+        )
+    table = source[columns].sort_values(["variable", "bin_order"])
+    count = write_csv(table, output / "traffic_weather_response.csv")
+    return (
+        "traffic_weather_response.csv",
+        count,
+        columns,
+        "Observed daily-counter traffic allocated by same-day weather relative to the same counter-section, year, month, and weekday expectation.",
+    )
+
 def export_selection_summary(output: Path) -> tuple[int, list[str]]:
     """Write the small count table used for the three data-selection figures."""
     all_accidents = read_table(ROOT / "accidents/all.csv")

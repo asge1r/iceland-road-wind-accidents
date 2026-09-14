@@ -23,6 +23,9 @@ from src.traffic.station_selection import STATIONS, SECTIONS
 COUNTER_DAYS = Path("data/processed/traffic/counter_days.csv")
 ACCIDENTS = Path("data/processed/traffic/counter_accidents.csv")
 OUTPUT = Path("data/processed/traffic/daily_vkt.csv")
+TRAFFIC_RESPONSE_OUTPUT = Path(
+    "data/processed/traffic/traffic_weather_response.csv"
+)
 ALLOCATION_METHOD = "rural daily vehicle-km uniformly allocated over 07:00-24:00; nearest available station per timestamp within 20 km; missing time excluded"
 OUTCOMES = {
     "Minor injury accidents": lambda value: value.eq(3),
@@ -83,6 +86,123 @@ def allocate_daily_exposure(
     exposure["variable"] = variable
     exposure["counter_day_key"] = exposure.groupby(["counter_section_id", "date"]).ngroup()
     return exposure
+
+
+def add_expected_daily_traffic(counter_days: pd.DataFrame) -> pd.DataFrame:
+    """Add the ordinary count for the same counter, year, month, and weekday."""
+    days = counter_days.copy()
+    days["date"] = pd.to_datetime(days["date"], errors="raise")
+    days = days[days["traffic_vehicles"].gt(0)].copy()
+    days["month"] = days["date"].dt.month
+    days["weekday"] = days["date"].dt.weekday
+    keys = ["counter_section_id", "year", "month", "weekday"]
+    days["baseline_stratum"] = (
+        days["counter_section_id"].astype(str)
+        + "|"
+        + days["year"].astype(str)
+        + "|"
+        + days["month"].astype(str)
+        + "|"
+        + days["weekday"].astype(str)
+    )
+    baseline = days.groupby(keys, as_index=False, observed=True).agg(
+        baseline_days=("date", "nunique"),
+        expected_daily_traffic=("traffic_vehicles", "mean"),
+    )
+    return days.merge(baseline, on=keys, how="left", validate="many_to_one")
+
+
+def summarise_traffic_response(
+    counter_days: pd.DataFrame, weather: pd.DataFrame
+) -> pd.DataFrame:
+    """Estimate traffic in each weather bin relative to calendar expectation."""
+    days = add_expected_daily_traffic(counter_days)
+    output: list[pd.DataFrame] = []
+    for variable, (_, labels) in VARIABLES.items():
+        exposure = allocate_daily_exposure(days, weather, variable)
+        exposure["observed_allocated_vehicles"] = (
+            exposure["traffic_vehicles"]
+            * exposure["observed_minutes"]
+            / DAYTIME_MINUTES
+        )
+        exposure["expected_allocated_vehicles"] = (
+            exposure["expected_daily_traffic"]
+            * exposure["observed_minutes"]
+            / DAYTIME_MINUTES
+        )
+        result = exposure.groupby(
+            ["bin_label", "bin_order"], as_index=False, observed=True
+        ).agg(
+            observed_allocated_vehicles=("observed_allocated_vehicles", "sum"),
+            expected_allocated_vehicles=("expected_allocated_vehicles", "sum"),
+            observed_minutes=("observed_minutes", "sum"),
+            counter_days=("counter_day_key", "nunique"),
+            counter_sections=("counter_section_id", "nunique"),
+            baseline_strata=(
+                "baseline_stratum",
+                "nunique",
+            ),
+        )
+        grid = pd.DataFrame(
+            {"bin_label": list(labels), "bin_order": range(len(labels))}
+        )
+        result = grid.merge(
+            result, on=["bin_label", "bin_order"], how="left",
+            validate="one_to_one",
+        )
+        for column in [
+            "observed_allocated_vehicles",
+            "expected_allocated_vehicles",
+            "observed_minutes",
+            "counter_days",
+            "counter_sections",
+            "baseline_strata",
+        ]:
+            result[column] = result[column].fillna(0)
+        for column in [
+            "observed_minutes",
+            "counter_days",
+            "counter_sections",
+            "baseline_strata",
+        ]:
+            result[column] = result[column].astype("int64")
+        result["traffic_multiplier"] = (
+            result["observed_allocated_vehicles"]
+            / result["expected_allocated_vehicles"].where(
+                result["expected_allocated_vehicles"].gt(0)
+            )
+        )
+        result["traffic_change_pct"] = 100 * (
+            result["traffic_multiplier"] - 1
+        )
+        result["variable"] = variable
+        result["analysis_period"] = "2019-2024"
+        result["baseline"] = (
+            "mean daily traffic for the same counter-section, year, month, "
+            "and weekday"
+        )
+        result["allocation_method"] = (
+            "daily vehicles uniformly allocated over observed 07:00-24:00 "
+            "weather-bin minutes"
+        )
+        output.append(result)
+    columns = [
+        "variable",
+        "bin_label",
+        "bin_order",
+        "observed_allocated_vehicles",
+        "expected_allocated_vehicles",
+        "traffic_multiplier",
+        "traffic_change_pct",
+        "observed_minutes",
+        "counter_days",
+        "counter_sections",
+        "baseline_strata",
+        "analysis_period",
+        "baseline",
+        "allocation_method",
+    ]
+    return pd.concat(output, ignore_index=True)[columns]
 
 
 def summarise_rates(
@@ -202,12 +322,14 @@ def summarise_rates(
 def build(
     counter_days_path: Path, accidents_path: Path, weather_path: Path,
     sections_path: Path = SECTIONS, stations_path: Path = STATIONS,
-) -> tuple[pd.DataFrame, dict[str, int]]:
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int]]:
     counter_days = pd.read_csv(counter_days_path)
     accidents = pd.read_csv(accidents_path, low_memory=False)
     accidents["date"] = pd.to_datetime(accidents["date"], errors="raise")
     weather = build_daytime_weather(weather_path, counter_days, sections_path, stations_path)
-    return summarise_rates(counter_days, accidents, weather)
+    rates, summary = summarise_rates(counter_days, accidents, weather)
+    response = summarise_traffic_response(counter_days, weather)
+    return rates, response, summary
 
 
 def main() -> None:
@@ -216,14 +338,30 @@ def main() -> None:
     parser.add_argument("-a", "--accidents", type=Path, default=ACCIDENTS)
     parser.add_argument("-w", "--weather", type=Path, default=WEATHER)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
+    parser.add_argument(
+        "--traffic-response-output",
+        type=Path,
+        default=TRAFFIC_RESPONSE_OUTPUT,
+    )
     parser.add_argument("-s", "--stations", type=Path, default=STATIONS)
     parser.add_argument("-k", "--counter-sections", type=Path, default=SECTIONS)
     args = parser.parse_args()
-    result, summary = build(args.counter_days, args.accidents, args.weather, args.counter_sections, args.stations)
+    result, response, summary = build(
+        args.counter_days,
+        args.accidents,
+        args.weather,
+        args.counter_sections,
+        args.stations,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.traffic_response_output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)
+    response.to_csv(args.traffic_response_output, index=False)
     print("; ".join(f"{key}={value:,}" for key, value in summary.items()))
     print(f"wrote={args.output} rows={len(result):,}")
+    print(
+        f"wrote={args.traffic_response_output} rows={len(response):,}"
+    )
 
 
 if __name__ == "__main__":

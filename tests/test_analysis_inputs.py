@@ -34,6 +34,7 @@ class AnalysisInputTests(unittest.TestCase):
 
     def test_yearly_weather_frequencies_are_complete(self) -> None:
         weather = pd.read_csv(ANALYSIS / "weather_yearly.csv")
+        self.assertEqual(set(weather["variable"]), {"f", "fg", "temperature"})
         keys = ["station", "year", "season", "variable", "bin_label"]
         self.assertFalse(weather.duplicated(keys).any())
         totals = weather.groupby(

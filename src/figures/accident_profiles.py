@@ -154,15 +154,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-o", "--output-dir", type=Path, default=Path("reports/main/figures")
     )
+    parser.add_argument(
+        "-w", "--working-dir", type=Path, default=Path("reports/working/figures"),
+        help="Output directory for the supporting accident-type figure.",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    args.working_dir.mkdir(parents=True, exist_ok=True)
     family, vehicles, severity = prepare_data(args.accidents)
     outputs = [
-        args.output_dir / "accident_types.png",
+        args.working_dir / "accident_types.png",
         args.output_dir / "vehicles_per_accident.png",
         args.output_dir / "accident_types_by_severity.png",
     ]

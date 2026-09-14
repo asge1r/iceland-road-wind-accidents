@@ -16,7 +16,7 @@ from src.figures.common import interval_labels
 
 
 INPUT = Path("reports/main/tables/day_rate_coarse.csv")
-OUTPUT = Path("reports/main/figures/day_rate.png")
+OUTPUT = Path("reports/working/figures/day_rate.png")
 
 
 def main() -> None:

@@ -51,6 +51,7 @@ OUTCOMES = {
     "Injury accidents": "All injury accidents",
     "Severe or fatal": "Severe/fatal accidents",
 }
+WHOLE_YEAR_PERIOD = {"All seasons": "All year"}
 
 
 @dataclass(frozen=True)
@@ -157,12 +158,55 @@ def prepare_frequency(frequency: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def pool_frequency_years(
+    frequency: pd.DataFrame,
+    start_year: int | None,
+    end_year: int | None,
+) -> pd.DataFrame:
+    """Pool station-season counts over one inclusive range of years."""
+    if start_year is None and end_year is None:
+        return frequency
+    if start_year is None or end_year is None:
+        raise ValueError("Both start_year and end_year are required")
+    if start_year > end_year:
+        raise ValueError("start_year must not be after end_year")
+    if "year" not in frequency:
+        raise ValueError(
+            "Year selection requires a frequency table with a year column"
+        )
+
+    selected = frequency[
+        frequency["year"].between(start_year, end_year, inclusive="both")
+    ].copy()
+    if selected.empty:
+        raise ValueError(
+            f"Frequency table contains no observations for {start_year}-{end_year}"
+        )
+    group = ["station", "season", "variable"]
+    counts = selected.groupby(
+        [*group, "bin_label"], as_index=False, observed=True
+    )["measurement_count"].sum()
+    totals = (
+        selected.groupby(
+            [*group, "year"], as_index=False, observed=True
+        )["total_measurements_in_period"]
+        .first()
+        .groupby(group, as_index=False, observed=True)[
+            "total_measurements_in_period"
+        ]
+        .sum()
+    )
+    return counts.merge(totals, on=group, how="left", validate="many_to_one")
+
+
 def load_data(
     accidents_path: Path,
     conditions_path: Path,
     frequency_path: Path,
     start: str | None,
     end: str | None,
+    start_year: int | None = None,
+    end_year: int | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load and combine the compact inputs used by O/E analyses."""
     event_columns = ["id", "timestamp", "meidsli", "season"]
@@ -186,14 +230,25 @@ def load_data(
         conditions, on="id", how="left", validate="one_to_one"
     )
     accidents["timestamp"] = pd.to_datetime(accidents["timestamp"])
+    accidents["year"] = accidents["timestamp"].dt.year
+    if start_year is not None or end_year is not None:
+        if start_year is None or end_year is None:
+            raise ValueError("Both start_year and end_year are required")
+        if start_year > end_year:
+            raise ValueError("start_year must not be after end_year")
+        accidents = accidents[
+            accidents["year"].between(start_year, end_year, inclusive="both")
+        ]
     if start:
         accidents = accidents[accidents["timestamp"].ge(pd.Timestamp(start))]
     if end:
         accidents = accidents[accidents["timestamp"].le(pd.Timestamp(end))]
     accidents = accidents.copy()
-    accidents["year"] = accidents["timestamp"].dt.year
 
-    frequency = prepare_frequency(read_csv(frequency_path))
+    raw_frequency = pool_frequency_years(
+        read_csv(frequency_path), start_year, end_year
+    )
+    frequency = prepare_frequency(raw_frequency)
     frequency = frequency.rename(columns={"station": "weather_station_id"})
     frequency["weather_station_id"] = pd.to_numeric(
         frequency["weather_station_id"], errors="raise"
@@ -338,12 +393,14 @@ def analyse(
     frequency: pd.DataFrame,
     max_distance_km: float = 20,
     max_time_difference_minutes: float = PRIMARY_MAX_TIME_DIFFERENCE_MINUTES,
+    periods: dict[str, str] | None = None,
 ) -> pd.DataFrame:
     """Return the bar heights and supporting values for all requested panels."""
+    selected_periods = PERIODS if periods is None else periods
     results: list[pd.DataFrame] = []
     for spec in VARIABLES:
         for severity, outcome in OUTCOMES.items():
-            for analysis_season, period in PERIODS.items():
+            for analysis_season, period in selected_periods.items():
                 result, _, coverage = station_frequency_scenario(
                     accidents,
                     frequency,
@@ -380,7 +437,9 @@ def analyse(
         spec.variable: index for index, spec in enumerate(VARIABLES)
     }
     outcome_order = {name: index for index, name in enumerate(OUTCOMES.values())}
-    period_order = {name: index for index, name in enumerate(PERIODS.values())}
+    period_order = {
+        name: index for index, name in enumerate(selected_periods.values())
+    }
     output["_variable_order"] = output["variable"].map(variable_order)
     output["_outcome_order"] = output["outcome"].map(outcome_order)
     output["_period_order"] = output["period"].map(period_order)
@@ -421,16 +480,43 @@ def main() -> None:
     )
     parser.add_argument("-s", "--start")
     parser.add_argument("-e", "--end")
+    parser.add_argument("--start-year", type=int)
+    parser.add_argument("--end-year", type=int)
+    parser.add_argument(
+        "--whole-year-only",
+        action="store_true",
+        help="Write only the whole-year panels, omitting seasonal panels.",
+    )
     args = parser.parse_args()
 
+    if (args.start_year is None) != (args.end_year is None):
+        parser.error("--start-year and --end-year must be supplied together")
+    if (
+        args.start_year is not None
+        and args.end_year is not None
+        and args.start_year > args.end_year
+    ):
+        parser.error("--start-year must not be after --end-year")
+    if (args.start_year is not None or args.end_year is not None) and (
+        args.start is not None or args.end is not None
+    ):
+        parser.error("Do not combine date bounds with year bounds")
+
     accidents, frequency = load_data(
-        args.accidents, args.conditions, args.frequency, args.start, args.end
+        args.accidents,
+        args.conditions,
+        args.frequency,
+        args.start,
+        args.end,
+        args.start_year,
+        args.end_year,
     )
     result = analyse(
         accidents,
         frequency,
         max_distance_km=args.max_distance_km,
         max_time_difference_minutes=args.max_time_difference_minutes,
+        periods=WHOLE_YEAR_PERIOD if args.whole_year_only else PERIODS,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(args.output, index=False)

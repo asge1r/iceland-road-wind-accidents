@@ -25,7 +25,7 @@ Applies the fixed weather-quality rules and records annual counts. \\ \grayhline
 \path{weather/frequency.py} &
 \emph{\path{processed/weather/}}\newline{}\path{weather.parquet} &
 \emph{\path{processed/weather/}}\newline{}\path{frequency.csv}\newline{}\path{yearly_frequency.csv}\newline{}\path{temperature_frequency.csv}\newline{}\path{traffic_frequency.csv} &
-Counts station-season and station-year-season weather frequencies for O/E and annual-traffic models. \\ \grayhline
+Counts station-season and station-year-season mean-wind, gust, and temperature frequencies for O/E and annual-traffic models. \\ \grayhline
 \path{traffic/annual.py} &
 \emph{\path{raw/traffic/annual/}}\newline{}\path{*.xls*} &
 \emph{\path{processed/traffic/}}\newline{}\path{annual.csv} &
@@ -76,8 +76,8 @@ Pools 07:00–24:00 ten-minute observations by station and calendar month across
 Requires rural daytime accidents and positive traffic. Selects the nearest station to the counter-section within 20 km that has valid observations within five minutes of the accident. \\ \grayhline
 \path{traffic/daily_vkt.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{counter_days.csv}, \path{counter_sections.csv}\newline{}\path{counter_accidents.csv}\newline{}\emph{\path{processed/weather/}}\newline{}\path{weather.parquet}\newline{}\emph{\path{raw/weather/}}\newline{}\path{stations.csv} &
-\emph{\path{processed/traffic/}}\newline{}\path{daily_vkt.csv} &
-Uses \texttt{daytime\_weather.py} and the shared \texttt{station\_selection.py} rule to choose the nearest available station at every timestamp. Allocates rural daily vehicle-km uniformly over 07:00–24:00, excludes unmatched time, and reports counts and rates by weather bin, injury group and season. \\ \grayhline
+\emph{\path{processed/traffic/}}\newline{}\path{daily_vkt.csv}\newline{}\path{traffic_weather_response.csv} &
+Uses \texttt{daytime\_weather.py} and the shared \texttt{station\_selection.py} rule to choose the nearest available station at every timestamp. Allocates rural daily vehicle-km uniformly over 07:00–24:00 for direct rates, and compares observed daily traffic with its counter-section/year/month/weekday expectation for the O/E traffic correction. \\ \grayhline
 \path{traffic/locate_counters.py} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily_raw.csv}\newline{}\emph{\path{raw/traffic/reference/}}\newline{}\path{roads.geojson} &
 \emph{\path{processed/traffic/}}\newline{}\path{daily.csv} &
@@ -91,7 +91,7 @@ Matches counter-days to a nearby weather station. \\ \grayhline
 \emph{\path{processed/traffic/}}\newline{}\path{accident_wind.csv} &
 Matches accidents to the assigned counter-day station. \\ \grayhline
 \path{export_tables.py} &
-\emph{\path{processed/}}\newline{}\path{accidents/rural_injury.csv}\newline{}\path{accidents/rate.csv}\newline{}\path{accidents/case_control.csv}\newline{}\path{weather/frequency.csv}\newline{}\path{weather/yearly_frequency.csv}\newline{}\path{weather/traffic_frequency.csv}\newline{}\path{weather/monthly_frequency.csv}\newline{}\path{weather/cleaning.csv}\newline{}\path{traffic/annual.csv}\newline{}\path{traffic/road_period.csv}\newline{}\path{traffic/daily_weather.csv}\newline{}\path{traffic/accident_wind.csv}\newline{}\path{traffic/locations.csv}\newline{}\path{traffic/daily_vkt.csv} &
+\emph{\path{processed/}}\newline{}\path{accidents/rural_injury.csv}\newline{}\path{accidents/rate.csv}\newline{}\path{accidents/case_control.csv}\newline{}\path{weather/frequency.csv}\newline{}\path{weather/yearly_frequency.csv}\newline{}\path{weather/traffic_frequency.csv}\newline{}\path{weather/monthly_frequency.csv}\newline{}\path{weather/cleaning.csv}\newline{}\path{traffic/annual.csv}\newline{}\path{traffic/road_period.csv}\newline{}\path{traffic/daily_weather.csv}\newline{}\path{traffic/accident_wind.csv}\newline{}\path{traffic/locations.csv}\newline{}\path{traffic/daily_vkt.csv}\newline{}\path{traffic/traffic_weather_response.csv} &
 \emph{\path{analysis/}}\newline{}analysis CSV files listed below &
 Selects only the variables used by ordinary analysis. \\
 \bottomrule

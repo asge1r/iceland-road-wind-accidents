@@ -13,7 +13,7 @@ from matplotlib.patches import FancyBboxPatch
 import pandas as pd
 
 
-OUT = Path("reports/main/figures")
+OUT = Path("reports/working/figures")
 SELECTION = Path("data/analysis/selection_summary.csv")
 WEATHER_AUDIT = Path("data/analysis/weather_cleaning.csv")
 

@@ -16,7 +16,7 @@ from src.figures.common import interval_labels
 
 
 INPUT = Path("reports/main/tables/daily_season_oe.csv")
-OUTPUT = Path("reports/main/figures/daily_season_oe.png")
+OUTPUT = Path("reports/working/figures/daily_season_oe.png")
 SEASONS = ["Winter", "Spring", "Summer", "Fall"]
 
 

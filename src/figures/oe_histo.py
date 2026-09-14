@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.container import BarContainer
-from matplotlib.ticker import MaxNLocator, StrMethodFormatter
+from matplotlib.ticker import MaxNLocator, MultipleLocator, StrMethodFormatter
 
 
 INPUT = Path("reports/main/tables/weather_oe.csv")
@@ -37,6 +37,11 @@ VARIABLE_TITLES = {
     "f": "All year (Jan–Dec)",
     "fg": "All year (Jan–Dec)",
     "temperature": "All year (Jan–Dec)",
+}
+VARIABLE_NAMES = {
+    "f": "Mean wind",
+    "fg": "Wind gust",
+    "temperature": "Temperature",
 }
 X_LABELS = {
     "f": "Mean wind, f (m/s)",
@@ -81,7 +86,9 @@ def interval_label(value: str, bracketed: bool = False) -> str:
     return f"{lower}-{upper}"
 
 
-def validate(data: pd.DataFrame) -> None:
+def validate(
+    data: pd.DataFrame, expected_periods: tuple[str, ...] = PERIODS
+) -> None:
     """Reject an incomplete or incompatible O/E result table."""
     missing = REQUIRED_COLUMNS - set(data)
     if missing:
@@ -90,19 +97,23 @@ def validate(data: pd.DataFrame) -> None:
         raise ValueError("O/E table does not contain exactly f, fg, and temperature")
     if set(data["outcome"]) != set(SOURCE_OUTCOMES):
         raise ValueError("O/E table does not contain the two expected outcomes")
-    expected_periods = {"All year", *SEASONS}
-    if set(data["period"]) != expected_periods:
-        raise ValueError("O/E table does not contain the five expected periods")
+    if set(data["period"]) != set(expected_periods):
+        raise ValueError(
+            "O/E table does not contain the requested periods: "
+            f"{', '.join(expected_periods)}"
+        )
 
 
-def disjoint_outcomes(data: pd.DataFrame) -> pd.DataFrame:
+def disjoint_outcomes(
+    data: pd.DataFrame, expected_periods: tuple[str, ...] = PERIODS
+) -> pd.DataFrame:
     """Recover minor-injury counts from additive O and E, never from ratios.
 
     Both source outcomes use identical station-season weather fractions, so
     expected counts are additive across their disjoint severity components.
     Keep only plotting columns; background station counts are not additive.
     """
-    validate(data)
+    validate(data, expected_periods)
     keys = ["variable", "period", "bin_label", "bin_order"]
     counts = ["observed_accidents", "expected_accidents"]
     total = data[data.outcome.eq(SOURCE_OUTCOMES[0])].set_index(keys)[counts]
@@ -257,14 +268,79 @@ def plot_all(data: pd.DataFrame, output_directory: Path) -> list[Path]:
     return outputs
 
 
+def plot_whole_year(
+    data: pd.DataFrame,
+    output: Path,
+    year_label: str,
+    *,
+    x_labels: dict[str, str] | None = None,
+    y_limits: dict[str, float] | None = None,
+    y_steps: dict[str, float] | None = None,
+) -> Path:
+    """Draw wind, gust, and temperature panels for one selected year range."""
+    data = disjoint_outcomes(data, ("All year",))
+    labels = X_LABELS if x_labels is None else x_labels
+    figure, axes = plt.subplots(
+        3,
+        1,
+        figsize=(10.875, 13),
+        sharey=y_limits is None,
+        layout="constrained",
+    )
+    for axis, variable in zip(axes, VARIABLES, strict=True):
+        draw_panel(
+            axis,
+            data,
+            variable,
+            "All year",
+            f"{VARIABLE_NAMES[variable]} ({year_label})",
+        )
+        axis.set_xlabel(labels[variable], fontsize=AXIS_TITLE_FONT_SIZE)
+        if y_limits is not None:
+            axis.set_ylim(0, y_limits[variable])
+        if y_steps is not None:
+            axis.yaxis.set_major_locator(MultipleLocator(y_steps[variable]))
+    if y_limits is None:
+        common_limit = display_limit(data)
+        for axis in axes:
+            axis.set_ylim(0, common_limit)
+    add_legend(figure, axes[0])
+    figure.supylabel(
+        "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=240)
+    plt.close(figure)
+    return output
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--input", type=Path, default=INPUT)
     parser.add_argument(
         "-o", "--output-directory", type=Path, default=OUTPUT_DIRECTORY
     )
+    parser.add_argument(
+        "--whole-year-output",
+        type=Path,
+        help="Write one three-panel whole-year figure to this path.",
+    )
+    parser.add_argument(
+        "--year-label",
+        help="Year range shown inside whole-year panels (for example 2007–2018).",
+    )
     args = parser.parse_args()
-    outputs = plot_all(pd.read_csv(args.input), args.output_directory)
+    data = pd.read_csv(args.input)
+    if args.whole_year_output:
+        if not args.year_label:
+            parser.error("--year-label is required with --whole-year-output")
+        outputs = [
+            plot_whole_year(data, args.whole_year_output, args.year_label)
+        ]
+    elif args.year_label:
+        parser.error("--year-label requires --whole-year-output")
+    else:
+        outputs = plot_all(data, args.output_directory)
     print("wrote=" + ",".join(map(str, outputs)))
 
 

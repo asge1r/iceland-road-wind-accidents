@@ -16,7 +16,7 @@ from src.figures.common import interval_labels
 
 
 INPUT = Path("reports/main/tables/wind_oe_comparison.csv")
-OUTPUT = Path("reports/main/figures/wind_oe_comparison.png")
+OUTPUT = Path("reports/working/figures/wind_oe_comparison.png")
 METHODS = ["Weather frequency", "Annual traffic", "Daily traffic"]
 TITLES = {
     "Weather frequency": "A. Weather frequency (primary)",

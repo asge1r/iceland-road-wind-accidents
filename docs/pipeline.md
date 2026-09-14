@@ -59,6 +59,34 @@ script and files remain available for inspection but are not inputs to #2.
 Rates remain approximate because traffic within each day is assumed uniform.
 The separate cross-method daily O/E analysis is not this rate calculation.
 
+The traffic correction to analysis #1 uses the same 2019–2024 counter-days and
+same-day 07:00–24:00 weather allocation, but estimates a different quantity.
+For each counter-day, ordinary traffic is the arithmetic mean for the same
+counter-section, year, calendar month, and weekday. For weather variable `v`
+and interval `b`, the traffic multiplier is
+
+$$
+r_{vb}=\frac{\sum_{j,d} C_{jd}M_{jdvb}/1020}
+              {\sum_{j,d} \bar C_{jymw}M_{jdvb}/1020}.
+$$
+
+Here `C` is observed daily traffic, `C-bar` is its calendar-stratum mean, and
+`M` is the number of observed minutes in the interval. The calculation is
+performed separately for mean wind, gust, and temperature. To retain the O/E
+sample total, each station-season weather distribution is corrected and
+renormalized before expected accidents are summed:
+
+$$
+q^*_{svb}=\frac{q_{svb}r_{vb}}{\sum_k q_{svk}r_{vk}},\qquad
+E^*_{vb}=\sum_s N_s q^*_{svb},\qquad
+\mathrm{O/E}^*_{vb}=O_{vb}/E^*_{vb}.
+$$
+
+The resulting whole-year figure is a 2019–2024 sensitivity analysis. It
+extrapolates temporal traffic responses measured at the daily counters to the
+broader rural weather-frequency O/E sample; it is not the smaller
+counter-section accident-rate analysis.
+
 The station-selection bug was corrected: `counter_sections.csv` now records a
 nominal nearest station with actual valid daytime observations in that counter
 year. A nominal station is descriptive metadata, not a promise of availability
@@ -188,7 +216,7 @@ This keeps the table short without making the file locations ambiguous.
 | `accidents/build.py` | *raw/accidents/*<br>`accidents_*.txt`<br>`vehicles_*.txt`<br>`road_links_2007_2025.csv`<br>`urban_boundaries_2020_2024.geojson` | *processed/accidents/*<br>`all.csv` | Joins accident, vehicle, road-link, and boundary data. |
 | `weather/download_weather.py` | *official supplied URL/*<br>`stod.txt`, `f_*.txt`, `fj_*.txt`, `fv_*.txt` | *raw/weather/*<br>`stations.csv`<br>`weather_10min_raw.parquet`<br>`weather_10min_raw_audit.csv` | Downloads the complete official station-file delivery and combines study-period rows without filtering. |
 | `weather/clean.py` | *raw/weather/*<br>`weather_10min_raw.parquet` | *processed/weather/*<br>`weather.parquet`<br>`cleaning.csv` | Applies the fixed weather-quality rules and records annual counts. |
-| `weather/frequency.py` | *processed/weather/*<br>`weather.parquet` | *processed/weather/*<br>`frequency.csv`<br>`yearly_frequency.csv`<br>`temperature_frequency.csv`<br>`traffic_frequency.csv` | Counts station-season and station-year-season weather frequencies for O/E and annual-traffic models. |
+| `weather/frequency.py` | *processed/weather/*<br>`weather.parquet` | *processed/weather/*<br>`frequency.csv`<br>`yearly_frequency.csv`<br>`temperature_frequency.csv`<br>`traffic_frequency.csv` | Counts station-season and station-year-season mean-wind, gust, and temperature frequencies for O/E and annual-traffic models. |
 | `traffic/annual.py` | *raw/traffic/annual/*<br>`*.xls*` | *processed/traffic/*<br>`annual.csv` | Standardises road section, length, ADU, SDU and VDU. |
 | `accidents/match_weather.py` | *processed/accidents/*<br>`all.csv`<br>*processed/weather/*<br>`weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/accidents/*<br>`rural_injury.csv` | Matches wind and temperature independently within the stated time and distance limits. |
 | `accidents/case_control.py` | *processed/accidents/*<br>`rural_injury.csv`<br>*processed/weather/*<br>`weather.parquet` | *processed/accidents/*<br>`case_control.csv` | Selects matched non-accident weather times from the same clean weather source. |
@@ -201,11 +229,11 @@ This keeps the table short without making the file locations ambiguous.
 | `traffic/counter_days.py` | *processed/traffic/*<br>`daily_raw.csv`, `counter_sections.csv`<br>*raw/traffic/reference/*<br>`roads.geojson`<br>*raw/accidents/*<br>`urban_boundaries_2020_2024.geojson` | *processed/traffic/*<br>`counter_days.csv` | Sums channels per counter-section/day and multiplies actual daily vehicles by the rural road length, using geometric urban clipping (2019–2024, station within 20 km). Unmapped lengths are excluded and reported. |
 | `weather/monthly_frequency.py` (optional diagnostic) | *processed/weather/*<br>`weather.parquet` | *processed/weather/*<br>`monthly_frequency.csv` | Pools 07:00–24:00 ten-minute observations by station and calendar month across 2007–2025, in the O/E bins. Retained for inspection, not used by analysis #2. |
 | `traffic/counter_accidents.py` | *processed/accidents/*<br>`accidents-near-counter.csv`<br>*processed/traffic/*<br>`counter_days.csv`, `counter_sections.csv`<br>*processed/weather/*<br>`weather.parquet`<br>*raw/weather/*<br>`stations.csv`<br>*raw/traffic/reference/*<br>`roads.geojson`<br>*raw/accidents/*<br>`urban_boundaries_2020_2024.geojson` | *processed/traffic/*<br>`counter_accidents.csv` | Requires rural daytime accidents and positive traffic. Selects the nearest station to the counter-section within 20 km that has valid observations within five minutes of the accident. |
-| `traffic/daily_vkt.py` | *processed/traffic/*<br>`counter_days.csv`, `counter_sections.csv`<br>`counter_accidents.csv`<br>*processed/weather/*<br>`weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/traffic/*<br>`daily_vkt.csv` | Uses `daytime_weather.py` and the shared `station_selection.py` rule to choose the nearest available station at every timestamp. Allocates rural daily vehicle-km uniformly over 07:00–24:00, excludes unmatched time, and reports counts and rates by weather bin, injury group and season. |
+| `traffic/daily_vkt.py` | *processed/traffic/*<br>`counter_days.csv`, `counter_sections.csv`<br>`counter_accidents.csv`<br>*processed/weather/*<br>`weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/traffic/*<br>`daily_vkt.csv`<br>`traffic_weather_response.csv` | Uses `daytime_weather.py` and the shared `station_selection.py` rule to choose the nearest available station at every timestamp. Allocates rural daily vehicle-km uniformly over 07:00–24:00 for direct rates, and compares observed daily traffic with its counter-section/year/month/weekday expectation for the O/E traffic correction. |
 | `traffic/locate_counters.py` | *processed/traffic/*<br>`daily_raw.csv`<br>*raw/traffic/reference/*<br>`roads.geojson` | *processed/traffic/*<br>`daily.csv` | Locates the exact-`stöð` counter records along official road geometry. |
 | `traffic/daily_weather.py` | *processed/*<br>`traffic/daily.csv`<br>`weather/weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/traffic/*<br>`daily_match.parquet`<br>`daily_weather.csv` | Matches counter-days to a nearby weather station. |
 | `traffic/accident_wind.py` | *processed/*<br>`accidents/rural_injury.csv`<br>`traffic/daily_weather.csv`<br>`traffic/locations.csv`<br>`weather/weather.parquet`<br>*raw/weather/*<br>`stations.csv` | *processed/traffic/*<br>`accident_wind.csv` | Matches accidents to the assigned counter-day station. |
-| `export_tables.py` | *processed/*<br>`accidents/rural_injury.csv`<br>`accidents/rate.csv`<br>`accidents/case_control.csv`<br>`weather/frequency.csv`<br>`weather/yearly_frequency.csv`<br>`weather/traffic_frequency.csv`<br>`weather/monthly_frequency.csv`<br>`weather/cleaning.csv`<br>`traffic/annual.csv`<br>`traffic/road_period.csv`<br>`traffic/daily_weather.csv`<br>`traffic/accident_wind.csv`<br>`traffic/locations.csv`<br>`traffic/daily_vkt.csv` | *analysis/*<br>analysis CSV files listed below | Selects only the variables used by ordinary analysis. |
+| `export_tables.py` | *processed/*<br>`accidents/rural_injury.csv`<br>`accidents/rate.csv`<br>`accidents/case_control.csv`<br>`weather/frequency.csv`<br>`weather/yearly_frequency.csv`<br>`weather/traffic_frequency.csv`<br>`weather/monthly_frequency.csv`<br>`weather/cleaning.csv`<br>`traffic/annual.csv`<br>`traffic/road_period.csv`<br>`traffic/daily_weather.csv`<br>`traffic/accident_wind.csv`<br>`traffic/locations.csv`<br>`traffic/daily_vkt.csv`<br>`traffic/traffic_weather_response.csv` | *analysis/*<br>analysis CSV files listed below | Selects only the variables used by ordinary analysis. |
 
 The road-period preparation contains only the 5 m/s mean-wind intervals used
 by the traffic model. Gust and duplicate mean-wind classifications are not
@@ -243,7 +271,10 @@ carried through that working table.
   numerical results, and figure code reads those completed results.
 - `analysis/oe_analysis.py` reads the compact accident and weather-frequency
   inputs, calculates observed and expected counts for wind, gust, and
-  temperature, and writes the station-bin analysis tables.
+  temperature, and writes the station-bin analysis tables. Its inclusive
+  `--start-year` and `--end-year` options require the yearly frequency input,
+  pool that input over exactly the selected years, and filter accidents to the
+  same years. `--whole-year-only` omits the four seasonal panels.
 - `analysis/traffic_daily_panel.py` constructs the one seasonal daily-traffic
   input, `analysis/traffic_rate.py` owns the reusable conditional-rate fit, and
   `analysis/traffic_daily.py` owns the seasonal estimates and interaction tests.
@@ -262,8 +293,8 @@ the source station identifiers and coordinates without analytical filtering.
 | `accidents.csv` | One rural injury accident | ID, time, coordinates, outcome, road section, season and traffic period. | Study population and descriptions |
 | `accident_conditions.csv` | One rural injury accident | Independent wind and temperature matches plus estimated solar elevation and daylight class. | Environmental descriptions and O/E join |
 | `temperature_matches.csv` | One rural injury accident | Temperature, station, distance, time difference, and source. | Direct match inspection |
-| `weather_frequency.csv` | Station × season × variable × interval | Pooled 2007–2025 wind and temperature counts and frequencies. | Exposure denominator |
-| `weather_yearly.csv` | Station × year × season × variable × interval | Mean-wind and temperature counts for each year. | Year-adjusted O/E comparison |
+| `weather_frequency.csv` | Station × season × variable × interval | Pooled 2007–2025 mean-wind, gust, and temperature counts and frequencies. | Exposure denominator |
+| `weather_yearly.csv` | Station × year × season × variable × interval | Mean-wind, gust, and temperature counts for each year. | Year-adjusted and selected-year O/E comparisons |
 | `temperature_frequency.csv` | Station × year × season × temperature interval | Temperature counts from the clean official weather source. | Direct denominator inspection |
 | `weather_source_audit.csv` | Official source file | File hash, row checks, station, and date coverage. | Source-delivery audit |
 | `weather_cleaning.csv` | Year and total | Counts retained and excluded by each fixed weather-quality rule. | Weather selection table and validation |
@@ -278,6 +309,7 @@ the source station identifiers and coordinates without analytical filtering.
 | `counter_sections.csv` | Counter-section × year | Counter location, assigned road length, source channels, and nearest weather station. | Daily vehicle-kilometre preparation |
 | `weather_monthly.csv` | Station × calendar month × variable × interval | Daytime measurement counts, valid totals and bin fractions pooled across 2007–2025. | Inspectable monthly background |
 | `daily_vkt.csv` | Weather variable × outcome × period × interval | Accident counts and rates per million rural vehicle-km using actual daily traffic and same-day weather over 07:00–24:00. Missing time is excluded. | Daily counter-section rate figures |
+| `traffic_weather_response.csv` | Weather variable × interval | Observed daily traffic allocated over actual same-day weather divided by its counter-section/year/month/weekday expectation. | Traffic-response and traffic-corrected O/E figures |
 | `counter_wind.csv` | Accident linked to a counter | Accident-time `f` from the assigned counter-day station. | Same-station allocated daily rate |
 | `counter_check.csv` | Counter site | Difference between estimated coordinates and official 20 m road-station points. | Appendix counter-location table |
 | `daily_season_panel.csv` | Counter × year × season × wind interval | Observed accidents, counter-days, and daily totals allocated by the fraction of 10-minute wind observations. | Seasonal daily-traffic estimates and interaction tests |
@@ -304,6 +336,86 @@ focused rebuild can use one or more named stages, for example
 available as compatibility aliases. The full command inventory below is the
 audit trail for the three research stages.
 
+The weather-frequency stage also rebuilds two whole-year O/E sensitivity
+figures. These use inclusive year ranges and pool both accident records and
+station-season weather counts over the same years:
+
+```sh
+python -m src.analysis.oe_analysis --frequency data/analysis/weather_yearly.csv --start-year 2007 --end-year 2018 --whole-year-only --output reports/main/tables/weather_oe_2007_2018.csv
+python -m src.figures.oe_histo --input reports/main/tables/weather_oe_2007_2018.csv --whole-year-output reports/main/figures/weather_oe_2007_2018.png --year-label '2007–2018'
+python -m src.analysis.oe_analysis --frequency data/analysis/weather_yearly.csv --start-year 2019 --end-year 2024 --whole-year-only --output reports/main/tables/weather_oe_2019_2024.csv
+python -m src.figures.oe_histo --input reports/main/tables/weather_oe_2019_2024.csv --whole-year-output reports/main/figures/weather_oe_2019_2024.png --year-label '2019–2024'
+```
+
+### Reproducing the new figures and tables
+
+Every retained numerical output and figure must be generated by a saved script.
+The four new O/E/traffic-response figures and the four daily vehicle-km figures
+have the following script interfaces; none requires a calculation copied from
+a chat prompt.
+
+| Numerical output | Computing script | Figure script and output |
+| --- | --- | --- |
+| `reports/main/tables/weather_oe_2007_2018.csv` | `analysis/oe_analysis.py`, with 2007–2018 arguments above | `figures/oe_histo.py` → `reports/main/figures/weather_oe_2007_2018.png` |
+| `reports/main/tables/weather_oe_2019_2024.csv` | `analysis/oe_analysis.py`, with 2019–2024 arguments above | `figures/oe_histo.py` → `reports/main/figures/weather_oe_2019_2024.png` |
+| `data/processed/traffic/traffic_weather_response.csv` → `data/analysis/traffic_weather_response.csv` | `traffic/daily_vkt.py`, then `export_tables.py` | `figures/traffic_weather_response.py` → `reports/main/figures/traffic_weather_response.png` |
+| `reports/main/tables/weather_oe_traffic_corrected_2019_2024.csv` | `tables/traffic_corrected_oe.py` | `figures/traffic_corrected_oe.py` → `reports/main/figures/weather_oe_traffic_corrected_2019_2024.png` |
+| `data/processed/traffic/daily_vkt.csv` → `data/analysis/daily_vkt.csv` | `traffic/daily_vkt.py`, then `export_tables.py` | `figures/weather_rate.py` → `reports/main/figures/weather_rate_annual.png`, `f_traffic_rate_panels.png`, `fg_traffic_rate_panels.png`, `temperature_traffic_rate_panels.png` |
+
+Run commands from the repository root using the project environment. After the
+two period-specific commands above, the remaining figures can be rebuilt from
+the prepared analysis CSVs with:
+
+```sh
+python -m src.tables.traffic_corrected_oe
+python -m src.figures.traffic_corrected_oe
+python -m src.figures.traffic_weather_response
+python -m src.figures.weather_rate
+```
+
+When the prepared counter-day inputs or weather data change, regenerate both
+the rates and traffic response, then export them before running those commands:
+
+```sh
+python -m src.traffic.daily_vkt
+python -m src.export_tables
+```
+
+The weather scan in `daily_vkt.py` reads the large prepared weather Parquet.
+Its upstream counter-section, rural-length and accident-matching steps are
+listed in the preparation table. For a full rebuild from raw inputs use
+`python -m src.prepare --stage all --daily-traffic`; for results only use
+`python -m src.analyze`. Raw-data preparation is intentionally separate from
+ordinary figure regeneration.
+
+The analysis runner schedules the 2019–2024 unadjusted O/E table before the
+traffic correction, even if that output does not yet exist. Requesting only
+the daily-traffic stage also builds this dependency. Traffic-response and VKT
+outputs are optional when their analysis CSV inputs are absent, so those inputs
+must first be prepared/exported to obtain all eight figures.
+
+The figure styling and bin combinations are specified in the figure scripts.
+The filename `traffic_corrected` is retained, but its displayed description is
+“approximate traffic adjustment”. Discussion-only numerical examples and
+temporary diagnostics are not pipeline outputs or thesis results.
+
+On 14 September 2026, the three new O/E result tables and both traffic-table
+exports were reproduced from existing local inputs and matched the saved
+tables. All eight figures above regenerated byte-for-byte identically using
+their saved plotting scripts. This check did not repeat the large weather scan;
+the daily allocation and traffic-response calculations are covered by the
+tests in `tests/test_daily_vkt.py`.
+
+### Main and supporting figure locations
+
+The [main figure list](../reports/main/figures/README.md) describes the new
+figures and the O/E figures updated for the thesis. Supporting plots listed in
+[the working guide](../reports/working/figures/README.md) now go to
+`reports/working/figures/`, including accident-type totals, severity context,
+selection flows, older traffic-response plots and supporting daily-rate/O/E
+comparisons. Their numerical input tables retain their existing locations.
+The obsolete `weather_oe_annual.png` has been removed and is not regenerated.
+
 ## Analysis scripts
 
 This summary is used in the thesis. It presents the work as a research workflow;
@@ -329,12 +441,12 @@ is retained for exact file tracing but is not inserted into the thesis.
 | Script | Input | Output | Description |
 |---|---|---|---|
 | `tables/pipeline.py` | `docs/pipeline.md` | *reports/thesis/*<br>`pipeline_prepare.tex`<br>`pipeline_analysis.tex` | Generates the thesis pipeline tables. |
-| `analysis/oe_analysis.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_frequency.csv` | `reports/main/tables/weather_oe.csv` | Calculates O/E for all injury accidents and their serious/fatal subset, for wind, gust, temperature, the full year, and four seasons. Station-season calculations remain internal. |
+| `analysis/oe_analysis.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_frequency.csv`<br>`analysis/weather_yearly.csv` | *reports/main/tables/*<br>`weather_oe.csv`<br>`weather_oe_2007_2018.csv`<br>`weather_oe_2019_2024.csv` | Calculates O/E for all injury accidents and their serious/fatal subset. The main output covers wind, gust, temperature, the full year, and four seasons. The two selected-year outputs contain whole-year results only and pool both accidents and weather exposure over the stated inclusive ranges. |
 | `tables/oe_audit.py` | `reports/main/tables/weather_oe.csv` | `reports/main/tables/weather_oe_audit.csv` | Confirms observed and expected totals for every O/E panel and counts sparse intervals. |
-| `figures/oe_histo.py` | `reports/main/tables/weather_oe.csv` | *reports/main/figures/*<br>`wind_oe_panels.png`<br>`gust_oe_panels.png`<br>`temperature_oe_panels.png` | Draws 15 O/E panels: one full-year and four seasonal panels for each weather measure, with all-injury and serious/fatal bars. |
+| `figures/oe_histo.py` | *reports/main/tables/*<br>`weather_oe.csv`<br>`weather_oe_2007_2018.csv`<br>`weather_oe_2019_2024.csv` | *reports/main/figures/*<br>`wind_oe_panels.png`<br>`gust_oe_panels.png`<br>`temperature_oe_panels.png`<br>`weather_oe_2007_2018.png`<br>`weather_oe_2019_2024.png` | Draws the standard 15 O/E panels and two additional three-panel whole-year figures comparing 2007–2018 with 2019–2024. |
 | `tables/year_oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_yearly.csv` | `reports/main/tables/year_oe.csv` | Repeats wind and temperature O/E within station, season and year. |
 | `tables/wind_oe_comparison.py` | `reports/main/tables/weather_oe.csv`<br>`analysis/road_rate.csv`<br>`analysis/daily_season_panel.csv` | `reports/main/tables/wind_oe_comparison.csv` | Compares weather-frequency, annual-traffic and allocated-daily-traffic summaries using their respective samples. |
-| `figures/wind_oe_comparison.py` | `reports/main/tables/wind_oe_comparison.csv` | `reports/main/figures/wind_oe_comparison.png` | Draws the three O/E denominators together while retaining their different samples and wind intervals. |
+| `figures/wind_oe_comparison.py` | `reports/main/tables/wind_oe_comparison.csv` | `reports/working/figures/wind_oe_comparison.png` | Draws the three O/E denominators together while retaining their different samples and wind intervals. |
 | `tables/annual_quality.py` | `analysis/annual_traffic.csv` | `reports/main/tables/annual_quality.csv` | Audits nonpositive and unusual published seasonal traffic values. |
 | `tables/estimated_rate.py` | `analysis/road_exposure.csv` | `reports/main/tables/absolute_rate.csv` | Calculates the descriptive accident rate from all eligible road sections. |
 | `tables/rate.py` | `analysis/road_rate.csv` | *reports/main/tables/*<br>`wind_rate.csv`<br>`wind_rate_severity.csv`<br>`wind_rate_one.csv`<br>`wind_rate_multiple.csv`<br>*reports/working/tables/*<br>`wind_rate_official.csv` | Fits the annual-traffic wind-rate models. |
@@ -350,22 +462,25 @@ is retained for exact file tracing but is not inserted into the thesis.
 | `tables/allocated_rate.py` | *analysis/*<br>`accidents.csv`<br>`counter_wind.csv`<br>`daily_traffic.csv` | *reports/main/tables/*<br>`allocated_rate.csv`<br>`allocated_rate_severity.csv`<br>`allocated_rate_day.csv` | Fits same-station accident-time daily-counter models. |
 | `tables/daily_sample.py` | *analysis/*<br>`accidents.csv`<br>`counter_wind.csv`<br>`daily_traffic.csv`<br>`counter_locations.csv` | *reports/main/tables/*<br>`daily_sample.csv`<br>`daily_exclusions.csv`<br>`daily_map.csv` | Compares accidents retained and excluded by the daily-counter linkage. |
 | `figures/counter_map.py` | `reports/main/tables/daily_map.csv` | `reports/main/figures/counter_coverage.png` | Maps located counters and accidents retained or excluded by counter coverage. |
-| `figures/allocated_rate.py` | `reports/main/tables/allocated_rate.csv` | `reports/main/figures/allocated_rate.png` | Draws the retained daily-counter injury-accident rate ratios. |
+| `figures/allocated_rate.py` | `reports/main/tables/allocated_rate.csv` | `reports/working/figures/allocated_rate.png` | Draws the retained daily-counter injury-accident rate ratios. |
 | `tables/daily_season_panel.py` | *analysis/*<br>`accidents.csv`<br>`counter_wind.csv`<br>`daily_traffic.csv` | `analysis/daily_season_panel.csv` | Makes the one canonical counter-year-season input. It allocates each observed daily traffic total among wind categories by their share of valid 10-minute observations. |
 | `tables/daily_season_rate.py` | `analysis/daily_season_panel.csv` | `reports/working/tables/daily_season_rate.csv` | Thin output command for the shared seasonal traffic calculation: fits the rate model separately by season. |
 | `tables/daily_season_interaction.py`<br>`tables/daily_highwind_season_interaction.py` | `analysis/daily_season_panel.csv` | *reports/working/tables/*<br>`daily_season_interaction.csv`<br>`daily_highwind_season_interaction.csv` | Thin output commands for the shared seasonal traffic calculation: test all wind-by-season terms and then the focused at-least-15 m/s terms. |
 | `tables/daily_season_oe.py` | `analysis/daily_season_panel.csv` | `reports/main/tables/daily_season_oe.csv` | Thin output command for the shared calculation: standardises seasonal accident occurrence to allocated traffic within counter, year and season and bootstraps whole counters. |
-| `figures/daily_season_oe.py` | `reports/main/tables/daily_season_oe.csv` | `reports/main/figures/daily_season_oe.png` | Draws the four traffic-standardised seasonal O/E panels. |
+| `figures/daily_season_oe.py` | `reports/main/tables/daily_season_oe.csv` | `reports/working/figures/daily_season_oe.png` | Draws the four traffic-standardised seasonal O/E panels. |
 | `figures/weather_rate.py` | `analysis/daily_vkt.csv` | *reports/main/figures/*<br>`weather_rate_annual.png`<br>`f_traffic_rate_panels.png`<br>`fg_traffic_rate_panels.png`<br>`temperature_traffic_rate_panels.png` | Draws same-day rural accident rates. Seasonal mean-wind bins end at ≥15 m/s and gust bins at ≥20 m/s; counts and vehicle-km are summed before recalculating those rates. Annual and temperature bins are unchanged. |
+| `tables/traffic_corrected_oe.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv`<br>`analysis/weather_yearly.csv`<br>`analysis/traffic_weather_response.csv`<br>`reports/main/tables/weather_oe_2019_2024.csv` | `reports/main/tables/weather_oe_traffic_corrected_2019_2024.csv` | Applies the variable-specific 2019–2024 traffic multipliers to each station-season weather distribution, renormalizes expected counts within that stratum, and retains original and corrected O/E values. |
+| `figures/traffic_corrected_oe.py` | `reports/main/tables/weather_oe_traffic_corrected_2019_2024.csv` | `reports/main/figures/weather_oe_traffic_corrected_2019_2024.png` | Draws the three-panel whole-year traffic-corrected O/E sensitivity figure. |
+| `figures/traffic_weather_response.py` | `analysis/traffic_weather_response.csv` | `reports/main/figures/traffic_weather_response.png` | Draws observed traffic relative to calendar expectation for mean wind, gust, and temperature, with the percentage change labelled over each interval. |
 | `tables/season_method_comparison.py` | Seasonal O/E, matched-time, annual-traffic and daily-counter result tables | `reports/working/tables/season_method_comparison.csv` | Places the four seasonal methods and their high-wind accident counts in one audit table. |
 | `tables/counter_rate.py` | *analysis/*<br>`accidents.csv`<br>`daily_traffic.csv`<br>`counter_locations.csv` | `reports/main/tables/day_rate.csv`<br>`day_rate_coarse.csv` | Fits the detailed and coarse full-day observed-traffic comparisons within counter and year. |
 | `tables/counter_radius.py` | *analysis/*<br>`accidents.csv`<br>`daily_traffic.csv`<br>`counter_locations.csv` | `reports/main/tables/counter_radius.csv` | Repeats both non-reference coarse estimates at 5, 10 and 20 km. |
-| `figures/counter_rate.py` | `reports/main/tables/day_rate_coarse.csv` | `reports/main/figures/day_rate.png` | Draws the coarse observed-traffic comparison. |
+| `figures/counter_rate.py` | `reports/main/tables/day_rate_coarse.csv` | `reports/working/figures/day_rate.png` | Draws the coarse observed-traffic comparison. |
 | `tables/traffic_checks.py` | Main and official-period rate tables<br>`analysis/daily_traffic.csv`<br>`reports/main/tables/annual_quality.csv` | `reports/main/tables/traffic_checks.csv` | Combines the retained traffic-data checks. |
 | `tables/allocation_check.py` | *reports/main/tables/*<br>`wind_rate.csv`<br>`traffic_wind.csv` | `reports/main/tables/allocation_check.csv` | Shows the direction implied by applying observed daily traffic patterns to the annual-model denominator; it is not a corrected estimate. |
-| `figures/daily_traffic.py` | `reports/main/tables/traffic_wind.csv` | *reports/main/figures/*<br>`traffic_wind.png`<br>`traffic_wind_period.png` | Draws pooled and traffic-period daily-traffic results. |
-| `figures/data_flow.py` | `analysis/selection_summary.csv`<br>`analysis/weather_cleaning.csv` | *reports/main/figures/*<br>`accident_flow.png`<br>`weather_flow.png`<br>`traffic_flow.png` | Draws the three selection figures. |
-| `figures/accident_profiles.py` | `analysis/accidents.csv` | *reports/main/figures/*<br>`accident_types.png`<br>`vehicles_per_accident.png`<br>`accident_types_by_severity.png` | Draws accident-type, vehicle-count and severity descriptions. |
+| `figures/daily_traffic.py` | `reports/main/tables/traffic_wind.csv` | *reports/working/figures/*<br>`traffic_wind.png`<br>`traffic_wind_period.png` | Draws pooled and traffic-period daily-traffic results. |
+| `figures/data_flow.py` | `analysis/selection_summary.csv`<br>`analysis/weather_cleaning.csv` | *reports/working/figures/*<br>`accident_flow.png`<br>`weather_flow.png`<br>`traffic_flow.png`<br>corresponding `.pdf` files | Draws the three selection figures. |
+| `figures/accident_profiles.py` | `analysis/accidents.csv` | *reports/main/figures/*<br>`vehicles_per_accident.png`<br>`accident_types_by_severity.png`<br>*reports/working/figures/*<br>`accident_types.png` | Draws accident-type, vehicle-count and severity descriptions. |
 | `figures/accident_map.py` | `analysis/accidents.csv`<br>`accident_conditions.csv` | `reports/main/figures/accident_map.png` | Maps the study population and strong-wind accidents. |
 | `tables/annual_coverage.py` | `analysis/accidents.csv`<br>`accident_conditions.csv` | `reports/main/tables/weather_coverage.csv` | Summarises annual weather-match coverage. |
 | `tables/match_quality.py` | `analysis/accidents.csv`<br>`accident_conditions.csv` | `reports/main/tables/match_quality.csv` | Reports wind and temperature match counts, stations, distances and time differences. |
@@ -375,7 +490,7 @@ is retained for exact file tracing but is not inserted into the thesis.
 | `tables/case_control.py` | `analysis/case_control.csv` | `reports/main/tables/matched_weather.csv` | Fits continuous and categorical conditional logistic models. |
 | `tables/wind_season.py` | `analysis/case_control.csv` | `reports/main/tables/wind_season.csv` | Tests whether the matched mean-wind association differs by season. |
 | `tables/weather_model.py` | `analysis/case_control.csv` | `reports/main/tables/weather_model.csv` | Fits mean wind and temperature together at matched times. |
-| `figures/estimates.py` | *reports/main/tables/*<br>`wind_season.csv`<br>`weather_model.csv`<br>`severity_conditions.csv`<br>`daylight.csv` | *reports/main/figures/*<br>`wind_season.png`<br>`weather_model.png`<br>`severity_conditions.png`<br>`severity_context.png`<br>`daylight.png` | Draws the complete and focused model-estimate figures. |
+| `figures/estimates.py` | *reports/main/tables/*<br>`wind_season.csv`<br>`weather_model.csv`<br>`severity_conditions.csv`<br>`daylight.csv` | *reports/main/figures/*<br>`wind_season.png`<br>`weather_model.png`<br>`severity_conditions.png`<br>`daylight.png`<br>*reports/working/figures/*<br>`severity_context.png` | Draws the complete and focused model-estimate figures. |
 | `tables/severity.py` | `analysis/accidents.csv`<br>`accident_conditions.csv` | `reports/main/tables/severity_conditions.csv` | Models serious-or-fatal severity among recorded accidents. |
 | `tables/daylight.py` | `analysis/accidents.csv` | `reports/main/tables/daylight.csv` | Compares daylight at accident dates with dates at the same location, month, weekday and clock time. |
 | `tables/wind_profile.py` | `analysis/accidents.csv`<br>`analysis/accident_conditions.csv` | `reports/main/tables/wind_profile.csv` | Describes accidents at mean wind at least 15 m/s. |

@@ -54,11 +54,47 @@ def run(selected: Task, dry_run: bool = False) -> None:
         subprocess.run(command, check=True)
 
 
+def period_oe_task(start_year: int, end_year: int) -> Task:
+    """Build a selected-year O/E table, including on a clean checkout."""
+    return task(
+        "src.analysis.oe_analysis",
+        "--frequency", "data/analysis/weather_yearly.csv",
+        "--start-year", str(start_year), "--end-year", str(end_year),
+        "--whole-year-only",
+        "--output", f"reports/main/tables/weather_oe_{start_year}_{end_year}.csv",
+    )
+
+
+def traffic_correction_tasks() -> list[Task]:
+    return [
+        period_oe_task(2019, 2024),
+        task("src.tables.traffic_corrected_oe"),
+        task("src.figures.traffic_corrected_oe"),
+        task("src.figures.traffic_weather_response"),
+    ]
+
+
 def primary_weather_tasks(bootstrap_reps: int) -> list[Task]:
     return [
         task("src.analysis.oe_analysis"),
         task("src.tables.oe_audit"),
         task("src.figures.oe_histo"),
+        period_oe_task(2007, 2018),
+        task(
+            "src.figures.oe_histo",
+            "--input", "reports/main/tables/weather_oe_2007_2018.csv",
+            "--whole-year-output",
+            "reports/main/figures/weather_oe_2007_2018.png",
+            "--year-label", "2007–2018",
+        ),
+        period_oe_task(2019, 2024),
+        task(
+            "src.figures.oe_histo",
+            "--input", "reports/main/tables/weather_oe_2019_2024.csv",
+            "--whole-year-output",
+            "reports/main/figures/weather_oe_2019_2024.png",
+            "--year-label", "2019–2024",
+        ),
     ]
 
 
@@ -112,7 +148,9 @@ def annual_traffic_tasks() -> list[Task]:
 
 
 def daily_traffic_tasks(
-    bootstrap_reps: int, include_weather_rate: bool = False
+    bootstrap_reps: int,
+    include_weather_rate: bool = False,
+    include_traffic_correction: bool = False,
 ) -> list[Task]:
     tasks = [
         task("src.tables.daily_traffic"),
@@ -150,6 +188,8 @@ def daily_traffic_tasks(
     ]
     if include_weather_rate:
         tasks.append(task("src.figures.weather_rate"))
+    if include_traffic_correction:
+        tasks.extend(traffic_correction_tasks())
     return tasks
 
 
@@ -202,7 +242,7 @@ def severity_context_tasks() -> list[Task]:
         task(
             "src.figures.estimates",
             "-i", "reports/main/tables/severity_conditions.csv",
-            "-o", "reports/main/figures/severity_context.png",
+            "-o", "reports/working/figures/severity_context.png",
             "-t", "Adjusted injury severity by time, daylight, and season",
             "-G", "Time of day", "Daylight", "Season",
         ),
@@ -218,12 +258,24 @@ def severity_context_tasks() -> list[Task]:
 def stage_tasks(
     stage: str, bootstrap_reps: int, include_daily: bool,
     include_weather_rate: bool = False,
+    include_traffic_correction: bool = False,
 ) -> list[Task]:
     """Return tasks in reproducible dependency order for one stage."""
     daily_tasks = (
-        daily_traffic_tasks(bootstrap_reps, include_weather_rate)
+        daily_traffic_tasks(
+            bootstrap_reps,
+            include_weather_rate,
+            include_traffic_correction,
+        )
         if include_daily else
-        [task("src.figures.weather_rate")] if include_weather_rate else []
+        [
+            *([task("src.figures.weather_rate")] if include_weather_rate else []),
+            *(
+                traffic_correction_tasks()
+                if include_traffic_correction
+                else []
+            ),
+        ]
     )
     if stage == "workflow":
         return [task("src.tables.pipeline")]
@@ -298,6 +350,10 @@ def main() -> None:
     daily_path = Path("data/analysis/daily_traffic.csv")
     include_daily = not args.skip_daily_traffic and daily_path.exists()
     include_weather_rate = not args.skip_daily_traffic and Path("data/analysis/daily_vkt.csv").exists()
+    include_traffic_correction = (
+        not args.skip_daily_traffic
+        and Path("data/analysis/traffic_weather_response.csv").exists()
+    )
     if ({"daily-traffic", "traffic-adjusted"} & set(stages)) and not include_daily:
         reason = "requested" if args.skip_daily_traffic else f"missing {daily_path}"
         print(f"Skipping tasks requiring the optional daily_traffic.csv input: {reason}.", flush=True)
@@ -305,7 +361,11 @@ def main() -> None:
     for stage in stages:
         print(f"\nAnalysis stage: {stage}", flush=True)
         for selected in stage_tasks(
-            stage, args.bootstrap_reps, include_daily, include_weather_rate
+            stage,
+            args.bootstrap_reps,
+            include_daily,
+            include_weather_rate,
+            include_traffic_correction,
         ):
             if selected in completed:
                 continue

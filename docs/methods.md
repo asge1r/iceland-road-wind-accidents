@@ -56,6 +56,16 @@ counts but without bootstrap intervals. All injury accidents (`meidsli <= 3`)
 are shown together with their serious/fatal subset (`meidsli <= 2`). Formal
 uncertainty is reported for the matched-time and traffic models.
 
+A 2019--2024 sensitivity analysis corrects the weather-frequency O/E for the
+traffic response observed at daily counters. Each daily count is compared with
+the mean for the same counter-section, year, calendar month, and weekday. Both
+counts are allocated over 07:00--24:00 using that day's observed ten-minute
+mean-wind, gust, or temperature intervals. Their ratio supplies a separate
+traffic multiplier for each variable and interval. The local station-season
+weather frequencies are multiplied by these factors and renormalized before
+expected accidents are recomputed. This extrapolates the counter response to
+the broader rural accident sample and does not change its observed counts.
+
 The main comparison figure therefore keeps three denominators separate. The
 weather panel uses local observation frequency, the annual panel uses estimated
 vehicle-kilometres allocated by local wind frequency, and the daily panel uses

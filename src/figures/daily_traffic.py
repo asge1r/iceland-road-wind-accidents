@@ -18,8 +18,8 @@ from src.tables.daily_traffic import PERIOD_ORDER
 
 
 DEFAULT_INPUT = Path("reports/main/tables/traffic_wind.csv")
-DEFAULT_MAIN = Path("reports/main/figures/traffic_wind.png")
-DEFAULT_PERIOD = Path("reports/main/figures/traffic_wind_period.png")
+DEFAULT_MAIN = Path("reports/working/figures/traffic_wind.png")
+DEFAULT_PERIOD = Path("reports/working/figures/traffic_wind_period.png")
 
 
 def plot_results(results: pd.DataFrame, path: Path, scope: str, title: str) -> None:

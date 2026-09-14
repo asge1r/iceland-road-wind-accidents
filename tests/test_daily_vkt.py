@@ -7,7 +7,11 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 
-from src.traffic.daily_vkt import allocate_daily_exposure, summarise_rates
+from src.traffic.daily_vkt import (
+    allocate_daily_exposure,
+    summarise_rates,
+    summarise_traffic_response,
+)
 from src.traffic.daytime_weather import build_daytime_weather
 from src.traffic.counter_days import build_counter_days
 from src.weather.monthly_frequency import build, VARIABLES
@@ -46,6 +50,19 @@ def reference_files(root):
 
 
 class DailyVehicleKilometreTests(unittest.TestCase):
+    def test_traffic_response_compares_days_with_calendar_baseline(self):
+        counter_days = days()
+        counter_days["date"] = pd.to_datetime(["2024-01-01", "2024-01-08"])
+        weather = background()
+        weather["date"] = pd.to_datetime(
+            weather["date"].replace({"2024-01-02": "2024-01-08"})
+        )
+        result = summarise_traffic_response(counter_days, weather)
+        wind = result[result.variable.eq("f")].set_index("bin_label")
+        self.assertAlmostEqual(wind.loc["0-5", "traffic_multiplier"], 4 / 3)
+        self.assertAlmostEqual(wind.loc[">=20", "traffic_multiplier"], 2 / 3)
+        self.assertAlmostEqual(wind.loc[">=20", "traffic_change_pct"], -100 / 3)
+
     def test_rate_figures_do_not_require_other_daily_analysis_inputs(self):
         self.assertEqual(stage_tasks("daily-traffic", 100, False, True),
                          [task("src.figures.weather_rate")])

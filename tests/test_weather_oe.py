@@ -4,11 +4,51 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-from src.analysis.oe_analysis import OUTCOMES, PERIODS, VARIABLES
+from src.analysis.oe_analysis import (
+    OUTCOMES,
+    PERIODS,
+    VARIABLES,
+    pool_frequency_years,
+    prepare_frequency,
+)
 from src.figures.oe_histo import disjoint_outcomes, interval_label
 
 
 class WeatherOETests(unittest.TestCase):
+    def test_selected_year_frequencies_are_pooled_with_full_denominators(self) -> None:
+        yearly = pd.DataFrame(
+            {
+                "station": [1, 1],
+                "year": [2007, 2008],
+                "season": ["Winter", "Winter"],
+                "variable": ["f", "f"],
+                "bin_label": ["0-5", "5-10"],
+                "measurement_count": [10, 5],
+                "total_measurements_in_period": [10, 10],
+            }
+        )
+        pooled = prepare_frequency(pool_frequency_years(yearly, 2007, 2008))
+        by_bin = pooled.set_index("bin_label")
+        self.assertEqual(by_bin.loc["0-5", "total_measurements_in_period"], 20)
+        self.assertEqual(by_bin.loc["0-5", "frequency_pct"], 50)
+        self.assertEqual(by_bin.loc["5-10", "frequency_pct"], 25)
+
+    def test_year_selection_requires_both_bounds_and_yearly_input(self) -> None:
+        pooled = pd.DataFrame(
+            {
+                "station": [1],
+                "season": ["Winter"],
+                "variable": ["f"],
+                "bin_label": ["0-5"],
+                "measurement_count": [10],
+                "total_measurements_in_period": [10],
+            }
+        )
+        with self.assertRaisesRegex(ValueError, "Both start_year"):
+            pool_frequency_years(pooled, 2007, None)
+        with self.assertRaisesRegex(ValueError, "year column"):
+            pool_frequency_years(pooled, 2007, 2018)
+
     def test_disjoint_bars_match_direct_minor_injury_analysis(self) -> None:
         from src.analysis.oe_analysis import (
             DEFAULT_ACCIDENTS, DEFAULT_CONDITIONS, DEFAULT_FREQUENCY,
@@ -76,6 +116,8 @@ class WeatherOETests(unittest.TestCase):
             "wind_oe_panels.png",
             "gust_oe_panels.png",
             "temperature_oe_panels.png",
+            "weather_oe_2007_2018.png",
+            "weather_oe_2019_2024.png",
         }
         self.assertTrue(all((directory / name).is_file() for name in expected))
 

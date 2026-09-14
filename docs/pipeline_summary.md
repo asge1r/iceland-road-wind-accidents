@@ -147,7 +147,7 @@ archive. These need labels/ownership more urgently than file moves.
    A/daily_traffic.csv + counter_wind.csv; with A/accidents.csv →
    `tables.allocated_rate` → T/allocated_rate.csv, `wind_bin=>=15`,
    `rate_ratio=3.622311` (reference 0–10; 762 accidents, 47 high-wind) →
-   `figures.allocated_rate` → F/allocated_rate.png. The prose headline is
+   `figures.allocated_rate` → reports/working/figures/allocated_rate.png. The prose headline is
    manually present in content.tex; not every prose number is automatically
    substituted by the table generator.
 8. **613-accident same-day vehicle-km result:** daily_raw.csv + annual lengths,
@@ -301,7 +301,7 @@ for the current pipeline despite a poor location. No files were moved/deleted.
 | G/{accident_sample,daily_rate,daily_exclusions,daily_radius,allocation_check,estimated_rate,coverage,severity_conditions}.tex and other generated tables | Check include graph before archiving | Some are included, others still regenerated but unused; “generated” alone does not indicate stale. In particular coverage, estimated_rate, severity_conditions and daily_radius are current includes |
 | W/traffic_adjusted_oe_superseded.csv and matching working figure | Safe to archive | Explicitly superseded; no active source consumer |
 | W/conditional_poisson_rate_ratio_{sdu,vdu,vhdu}.csv; rate_ratio_{one_vehicle,two_plus_vehicles,summer_sdu,winter_vdu}.csv and matching figures | Safe to archive | Older naming; current models use wind_rate*.csv/season_rate*.csv |
-| W/daily_season_oe.csv and reports/working/figures/daily_season_oe.png | Safe to archive | Current canonical products are in reports/main |
+| W/daily_season_oe.csv | Check before archiving | The canonical table is reports/main/tables/daily_season_oe.csv; its supporting figure is now reports/working/figures/daily_season_oe.png and should be retained |
 | W/oe_*new_weather.csv, oe_old_vs_new_weather.csv, temp_bad_periods.csv, suspicious_temperature_station_months.csv | Keep as historical diagnostics | Useful for understanding QC changes; not canonical analysis inputs |
 | reports/reproduced/{reference_snapshot,figures}/ | Safe to archive | Historical comparison imagery; no current thesis references |
 | archive/cleanup_2026-07-28, cleanup_2026-08-26, legacy_outputs/2026-07-29_renamed_traffic, data_legacy_2026-07-22, superseded_code | Keep archived | Already separated historical CSVs, Parquets, code and figures; not routine inputs |

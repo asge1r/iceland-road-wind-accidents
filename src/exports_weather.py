@@ -65,9 +65,11 @@ def export_frequency(output: Path) -> tuple[int, list[str]]:
 
 def export_yearly_frequency(output: Path) -> tuple[int, list[str]]:
     source = read_table(ROOT / "weather/yearly_frequency.csv").copy()
-    source = source[source["variable"].isin(["f", "temperature"])].copy()
+    source = source[
+        source["variable"].isin(["f", "fg", "temperature"])
+    ].copy()
     source["unit"] = source["variable"].map(
-        {"f": "m/s", "temperature": "deg C"}
+        {"f": "m/s", "fg": "m/s", "temperature": "deg C"}
     )
     columns = [
         "station", "year", "season", "variable", "bin_label", "unit",

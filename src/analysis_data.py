@@ -15,6 +15,7 @@ from src.exports_accidents import (
 from src.exports_counters import (
     export_counter_sections,
     export_daily_vkt,
+    export_traffic_weather_response,
     export_counter_validation,
     export_daily_traffic,
     export_selection_summary,
@@ -58,12 +59,12 @@ def main() -> None:
     for filename, description, exporter in [
         (
             "weather_frequency.csv",
-            "Station-season wind and temperature frequencies used as O/E denominators.",
+            "Station-season mean-wind, gust, and temperature frequencies used as O/E denominators.",
             export_frequency,
         ),
         (
             "weather_yearly.csv",
-            "Station-year-season mean-wind and temperature frequencies used for the year-adjusted O/E check.",
+            "Station-year-season mean-wind, gust, and temperature frequencies used for year-adjusted and selected-year O/E checks.",
             export_yearly_frequency,
         ),
         (
@@ -117,6 +118,9 @@ def main() -> None:
     daily_vkt = export_daily_vkt(args.output)
     if daily_vkt is not None:
         entries.append(daily_vkt)
+    traffic_response = export_traffic_weather_response(args.output)
+    if traffic_response is not None:
+        entries.append(traffic_response)
     counter_validation = ROOT / "traffic/daily_counter_station_validation.csv"
     if counter_validation.exists():
         records, columns = export_counter_validation(args.output)

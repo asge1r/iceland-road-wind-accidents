@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
+from argparse import Namespace
 
-from src.analyze import STAGE_ORDER, stage_tasks
+from src.analyze import STAGE_ORDER, main, period_oe_task, stage_tasks
 
 
 class AnalysisPipelineTest(unittest.TestCase):
@@ -47,6 +49,39 @@ class AnalysisPipelineTest(unittest.TestCase):
         ]
         self.assertIn("src.tables.annual_quality", modules)
         self.assertNotIn("src.tables.daily_season_panel", modules)
+
+    def test_counter_response_enables_traffic_correction_outputs(self) -> None:
+        modules = [
+            selected.module
+            for selected in stage_tasks(
+                "daily-traffic", 5000, False, True, True
+            )
+        ]
+        self.assertEqual(
+            modules,
+            [
+                "src.figures.weather_rate",
+                "src.analysis.oe_analysis",
+                "src.tables.traffic_corrected_oe",
+                "src.figures.traffic_corrected_oe",
+                "src.figures.traffic_weather_response",
+            ],
+        )
+
+    def test_traffic_correction_rebuilds_missing_oe_dependency(self) -> None:
+        # Only compact traffic response is present: no previously generated O/E.
+        args = Namespace(
+            bootstrap_reps=5000, stage=["daily-traffic"],
+            skip_daily_traffic=False, dry_run=True,
+        )
+        with patch("src.analyze.parse_args", return_value=args), patch(
+            "src.analyze.Path.exists",
+            lambda path: str(path) == "data/analysis/traffic_weather_response.csv",
+        ), patch("src.analyze.run") as run:
+            main()
+        tasks = [call.args[0] for call in run.call_args_list]
+        self.assertEqual(tasks[0], period_oe_task(2019, 2024))
+        self.assertEqual(tasks[1].module, "src.tables.traffic_corrected_oe")
 
 
 if __name__ == "__main__":
