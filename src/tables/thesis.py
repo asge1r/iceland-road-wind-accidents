@@ -58,7 +58,7 @@ def data_chapter_tables(output: Path) -> None:
          "No weather match within 20 km and five minutes."),
         ("Annual traffic sample", samples.rural_injury_2007_2025, samples.annual_rate,
          "Road linkage, exposure or weather eligibility."),
-        ("Monthly-frequency VKT sample", samples.rural_injury_2019_2024,
+        ("Traffic-based rate sample", samples.rural_injury_2019_2024,
          samples.same_day_weather_vkt,
          "Counter linkage, daytime accident, traffic record, or weather availability."),
     ]
@@ -235,7 +235,7 @@ def coverage(output: Path) -> None:
         ("Rural injury accidents", int(samples["rural_injury_2007_2025"]), "Study population."),
         ("Q1: Primary O/E", int(samples["weather_oe"]), "Main weather-frequency analysis."),
         ("Q2: Approximate traffic correction", int(samples["weather_oe"]), "Same accident sample as Q1; denominator reweighted using counter-derived traffic response."),
-        ("Q3: Monthly-frequency VKT", int(samples["same_day_weather_vkt"]), "Main counter-linked traffic analysis, 2019--2024."),
+        ("Q3: Traffic-based rates", int(samples["same_day_weather_vkt"]), "Main counter-linked traffic analysis, 2019--2024."),
         ("Supporting matched-time", int(samples["matched_time"]), "Time-matched robustness analysis."),
         ("Supporting annual traffic", int(samples["annual_rate"]), "Broader road-linked traffic model."),
         ("Supporting allocated daily-counter", int(allocated_counts[0]), "Alternative daily-counter model."),
@@ -416,7 +416,7 @@ def traffic_tables(output: Path) -> None:
         ["Assigned counter within 20 km", f"{int(audit['within_distance']):,}", f"{100*audit['within_distance']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
         ["Positive count and valid full-day wind", f"{int(audit['with_valid_counter_day']):,}", f"{100*audit['with_valid_counter_day']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
     ]
-    write_table(output / "daily_selection.tex", "Selection of accidents for the supporting allocated daily-counter model.", None, "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth")
+    write_table(output / "daily_selection.tex", "Selection of accidents for the supporting allocated daily-counter model.", "tab:allocated-selection", "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth")
 
     sample = pd.read_csv("reports/main/tables/daily_sample.csv").set_index("group")
     groups = [
@@ -442,7 +442,7 @@ def traffic_tables(output: Path) -> None:
     write_table(
         output / "daily_sample.tex",
         "Characteristics of accidents retained and excluded by the linkage used for the supporting allocated daily-counter model.",
-        None,
+        "tab:allocated-sample",
         "Xrrrr",
         headers,
         rows,
@@ -474,7 +474,7 @@ def traffic_tables(output: Path) -> None:
     radius = pd.read_csv("reports/main/tables/counter_radius.csv")
     radius = radius[radius["wind_bin"].eq(">=15")]
     rows = [[f"{int(row.max_counter_distance_km)} km", f"{int(row.with_valid_counter_day):,}", f"{int(row.observed_accidents):,}", f"{row.rate_ratio:.2f}", f"{row.ci_95_low:.2f}--{row.ci_95_high:.2f}"] for row in radius.itertuples(index=False)]
-    write_table(output / "daily_radius.tex", "Upper-bin estimate from the supporting allocated daily-counter model under three assignment distances.", None, "rrrrr", ["Maximum distance", "Included accidents", "Upper-bin accidents", "Rate ratio", r"95\% CI"], rows)
+    write_table(output / "daily_radius.tex", "Upper-bin estimate from the supporting allocated daily-counter model under three assignment distances.", "tab:allocated-radius", "rrrrr", ["Maximum distance", "Included accidents", "Upper-bin accidents", "Rate ratio", r"95\% CI"], rows)
 
     absolute = pd.read_csv("reports/main/tables/absolute_rate.csv")
     rows = [[interval(row.wind_bin), f"{int(row.observed_accidents):,}", f"{row.rate_per_100m_vehicle_km:.1f}"] for row in absolute.itertuples(index=False)]
@@ -554,7 +554,7 @@ def _legacy_evidence(output: Path) -> None:
         ["Weather-frequency O/E", rf"$\geq20$ m/s: O/E {a_observed/a_expected:.2f}", "Primary result; local wind frequency, no traffic."],
         ["Matched time", r"$\geq15$ vs 0--5 m/s: " + estimate(b, "odds_ratio", "ci_95_low", "ci_95_high", "OR "), "Same station and calendar time."],
         ["Annual traffic", "20--25 vs 0--5 m/s: " + estimate(c, "time_proportional_rate_ratio", "time_proportional_ci_95_low", "time_proportional_ci_95_high", "RR "), "Broader traffic sample; traffic allocated within periods."],
-        ["Daily traffic, same-day weather", rf"$\geq20$ vs 0--5 m/s: {daily.loc['>=20', 'rate']:.2f} vs {daily.loc['0-5', 'rate']:.2f} per million VKT", f"Observed daily totals on rural road portions; {int(daily.accidents.sum())} accidents, {int(daily.loc['>=20', 'accidents'])} in the upper interval."],
+        ["Daily traffic, same-day weather", rf"$\geq20$ vs 0--5 m/s: {daily.loc['>=20', 'rate']:.2f} vs {daily.loc['0-5', 'rate']:.2f} per million vehicle-km", f"Observed daily totals on rural road portions; {int(daily.accidents.sum())} accidents, {int(daily.loc['>=20', 'accidents'])} in the upper interval."],
     ]
     write_table(
         output / "evidence.tex",
@@ -572,6 +572,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-o", "--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
+    from src.tables.cleaned_example import cleaned_example
+    cleaned_example(args.output)
+    from src.tables.headline_summary import headline_summary
+    headline_summary(args.output)
     data_chapter_tables(args.output)
     accident_sample(args.output)
     weather_cleaning(args.output)

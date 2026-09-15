@@ -44,7 +44,7 @@ def main() -> None:
     axis.set_ylim(63.2, 66.7)
     axis.set_xlabel("Longitude")
     axis.set_ylabel("Latitude")
-    axis.set_title("Daily-counter coverage of rural injury accidents, 2019–2024")
+    axis.set_title("Daily-counter coverage")
     axis.grid(alpha=0.15)
     axis.legend(frameon=False, loc="lower left", fontsize=8.5)
     args.output.parent.mkdir(parents=True, exist_ok=True)

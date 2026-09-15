@@ -1,39 +1,20 @@
-"""Plot accident rates from daily traffic and pooled monthly weather."""
-
+"""Port Kristján's rate presentation to the unchanged monthly exposure results."""
 from pathlib import Path
-
-import matplotlib.pyplot as plt
 import pandas as pd
+from src.figures.weather_rate import make_figures
+from src.tables.monthly_vkt_rate import severity_rates, SECTIONS, INPUT
 
-
-INPUT = Path("data/analysis/monthly_vkt.csv")
-OUTPUT = Path("reports/main/figures/monthly_vkt_rate.png")
+OUTPUT = Path("reports/main/figures")
+ACCIDENTS = Path("data/processed/traffic/counter_accidents.csv")
 
 
 def main() -> None:
-    data = pd.read_csv(INPUT)
-    data = data[data["outcome"].eq("All injury accidents")]
-    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.7), constrained_layout=True)
-    for ax, variable, title in zip(
-        axes, ["f", "fg"], ["Mean wind speed", "Maximum gust"], strict=True,
-    ):
-        part = data[data["variable"].eq(variable)].sort_values("bin_order")
-        tick_labels = part["bin_label"].str.replace(">=", "≥", regex=False)
-        bars = ax.bar(
-            tick_labels, part["rate_per_million_vehicle_km"],
-            color="#4477AA", edgecolor="white",
-        )
-        ax.bar_label(bars, labels=[str(value) for value in part["observed_accidents"]], padding=3, fontsize=8)
-        ax.set_title(title)
-        ax.set_xlabel("Weather bin (m/s)")
-        ax.set_ylabel("Injury accidents per million estimated VKT")
-        ax.grid(axis="y", alpha=0.25)
-        ax.set_axisbelow(True)
-    fig.suptitle("Daily-counter rate with vehicle-km allocated by monthly weather frequency")
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUTPUT, dpi=220)
-    plt.close(fig)
-    print(f"wrote={OUTPUT}")
+    data = severity_rates(pd.read_csv(SECTIONS), pd.read_csv(INPUT), pd.read_csv(ACCIDENTS))
+    data = data.rename(columns={"observed_accidents": "accidents"})
+    data["outcome"] = data["outcome"].replace({"Serious or fatal injury accidents": "Severe/fatal accidents"})
+    # The same display aggregation sums existing counts and exposure; no CSV changes.
+    paths = make_figures(data, OUTPUT, variables=("f", "fg"), prefix="monthly_")
+    print("wrote=" + ",".join(map(str, paths)))
 
 
 if __name__ == "__main__":

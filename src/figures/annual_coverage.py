@@ -39,10 +39,10 @@ def main() -> None:
     if identical:
         coverage.plot(
             data["year"], data["wind_coverage_pct"], marker="o",
-            label="Wind and temperature (identical)",
+            label="Wind and temperature (identical)", color="#287271",
         )
     else:
-        coverage.plot(data["year"], data["wind_coverage_pct"], marker="o", label="Wind")
+        coverage.plot(data["year"], data["wind_coverage_pct"], marker="o", color="#287271", label="Wind")
         coverage.plot(
             data["year"], data["temperature_coverage_pct"], marker="o",
             label="Temperature",
@@ -50,7 +50,7 @@ def main() -> None:
     coverage.set_ylabel("Matched accidents (%)")
     coverage.set_xlabel("Year")
     coverage.set_ylim(70, 101)
-    coverage.set_title("Coverage within 20 km and five minutes")
+    coverage.set_title("Weather-match coverage")
     coverage.grid(axis="y", alpha=0.2)
     coverage.legend(frameon=False, ncol=2)
     coverage.set_xticks(data["year"])

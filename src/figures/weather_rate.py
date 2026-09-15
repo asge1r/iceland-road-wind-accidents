@@ -31,7 +31,7 @@ SEASONAL_Y_MAX = {"f": .8, "fg": .5}
 X_LABELS = {
     "f": "Mean wind (m/s)",
     "fg": "Wind gust (m/s)",
-    "temperature": "Temperature °C",
+    "temperature": "Temperature (°C)",
 }
 INTERVAL = re.compile(r"^(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$")
 
@@ -98,9 +98,9 @@ def draw(axis, data: pd.DataFrame, variable: str, period: str) -> None:
         heights = rows[RATE].to_numpy(float)
         bars = axis.bar(x, heights, bottom=bottom, width=.82,
                         color=colour, edgecolor="white", linewidth=.6,
-                        label=outcome, zorder=2 + index)
+                        label=("Minor injury" if index == 0 else "Serious or fatal injury"), zorder=2 + index)
         for bar, count in zip(bars, rows["accidents"], strict=True):
-            if not np.isfinite(bar.get_height()) or bar.get_height() <= 0:
+            if count <= 0 or not np.isfinite(bar.get_height()) or bar.get_height() <= 0:
                 continue
             inside = index == 0
             y = bar.get_y() + bar.get_height() * (.5 if inside else 1)
@@ -120,6 +120,8 @@ def draw(axis, data: pd.DataFrame, variable: str, period: str) -> None:
     )
     axis.yaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
     limit = ANNUAL_Y_MAX[variable] if annual else seasonal_limit(panel, variable)
+    if np.nanmax(bottom) > limit:
+        raise ValueError(f"{variable}, {period}: stack exceeds recovered supervisor y limit {limit}")
     axis.set_ylim(0, limit)
     axis.margins(x=.025)
     title = "All year" if annual else SEASON_LABELS[period]
@@ -127,7 +129,7 @@ def draw(axis, data: pd.DataFrame, variable: str, period: str) -> None:
               fontsize=TICK_FONT_SIZE, fontweight="semibold", zorder=5)
 
 
-def make_figures(data: pd.DataFrame, output: Path) -> list[Path]:
+def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefix="") -> list[Path]:
     required = {"variable", "outcome", "period", "bin_label", "bin_order",
                 "accidents", "estimated_vehicle_km", "rate_per_million_vehicle_km"}
     if not required <= set(data):
@@ -137,27 +139,27 @@ def make_figures(data: pd.DataFrame, output: Path) -> list[Path]:
     data = combine_seasonal_tails(data)
     output.mkdir(parents=True, exist_ok=True)
     paths = []
-    figure, axes = plt.subplots(3, 1, figsize=(10.2, 12), layout="constrained")
-    for axis, variable in zip(axes, VARIABLES, strict=True):
+    figure, axes = plt.subplots(len(variables), 1, figsize=(10.2, 4 * len(variables)), layout="constrained")
+    for axis, variable in zip(axes, variables, strict=True):
         draw(axis, data, variable, "All year")
         axis.set_xlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE)
-    figure.supylabel("Accidents per million estimated vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
+    figure.supylabel("Accidents per million vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
     handles, labels = axes[0].get_legend_handles_labels()
     figure.legend(handles, labels, loc="outside upper center", ncols=2, frameon=False, fontsize=TICK_FONT_SIZE)
-    annual = output / "weather_rate_annual.png"
+    annual = output / f"{prefix}weather_rate_annual.png"
     figure.savefig(annual, dpi=240)
     plt.close(figure)
     paths.append(annual)
-    for variable in VARIABLES:
+    for variable in variables:
         figure, axes = plt.subplots(2, 2, figsize=(14.5, 9.5), sharey=True, layout="constrained")
         for axis, period in zip(axes.flat, PERIODS[1:], strict=True):
             draw(axis, data, variable, period)
         axes.flat[0].set_ylim(0, seasonal_limit(data, variable))
         figure.supxlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE, x=.5)
-        figure.supylabel("Accidents per million estimated vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
+        figure.supylabel("Accidents per million vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
         handles, labels = axes.flat[0].get_legend_handles_labels()
         figure.legend(handles, labels, loc="outside upper center", ncols=len(handles), frameon=False, fontsize=TICK_FONT_SIZE)
-        path = output / f"{variable}_traffic_rate_panels.png"
+        path = output / f"{prefix}{variable}_traffic_rate_panels.png"
         figure.savefig(path, dpi=240)
         plt.close(figure)
         paths.append(path)

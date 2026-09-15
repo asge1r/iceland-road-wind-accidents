@@ -97,7 +97,7 @@ class WeatherRateFigureTests(unittest.TestCase):
             for annotation, bar in zip(axes[0].texts[2:4], axes[0].containers[1], strict=True):
                 self.assertEqual(annotation.xy, (bar.get_x() + bar.get_width()/2, bar.get_y() + bar.get_height()))
                 self.assertEqual(annotation.get_position(), (0, 4))
-            self.assertIn("Summer (Jun–Sep)", [t.get_text() for t in axes[1].texts])
+            self.assertIn("Summer", [t.get_text() for t in axes[1].texts])
             self.assertEqual(axes[1].xaxis.get_major_ticks()[0].tick1line.get_markersize(), 0)
         finally:
             plt.close(figure)
@@ -122,18 +122,18 @@ class WeatherRateFigureTests(unittest.TestCase):
             self.assertEqual(figures[2]._supxlabel.get_text(), "Wind gust (m/s)")
             self.assertEqual(figures[2]._supxlabel.get_position()[0], .5)
             self.assertTrue(all(not axis.get_xlabel() for axis in figures[2].axes))
-            self.assertEqual(figures[3]._supxlabel.get_text(), "Temperature °C")
+            self.assertEqual(figures[3]._supxlabel.get_text(), "Temperature (°C)")
             self.assertEqual(figures[3]._supxlabel.get_position()[0], .5)
             for axis in figures[3].axes:
                 self.assertEqual(axis.get_xlabel(), "")
                 np.testing.assert_allclose(np.diff(axis.get_yticks()), .1)
-                self.assertTrue(any("–" in t.get_text() for t in axis.texts))
+                self.assertTrue(any(t.get_text() in PERIODS for t in axis.texts))
             for figure, limit in zip(figures[1:3], [.8, .5], strict=True):
                 for axis in figure.axes:
                     self.assertEqual(axis.get_ylim(), (0, limit))
                     np.testing.assert_allclose(np.diff(axis.get_yticks()), .1)
                     self.assertNotIn(", f", axis.get_xlabel())
-                    self.assertTrue(any("–" in t.get_text() for t in axis.texts))
+                    self.assertTrue(any(t.get_text() in PERIODS for t in axis.texts))
             for figure in figures[1:]:
                 for axis in figure.axes:
                     self.assertEqual(axis.get_ylim(), figure.axes[0].get_ylim())

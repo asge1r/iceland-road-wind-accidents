@@ -32,7 +32,7 @@ def selection_tex(data: pd.DataFrame) -> str:
 
     return r"""\begin{table}[H]
 \centering
-\caption[Selection for the Q3 monthly-frequency VKT analysis.]{Selection for the Q3 monthly-frequency daily-counter rate. The first row includes urban and rural injury accidents; the rural restriction is applied in step (a). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
+\caption[Selection for the Q3 traffic-based rate analysis.]{Selection for the Q3 monthly-frequency daily-counter rate. The first row includes urban and rural injury accidents; the rural restriction is applied in step (a). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
 \label{tab:monthly-vkt-selection}
 \small
 \begin{tabular}{p{0.64\textwidth}rr}
@@ -73,7 +73,7 @@ def rates_tex(data: pd.DataFrame) -> str:
 \\small
 \\begin{tabular}{llrrr}
 \\toprule
-Measure & Interval (m/s) & Observed & Million VKT & Rate per million VKT \\\\ \\midrule
+Measure & Interval (m/s) & Observed & \\shortstack{Million\\\\vehicle-km} & \\shortstack{Accidents per\\\\million vehicle-km} \\\\ \\midrule
 """ + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
 
 

@@ -40,12 +40,19 @@ per vehicle-kilometre.
 \section{Supporting Allocated Daily-Counter Sample}
 
 This section documents the supporting allocated daily-counter model,
-not the 694-accident Q3 monthly-frequency VKT analysis. The tables show how the
+not the 694-accident Q3 traffic-based rate analysis. The tables show how the
 2019--2024 rural injury sample narrows under the linkage used by that supporting
 model. The 767 records at the last broad selection step include five records
 that do not enter its final allocated-rate model, which retains 762 accidents.
 
+Table~\ref{tab:allocated-selection} traces the linkage exclusions for this
+supporting sample.
+
 \input{generated/daily_selection.tex}
+
+Table~\ref{tab:allocated-sample} compares retained accidents with the broader
+sample and excluded groups by severity, vehicles and season, making selection
+differences visible.
 
 \input{generated/daily_sample.tex}
 
@@ -62,7 +69,7 @@ accidents retained or excluded by the daily-counter linkage, 2019--2024.}
 
 \section{Traffic Sensitivity Checks}
 
-The assignment-distance check shows how the supporting allocated daily-counter
+Table~\ref{tab:allocated-radius} shows how the supporting allocated daily-counter
 result changes under 5, 10, and 20 km limits. It is retained to make the
 spatial selection rule explicit.
 

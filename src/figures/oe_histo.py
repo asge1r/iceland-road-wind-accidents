@@ -28,15 +28,15 @@ VARIABLES = ("f", "fg", "temperature")
 SEASONS = ("Winter", "Spring", "Summer", "Autumn")
 PERIODS = ("All year", *SEASONS)
 SEASON_LABELS = {
-    "Winter": "Winter (Dec–Mar)",
-    "Spring": "Spring (Apr–May)",
-    "Summer": "Summer (Jun–Sep)",
-    "Autumn": "Autumn (Oct–Nov)",
+    "Winter": "Winter",
+    "Spring": "Spring",
+    "Summer": "Summer",
+    "Autumn": "Autumn",
 }
 VARIABLE_TITLES = {
-    "f": "All year (Jan–Dec)",
-    "fg": "All year (Jan–Dec)",
-    "temperature": "All year (Jan–Dec)",
+    "f": "All year",
+    "fg": "All year",
+    "temperature": "All year",
 }
 VARIABLE_NAMES = {
     "f": "Mean wind",
@@ -53,7 +53,7 @@ OUTCOMES = (
     "Severe/fatal accidents",
 )
 SOURCE_OUTCOMES = ("All injury accidents", "Severe/fatal accidents")
-COLORS = ("#0072B2", "#B22222")
+COLORS = ("#79BCE0", "#D62728")
 DISPLAY_OUTCOMES = {
     "Minor injury accidents": "Minor injury accidents",
     "Severe/fatal accidents": "Serious or fatal injury accidents",
@@ -87,7 +87,7 @@ def interval_label(value: str, bracketed: bool = False) -> str:
     lower, upper = (part.replace("-", "−") for part in match.groups())
     if bracketed:
         return f"[{lower},{upper}]"
-    return f"{lower}-{upper}"
+    return f"{lower}–{upper}"
 
 
 def validate(
@@ -148,9 +148,19 @@ def display_limit(panel: pd.DataFrame) -> float:
     return max(1.5, maximum * 1.18)
 
 
+def panel_readability_limit(panel: pd.DataFrame) -> float:
+    """Use a clean zero-based limit with count-label headroom for one Q1 panel."""
+    maximum = max(1.0, float(panel["relative_accident_frequency"].max()))
+    target = maximum / .86
+    step = 10 ** np.floor(np.log10(target)) / 5
+    return float(np.ceil(target / step) * step)
+
+
 def add_counts(axis: Axes, bars: BarContainer, counts: np.ndarray) -> None:
     """Write accident counts above the bars."""
     for bar, count in zip(bars, counts, strict=True):
+        if count <= 0:
+            continue
         axis.annotate(
             f"{count}",
             (bar.get_x() + bar.get_width() / 2, bar.get_height()),
@@ -210,6 +220,8 @@ def draw_panel(
         [interval_label(label, variable == "temperature") for label in labels],
     )
     axis.tick_params(axis="both", labelsize=TICK_FONT_SIZE)
+    if variable == "temperature":
+        axis.tick_params(axis="x", labelrotation=25, labelsize=11)
     axis.yaxis.set_major_locator(MaxNLocator(nbins=6, steps=[1, 2, 5, 10]))
     axis.yaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
     axis.set_ylim(0, display_limit(panel))
@@ -225,6 +237,22 @@ def draw_panel(
         fontweight="semibold",
         zorder=4,
     )
+
+
+def separate_count_labels(figure: plt.Figure) -> None:
+    """Lift adjacent count labels when their rendered boxes touch."""
+    figure.canvas.draw()
+    renderer = figure.canvas.get_renderer()
+    for axis in figure.axes:
+        placed = []
+        for text in sorted((t for t in axis.texts if hasattr(t, "xy")), key=lambda t: t.xy[0]):
+            for _ in range(12):
+                box = text.get_window_extent(renderer).expanded(1.12, 1.05)
+                if not any(box.overlaps(other) for other in placed):
+                    break
+                x, y = text.get_position()
+                text.set_position((x, y + COUNT_FONT_SIZE + 1))
+            placed.append(text.get_window_extent(renderer).expanded(1.12, 1.05))
 
 
 def add_legend(figure: plt.Figure, axis: Axes) -> None:
@@ -243,21 +271,20 @@ def add_legend(figure: plt.Figure, axis: Axes) -> None:
 def plot_variable(data: pd.DataFrame, variable: str, output: Path) -> None:
     """Draw the complete year and four seasons for one weather variable."""
     figure, axes = plt.subplots(
-        3, 2, figsize=(14.5, 13), sharey=True, layout="constrained"
+        3, 2, figsize=(14.5, 13), sharey=False, layout="constrained"
     )
     titles = {"All year": VARIABLE_TITLES[variable], **SEASON_LABELS}
     for axis, period in zip(axes.flat[:5], PERIODS, strict=True):
         draw_panel(axis, data, variable, period, titles[period])
+        panel = data[data.variable.eq(variable) & data.period.eq(period)]
+        axis.set_ylim(0, panel_readability_limit(panel))
     axes.flat[5].axis("off")
-    panels = data[
-        data["variable"].eq(variable) & data["period"].isin(PERIODS)
-    ]
-    axes.flat[0].set_ylim(0, display_limit(panels))
     add_legend(figure, axes.flat[0])
     figure.supxlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE)
     figure.supylabel(
         "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE
     )
+    separate_count_labels(figure)
     figure.savefig(output, dpi=240)
     plt.close(figure)
 
@@ -301,8 +328,10 @@ def plot_whole_year(
             data,
             variable,
             "All year",
-            f"{VARIABLE_NAMES[variable]} ({year_label})",
+            VARIABLE_NAMES[variable],
         )
+        axis.text(.98, 1.025, "All year", transform=axis.transAxes, ha="right",
+                  va="bottom", fontsize=TICK_FONT_SIZE)
         axis.set_xlabel(labels[variable], fontsize=AXIS_TITLE_FONT_SIZE)
         if y_limits is not None:
             axis.set_ylim(0, y_limits[variable])
@@ -317,6 +346,7 @@ def plot_whole_year(
         "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE
     )
     output.parent.mkdir(parents=True, exist_ok=True)
+    separate_count_labels(figure)
     figure.savefig(output, dpi=240)
     plt.close(figure)
     return output

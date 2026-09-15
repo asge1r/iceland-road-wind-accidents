@@ -73,7 +73,7 @@ class WeatherOETests(unittest.TestCase):
 
     def test_interval_labels_use_brackets(self) -> None:
         self.assertEqual(interval_label("-6--3", bracketed=True), "[−6,−3]")
-        self.assertEqual(interval_label("0-5"), "0-5")
+        self.assertEqual(interval_label("0-5"), "0–5")
         self.assertEqual(interval_label(">=20"), "≥20")
 
     def test_current_results_have_every_requested_panel(self) -> None:

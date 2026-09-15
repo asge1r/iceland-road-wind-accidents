@@ -29,7 +29,7 @@ BAR_COLOR = "#4C9ED9"
 X_LABELS = {
     "f": "Mean wind (m/s)",
     "fg": "Wind gust (m/s)",
-    "temperature": "Temperature °C",
+    "temperature": "Temperature (°C)",
 }
 
 
@@ -76,7 +76,7 @@ def make_figure(data: pd.DataFrame, output: Path) -> Path:
         axis.text(
             0.015,
             0.965,
-            f"{VARIABLE_NAMES[variable]} (2019–2024)",
+            VARIABLE_NAMES[variable],
             transform=axis.transAxes,
             ha="left",
             va="top",
@@ -84,6 +84,8 @@ def make_figure(data: pd.DataFrame, output: Path) -> Path:
             fontweight="semibold",
             zorder=4,
         )
+        axis.text(.98, .965, "All year", transform=axis.transAxes,
+                  ha="right", va="top", fontsize=TICK_FONT_SIZE)
         for bar, change in zip(
             bars, panel["traffic_change_pct"].to_numpy(float), strict=True
         ):
