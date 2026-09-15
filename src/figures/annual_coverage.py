@@ -28,13 +28,16 @@ def main() -> None:
     }
     if missing := required - set(data):
         raise ValueError(f"Annual coverage table is missing columns: {sorted(missing)}")
-    figure, (counts, coverage) = plt.subplots(
-        2, 1, figsize=(12, 7.5), sharex=True, constrained_layout=True
-    )
+    plt.rcParams.update({"font.size": 13, "axes.labelsize": 15, "axes.titlesize": 16})
+    count_figure, counts = plt.subplots(figsize=(12, 4.5), constrained_layout=True)
+    figure, coverage = plt.subplots(figsize=(12, 4.5), constrained_layout=True)
     counts.bar(data["year"], data["rural_injury_accidents"], color="#547A99")
     counts.set_ylabel("Accidents")
     counts.set_title("Rural injury accidents by year")
     counts.grid(axis="y", alpha=0.2)
+    counts.set_xlabel("Year")
+    counts.set_xticks(data["year"])
+    counts.tick_params(axis="x", labelrotation=45)
     identical = data["wind_coverage_pct"].equals(data["temperature_coverage_pct"])
     if identical:
         coverage.plot(
@@ -56,6 +59,9 @@ def main() -> None:
     coverage.set_xticks(data["year"])
     coverage.tick_params(axis="x", labelrotation=45)
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    count_path = args.output.with_name("annual_accident_counts.png")
+    count_figure.savefig(count_path, dpi=240)
+    plt.close(count_figure)
     figure.savefig(args.output, dpi=240)
     plt.close(figure)
     print(f"wrote={args.output}")

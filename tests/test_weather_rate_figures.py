@@ -124,21 +124,22 @@ class WeatherRateFigureTests(unittest.TestCase):
             self.assertTrue(all(not axis.get_xlabel() for axis in figures[2].axes))
             self.assertEqual(figures[3]._supxlabel.get_text(), "Temperature (°C)")
             self.assertEqual(figures[3]._supxlabel.get_position()[0], .5)
-            for axis in figures[3].axes:
+            for axis in figures[3].axes[1:]:
                 self.assertEqual(axis.get_xlabel(), "")
                 np.testing.assert_allclose(np.diff(axis.get_yticks()), .1)
                 self.assertTrue(any(t.get_text() in PERIODS for t in axis.texts))
             for figure, limit in zip(figures[1:3], [.8, .5], strict=True):
-                for axis in figure.axes:
+                for axis in figure.axes[1:]:
                     self.assertEqual(axis.get_ylim(), (0, limit))
                     np.testing.assert_allclose(np.diff(axis.get_yticks()), .1)
                     self.assertNotIn(", f", axis.get_xlabel())
                     self.assertTrue(any(t.get_text() in PERIODS for t in axis.texts))
             for figure in figures[1:]:
-                for axis in figure.axes:
-                    self.assertEqual(axis.get_ylim(), figure.axes[0].get_ylim())
+                self.assertEqual(len(figure.axes), 5)
+                for axis in figure.axes[1:]:
                     self.assertEqual(axis.get_ylim()[0], 0)
-                    self.assertGreater(axis.get_ylim()[1], .2)
+                    tallest = max(bar.get_y() + bar.get_height() for bar in axis.patches)
+                    self.assertGreater(axis.get_ylim()[1], tallest)
                     self.assertEqual(len(axis.containers), 2)
                     for blue, red in zip(*axis.containers, strict=True):
                         self.assertAlmostEqual(red.get_y(), blue.get_height())

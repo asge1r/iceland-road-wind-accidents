@@ -151,13 +151,13 @@ def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefi
     plt.close(figure)
     paths.append(annual)
     for variable in variables:
-        figure, axes = plt.subplots(2, 2, figsize=(14.5, 9.5), sharey=True, layout="constrained")
-        for axis, period in zip(axes.flat, PERIODS[1:], strict=True):
+        from src.figures.season_layout import seasonal_figure
+        figure, axes = seasonal_figure()
+        for axis, period in zip(axes, PERIODS, strict=True):
             draw(axis, data, variable, period)
-        axes.flat[0].set_ylim(0, seasonal_limit(data, variable))
         figure.supxlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE, x=.5)
         figure.supylabel("Accidents per million vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
-        handles, labels = axes.flat[0].get_legend_handles_labels()
+        handles, labels = axes[0].get_legend_handles_labels()
         figure.legend(handles, labels, loc="outside upper center", ncols=len(handles), frameon=False, fontsize=TICK_FONT_SIZE)
         path = output / f"{prefix}{variable}_traffic_rate_panels.png"
         figure.savefig(path, dpi=240)

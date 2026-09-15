@@ -36,40 +36,34 @@ def data_chapter_tables(output: Path) -> None:
 
     selection = pd.read_csv("data/analysis/selection_summary.csv").set_index(["dataset", "step"]).records
     samples = selection.loc["analysis_samples"]
+    accidents = selection.loc["accidents"]
     weather = pd.read_csv("data/analysis/weather_cleaning.csv")
     weather = weather[weather.year.astype(str).ne("total")]
-    road = pd.read_csv("data/processed/traffic/road_period.csv", low_memory=False)
-    road = road[road.variable.eq("f_5m")]
-    usable = road[road.wind_frequency_available.fillna(False)
-                  & road.weather_station_id.notna() & road.frequency_pct.notna()
-                  & road.section_length_km.gt(0) & road.traffic_reference_daily_volume.gt(0)]
-    road_kept = len(usable[["year", "road_section", "traffic_period"]].drop_duplicates())
-    daily = pd.read_csv("data/analysis/daily_traffic.csv", usecols=["f_mean"])
+    daily = selection.loc["daily_traffic"]
     entries = [
-        ("Accidents", samples.source_accidents, samples.rural_injury_2007_2025,
-         "Invalid time/location, urban, or no injury."),
-        ("Weather observations", weather.input_rows.sum(), weather.clean_wind_rows.sum(),
-         "Missing, implausible, inconsistent or frozen wind."),
-        ("Annual traffic periods", selection.loc[("annual_traffic", "road_section_year_periods")], road_kept,
-         "No usable weather or nonpositive traffic/length."),
-        ("Daily counter-days", len(daily), daily.f_mean.notna().sum(),
-         "No usable daytime wind summary."),
-        ("Primary weather sample", samples.rural_injury_2007_2025, samples.weather_oe,
-         "No weather match within 20 km and five minutes."),
-        ("Annual traffic sample", samples.rural_injury_2007_2025, samples.annual_rate,
-         "Road linkage, exposure or weather eligibility."),
-        ("Traffic-based rate sample", samples.rural_injury_2019_2024,
-         samples.same_day_weather_vkt,
-         "Counter linkage, daytime accident, traffic record, or weather availability."),
+        ("Valid accident records", samples.source_accidents, accidents.valid_time_and_coordinates, "Invalid time or coordinates."),
+        ("Rural accidents", accidents.valid_time_and_coordinates, accidents.rural_accidents, "Inside the urban study boundary."),
+        ("Rural injury accidents", accidents.rural_accidents, samples.rural_injury_2007_2025, "No recorded injury."),
+        ("Accidents for weather-only analysis", samples.rural_injury_2007_2025, samples.weather_oe, "No qualifying weather within 20 km and five minutes."),
+        ("Accidents for VKT analysis", samples.rural_injury_2019_2024, samples.same_day_weather_vkt, "Separate 2019--2024 sample: counter linkage, daytime, weather and traffic eligibility."),
+        ("Wind observations", weather.input_rows.sum(), weather.clean_wind_rows.sum(), "Wind exclusions in the cleaning overview."),
+        ("Daily counter-days", daily.counter_days, daily.counter_days_with_daytime_wind, "No usable daytime wind summary."),
     ]
-    rows = [[name, f"{int(before):,}", f"{int(before-after):,}", f"{int(after):,}", reason]
+    rows = [[name, f"{int(before):,}", f"{100*(before-after)/before:.2f}\\%", f"{int(after):,}", reason]
             for name, before, after, reason in entries]
+    # tex() escapes the percent sign; supply it without a pre-existing escape.
+    for row in rows:
+        row[2] = row[2].replace("\\%", "%")
+        if row[2] == "0.00%":
+            row[2] = r"$<0.01$%"
     write_table(output / "data_trimming.tex",
-                "Overview of the main data selections. Rows are separate selections rather than successive steps; the last three count accidents.",
-                "tab:data-trimming", r"L{0.20\textwidth}rrrX",
-                ["Dataset / selection", "Before", "Removed", "Retained", "Reason"], rows,
-                size="scriptsize", width=r"\textwidth",
-                short_caption="Overview of data selection.")
+                "Overview of primary data selections for accidents, weather and traffic counts. "
+                "The first four rows are sequential; the last three rows start from separate populations. "
+                "Each removal percentage uses the count entering that row.",
+                "tab:data-trimming", r"L{0.23\textwidth}rL{0.13\textwidth}rX",
+                ["Selection", "Entering", "Removed at step (\\%)", "Retained", "Reason"], rows,
+                size="footnotesize", width=r"\textwidth",
+                short_caption="Primary data selections.")
 
 
 def tex(value: object) -> str:
@@ -185,10 +179,10 @@ def weather_cleaning(output: Path) -> None:
     categories = [
         ("All supplied station-time observations", "input_rows"),
         (r"Missing \texttt{f} or \texttt{fg}", "missing_wind"),
-        ("Negative or upper-threshold wind", None),
-        (r"Internally inconsistent \texttt{f}/\texttt{fg}", None),
-        (r"Frozen all-zero runs ($\geq 2$ hours)", "frozen_zero"),
-        ("Quality-controlled wind observations retained", "clean_wind_rows"),
+        (r"$f<0$, $fg<0$, $f\geq45$ or $fg\geq65$ m/s", None),
+        (r"$fg=0<f$ or $fg+0.5<f$ (m/s)", None),
+        (r"All-zero runs $\geq 2$ hr", "frozen_zero"),
+        ("Wind observations retained", "clean_wind_rows"),
     ]
     invalid_range = int(data["negative"].sum() + data["upper_threshold"].sum())
     inconsistent = int(
@@ -203,7 +197,7 @@ def weather_cleaning(output: Path) -> None:
     scope_note = " Every supplied station-year contains at least one wind measurement."
     if outside_scope:
         rows.insert(1, [
-            "Rows assessed for wind quality", f"{assessed:,}",
+            "Rows assessed for wind cleaning", f"{assessed:,}",
             f"{100 * assessed / total:.2f}%",
         ])
         scope_note = (
@@ -211,16 +205,20 @@ def weather_cleaning(output: Path) -> None:
             "measurements are outside that scope."
         )
     denominator_note = (
-        "Quality-rule shares use the rows in station-years containing wind data as their denominator."
+        "Cleaning-rule shares use the rows in station-years containing wind data as their denominator."
         if outside_scope else
-        "Quality-rule shares use all supplied observations."
+        "Cleaning-rule shares use all supplied observations."
     )
     write_table(
         output / "weather_cleaning.tex",
-        "Wind-data scope and quality audit, 2007--2025. " + denominator_note + scope_note,
+        "Overview of cleaning of wind measurement records, 2007--2025. " + denominator_note + scope_note,
         "tab:weather-cleaning", "lrr", ["Category", "Records", "Share"], rows,
-        short_caption="Wind-data scope and quality audit, 2007--2025.",
+        short_caption="Overview of cleaning of wind measurement records, 2007--2025.",
     )
+
+    path = output / "weather_cleaning.tex"
+    content = path.read_text().replace(r"\grayhline" + "\nWind observations retained", r"\midrule" + "\nWind observations retained")
+    path.write_text(content)
 
 
 def coverage(output: Path) -> None:
@@ -324,24 +322,17 @@ def traffic_methods(output: Path) -> None:
 
 
 def match_quality(output: Path) -> None:
-    data = pd.read_csv("reports/main/tables/match_quality.csv")
+    data = pd.read_csv("data/processed/accidents/rural_injury.csv")
     rows = []
-    for row in data.itertuples(index=False):
-        rows.append([
-            row.weather_variable,
-            f"{int(row.matched_accidents):,}",
-            f"{row.matched_pct:.1f}%",
-            f"{int(row.stations_used):,}",
-            f"{row.median_distance_km:.1f} / {row.p90_distance_km:.1f}",
-        ])
-    write_table(
-        output / "match_quality.tex",
-        "Share of accidents with weather information from a station with a valid measurement within 20 km. Distance is shown as median / 90th percentile; every retained observation is within five minutes of the accident time.",
-        "tab:match-quality", "lrrrr",
-        ["Variable", "Accidents", "Share", "Stations", "Distance (km)"],
-        rows, size="footnotesize",
-        short_caption="Weather-match coverage and distance.",
-    )
+    for distance in (5, 10, 20, 30):
+        matched = data.weather_station_dist_km.le(distance) & data.weather_time_difference_minutes.le(5) & data.f.notna() & data.fg.notna()
+        n = int(matched.sum())
+        rows.append([distance, f"{n:,}", f"{100*n/len(data):.1f}%"])
+    write_table(output / "match_quality.tex",
+        "Weather-match coverage at alternative station-distance thresholds. "
+        "The denominator is 6,414 rural injury accidents, 2007--2025; all matches require valid mean wind and gust within five minutes.",
+        "tab:match-quality", "rrr", ["Maximum distance (km)", "Matched accidents", r"Matched (\%)"], rows,
+        short_caption="Weather-match coverage by distance threshold.")
 
 
 def year_comparison(output: Path) -> None:
@@ -489,21 +480,7 @@ def traffic_tables(output: Path) -> None:
         rows.append([interval(wind_bin), f"{estimate(a, 'time_proportional_rate_ratio', 'time_proportional_ci_95_low', 'time_proportional_ci_95_high')}, $n={int(a.observed_accidents)}$", f"{estimate(b, 'time_proportional_rate_ratio', 'time_proportional_ci_95_low', 'time_proportional_ci_95_high')}, $n={int(b.observed_accidents)}$"])
     write_table(output / "traffic_scope.tex", "Conditional rate ratios in the upper mean-wind intervals: all periods versus official VDU and SDU periods only", "tab:traffic-scope", "lrr", ["Mean wind", "All periods", "Official VDU+SDU only"], rows)
 
-    quality = pd.read_csv("reports/main/tables/traffic_checks.csv")
-    rows = []
-    for row in quality.itertuples(index=False):
-        if "Rate model" in row.check:
-            value = f"RR {row.estimate:.2f}"
-        elif "Daily traffic" in row.check:
-            value = f"{row.estimate:.2f}%"
-        else:
-            value = f"{row.estimate:.2f}% excluded"
-        if pd.notna(row.ci_95_low):
-            value += f" ({row.ci_95_low:.2f}--{row.ci_95_high:.2f})"
-        unit = " accidents" if "Rate model" in row.check else (" days" if "Daily traffic" in row.check else " section-years")
-        check = str(row.check).replace("20-25", "20--25")
-        rows.append([check, row.primary_or_full_scope, value, f"{int(row.records):,}{unit}"])
-    write_table(output / "traffic_quality.tex", "Sensitivity and quality checks for the supporting traffic analyses.", "tab:traffic-sensitivity", r"L{0.19\textwidth}L{0.27\textwidth}L{0.22\textwidth}X", ["Check", "Data included", r"Estimate (95\% interval)", "Records"], rows, size="footnotesize", width=r"\textwidth")
+    traffic_sensitivity(output)
 
     direction = pd.read_csv(
         "reports/main/tables/allocation_check.csv"
@@ -526,6 +503,21 @@ def traffic_tables(output: Path) -> None:
         rows,
         size="footnotesize",
     )
+
+
+def traffic_sensitivity(output: Path) -> None:
+    quality = pd.read_csv("reports/main/tables/traffic_checks.csv")
+    quality = quality[quality["check"].str.startswith("Daily traffic")]
+    rows = []
+    for row in quality.itertuples(index=False):
+        value = f"{row.estimate:.2f}%"
+        if pd.notna(row.ci_95_low):
+            value += f" ({row.ci_95_low:.2f}--{row.ci_95_high:.2f})"
+        unit = " days"
+        check = str(row.check).replace("20-25", "20--25")
+        rows.append([check, row.primary_or_full_scope, value, f"{int(row.records):,}{unit}"])
+    write_table(output / "traffic_quality.tex", "Effect of excluding zero counter-days on the daily traffic response.", "tab:traffic-sensitivity", r"L{0.19\textwidth}L{0.27\textwidth}L{0.22\textwidth}X", ["Check", "Data included", r"Estimate (95\% interval)", "Records"], rows, size="footnotesize", width=r"\textwidth")
+
 
 
 def _legacy_evidence(output: Path) -> None:

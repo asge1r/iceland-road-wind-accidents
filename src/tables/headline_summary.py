@@ -21,16 +21,16 @@ def headline_summary(output: Path) -> None:
         baseline = select(q3, '0-5')
         interval = rf'$\geq{high[2:]}$ m/s'
         rows.extend([
-            [name, 'Q1', interval, f'O/E {a.relative_accident_frequency:.2f}', 'Local weather frequency'],
-            [name, 'Q2', interval, f'O/E {b.traffic_corrected_oe:.2f}', 'Traffic-reweighted weather frequency'],
-            [name, 'Q3', interval + ' vs 0--5', f'{c.rate_per_million_vehicle_km / baseline.rate_per_million_vehicle_km:.2f}' + r'$\times$', 'Estimated distance travelled'],
+            [name, 'Weather-only O/E', interval, f'O/E {a.relative_accident_frequency:.2f}', 'Local weather frequency'],
+            [name, 'Corrected O/E', interval, f'O/E {b.traffic_corrected_oe:.2f}', 'Traffic-reweighted weather frequency'],
+            [name, 'Traffic-based rate', interval + ' vs 0--5', f'{c.rate_per_million_vehicle_km / baseline.rate_per_million_vehicle_km:.2f}' + r'$\times$', 'Estimated distance travelled'],
         ])
     write_table(output/'evidence.tex',
-        'Headline mean-wind and gust results for Q1--Q3. Q1 and Q2 report observed-to-expected ratios; Q3 reports the upper-bin rate divided by the 0--5 m/s rate. '
-        'The estimates use different denominators and are not repeated estimates of one parameter. Q3 uses a smaller counter-linked sample, with 11 accidents in each upper interval.',
-        'tab:evidence-summary', r'L{0.14\textwidth}L{0.11\textwidth}L{0.20\textwidth}L{0.14\textwidth}X',
+        'Headline mean-wind and gust results. The weather-only and corrected analyses report O/E; the traffic-based analysis reports the upper-bin rate divided by the 0--5 m/s rate. '
+        'The estimates use different denominators and are not repeated estimates of one parameter. The traffic-based analysis uses a smaller counter-linked sample, with 11 accidents in each upper interval.',
+        'tab:evidence-summary', r'L{0.12\textwidth}L{0.17\textwidth}L{0.19\textwidth}L{0.12\textwidth}X',
         ['Parameter','Method','Comparison','Estimate','Denominator'], rows,
-        size='small', width=r'\textwidth', short_caption='Headline Q1--Q3 wind and gust results.')
+        size='small', width=r'\textwidth', short_caption='Headline wind and gust results.')
 
 
 if __name__ == '__main__':

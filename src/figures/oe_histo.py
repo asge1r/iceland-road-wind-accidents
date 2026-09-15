@@ -86,7 +86,7 @@ def interval_label(value: str, bracketed: bool = False) -> str:
         return value
     lower, upper = (part.replace("-", "−") for part in match.groups())
     if bracketed:
-        return f"[{lower},{upper}]"
+        return f"[{lower}, {upper}]"
     return f"{lower}–{upper}"
 
 
@@ -270,16 +270,14 @@ def add_legend(figure: plt.Figure, axis: Axes) -> None:
 
 def plot_variable(data: pd.DataFrame, variable: str, output: Path) -> None:
     """Draw the complete year and four seasons for one weather variable."""
-    figure, axes = plt.subplots(
-        3, 2, figsize=(14.5, 13), sharey=False, layout="constrained"
-    )
+    from src.figures.season_layout import seasonal_figure
+    figure, axes = seasonal_figure()
     titles = {"All year": VARIABLE_TITLES[variable], **SEASON_LABELS}
-    for axis, period in zip(axes.flat[:5], PERIODS, strict=True):
+    for axis, period in zip(axes, PERIODS, strict=True):
         draw_panel(axis, data, variable, period, titles[period])
         panel = data[data.variable.eq(variable) & data.period.eq(period)]
         axis.set_ylim(0, panel_readability_limit(panel))
-    axes.flat[5].axis("off")
-    add_legend(figure, axes.flat[0])
+    add_legend(figure, axes[0])
     figure.supxlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE)
     figure.supylabel(
         "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE

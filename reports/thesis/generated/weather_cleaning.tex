@@ -1,7 +1,7 @@
 \begin{table}[H]
 \centering
 \small
-\caption[Wind-data scope and quality audit, 2007--2025.]{Wind-data scope and quality audit, 2007--2025. Quality-rule shares use all supplied observations. Every supplied station-year contains at least one wind measurement.}
+\caption[Overview of cleaning of wind measurement records, 2007--2025.]{Overview of cleaning of wind measurement records, 2007--2025. Cleaning-rule shares use all supplied observations. Every supplied station-year contains at least one wind measurement.}
 \label{tab:weather-cleaning}
 \begin{tabular}{lrr}
 \toprule
@@ -9,10 +9,10 @@ Category & Records & Share \\
 \midrule
 All supplied station-time observations & 232,459,562 & 100.00\% \\ \grayhline
 Missing \texttt{f} or \texttt{fg} & 261,519 & 0.11\% \\ \grayhline
-Negative or upper-threshold wind & 8,766 & 0.00\% \\ \grayhline
-Internally inconsistent \texttt{f}/\texttt{fg} & 257,245 & 0.11\% \\ \grayhline
-Frozen all-zero runs ($\geq 2$ hours) & 1,473,082 & 0.63\% \\ \grayhline
-Quality-controlled wind observations retained & 230,458,950 & 99.14\% \\
+$f<0$, $fg<0$, $f\geq45$ or $fg\geq65$ m/s & 8,766 & 0.00\% \\ \grayhline
+$fg=0<f$ or $fg+0.5<f$ (m/s) & 257,245 & 0.11\% \\ \grayhline
+All-zero runs $\geq 2$ hr & 1,473,082 & 0.63\% \\ \midrule
+Wind observations retained & 230,458,950 & 99.14\% \\
 \bottomrule
 \end{tabular}
 \end{table}

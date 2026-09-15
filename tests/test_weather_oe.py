@@ -72,7 +72,7 @@ class WeatherOETests(unittest.TestCase):
                         np.testing.assert_allclose(shown[column], direct[column], rtol=1e-10, atol=1e-10)
 
     def test_interval_labels_use_brackets(self) -> None:
-        self.assertEqual(interval_label("-6--3", bracketed=True), "[−6,−3]")
+        self.assertEqual(interval_label("-6--3", bracketed=True), "[−6, −3]")
         self.assertEqual(interval_label("0-5"), "0–5")
         self.assertEqual(interval_label(">=20"), "≥20")
 

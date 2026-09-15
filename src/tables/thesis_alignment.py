@@ -13,15 +13,17 @@ OUTPUT_DIR = Path("reports/thesis/generated")
 
 def selection_tex(data: pd.DataFrame) -> str:
     rows = []
-    for row in data.itertuples(index=False):
+    for index, row in enumerate(data.itertuples(index=False)):
         removed = "--" if row.removed == 0 else f"{row.removed:,}"
         step = str(row.step)
         step = step.replace(">=", "$\\geq$").replace("<=", "$\\leq$")
         # Reader-facing ranges use en dashes in LaTeX.
         step = re.sub(r"(?<=\d)-(?=\d)", "--", step)
         step = step.replace("counter-section road/year", "counter-section for road/year")
-        if step == "e) Require usable wind and gust":
+        if "Require usable wind and gust" in step:
             step += r" ($\leq$20 km, $\pm$5 min)"
+        if index > 0:
+            step = chr(96 + index) + ") " + re.sub(r"^[0a-z]\)\s*", "", step)
         rows.append(
             f"{step} & {removed} & {row.remaining:,} \\\\ \\grayhline"
         )
@@ -32,7 +34,7 @@ def selection_tex(data: pd.DataFrame) -> str:
 
     return r"""\begin{table}[H]
 \centering
-\caption[Selection for the Q3 traffic-based rate analysis.]{Selection for the Q3 monthly-frequency daily-counter rate. The first row includes urban and rural injury accidents; the rural restriction is applied in step (a). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
+\caption[Selection for the traffic-based rate analysis.]{Selection for the traffic-based rate analysis. The first row includes urban and rural injury accidents; the rural restriction is applied in step (b). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
 \label{tab:monthly-vkt-selection}
 \small
 \begin{tabular}{p{0.64\textwidth}rr}
@@ -45,9 +47,9 @@ Step & Removed & Remaining \\ \midrule
 \vspace{0.4em}
 \begin{minipage}{0.94\textwidth}
 \footnotesize
-\textit{Notes:} The 21 road-location failures in step (c) comprise five records
+\textit{Notes:} The 21 road-location failures in step (d) comprise five records
 without usable road geometry, 15 located more than 100 m from their registered
-road, and one projected outside the counter sections. For step (e), the 20 km
+road, and one projected outside the counter sections. For step (f), the 20 km
 weather distance is measured from the counter-section location rather than the
 accident coordinate; valid mean wind and gust are required within five minutes
 of the recorded accident time.

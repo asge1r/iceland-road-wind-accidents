@@ -1,14 +1,16 @@
 \begin{table}[H]
 \centering
-\footnotesize
-\caption[Weather-match coverage and distance.]{Share of accidents with weather information from a station with a valid measurement within 20 km. Distance is shown as median / 90th percentile; every retained observation is within five minutes of the accident time.}
+\small
+\caption[Weather-match coverage by distance threshold.]{Weather-match coverage at alternative station-distance thresholds. The denominator is 6,414 rural injury accidents, 2007--2025; all matches require valid mean wind and gust within five minutes.}
 \label{tab:match-quality}
-\begin{tabular}{lrrrr}
+\begin{tabular}{rrr}
 \toprule
-Variable & Accidents & Share & Stations & Distance (km) \\
+Maximum distance (km) & Matched accidents & Matched (\%) \\
 \midrule
-Mean wind and gust & 6,259 & 97.6\% & 279 & 5.1 / 12.3 \\ \grayhline
-Temperature & 6,259 & 97.6\% & 279 & 5.1 / 12.3 \\
+5 & 3,060 & 47.7\% \\ \grayhline
+10 & 5,098 & 79.5\% \\ \grayhline
+20 & 6,259 & 97.6\% \\ \grayhline
+30 & 6,402 & 99.8\% \\
 \bottomrule
 \end{tabular}
 \end{table}
