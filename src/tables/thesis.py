@@ -31,7 +31,8 @@ def data_chapter_tables(output: Path) -> None:
     write_table(output / "windy_group_examples.tex",
                 "Worked examples for the two O/E groups: mean wind at least 20 m/s, all years and seasons pooled.",
                 "tab:windy-group-examples", "lrrrr",
-                ["Group", r"\texttt{meidsli}", "Observed", "Expected", "O/E"], rows)
+                ["Group", r"\texttt{meidsli}", "Observed", "Expected", "O/E"], rows,
+                short_caption="Worked high-wind O/E examples.")
 
     selection = pd.read_csv("data/analysis/selection_summary.csv").set_index(["dataset", "step"]).records
     samples = selection.loc["analysis_samples"]
@@ -57,17 +58,18 @@ def data_chapter_tables(output: Path) -> None:
          "No weather match within 20 km and five minutes."),
         ("Annual traffic sample", samples.rural_injury_2007_2025, samples.annual_rate,
          "Road linkage, exposure or weather eligibility."),
-        ("Same-day rural VKT", samples.rural_injury_2019_2024,
+        ("Monthly-frequency VKT sample", samples.rural_injury_2019_2024,
          samples.same_day_weather_vkt,
-         "Counter linkage, positive rural traffic, or weather availability."),
+         "Counter linkage, daytime accident, traffic record, or weather availability."),
     ]
     rows = [[name, f"{int(before):,}", f"{int(before-after):,}", f"{int(after):,}", reason]
             for name, before, after, reason in entries]
     write_table(output / "data_trimming.tex",
-                "Simple overview of data selection. Rows are separate selections, not successive steps; the last three count accidents.",
+                "Overview of the main data selections. Rows are separate selections rather than successive steps; the last three count accidents.",
                 "tab:data-trimming", r"L{0.20\textwidth}rrrX",
                 ["Dataset / selection", "Before", "Removed", "Retained", "Reason"], rows,
-                size="scriptsize", width=r"\textwidth")
+                size="scriptsize", width=r"\textwidth",
+                short_caption="Overview of data selection.")
 
 
 def tex(value: object) -> str:
@@ -90,10 +92,15 @@ def write_table(
     rows: list[list[object]],
     size: str = "small",
     width: str | None = None,
+    short_caption: str | None = None,
 ) -> None:
     environment = "tabularx" if width else "tabular"
     begin = rf"\begin{{{environment}}}{{{width}}}{{{columns}}}" if width else rf"\begin{{{environment}}}{{{columns}}}"
     label_line = rf"\label{{{label}}}" if label else ""
+    caption_line = (
+        rf"\caption[{short_caption}]{{{caption}}}"
+        if short_caption else rf"\caption{{{caption}}}"
+    )
     body = []
     for index, row in enumerate(rows):
         rule = r" \\ \grayhline" if index < len(rows) - 1 else r" \\"
@@ -101,7 +108,7 @@ def write_table(
     content = "\n".join(
         [
             r"\begin{table}[H]", r"\centering", rf"\{size}",
-            rf"\caption{{{caption}}}", label_line, begin, r"\toprule",
+            caption_line, label_line, begin, r"\toprule",
             " & ".join(headers) + r" \\", r"\midrule", *body,
             r"\bottomrule", rf"\end{{{environment}}}", r"\end{table}", "",
         ]
@@ -212,6 +219,7 @@ def weather_cleaning(output: Path) -> None:
         output / "weather_cleaning.tex",
         "Wind-data scope and quality audit, 2007--2025. " + denominator_note + scope_note,
         "tab:weather-cleaning", "lrr", ["Category", "Records", "Share"], rows,
+        short_caption="Wind-data scope and quality audit, 2007--2025.",
     )
 
 
@@ -225,11 +233,12 @@ def coverage(output: Path) -> None:
     rows = [
         ("Source records", int(samples["source_accidents"]), "Accident database, 2007--2025."),
         ("Rural injury accidents", int(samples["rural_injury_2007_2025"]), "Study population."),
-        ("Primary O/E", int(samples["weather_oe"]), "Main weather analysis."),
-        ("Matched-time", int(samples["matched_time"]), "Time-matched comparison."),
-        ("Annual traffic", int(samples["annual_rate"]), "Broader traffic analysis."),
-        ("Daily-counter", int(allocated_counts[0]), "Observed daily traffic totals."),
-        ("Same-day rural vehicle-kilometres", int(samples["same_day_weather_vkt"]), "Daily traffic; same-day daytime weather."),
+        ("Q1: Primary O/E", int(samples["weather_oe"]), "Main weather-frequency analysis."),
+        ("Q2: Approximate traffic correction", int(samples["weather_oe"]), "Same accident sample as Q1; denominator reweighted using counter-derived traffic response."),
+        ("Q3: Monthly-frequency VKT", int(samples["same_day_weather_vkt"]), "Main counter-linked traffic analysis, 2019--2024."),
+        ("Supporting matched-time", int(samples["matched_time"]), "Time-matched robustness analysis."),
+        ("Supporting annual traffic", int(samples["annual_rate"]), "Broader road-linked traffic model."),
+        ("Supporting allocated daily-counter", int(allocated_counts[0]), "Alternative daily-counter model."),
     ]
     rows = [[label, f"{count:,}", purpose] for label, count, purpose in rows]
     write_table(
@@ -239,6 +248,7 @@ def coverage(output: Path) -> None:
         ["Stage", "Accidents", "Purpose"], rows,
         size="footnotesize",
         width=r"\textwidth",
+        short_caption="Analysis sample sizes.",
     )
 
 
@@ -246,7 +256,26 @@ def severity_conditions(output: Path) -> None:
     data = pd.read_csv("reports/main/tables/severity_conditions.csv")
     rows = []
     for row in data.itertuples(index=False):
-        comparison = f"{row.comparison} vs {row.reference}".replace("Fall", "Autumn")
+        comparison_value = str(row.comparison).replace("Fall", "Autumn").replace(" m/s", "").replace(" °C", "").replace(" ºC", "")
+        reference_value = str(row.reference).replace("Fall", "Autumn").replace(" m/s", "").replace(" °C", "").replace(" ºC", "")
+        # Some source labels already include their units. Strip them here
+        # because the reader-facing table adds the unit explicitly below.
+        comparison_value = re.sub(r"\s*(?:m/s|°C|ºC)\s*$", "", comparison_value).strip()
+        reference_value = re.sub(r"\s*(?:m/s|°C|ºC)\s*$", "", reference_value).strip()
+        # The source label ``-6-3`` denotes -6 to -3 C, not -6 to +3 C.
+        # Make the upper negative sign explicit before the generic interval parser.
+        if row.predictor == "Temperature" and comparison_value == "-6-3":
+            comparison_value = "-6--3"
+        if row.predictor == "Temperature" and reference_value == "-6-3":
+            reference_value = "-6--3"
+        left = interval(comparison_value)
+        right = interval(reference_value)
+        unit = ""
+        if row.predictor == "Mean wind":
+            unit = " m/s"
+        elif row.predictor == "Temperature":
+            unit = r" $^{\circ}$C"
+        comparison = f"{left}{unit} vs {right}{unit}"
         rows.append([
             row.predictor,
             comparison,
@@ -254,19 +283,24 @@ def severity_conditions(output: Path) -> None:
         ])
     write_table(
         output / "severity_conditions.tex",
-        "Adjusted odds ratios for a serious-or-fatal outcome among recorded injury accidents. All listed variables are included in the same model.",
+        "Adjusted odds ratios for a serious or fatal outcome among recorded injury accidents. All listed variables are included in the same model.",
         "tab:severity-conditions",
         r"L{0.20\textwidth}L{0.45\textwidth}X",
         ["Variable", "Comparison", r"Adjusted OR (95\% CI)"],
         rows,
         size="footnotesize",
         width=r"\textwidth",
+        short_caption="Adjusted model of injury severity.",
     )
 
 
 def traffic_methods(output: Path) -> None:
     selection = pd.read_csv("data/analysis/selection_summary.csv")
     samples = selection[selection["dataset"].eq("analysis_samples")].set_index("step")["records"]
+    allocated = pd.read_csv("reports/main/tables/allocated_rate.csv")
+    allocated_counts = allocated["model_accidents"].dropna().astype(int).unique()
+    if len(allocated_counts) != 1:
+        raise ValueError("Allocated-rate table does not contain one validated sample size")
     rows = [
         [
             "Annual road sections", f"2007--2025 ({int(samples['annual_rate']):,})",
@@ -274,7 +308,7 @@ def traffic_methods(output: Path) -> None:
             "Traffic is allocated by wind frequency within each period.",
         ],
         [
-            "Daily counter sections", f"2019--2024 ({int(samples['same_day_weather_vkt']):,})",
+            "Allocated daily counters", f"2019--2024 ({int(allocated_counts[0]):,})",
             "Observed daily totals",
             "Within-day traffic is estimated; locations and upper bins are sparse.",
         ],
@@ -302,10 +336,11 @@ def match_quality(output: Path) -> None:
         ])
     write_table(
         output / "match_quality.tex",
-        "Share of accidents with weather information from a station with a valid measurement within 20 km. Distance is shown as median / P90; every retained observation is within five minutes of the accident time.",
+        "Share of accidents with weather information from a station with a valid measurement within 20 km. Distance is shown as median / 90th percentile; every retained observation is within five minutes of the accident time.",
         "tab:match-quality", "lrrrr",
         ["Variable", "Accidents", "Share", "Stations", "Distance (km)"],
         rows, size="footnotesize",
+        short_caption="Weather-match coverage and distance.",
     )
 
 
@@ -372,7 +407,7 @@ def traffic_tables(output: Path) -> None:
     adu = pd.read_csv("reports/main/tables/counter_adu.csv")
     names = ["All exact matches", "At least 300 observed days", "At least 300 days, one counter per section"]
     rows = [[name, f"{int(row.counter_years):,}", f"{row.median_mean_to_adu_ratio:.3f}", f"{row.p10_mean_to_adu_ratio:.3f}--{row.p90_mean_to_adu_ratio:.3f}", f"{row.pearson_log_correlation:.3f}"] for name, row in zip(names, adu.itertuples(index=False), strict=True)]
-    write_table(output / "adu_quality.tex", "Consistency of observed daily PDF traffic with official ADU", None, "Xrrrr", ["Data included", r"\(N\)", "Median", "P10--P90", r"\(r_{\log}\)"], rows, width=r"\textwidth")
+    write_table(output / "adu_quality.tex", "Consistency of observed daily PDF traffic with official ADU", None, "Xrrrr", ["Data included", r"\(N\)", "Median", "10th--90th pct.", r"\(r_{\log}\)"], rows, width=r"\textwidth")
 
     audit = pd.read_csv("reports/working/tables/day_rate_audit.csv").set_index("metric")["value"]
     rows = [
@@ -381,7 +416,7 @@ def traffic_tables(output: Path) -> None:
         ["Assigned counter within 20 km", f"{int(audit['within_distance']):,}", f"{100*audit['within_distance']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
         ["Positive count and valid full-day wind", f"{int(audit['with_valid_counter_day']):,}", f"{100*audit['with_valid_counter_day']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
     ]
-    write_table(output / "daily_selection.tex", "Selection of accidents for the observed daily-counter analysis", None, "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth")
+    write_table(output / "daily_selection.tex", "Selection of accidents for the supporting allocated daily-counter model.", None, "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth")
 
     sample = pd.read_csv("reports/main/tables/daily_sample.csv").set_index("group")
     groups = [
@@ -406,7 +441,7 @@ def traffic_tables(output: Path) -> None:
     ]
     write_table(
         output / "daily_sample.tex",
-        "Characteristics of accidents retained and excluded by the daily-counter linkage",
+        "Characteristics of accidents retained and excluded by the linkage used for the supporting allocated daily-counter model.",
         None,
         "Xrrrr",
         headers,
@@ -439,7 +474,7 @@ def traffic_tables(output: Path) -> None:
     radius = pd.read_csv("reports/main/tables/counter_radius.csv")
     radius = radius[radius["wind_bin"].eq(">=15")]
     rows = [[f"{int(row.max_counter_distance_km)} km", f"{int(row.with_valid_counter_day):,}", f"{int(row.observed_accidents):,}", f"{row.rate_ratio:.2f}", f"{row.ci_95_low:.2f}--{row.ci_95_high:.2f}"] for row in radius.itertuples(index=False)]
-    write_table(output / "daily_radius.tex", "Upper daily-counter estimate under three assignment distances", None, "rrrrr", ["Maximum distance", "Included accidents", "Upper-bin accidents", "Rate ratio", r"95\% CI"], rows)
+    write_table(output / "daily_radius.tex", "Upper-bin estimate from the supporting allocated daily-counter model under three assignment distances.", None, "rrrrr", ["Maximum distance", "Included accidents", "Upper-bin accidents", "Rate ratio", r"95\% CI"], rows)
 
     absolute = pd.read_csv("reports/main/tables/absolute_rate.csv")
     rows = [[interval(row.wind_bin), f"{int(row.observed_accidents):,}", f"{row.rate_per_100m_vehicle_km:.1f}"] for row in absolute.itertuples(index=False)]
@@ -466,8 +501,9 @@ def traffic_tables(output: Path) -> None:
         if pd.notna(row.ci_95_low):
             value += f" ({row.ci_95_low:.2f}--{row.ci_95_high:.2f})"
         unit = " accidents" if "Rate model" in row.check else (" days" if "Daily traffic" in row.check else " section-years")
-        rows.append([row.check, row.primary_or_full_scope, value, f"{int(row.records):,}{unit}"])
-    write_table(output / "traffic_quality.tex", "Comparison and quality checks for the traffic analyses", "tab:traffic-sensitivity", r"L{0.19\textwidth}L{0.27\textwidth}L{0.22\textwidth}X", ["Check", "Data included", r"Estimate (95\% interval)", "Records"], rows, size="footnotesize", width=r"\textwidth")
+        check = str(row.check).replace("20-25", "20--25")
+        rows.append([check, row.primary_or_full_scope, value, f"{int(row.records):,}{unit}"])
+    write_table(output / "traffic_quality.tex", "Sensitivity and quality checks for the supporting traffic analyses.", "tab:traffic-sensitivity", r"L{0.19\textwidth}L{0.27\textwidth}L{0.22\textwidth}X", ["Check", "Data included", r"Estimate (95\% interval)", "Records"], rows, size="footnotesize", width=r"\textwidth")
 
     direction = pd.read_csv(
         "reports/main/tables/allocation_check.csv"
@@ -492,7 +528,8 @@ def traffic_tables(output: Path) -> None:
     )
 
 
-def evidence(output: Path) -> None:
+def _legacy_evidence(output: Path) -> None:
+    """Legacy pre-Q1/Q2/Q3 summary; intentionally not called by main()."""
     oe = pd.read_csv("reports/main/tables/weather_oe.csv")
     case = pd.read_csv("reports/main/tables/matched_weather.csv")
     rate = pd.read_csv("reports/main/tables/wind_rate.csv")
@@ -544,7 +581,6 @@ def main() -> None:
     severity_conditions(args.output)
     traffic_methods(args.output)
     traffic_tables(args.output)
-    evidence(args.output)
     print(f"wrote generated thesis tables to {args.output}")
 
 

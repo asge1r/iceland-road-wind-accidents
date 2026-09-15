@@ -1,7 +1,7 @@
 \begin{table}[H]
 \centering
 \footnotesize
-\caption{Accident selection and analysis sample sizes.}
+\caption[Analysis sample sizes.]{Accident selection and analysis sample sizes.}
 \label{tab:coverage}
 \begin{tabularx}{\textwidth}{L{0.34\textwidth}rX}
 \toprule
@@ -9,11 +9,12 @@ Stage & Accidents & Purpose \\
 \midrule
 Source records & 126,607 & Accident database, 2007--2025. \\ \grayhline
 Rural injury accidents & 6,414 & Study population. \\ \grayhline
-Primary O/E & 6,259 & Main weather analysis. \\ \grayhline
-Matched-time & 6,257 & Time-matched comparison. \\ \grayhline
-Annual traffic & 5,125 & Broader traffic analysis. \\ \grayhline
-Daily-counter & 762 & Observed daily traffic totals. \\ \grayhline
-Same-day rural vehicle-kilometres & 694 & Daily traffic; same-day daytime weather. \\
+Q1: Primary O/E & 6,259 & Main weather-frequency analysis. \\ \grayhline
+Q2: Approximate traffic correction & 6,259 & Same accident sample as Q1; denominator reweighted using counter-derived traffic response. \\ \grayhline
+Q3: Monthly-frequency VKT & 694 & Main counter-linked traffic analysis, 2019--2024. \\ \grayhline
+Supporting matched-time & 6,257 & Time-matched robustness analysis. \\ \grayhline
+Supporting annual traffic & 5,125 & Broader road-linked traffic model. \\ \grayhline
+Supporting allocated daily-counter & 762 & Alternative daily-counter model. \\
 \bottomrule
 \end{tabularx}
 \end{table}

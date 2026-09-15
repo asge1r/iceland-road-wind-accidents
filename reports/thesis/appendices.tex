@@ -6,40 +6,44 @@ results. Additional checks are documented separately.
 \section{Accident Characteristics}
 \label{app:accident-characteristics}
 
-These descriptive figures complement the hour, season and daylight
-counts in the data chapter. They describe the selected injury accidents,
-without a traffic-exposure denominator.
+Figures~\ref{fig:vehicles-per-accident} and
+\ref{fig:accident-types-severity} complement the hour, season and daylight
+counts in the data chapter. They describe the selected injury accidents without
+a traffic-exposure denominator.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.72\textwidth]{vehicles_per_accident.png}
-\caption{Number of registered vehicles involved in the 6,414 rural injury
+\caption[Registered vehicles involved in rural injury accidents.]{Number of registered vehicles involved in the 6,414 rural injury
 accidents. Counts describe the selected sample, not risk by vehicle count.}
+\label{fig:vehicles-per-accident}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{accident_types_by_severity.png}
-\caption{Accident-type composition for minor injury (blue, code 3) and
+\caption[Accident-type composition by injury severity.]{Accident-type composition for minor injury (blue, code 3) and
 serious or fatal injury (red, codes 1--2). Percentages sum to 100 within
 each separate severity group.}
+\label{fig:accident-types-severity}
 \end{figure}
 
 \section{Adjusted Severity Model}
 
 Table~\ref{tab:severity-conditions} shows the adjusted comparison of
-serious-or-fatal and minor-injury accidents. It describes severity among
+serious or fatal and minor-injury accidents. It describes severity among
 recorded injury accidents; it does not estimate accident occurrence or risk
-per vehicle.
+per vehicle-kilometre.
 
 \input{generated/severity_conditions.tex}
 
-\section{Daily-Counter Sample}
+\section{Supporting Allocated Daily-Counter Sample}
 
-The following tables show the narrowing of the 2019--2024 accident sample and
-compare retained accidents with those excluded by the daily-counter linkage.
-The 767 records at the last broad selection step include five records that do
-not enter the final allocated-rate model; that model retains 762 accidents.
+This section documents the supporting allocated daily-counter model,
+not the 694-accident Q3 monthly-frequency VKT analysis. The tables show how the
+2019--2024 rural injury sample narrows under the linkage used by that supporting
+model. The 767 records at the last broad selection step include five records
+that do not enter its final allocated-rate model, which retains 762 accidents.
 
 \input{generated/daily_selection.tex}
 
@@ -51,16 +55,16 @@ Figure~\ref{fig:counter-coverage}.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{counter_coverage.png}
-\caption{Geographic coverage of located daily counters and rural injury
+\caption[Coverage of the supporting allocated daily-counter sample.]{Geographic coverage of located daily counters and rural injury
 accidents retained or excluded by the daily-counter linkage, 2019--2024.}
 \label{fig:counter-coverage}
 \end{figure}
 
 \section{Traffic Sensitivity Checks}
 
-The assignment-distance check shows how the broad daily-counter result changes
-under 5, 10, and 20 km limits. It is retained to make the spatial selection
-rule explicit.
+The assignment-distance check shows how the supporting allocated daily-counter
+result changes under 5, 10, and 20 km limits. It is retained to make the
+spatial selection rule explicit.
 
 \input{generated/daily_radius.tex}
 

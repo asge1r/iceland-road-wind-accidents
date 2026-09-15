@@ -53,6 +53,12 @@ def main() -> None:
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
     summary = pd.read_csv(args.input)
+
+    # Keep the validated internal season label "Fall", but use the
+    # reader-facing term "Autumn" in this thesis figure.
+    season_mask = summary["dimension"].eq("season")
+    summary.loc[season_mask, "category"] = summary.loc[season_mask, "category"].replace({"Fall": "Autumn"})
+
     figure, axes = plt.subplots(2, 2, figsize=(13, 9), constrained_layout=True)
     panel(axes[0, 0], summary[summary["dimension"].eq("hour")], "Accidents by hour", "Hour")
     panel(

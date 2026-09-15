@@ -1,19 +1,30 @@
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\caption{Selection for the monthly-frequency daily-counter rate. The final set contains all injury severities and is distinct from the earlier allocated daily samples.}
+\caption[Selection for the Q3 monthly-frequency VKT analysis.]{Selection for the Q3 monthly-frequency daily-counter rate. The first row includes urban and rural injury accidents; the rural restriction is applied in step (a). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
 \label{tab:monthly-vkt-selection}
 \small
 \begin{tabular}{p{0.64\textwidth}rr}
 \toprule
 Step & Removed & Remaining \\ \midrule
-All injury accidents, 2007-2025 & -- & 17,045 \\ \grayhline
-0) Restrict to 2019-2024 & 11,849 & 5,196 \\ \grayhline
+All injury accidents, 2007--2025 & -- & 17,045 \\ \grayhline
+0) Restrict to 2019--2024 & 11,849 & 5,196 \\ \grayhline
 a) Exclude urban accidents & 3,333 & 1,863 \\ \grayhline
-b) Require counter-section road/year & 994 & 869 \\ \grayhline
+b) Require counter-section for road/year & 994 & 869 \\ \grayhline
 c) Require successful road-location assignment & 21 & 848 \\ \grayhline
-d) Exclude 00:00-07:00 & 67 & 781 \\ \grayhline
-e) Require usable wind and gust & 4 & 777 \\ \grayhline
-Require daily traffic count & 83 & 694 \\ \grayhline
+d) Exclude 00:00--07:00 & 67 & 781 \\ \grayhline
+e) Require usable wind and gust ($\leq$20 km, $\pm$5 min) & 4 & 777 \\ \grayhline
+Require daily traffic count & 83 & 694 \\
 \bottomrule
 \end{tabular}
+
+\vspace{0.4em}
+\begin{minipage}{0.94\textwidth}
+\footnotesize
+\textit{Notes:} The 21 road-location failures in step (c) comprise five records
+without usable road geometry, 15 located more than 100 m from their registered
+road, and one projected outside the counter sections. For step (e), the 20 km
+weather distance is measured from the counter-section location rather than the
+accident coordinate; valid mean wind and gust are required within five minutes
+of the recorded accident time.
+\end{minipage}
 \end{table}

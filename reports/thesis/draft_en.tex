@@ -96,23 +96,24 @@
       \textcolor{hiblue}{\textbf{\MakeUppercase{Faculty of \thesisfaculty{}}}}};
   \end{tikzpicture}
 
-  \enlargethispage{3cm}
-  \vspace*{3.5cm}
+  \vspace*{4.1cm}
   \begin{center}
-    \vspace*{\stretch{1.5}}
     \huge\sffamily\bfseries \thesistitle{}
 
+    \vspace{0.35cm}
     \normalfont\LARGE\sffamily \thesissubtitle{}
 
-    \vspace{\stretch{1.0}}
+    \vspace{2.5cm}
     \normalfont\Large\sffamily \thesisauthor{}
 
-    \vspace*{\stretch{2.75}}
+    \vfill
     \thesismonth{}~\thesisyear{}
 
-    \vspace{\stretch{0.5}}
-    \normalfont\Large\sffamily \thesiskind{}~thesis \\
+    \vspace{0.65cm}
+    \normalfont\large\sffamily \thesiskind{}~thesis \\
     in \thesissubject{}
+
+    \vspace{1.45cm}
   \end{center}
 
   \newpage
@@ -130,7 +131,7 @@
     {\sffamily \thesisauthor{}}
 
     \vspace*{\stretch{1.0}}
-    \normalsize \thesiscredits{}~ECTS thesis submitted in partial fulfillment of a \\
+    \normalsize \thesiscredits{}~ECTS thesis submitted in partial fulfilment of a \\
     \textit{\thesiskindformal{}} degree in \thesissubject{}
 
     \vspace*{\stretch{1.0}}
@@ -141,7 +142,7 @@
     Faculty of \thesisfaculty{} \\
     \thesisschool{} \\
     University of Iceland \\
-    Reykjavik, \thesismonth{}~\thesisyear{}
+    Reykjavík, \thesismonth{}~\thesisyear{}
   \end{center}
 
   \newpage
@@ -151,14 +152,14 @@
   (\sffamily\thesisshorttitle{}) \\
   \sffamily\removelinebreaks{\thesissubtitle{}} \\
 
-  \thesiscredits{} ECTS thesis submitted in partial fulfillment of a
+  \thesiscredits{} ECTS thesis submitted in partial fulfilment of a
   \thesiskind{} degree in \thesissubject{} \\
 
   Faculty of \thesisfaculty{} \\
   \thesisschool{} \\
   University of Iceland \\
   \thesisaddress{} \\
-  \thesispostalcode{}, Reykjavik, Iceland \\
+  \thesispostalcode{}, Reykjavík, Iceland \\
   Telephone: \thesistelephone{} \\
 
   Bibliographic information: \\
@@ -167,7 +168,7 @@
 
   Copyright \textcopyright{} \thesisyear{} \thesisauthor{} \\
   \thesislicense{} \\
-  Reykjavik, Iceland, \thesismonth{}~\thesisyear{}
+  Reykjavík, Iceland, \thesismonth{}~\thesisyear{}
 \end{titlepage}
 
 \cleardoublepage
@@ -177,72 +178,67 @@
 
 \section*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
-This study examines how rural injury-accident occurrence varies with weather
-conditions in Iceland from 2007--2025. The main focus is on mean wind speed,
-with additional analyses of wind gusts, temperature, season, time of day, and
-daylight. Accident records were linked to 10-minute weather observations from
-nearby stations. The number of accidents under different weather conditions
-was then compared with how often those conditions occurred locally. A
-An approximate correction used the daily traffic response observed at counters
-in 2019--2024. A separate counter-linked analysis allocated observed daily
-traffic and rural road length using pooled monthly weather frequencies.
-Matched-time and other traffic models provided supporting comparisons.
+This study examines how the occurrence of rural injury accidents varies with
+weather conditions in Iceland from 2007--2025. Mean wind speed is the primary
+weather measure, with wind gust and temperature as secondary measures.
+Accident records were linked to nearby 10-minute weather observations, and
+observed accident counts were compared with counts expected from local weather
+frequency. Two traffic-based extensions were then applied. The first
+approximately reweighted the O/E denominator using traffic responses observed
+at daily counters in 2019--2024. The second estimated accident rates per
+vehicle-kilometre in a counter-linked sample using observed daily traffic,
+rural road length, and pooled monthly weather frequencies. Matched-time and
+additional traffic models provided supporting checks.
 
-A total of 6,259 injury accidents were matched to a valid wind observation
-within 20 km and five minutes of the accident time. At mean wind speeds of
-20 m/s or more, 68 injury accidents were observed, compared with 31.6 expected
-from the local frequency of such winds. This gives an observed-to-expected
-ratio of 2.15. High gusts and the matched-time comparison showed a similar
-upper-tail pattern. The approximate traffic correction changed O/E at 20 m/s
-or more to 2.71. In the 694-accident daily-counter sample, the rate in that
-interval was 5.83 times the 0--5 m/s rate, but only 11 accidents were in the
-upper interval. The results for temperature were less consistent.
+Of 6,414 rural injury accidents, 6,259 had a qualifying wind observation within
+20 km and five minutes of the recorded accident time. At mean wind speeds of at
+least 20 m/s, 68 accidents were observed compared with 31.6 expected, giving
+O/E 2.15. The approximate traffic correction increased this value to 2.71. In
+the separate 694-accident counter-linked analysis, the rate at 20 m/s or above
+was 0.667 accidents per million estimated vehicle-kilometres, 5.83 times the
+0--5 m/s rate, although only 11 accidents occurred in the upper interval. Wind
+gust showed the same general upper-tail pattern, while temperature results were
+less consistent across methods.
 
-Overall, rural injury accidents occurred more often during strong wind than
-would be expected from how often strong wind occurred locally. There was no
-clear evidence that accident severity differed between the wind categories.
-
-These results show statistical associations, not causal effects. Because
-hourly traffic data are not available at the required spatial and temporal
-resolution, precise accident risk per vehicle cannot be estimated for the full
-study period.
-
+Overall, rural injury accidents were over-represented during strong wind
+relative to local weather frequency. The traffic-based analyses pointed in the
+same direction but relied on additional exposure assumptions and smaller
+samples. The results describe statistical associations, not causal effects. A
+complete national estimate of accident risk per vehicle-kilometre would
+require hourly traffic data with broader spatial coverage.
 \vfill
 \section*{Ágrip}
 \addcontentsline{toc}{chapter}{Ágrip}
 
-Rannsóknin kannar hvernig tíðni umferðarslysa með meiðslum í dreifbýli á
-Íslandi breytist eftir veðurskilyrðum á árunum 2007--2025. Megináhersla er á meðalvindhraða,
-en einnig eru skoðaðar vindhviður, hitastig, árstíðir, tími dags og dagsbirta.
-Slysagögn voru tengd við tíu mínútna veðurmælingar frá nálægum veðurstöðvum.
-Fjöldi slysa við tiltekin veðurskilyrði var borinn saman við væntan fjölda
-miðað við tíðni skilyrðanna á sama stað og árstíma. Til stuðnings var veður
-á slysatíma borið saman við veður á sambærilegum tímum án slyss.
-Dagleg svörun umferðar við veðri á teljurum 2019--2024 var notuð til grófrar
-leiðréttingar á samanburðinum. Í sérstakri greiningu voru dagleg umferð og
-vegalengd tengd við mánaðarlega tíðni veðurs. Pöruð tímagreining og önnur
-umferðarlíkön voru notuð til stuðnings.
+Í rannsókninni var kannað hvernig umferðarslys með meiðslum í dreifbýli á
+Íslandi tengjast veðurskilyrðum á árunum 2007--2025. Megináhersla var á
+meðalvindhraða, en vindhviður og hitastig voru einnig skoðuð. Slysagögn voru
+tengd við 10 mínútna veðurmælingar frá nálægum veðurstöðvum og skráður fjöldi
+slysa borinn saman við væntan fjölda miðað við staðbundna tíðni viðkomandi
+veðurskilyrða. Tvær viðbótargreiningar tóku síðan tillit til umferðar. Í þeirri
+fyrri var gerð áætluð umferðarleiðrétting á O/E-nefnaranum út frá breytingum í
+daglegri umferð á umferðarteljurum 2019--2024. Í þeirri síðari var slysatíðni á hvern ekinn
+kílómetra metin í minna úrtaki með daglegum umferðartölum, vegalengd og
+mánaðarlegri tíðni veðurs. Pöruð tímagreining og fleiri umferðargreiningar voru
+notaðar til stuðnings.
 
-Alls voru 6.259 slys með meiðslum tengd við gilda vindmælingu frá veðurstöð
-í allt að 20 km fjarlægð og innan fimm mínútna frá slysatíma. Við
-meðalvindhraða 20 m/s eða meiri voru skráð 68 slys, en væntur fjöldi miðað
-við staðbundna tíðni slíkra vindskilyrða var 31,6. Hlutfall skráðs og vænts
-fjölda slysa var því 2,15. Sambærilegt mynstur kom fram í miklum vindhviðum
-og í pöruðum samanburði slysatíma og sambærilegra tíma án slyss. Grófa
-umferðarleiðréttingin hækkaði hlutfallið við
-20 m/s eða meira í 2,71. Í úrtaki 694 slysa sem tengdust daglegum
-umferðarteljurum var áætluð tíðni við 20 m/s eða meira 5,83 sinnum tíðnin við
-0--5 m/s. Aðeins 11 slys
-voru í efsta vindbilinu. Tengsl hitastigs og slysa voru breytileg eftir
-hitabili og greiningaraðferð.
+Af 6.414 slysum með meiðslum í dreifbýli var hægt að tengja 6.259 við gilda
+vindmælingu innan 20 km og fimm mínútna frá skráðum slysatíma. Við meðalvind
+20 m/s eða meiri voru skráð 68 slys, en miðað við staðbundna tíðni slíks
+vinds mátti vænta 31,6 slysa. O/E-hlutfallið var því 2,15 og hækkaði í 2,71 eftir áætlaða
+umferðarleiðréttingu. Í sérstakri greiningu á 694 slysum með tengingu við
+umferðarteljara var áætluð slysatíðni við 20 m/s eða meiri 0,667 slys á hverja
+milljón ekinna kílómetra, eða 5,83-föld tíðnin við 0--5 m/s. Aðeins 11 slys voru
+í efsta vindbilinu. Sambærilegt mynstur kom fram við miklar vindhviður, en
+niðurstöður fyrir hitastig voru breytilegri eftir greiningaraðferð.
 
-Slys með meiðslum voru hlutfallslega tíðari í miklum vindi en búast mætti
-við út frá staðbundinni tíðni hans. Ekki komu þó fram skýrar vísbendingar
-um meiri alvarleika meðal skráðra slysa með meiðslum í miklum vindi.
-Niðurstöðurnar lýsa tölfræðilegum tengslum en sýna ekki fram á
-orsakasamband. Umferðargögn á klukkustund liggja ekki fyrir með nægilegri
-upplausn í tíma og rúmi til að meta nákvæma slysaáhættu á hvern ekinn
-kílómetra við einstök veðurskilyrði fyrir allt rannsóknartímabilið.
+Í heild komu slys með meiðslum hlutfallslega oftar fyrir við mikinn vind en
+vænta mátti miðað við staðbundna tíðni vindsins. Umferðargreiningarnar bentu í
+sömu átt en byggðust á frekari forsendum um umferð og minni úrtökum.
+Niðurstöðurnar lýsa tölfræðilegum tengslum en sýna ekki fram á orsakasamband.
+Heildstætt mat á slysaáhættu á hvern ekinn kílómetra fyrir landið allt myndi
+krefjast umferðargagna á klukkustundargrunni með víðtækari landfræðilegri
+þekju.
 \newpage
 \setkomafont{section}{\Large}
 \hypersetup{pageanchor=true}
@@ -255,7 +251,7 @@ kílómetra við einstök veðurskilyrði fyrir allt rannsóknartímabilið.
 \begin{tabularx}{\textwidth}{L{0.18\textwidth}X}
 ADU & Average annual daily traffic. \\
 CI & Confidence interval. \\
-O/E & Observed accidents divided by expected accidents. \\
+O/E & Observed-to-expected accident ratio. \\
 OR & Odds ratio. \\
 RR & Rate ratio. \\
 SDU & Summer daily traffic, June--September. \\

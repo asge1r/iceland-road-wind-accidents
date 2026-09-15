@@ -4,7 +4,7 @@
 \footnotesize
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{1.08}
-\caption{Data preparation and analysis workflow}
+\caption{Data preparation and analysis workflow.}
 \label{tab:analysis-pipeline}
 \begin{tabularx}{\textwidth}{L{0.16\textwidth}L{0.27\textwidth}L{0.27\textwidth}L{0.18\textwidth}}
 \toprule
@@ -20,24 +20,24 @@ Rural injury accidents &
 Defines the study population. \\ \grayhline
 Weather matching &
 Accidents, weather observations and stations &
-Accident weather, local frequencies and control times &
-Creates the weather comparisons. \\ \grayhline
-Weather-frequency O/E &
+Accident-time weather and local frequencies &
+Common input to the weather analyses. \\ \grayhline
+Q1: weather-frequency O/E &
 Accident weather and local frequencies &
 Observed and expected counts &
 Primary analysis. \\ \grayhline
-Matched-time analysis &
-Accident and control times &
-Matched odds ratios &
-Time-matched supporting comparison. \\ \grayhline
-Approximate traffic correction &
-Primary O/E and 2019--2024 daily-counter response &
+Q2: approximate traffic correction &
+Primary O/E and 2019--2024 counter response &
 Traffic-corrected expected counts &
-Extrapolated sensitivity analysis. \\ \grayhline
-Monthly-frequency traffic rate &
+Approximate traffic-exposure sensitivity. \\ \grayhline
+Q3: monthly-frequency VKT rate &
 Recorded counter-days, rural lengths and monthly weather frequencies &
 Accidents per estimated million VKT &
-Main traffic analysis in the 694-accident sample. \\
+Main counter-linked traffic analysis. \\ \grayhline
+Supporting analyses &
+Matched control times and alternative traffic panels &
+Matched odds ratios and alternative rate estimates &
+Robustness checks. \\
 \bottomrule
 \end{tabularx}
 \end{table}

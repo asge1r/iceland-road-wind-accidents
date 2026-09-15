@@ -17,29 +17,28 @@ conditions \citep{baker1986,baker1994risk,edwards1994}. These are complementary
 forms of evidence: a physical mechanism does not establish how often accidents
 occur across a road network. Reviews also find less consistent road-safety
 evidence for wind than for precipitation \citep{theofilatos2014}. Local
-observations are therefore needed to assess the pattern in the setting under
-study.
+evidence is therefore needed to determine whether the same pattern is present
+on Icelandic roads.
 
-In Iceland, wind-related road safety has been studied through vehicle
-reliability and operational vehicle-wind models
-\citep{snaebjornsson2007,hrafnkelsdottir2020}. The question addressed here is
-different: how does recorded rural injury-accident occurrence vary with the
-weather that is observed locally? The contribution is to connect a long
-Icelandic accident series with station- and season-specific weather frequency,
-then assess the interpretation through an approximate traffic correction, a
-daily-counter vehicle-kilometre rate, and supporting matched-time comparisons.
-This links the engineering motivation to population-level accident records
-without treating station wind as a measurement of the force on a vehicle.
+In Iceland, wind-related road safety has been studied using vehicle-reliability
+analyses and operational vehicle-wind models
+\citep{snaebjornsson2007,hrafnkelsdottir2020}. This thesis addresses a
+different question: whether rural injury accidents are over-represented under
+particular weather conditions relative to how often those conditions occur
+locally. It then examines how the interpretation changes when available traffic
+information is introduced. The study therefore links a long Icelandic accident
+series with local weather frequency and two complementary traffic-exposure
+approaches, while treating station observations as proxies for road conditions
+rather than direct measurements of the forces acting on a vehicle.
 
-This thesis studies rural accidents involving injury in Iceland from
-2007--2025. Accident times and locations are linked to nearby 10-minute
-weather observations. The main comparison concerns mean wind speed. Wind
-gusts, temperature, season, time of day, daylight, and the available traffic
-data are then examined separately.
+The study covers rural injury accidents in Iceland from 2007--2025. Accident
+times and locations are linked to nearby 10-minute weather observations. Mean
+wind is the primary weather measure; wind gust and temperature are secondary
+measures, while season, time of day and daylight provide additional context.
 
-Accident counts alone do not measure accident risk. Severe weather can increase the
-hazard faced by each vehicle while reducing the number of vehicles on the
-road. Weather frequency and traffic volume are therefore considered
+Accident counts alone do not measure accident risk. Severe weather may increase
+the hazard faced by each vehicle while also reducing the number of vehicles on
+the road. Weather frequency and traffic volume are therefore considered
 separately \citep{andrey2003,lord2010,washington2020}.
 
 \section{Aim and Research Questions}
@@ -58,27 +57,29 @@ Three questions guide the analysis:
   O/E change when its weather-frequency denominator is adjusted using the
   daily traffic response observed at counters in 2019--2024?
   \item \textbf{Q3 --- Daily-counter VKT rate:} How do injury-accident rates
-  vary across mean-wind and gust intervals when observed daily traffic and
-  rural road length are allocated using pooled monthly weather frequencies?
+  vary across mean-wind and gust intervals when estimated vehicle-kilometre
+  exposure is constructed from observed daily traffic, rural road length, and
+  pooled monthly weather frequencies?
 \end{enumerate}
 
-The primary 2007--2025 analysis addresses the first question. The second is an
-explicitly approximate extrapolation from the available counters, and the
-third uses the smaller 2019--2024 counter-linked sample. Matched-time and the
-other annual and daily traffic models provide supporting checks.
-Minor-injury and serious-or-fatal accidents together form the all-injury
-outcome. The study
-estimates associations, not causal effects or a complete national accident
-rate per vehicle-kilometre.
+The three questions form a deliberate sequence. Q1 gives the broad
+weather-frequency comparison for 2007--2025. Q2 asks how that result changes
+under an approximate traffic correction estimated from the available counters.
+Q3 then uses a smaller 2019--2024 counter-linked sample to construct rates per
+estimated vehicle-kilometre. Matched-time and additional annual and daily
+traffic models are retained as supporting robustness checks rather than
+separate main questions. Minor-injury and serious or fatal accidents together
+form the all-injury outcome. The study estimates associations, not causal effects
+or a complete national accident rate per vehicle-kilometre.
 
 \section{Thesis Outline}
 
 Chapter 2 gives the background for the weather and traffic comparisons.
 Chapter 3 describes the data, data preparation, and statistical methods.
-Chapter 4 presents the results, beginning with mean wind. Chapter 5 discusses
-their interpretation and limitations, and Chapter 6 gives the conclusions.
-The appendix contains selected checks that support interpretation of the main
-results.
+Chapter 4 presents the three main analyses in research-question order, followed
+by supporting checks. Chapter 5 discusses their interpretation and limitations,
+and Chapter 6 gives the conclusions. The appendix contains additional checks
+that support interpretation of the main results.
 
 \chapter{Background}
 
@@ -96,21 +97,21 @@ occurrence.
 
 This problem is directly relevant in Iceland, where terrain can accelerate and
 redirect near-surface wind over short distances. An Icelandic reliability
-study by \citet{snaebjornsson2007} modelled accident probability as the combined
-outcome of wind velocity and direction, road camber and friction, and vehicle speed.
+study by \citet{snaebjornsson2007} modelled accident probability as a combined
+function of wind velocity and direction, road camber and friction, and vehicle
+speed.
 A station measures wind at one point, whereas vehicle stability also depends
 on the wind's direction relative to the road and on local road conditions.
 Terrain between a station and a road can alter the wind reaching the vehicle.
 Station observations therefore remain exposure proxies, and a shorter
-matching distance does not guarantee identical conditions. Mobile road measurement
-research similarly shows that roadside terrain creates marked
+matching distance does not guarantee identical conditions. Mobile road
+measurement research similarly shows that roadside terrain creates marked
 spatial variation that a sparse fixed-station network cannot fully resolve
 \citep{pu2018}.
 
-Vegager\dh in has developed a
-vehicle-wind model to support decisions about hazardous conditions and road
-closures, while also noting the limited experimental evidence available for
-passenger cars \citep{hrafnkelsdottir2020}. The present thesis does not test that
+Vegagerðin has developed a vehicle-wind model to support decisions about
+hazardous conditions and road closures, while also noting the limited
+experimental evidence available for passenger cars \citep{hrafnkelsdottir2020}. The present thesis does not test that
 operational model; it examines population-level accident occurrence using a
 separate data design.
 
@@ -147,10 +148,10 @@ Weather can change the amount of traffic as well as the hazard. Research using
 automatic traffic recorders shows that extreme weather variables, including
 wind, can reduce or redistribute hourly traffic volume
 \citep{sathiaraj2018}. Accident counts during strong wind can remain low even if
-risk to each travelling vehicle increases. High-resolution crash studies show
-the value of hourly weather and matched-time analyses rather than daily or
-monthly averages \citep{xing2019}. The analyses distinguish three
-quantities: accident occurrence relative to weather frequency,
+risk to each travelling vehicle is higher. High-resolution crash studies
+illustrate the value of hourly weather data rather than daily or monthly
+averages \citep{xing2019}. The analyses distinguish
+three quantities: accident occurrence relative to weather frequency,
 rates based on estimated vehicle-kilometres, and changes in observed daily
 traffic. Studies with real-time traffic, weather, and road geometry show what
 a more complete analysis could achieve when such data are available
@@ -186,7 +187,7 @@ Traffic and roads & Vegagerðin &
 Annual road traffic, daily counter reports, counter locations, and road geometry &
 33,757 section-years, 2000--2025; 1,033,659 counter channel-days, 2019--2024 \\
 Urban areas & Statistics Iceland & Urban-area polygons &
-97 polygons, 2020--2024 publication \\
+97 polygons in the 2020--2024 release \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -200,7 +201,7 @@ traffic quantities used in the subsequent comparisons.
 \begin{table}[H]
 \centering
 \small
-\caption{Definitions used throughout the thesis}
+\caption{Definitions used throughout the thesis.}
 \label{tab:definitions}
 \begin{tabularx}{\textwidth}{L{0.12\textwidth}L{0.34\textwidth}X}
 \toprule
@@ -239,22 +240,14 @@ within 20 km and five minutes.
 Accident severity is recorded in \texttt{meidsli}: code 1 denotes a fatal
 accident, code 2 a serious accident, code 3 a minor-injury accident, and code 4
 an accident without injury. The main outcome is
-\(\texttt{meidsli}\leq3\). The serious-or-fatal comparison uses
+\(\texttt{meidsli}\leq3\). The serious or fatal comparison uses
 \(\texttt{meidsli}\leq2\). The source data also contain 17,591 rural
 damage-only accidents; these are outside the injury outcome.
 
-The O/E figures divide the injury outcome into two separate groups: blue
-for minor injury (\texttt{meidsli}=3), and red for serious or fatal injury
-(\texttt{meidsli}=1 or 2). An accident appears in only one group.
-Table~\ref{tab:windy-group-examples} gives a worked example of each group
-in windy conditions. Expected counts are calculated separately for each
-group using its station--season accident totals and local weather frequencies
-(the full formula is given below). For minor injury, 56 observed accidents
-divided by 25.18 expected gives O/E 2.22; for serious or fatal injury,
-12 divided by 6.41 gives O/E 1.87. These pooled examples illustrate the
-calculation, not the cause of any individual accident.
-
-\input{generated/windy_group_examples.tex}
+For the reader-facing results, injury accidents are divided into two disjoint
+groups: minor injury (\texttt{meidsli}=3) and serious or fatal injury
+(\texttt{meidsli}=1 or 2). The O/E calculation for these groups is described
+in Section~\ref{sec:weather-frequency}.
 
 Figure~\ref{fig:accident-map} shows the geographic distribution of the rural
 injury sample and highlights accidents matched to strong mean wind.
@@ -262,7 +255,7 @@ injury sample and highlights accidents matched to strong mean wind.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.96\textwidth]{accident_map.png}
-\caption{Locations of the 6,414 rural injury accidents. Accidents matched to
+\caption[Locations of rural injury accidents and strong-wind matches.]{Locations of the 6,414 rural injury accidents. Accidents matched to
 mean wind of at least 15 m/s are highlighted. The map shows the spatial
 coverage of the study and is not a regional accident-rate map.}
 \label{fig:accident-map}
@@ -284,16 +277,18 @@ weather measure. A wind observation is used when
 Rows missing either \texttt{f} or \texttt{fg} are excluded. Negative values,
 values at or above either upper limit, and
 internally inconsistent values where \texttt{fg = 0} but \texttt{f > 0} are
-excluded and reported in the annual audit. A value of \texttt{f = 0} alone is
+excluded. These quality exclusions are summarised in
+Table~\ref{tab:weather-cleaning}. A value of \texttt{f = 0} alone is
 kept. Only uninterrupted all-zero runs where \texttt{f = fg = 0} for at
 least two hours are excluded as potentially frozen sensors. Missing temperature
 does not affect whether a wind observation is used.
 
 Each accident is matched to the geographically nearest station with a
-quality-controlled
-wind observation at one of the two adjacent timestamps on the 10-minute observation
-grid. The observations have 10-minute resolution, but the selected
-observation is no more than five minutes from the recorded accident time. The
+quality-controlled wind observation at one of the two adjacent timestamps on
+the 10-minute observation grid. The selected observation is therefore no more
+than five minutes from the recorded accident time. Because matching is based on
+absolute time difference, the adjacent observation can fall on the neighbouring
+calendar day for accidents occurring within five minutes of midnight. The
 maximum matching distance is 20 km. The matching dataset includes all 6,414
 accidents and records whether each accident meets the weather-match criterion.
 
@@ -317,19 +312,20 @@ wind-quality exclusions and retained observations.
 \input{generated/weather_cleaning.tex}
 
 The wind-quality rules exclude 2,000,612 observations and retain 230,458,950
-(99.14\%). The largest
-excluded category is uninterrupted all-zero runs, which is reported separately
-because it reflects the rule for possible instrument stoppages rather than a
-missing observation. The audit reports each rule separately and uses all
-supplied weather observations from 2007--2025. For each accident's station and season, the O/E
-expected count uses all quality-controlled background observations in that station--season
-group, not only observations recorded on accident days.
+(99.14\%). The largest excluded category is uninterrupted all-zero runs, which
+is reported separately because it reflects the rule for possible instrument
+stoppages rather than a missing observation. The audit reports each rule
+separately and uses all supplied weather observations from 2007--2025. For each
+accident's station and season, the O/E expected count uses all quality-controlled
+background observations in that station--season group, not only observations
+recorded on accident days.
 
 
 
 \subsection{Traffic Data}
 
-Two traffic sources are used for different purposes.
+Daily counter data underpin Q2 and Q3, while annual road-section traffic is
+used in supporting analyses.
 
 Annual road-section data provide average annual daily traffic (ADU), summer
 daily traffic (SDU), winter daily traffic (VDU), section length, and annual
@@ -337,8 +333,8 @@ vehicle-kilometres for 2000--2025 \citep{vegagerdinTraffic}. The road-section
 comparison uses the years shared with the accident study, 2007--2025.
 Following the official definitions, SDU
 covers June--September and VDU covers December--March. These data can be linked
-to accidents with a registered road-section identifier, but exact matching is much
-narrower than the weather matching. Table~\ref{tab:traffic-periods} distinguishes
+to accidents with a registered road-section identifier, but this linkage is
+considerably more restrictive than the weather matching. Table~\ref{tab:traffic-periods} distinguishes
 the published averages from the derived spring/autumn value.
 
 \begin{table}[H]
@@ -382,10 +378,9 @@ therefore a residual estimate rather than an additional official traffic
 measure.
 
 Daily traffic counts extracted from Vegagerðin reports cover 2019--2024 and
-provide observed totals at selected counter sites. They support both the
-traffic-response comparison and secondary daily-counter accident-rate
-analyses, but do not provide hourly vehicle-kilometres at every accident
-location. More than one counter may occur on a road section, and counter
+provide observed totals at selected counter sites. They underpin the traffic
+response used in Q2 and the counter-linked exposure calculation in Q3, but do
+not provide hourly traffic at accident locations. More than one counter may occur on a road section, and counter
 positions are estimated from the registered road geometry. These data remain
 separate from the primary O/E calculation.
 
@@ -396,14 +391,14 @@ traffic models are reported in Chapter 4.
 
 \subsection{Selection Summary}
 
-Table~\ref{tab:data-trimming} summarises what was removed from each dataset
-or analysis sample. Selection for the study area and injury outcome is
-distinguished from invalid or missing measurements: an excluded record is
-not necessarily an erroneous record. The same-day rural VKT sample starts with
-the 1,863 rural injury accidents in 2019--2024; the other accident samples
-cover 2007--2025. Traffic periods count road-section--year--period combinations,
-whereas daily traffic counts counter-days. Zero daily traffic is retained
-in the descriptive traffic sample but excluded from positive-VKT analyses.
+Table~\ref{tab:data-trimming} summarises the main data reductions. Selection
+for the study area and injury outcome is distinguished from invalid or missing
+measurements: an excluded record is not necessarily an erroneous record. The
+monthly-frequency VKT analysis starts with the 1,863 rural injury accidents in
+2019--2024; the broader weather and annual-traffic samples cover 2007--2025.
+Traffic-period rows and counter-days are exposure records rather than accident
+counts, so the rows in the table are separate selections rather than one
+successive filtering chain.
 
 \input{generated/data_trimming.tex}
 
@@ -419,7 +414,7 @@ are shown in Appendix~\ref{app:accident-characteristics}.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{conditions.png}
-\caption{Rural injury accidents by hour, study season, estimated daylight
+\caption[Rural injury accidents by hour, season, daylight, and temperature.]{Rural injury accidents by hour, study season, estimated daylight
 and matched temperature. Blue shows minor injury (code 3), and red shows
 serious or fatal injury (codes 1--2). Labels give total accidents. Hour,
 season and daylight use 6,414 accidents; temperature uses 6,259 qualifying
@@ -429,32 +424,39 @@ matches. These are descriptive counts, without traffic adjustment.}
 
 \section{Data Preparation and Reproducibility}
 
-Table~\ref{tab:analysis-pipeline} summarises the sequence from source data to
-the reported results. Accident, weather and traffic records first undergo
-quality checks and selection for the study population. Qualifying accidents
-are then matched to nearby weather observations, while local weather
-frequencies provide the background for the primary O/E comparison. The
-matched-time analysis compares each accident with non-accident times under
-the same recurring calendar conditions. Finally, the available road-section
-and daily-counter data provide supporting traffic checks in their linked
-samples. This order keeps the primary weather comparison separate from the
-additional assumptions needed to estimate traffic exposure.
+Table~\ref{tab:analysis-pipeline} summarises the path from source data to the
+three main analyses. Accident, weather and traffic records first undergo
+quality checks and selection. Qualifying accidents are matched to nearby
+weather observations, and local weather frequencies form the denominator for
+Q1. Q2 applies an approximate traffic correction estimated from the 2019--2024
+counters to that same weather-frequency framework. Q3 uses the counter-linked
+2019--2024 sample to estimate vehicle-kilometre exposure from observed daily
+traffic, road length and pooled monthly weather frequencies. Matched-time and
+additional traffic models are retained as supporting checks. This separation is important because the analyses use different
+exposure assumptions and eligible samples.
+
+All cleaning, matching, analysis, and thesis-table generation are scripted.
+Generated tables are written from analysis outputs, and validation checks cover
+key sample counts, matching rules, and exposure conservation. This reduces
+manual transcription between the analysis and the thesis while keeping the
+main transformations auditable.
 
 \input{pipeline_analysis.tex}
 
 \section{Analysis}
 
-\subsection{Weather-Frequency Comparison}
+\subsection{Q1: Weather-Frequency Comparison}
+\label{sec:weather-frequency}
 
 Accident-time mean wind speed \texttt{f} is the main weather
 measure and is divided into 5 m/s intervals. It is the 10-minute mean wind
 observation matched within five minutes of the accident time, not an
 instantaneous measurement. Wind gust \texttt{fg} from the same observation and
 independently matched temperature are additional weather measures. For each
-measure, an accident is compared with the distribution at its matched station
-in the same study season, pooled across all study years. Expected
-counts are based on how often each condition occurred locally rather
-than on a national weather distribution.
+measure, accidents are compared with the distribution of that weather measure at
+the matched station in the same study season, pooled across
+all study years. Expected counts are therefore based on how often each
+condition occurred locally rather than on a national weather distribution.
 For example, if 5\% of the relevant station--season observations fall in one
 wind interval, approximately 5\% of that group's accidents would be expected
 there under weather-frequency-proportional occurrence.
@@ -483,15 +485,25 @@ weather interval. A value above one means that accidents are over-represented
 in that interval. Standardisation within station and season prevents locations
 or seasons with different weather distributions from dominating the result.
 
+Table~\ref{tab:windy-group-examples} gives a worked all-year example for mean
+wind of at least 20 m/s. For minor-injury accidents, 56 observed accidents are
+compared with 25.18 expected, giving O/E 2.22. For serious or fatal injury, 12
+observed accidents are compared with 6.41 expected, giving O/E 1.87. The
+example illustrates the calculation; it does not imply that wind caused any
+individual accident.
+
+\input{generated/windy_group_examples.tex}
+
 The figures show the calculation separately for minor-injury accidents
-(\textit{meiðsli}\(=3\)) and serious-or-fatal accidents
+(\textit{meiðsli}\(=3\)) and serious or fatal accidents
 (\textit{meiðsli}\(\leq2\)). These groups do not overlap. Each group's
 expected count uses its own accident totals within station and season.
 The combined all-injury O/E is also retained for comparison with the other
-analyses; it is calculated from summed observed and expected counts, not
-by averaging the two group ratios. The O/E values are
-descriptive and are therefore shown without confidence intervals. Wind gust
-and temperature are handled in the same way as mean wind. Temperature is
+analyses; it is calculated from summed observed and expected counts, not by
+averaging the two group ratios. Q1 is reported as a descriptive standardised
+ratio rather than a fitted inferential model, so observed and expected counts are
+shown without model-based confidence intervals. Wind gust and temperature are
+handled in the same way as mean wind. Temperature is
 matched independently, and its intervals are below \(-6\), \(-6\) to \(-3\),
 \(-3\) to 0, 0 to 3, 3 to 6, 6 to 9, 9 to 12, and at least
 12\(^{\circ}\)C.
@@ -500,16 +512,95 @@ panels readable. The matched-time and annual-traffic models retain separate
 12--15 and at-least-15\(^{\circ}\)C intervals. Estimates across those different
 upper intervals are not treated as direct numerical comparisons.
 
-\subsection{Matched-Time Comparison}
+\subsection{Use of Traffic Data}
 
-This is a time-stratified case-crossover design: each accident forms one
-matched set. The accident time is
-the case time, and the control times are the other occurrences of the same
-weekday and clock time in the same calendar month and year. For example, a
+The primary O/E denominator is the local frequency of wind conditions rather
+than traffic volume. Complete traffic data are unavailable at the required
+spatial and temporal resolution, so Q1 does not account for changes in travel
+volume during strong wind. If traffic is lower in strong wind while other
+factors remain unchanged, the accident-rate contrast per vehicle-kilometre
+would be larger than the weather-frequency O/E contrast.
+
+Traffic enters the main analysis in two ways. Q2 estimates the relative daily
+traffic response across weather intervals from the 2019--2024 counters and uses
+that response to reweight the Q1 denominator. Q3 constructs estimated
+vehicle-kilometre exposure from observed daily traffic and rural road length in
+a smaller counter-linked sample. Neither analysis observes hourly traffic.
+Additional annual road-section and allocated daily-counter models are retained
+as supporting checks under alternative exposure constructions.
+
+\subsection{Q2: Approximate Traffic Correction to O/E}
+
+The approximate correction uses the observed day-to-day traffic response at
+counter sections during 2019--2024. Among positive-count days, the mean count
+for the same counter section, year, month, and weekday defines expected daily
+traffic. Each day's observed 24-hour count and expected count are allocated
+to weather intervals in proportion to their valid 07:00--24:00 weather minutes
+on that date. For interval \(j\), \(r_j\) is the sum of allocated observed
+traffic divided by the sum of allocated expected traffic. Zero-count days are
+excluded from this response calculation.
+
+Using the same station--season group \(g\) and weather interval \(j\) as in Q1,
+the traffic-weighted weather frequency is
+
+\[
+p^{*}_{jg}=\frac{p_{jg}r_j}{\sum_h p_{hg}r_h}.
+\]
+
+Expected counts are then recalculated as \(A_g p^{*}_{jg}\). Accident bins use
+weather at the recorded accident time, whereas \(r_j\) is based on a 24-hour
+traffic total repeated across the day's daytime weather composition. Daily
+counters do not observe hourly traffic. The 2019--2024 response is also
+extrapolated to the 2007--2025 primary population. The result is therefore a
+model-based sensitivity analysis, not a directly observed traffic-adjusted O/E.
+
+\subsection{Q3: Monthly-Frequency Daily-Counter Rate}
+
+The main traffic rate is restricted to 2019--2024, when daily counter data are
+available. Eligible accidents must be rural injury accidents occurring between
+07:00 and 24:00, have a counter section for the registered road and year, be
+successfully located on that section, have usable accident-time wind and gust
+within 20 km and five minutes, and have a traffic record on the accident date.
+For this analysis, the 20 km weather distance is measured from the
+counter-section location rather than from the accident coordinate. The same
+five-minute time rule applies as in Q1 and can select the adjacent observation
+across midnight. The denominator is broader than the accident set: it uses
+every eligible recorded counter-section day with a nonnegative traffic count
+and rural road length, including days without an accident. For counter section
+\(j\), date \(d\), and weather interval \(b\), estimated exposure is
+
+\[
+\widehat V_{jdb}=C_{jd}L_jp_{j,m(d),b},
+\]
+
+where \(C_{jd}\) is the observed 24-hour traffic count, \(L_j\) is rural
+section length under that year's definition, and \(p_{j,m(d),b}\) is the
+07:00--24:00 weather frequency for that calendar month at the station assigned
+to counter section \(j\). The weather frequencies are pooled across 2007--2025 to provide stable
+station--month proportions, while both traffic and accident eligibility remain
+restricted to 2019--2024. The full daily count is allocated to the 07:00--24:00
+window and the proportions sum to one, so exposure is conserved. Accidents are
+classified separately by observed event-time weather within 20 km and five
+minutes. The reported rate is
+
+\[
+R_b=\frac{O_b}{\sum_j\sum_d\widehat V_{jdb}}10^6.
+\]
+
+This construction uses actual day-to-day traffic variation and rural road
+length, but allocates it with a typical monthly weather distribution rather
+than observed hourly traffic.
+
+\subsection{Supporting Matched-Time Comparison}
+
+The supporting matched-time analysis uses a time-stratified case-crossover
+design in which each accident forms one matched set. The accident time is the
+case time, and the control times are the other occurrences of the same weekday
+and clock time in the same calendar month and year. For example, a
 Tuesday accident at 14:20 is compared with the other Tuesdays at 14:20 in that
-month. Mean-wind and gust controls use the accident's matched wind station; temperature
-controls use its independently matched temperature station. Control weather
-must satisfy the same five-minute observation-time rule, and both station
+month. Mean-wind and gust controls use the accident's matched wind station;
+temperature controls use its independently matched temperature station. Control
+weather must satisfy the same five-minute observation-time rule, and both station
 matches are restricted to 20 km. Conditional logistic regression compares
 weather at the accident time with weather at its matched control times. This
 time-stratified referent strategy was selected to avoid overlap bias and to
@@ -517,16 +608,14 @@ control calendar time without selecting controls from outside the accident
 month \citep{janes2005}.
 
 The model asks whether weather at an accident time differs from weather at
-comparable non-accident times. Matching controls exactly for station, year,
-month, weekday, and clock time, but not for unusual traffic, road conditions,
-or other factors that change on a particular day. Continuous effects are
-reported per 5 m/s or 5\(^{\circ}\)C together with categorical estimates. The
-mean-wind O/E remains the primary result.
+comparable non-accident times. The matching holds station, year, month, weekday,
+and clock time fixed, but not unusual traffic, road conditions, or other
+factors that change on a particular day. Continuous effects are reported per
+5 m/s or 5\(^{\circ}\)C together with categorical estimates.
 
 Mean wind and temperature are also entered together as categorical variables
 to assess whether the wind estimate changes after including temperature at the
-same case and control times. Daylight is
-calculated at the accident location for the accident date and the same matched
+same case and control times. Daylight is calculated at the accident location for the accident date and the same matched
 dates. Because month, weekday, and clock time are held fixed, only strata that
 change between darkness, civil twilight, and daylight contribute information.
 
@@ -537,739 +626,522 @@ season, and a likelihood-ratio test compares it with a model having one common
 wind association across seasons. The omnibus test is used instead of judging
 seasonal differences from separate confidence intervals.
 
-A separate logistic model describes serious-or-fatal rather than minor injury
+A separate logistic model describes serious or fatal rather than minor injury
 among accidents with complete wind and temperature matches. It includes broad
 categories of mean wind, temperature, daylight, time of day, and season. The
 result concerns injury severity among recorded accidents. It is not a model of
 whether an accident occurs and does not replace the traffic analyses.
 
-\subsection{Use of Traffic Data}
+\subsection{Supporting Road-Section Traffic Comparison}
 
-The primary O/E denominator is the local frequency of wind conditions rather
-than traffic volume. Complete traffic data are unavailable at the required
-spatial and temporal resolution. O/E therefore does not account for fewer
-journeys on windy days. If traffic falls in strong wind while other factors
-remain unchanged, the accident-rate contrast per vehicle-kilometre would be
-larger than the O/E contrast. The traffic analyses examine this possibility.
-The descriptive estimated-rate calculation uses annual traffic on every
-eligible road section, including sections without an accident. The main
-conditional model has a narrower purpose and sample: its analysis retains 5,125
-accidents in road-section--year--traffic-period strata that contain an accident
-and have a valid weather and traffic link. Both calculations use SDU and VDU
-where they are published,
-and the residual VHDU estimate for April--May and
-October--November.
-
-Two traffic analyses are placed directly beside primary O/E. The first keeps
-the broad study population and adjusts its expected counts using an
-extrapolated daily-counter traffic response. The second uses only linked
-counter sections and reports accidents per estimated vehicle-kilometre. Their
-different samples and denominators prevent their numerical estimates from
-being interpreted as repeated estimates of one parameter.
-
-\subsection{Approximate Traffic Correction to O/E}
-
-The daily traffic response is estimated for each wind or gust interval by
-comparing the observed 24-hour traffic count with mean daily traffic for the
-same counter section, year, month and weekday. Both totals are allocated
-uniformly over the valid 07:00--24:00 ten-minute weather observations on that
-day. Pooling across counter-days gives a traffic multiplier \(r_b\) for each
-weather interval. For each station--season stratum in primary O/E, the
-traffic-weighted frequency is
-
-\[
-p^{*}_{kb}=\frac{p_{kb}r_b}{\sum_h p_{kh}r_h}.
-\]
-
-Expected counts are then recalculated with \(p^{*}_{kb}\). The accident bins
-use weather at the recorded accident time, whereas \(r_b\) is based on a
-24-hour traffic total repeated across the day's daytime weather composition.
-Daily counters do not observe hourly traffic. The 2019--2024 response is also
-extrapolated to the 2007--2025 primary population. The result is therefore a
-model-based sensitivity analysis, not a directly observed traffic-adjusted O/E.
-
-\subsection{Monthly-Frequency Daily-Counter Rate}
-
-The main traffic rate uses every recorded counter-section day in 2019--2024
-with a nonnegative count and rural road length,
-including days without an accident. For counter section \(j\), date \(d\), and
-weather interval \(b\), estimated exposure is
-
-\[
-\widehat V_{jdb}=C_{jd}L_jp_{j,m(d),b},
-\]
-
-where \(C_{jd}\) is the observed 24-hour traffic count, \(L_j\) is rural
-section length under that year's definition, and \(p_{j,m(d),b}\) is the
-assigned station's 07:00--24:00 weather frequency for that calendar month,
-pooled across 2007--2025. The full daily count is allocated to this window and
-the proportions sum to one, so exposure is conserved. Accidents are classified
-separately by observed event-time weather within 20 km and five minutes. The
-reported rate is
-
-\[
-R_b=\frac{O_b}{\sum_j\sum_d\widehat V_{jdb}}10^6.
-\]
-
-This construction uses actual day-to-day traffic variation and rural road
-length, but allocates it with a typical monthly weather distribution rather
-than observed hourly traffic.
-
-\subsection{Road-Section Traffic Comparison}
-
-Traffic is included when accidents can be linked by road section, year,
-official traffic period, and wind interval
-\(k,j\), estimated vehicle-kilometres are
+Annual road-section data provide a supporting exposure analysis for accidents
+that can be linked by road section, year, official traffic period, and wind
+interval. For road-section--year--traffic-period stratum \(k\) and wind
+interval \(j\), estimated vehicle-kilometres are
 
 \[
 V_{kj}=q_k L_k D_k p_{kj},
 \]
 
-where \(q_k\) is SDU, VDU, or derived VHDU vehicles per day, \(L_k\) is section length,
-\(D_k\) is the number of calendar days, and \(p_{kj}\) is the local share of
-quality-controlled 10-minute observations in the wind interval. The accident rate is
-
-\[
-\text{Rate}_j=
-\frac{A_j}{\sum_k V_{kj}}\times 100{,}000{,}000.
-\]
-
-This method accounts for road length and for spatial and seasonal differences
-in published traffic. It still assumes that traffic within a traffic period is
+where \(q_k\) is SDU, VDU, or derived VHDU vehicles per day, \(L_k\) is section
+length, \(D_k\) is the number of calendar days, and \(p_{kj}\) is the local
+share of quality-controlled 10-minute observations in wind interval \(j\).
+This construction accounts for road length and differences in published
+seasonal traffic, but assumes that traffic within each traffic period is
 distributed across wind intervals in proportion to time. It does not observe
-traffic at the accident minute. The station nearest the road-section midpoint
-with qualifying data supplies \(p_{kj}\). Each accident is matched to that
-road-section station rather than the accident-nearest station used in the
-primary O/E analysis. An accident is included only when the
-road-section station is within 20 km and has a valid observation within five
-minutes. The accident count and its estimated denominator therefore use the
-same weather station.
+traffic at the accident minute.
 
-The main traffic result is a conditional Poisson model. Each road section,
-year, and traffic period has its own intercept. For stratum \(k\) and wind
-interval \(j\), the model is
+The station nearest the road-section midpoint with qualifying data supplies
+\(p_{kj}\). Accidents in this analysis are matched to that road-section station,
+rather than to the accident-nearest station used in Q1, and are retained only
+when the station is within 20 km and has a valid observation within five
+minutes of the accident time.
+
+A conditional Poisson model is fitted as a supporting inferential analysis.
+Each road section, year, and traffic period has its own intercept:
 
 \[
 \log E(A_{kj}) = \alpha_k + \beta_j + \log V_{kj},
 \]
 
-where \(A_{kj}\) is the accident count and \(\log V_{kj}\) is the offset.
-The exponentiated coefficient \(\exp(\beta_j)\) is the estimated rate ratio
-relative to 0--5 m/s within otherwise identical road-section--year--period
-strata.
+where \(A_{kj}\) is the accident count and \(\log V_{kj}\) is the offset. The
+exponentiated coefficient \(\exp(\beta_j)\) is the estimated rate ratio relative
+to 0--5 m/s within road-section--year--traffic-period strata. Strata with no
+accidents contain no within-stratum information after conditioning and do not
+contribute to this model. The model is fitted separately for all injury
+accidents and for serious or fatal accidents. A seasonal extension uses
+0--10, 10--15, and at least 15 m/s because the finer upper-wind cells are
+sparse.
 
-The model is fitted separately for all injury accidents and for serious or
-fatal accidents. A seasonal extension uses year-specific station frequencies
-for winter, spring, summer, and autumn. Because individual 5 m/s upper bins are
-sparse within seasons, that extension uses 0--10, 10--15, and at least 15 m/s.
-Winter and summer use published VDU and SDU, respectively; spring and autumn
-use the same derived VHDU daily volume but retain separate weather frequencies
-and accident counts.
+\subsection{Supporting Allocated Daily-Counter Model}
 
-The descriptive rate and conditional model include different road records.
-The descriptive rate sums estimated vehicle-kilometres over every eligible road section.
-The conditional model includes only road-section--year--period strata containing
-at least one accident, because all-zero strata provide no within-stratum
-information: after conditioning on a stratum's total accident count, a total of
-zero contributes no likelihood for comparing its wind intervals. Those roads
-remain in the separate descriptive rate that sums all eligible exposure. Wind
-intervals with positive estimated vehicle-kilometres are kept within those
-groups. The two traffic results answer different questions and are not
-expected to reproduce the same rate ratios.
-
-\subsection{Daily Traffic Comparison}
-
-Daily traffic is analysed separately using daily weather summaries.
-Directional channels are first summed to one 24-hour count for each physical
-counter and date. The unit is then one fixed counter on one date; separate
-counter sites on the same road section are not summed. For each counter, year,
-month, and weekday, expected traffic is the arithmetic mean of the available
-daily counts in that same group. The traffic index is
+An additional daily-counter model uses observed 24-hour totals but estimates
+how those totals are distributed across wind intervals within each day.
+Directional channels are first summed to one count for each physical counter
+and date. Each 2019--2024 accident then requires a counter on the exact
+registered road section and year, positive traffic on the accident date, and a
+qualifying accident-time mean-wind observation. For counter \(c\), date \(d\),
+and wind interval \(j\), the daily count is allocated as
 
 \[
-I_{cd}=100\times
-\frac{Q_{cd}}
-     {\operatorname{mean}(Q_{c,\,\text{same year, month, weekday}})}.
+\widehat Q_{cdj}=Q_{cd}\frac{N_{cdj}}{N_{cd}},
 \]
 
-An index below 100 indicates fewer counted vehicles than the mean for that
-local calendar context. Results are aggregated across counter-days and describe
-the participating sites rather than national traffic. The 24-hour count is not
-converted into hourly traffic. Mean wind is calculated from quality-controlled observations
-between 10:00 and 21:59, so this is a daily association rather than an estimate
-of traffic in that window.
-The daily-counter dataset contains 5,432 counter-days with a reported count of
-zero. They are
-kept because the reports do not distinguish a genuine zero or road closure
-from counter downtime; the appendix reports a check excluding these records.
-For each located counter, the nearest station within 20 km having usable
-observations that day is selected.
-
-Sustained wind is described by the number of valid 10-minute observations in
-each counter-day with mean wind of at least 15 m/s; six observations equal one
-hour. Days must contain at least 108 valid observations. Traffic is compared
-across 0, more than 0--2, 2--6, and at least 6 hours of strong wind using the
-same counter--calendar standardisation.
-
-The allocated daily-counter rate model uses a stricter accident linkage. Each
-2019--2024 accident requires a counter on the exact registered road section and
-year within 20 km, positive traffic on its date, and qualifying accident-time
-mean wind. For counter (c), date (d), and wind interval (j), the observed
-24-hour count is allocated according to the counter station's valid 10-minute
-observations:
-
-\[
-\widehat Q_{cdj}=Q_{cd}\frac{N_{cdj}}{N_{cd}}.
-\]
-
-Accidents are classified by accident-time \texttt{f} from the same station used
-for the counter-day denominator. That station must be within 20 km of both the
-accident and counter, and the accident observation must be within five minutes
-of the recorded time. Estimated
-traffic and accidents are aggregated by counter, year, and wind interval, and a
-conditional Poisson model gives each counter--year its own intercept. The
-allocation assumes uniform traffic across valid observation times; it is an
-estimated within-day traffic split, not observed hourly traffic. The
-main allocation uses all sufficiently complete 24-hour weather records.
-
-A second daily-counter calculation uses the counter-section construction.
-For each counter-section and day, the observed daily vehicle count is
-multiplied by the rural part of the assigned road length. This daily
-vehicle-kilometre total is allocated among weather intervals using valid
-10-minute observations from the nearest available station within 20 km of the
-counter location at each timestamp. The exposure window is 07:00--24:00;
-the boundary observations at 07:00 and the following midnight each represent
-five minutes. Accidents outside this time window are omitted. For day \(i\),
-counter-section \(j\), and interval \(b\),
-
-\[
-\widehat V_{ijb}=Q_{ij}L^{\mathrm{rural}}_j\frac{M_{ijb}}{1020},
-\]
-
-where \(Q_{ij}\) is the observed 24-hour count,
-\(L^{\mathrm{rural}}_j\) is the rural counter-section length, and \(M_{ijb}\)
-is the number of represented minutes with valid same-day weather in interval
-\(b\). Unobserved minutes contribute no exposure rather than being
-renormalised to a complete day. Accident-time weather is taken from the same
-time-specific station-selection rule within five minutes of the recorded
-time. The accident rate is the observed accidents divided by summed
-\(\widehat V_{ijb}\). This compares
-accidents per estimated vehicle-kilometre, but the weather-bin allocation is estimated:
-hourly traffic is not observed. Unlike the annual method, observed traffic on a
-windy date contributes its own daily total, so lower travel on that date is
-reflected in the denominator.
+where \(N_{cdj}\) is the number of valid 10-minute observations in interval
+\(j\) and \(N_{cd}\) is the total number of valid observations that day.
+Accidents are classified by accident-time mean wind from the same station used
+for the counter-day denominator. Estimated traffic and accidents are aggregated
+by counter, year, and wind interval, and a conditional Poisson model gives each
+counter--year its own intercept. The allocation assumes uniform traffic across
+valid observation times and is therefore an estimated within-day split rather
+than observed hourly exposure. Selection and sensitivity checks for this
+762-accident supporting model are reported in the appendix.
 
 \chapter{Results}
 
-Results follow the three research questions: weather-frequency O/E, its
-approximate traffic correction, and the monthly-frequency daily-counter rate.
-Matched-time and other traffic models are supporting comparisons.
-The main question is whether accidents are over-represented in strong wind
-relative to its local frequency. The subsequent comparisons assess whether
-that pattern persists under different time controls and exposure assumptions.
-Agreement is assessed by the pattern and uncertainty, not by treating O/E,
-odds ratios and estimated traffic-based rates as equivalent quantities.
+Results are presented in the order of the three research questions. First, the
+primary weather-frequency analysis compares observed accidents with counts
+expected from local weather frequency. Second, an approximate traffic
+correction asks how that comparison changes when the traffic response measured at daily
+counters is applied to the primary denominator. Third, the monthly-frequency
+counter analysis estimates accident rates per vehicle-kilometre in the smaller
+2019--2024 traffic-linked sample. Matched-time and additional traffic models
+are reported afterwards as supporting checks. Because these analyses use
+different samples and denominators, their numerical estimates are not interpreted as
+repeated estimates of the same quantity.
 
 \section{Study Sample and Coverage}
 
-Table~\ref{tab:coverage} shows how the analysis samples narrow as additional
-linkages are required. Most rural injury accidents enter the primary weather
-comparison, whereas traffic-linked analyses retain smaller groups. This
-difference matters when interpreting agreement between methods: the traffic
-results describe the roads and years with usable exposure information, not
-an identical sample with only its denominator changed.
-Figure~\ref{fig:annual-coverage} shows the accident counts and weather-match
-coverage by year, separating the size of the recorded sample from the
-proportion with qualifying weather data.
+Table~\ref{tab:coverage} summarises the populations used by the main and
+supporting analyses. The primary O/E retains 6,259 of the 6,414 rural injury
+accidents, whereas analyses requiring traffic linkage use smaller and more
+selective samples. Figure~\ref{fig:annual-coverage} shows that weather-match
+coverage remains high throughout 2007--2025.
 
 \input{generated/coverage.tex}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{weather_coverage.png}
-\caption{Annual rural injury-accident counts and the percentage matched to wind
-or temperature within 20 km and five minutes. The wind and temperature match
-counts are identical in every year; no missing temperature value is imputed.}
+\caption[Annual rural injury-accident counts and weather-match coverage.]{Annual rural injury-accident counts and weather-match coverage,
+2007--2025. The lower panel gives the percentage of accidents with a qualifying
+wind or temperature observation within 20 km and five minutes. Wind and
+temperature coverage is identical in every year, and no missing temperature
+value is imputed.}
 \label{fig:annual-coverage}
 \end{figure}
 
-The 20 km threshold includes most rural injury accidents while bounding the
-distance to the weather proxy. Match coverage alone does not establish that
-station conditions equal those at the road: local terrain can alter wind over
-short distances. The road-section analysis is narrower than the main
-analysis, so its conclusions apply to a more geographically selective sample.
+The 20 km threshold provides broad coverage while limiting the distance between
+an accident and its weather proxy. It does not imply that station conditions
+are identical to conditions at the road, particularly in complex terrain.
+Wind and temperature are matched independently, but both procedures retain the
+same 6,259 accidents and select the same station and observation time in the
+final analysis dataset.
 
-Wind and temperature are matched independently, but in the final analysis
-dataset both procedures retain the same 6,259 accidents and select the same
-station and observation time for each of them.
-Within 2019--2024, 762 of 1,863 accidents enter the allocated daily-rate model
-after requiring the exact road section, a valid observed counter-day, the same
-weather station for the accident and denominator, and all 20 km distance
-limits. The broader daily-counter selection step includes 767 accidents and is
-documented in the appendix.
-
-The selection for the monthly-frequency daily-counter rate is shown in
-Table~\ref{tab:monthly-vkt-selection}. Its final 694 accidents include fatal,
-serious and minor injury accidents. All 83 losses at the last step lack a
-counter-day record; none is removed for a recorded zero count.
+Question 3 uses a different starting population because daily counters are
+available only for 2019--2024. Table~\ref{tab:monthly-vkt-selection} shows the
+full selection from all injury accidents in 2007--2025, first restricting to
+2019--2024 and then applying the Q3 linkage criteria, to the final 694
+counter-linked daytime accidents. The first row includes urban and rural injury
+accidents; the rural restriction is applied in step~(a). All 83 exclusions at
+the final step lack a counter-day record on the accident date; no accident is
+removed because its recorded daily count is zero.
 
 \input{generated/monthly_vkt_selection.tex}
 
-\section{Accident Frequency by Weather}
+\section{Q1: Weather-Frequency O/E}
 
-Figures~\ref{fig:wind-oe-panels}--\ref{fig:temperature-oe-panels} show mean wind,
-gust and temperature for the full year and the four seasons.
-Blue bars show minor-injury accidents and red bars show
-serious-or-fatal accidents. The groups do not overlap. Counts are printed above the bars. Seasonal estimates
-in the upper weather intervals are descriptive because several contain few
-accidents. The grey horizontal line marks O/E = 1: the observed number of
-accidents equals the number expected from local weather frequency for that
-group. A bar above the line indicates over-representation relative to that
-frequency, not a measured increase in risk per vehicle.
+Figures~\ref{fig:wind-oe-panels}--\ref{fig:temperature-oe-panels} show the
+primary weather-frequency comparisons for the full year and the four study
+seasons. Blue bars show minor-injury accidents and red bars show serious or
+fatal injury accidents; the groups do not overlap. The grey horizontal line
+marks O/E = 1, where observed accidents equal the number expected from local
+weather frequency. Values above one indicate over-representation relative to
+that frequency, not a measured increase in risk per vehicle-kilometre.
 
 \subsection{Mean Wind}
 
-Figure~\ref{fig:wind-oe-panels} shows the main mean-wind pattern. The all-year
-ratios are close to one at low and moderate wind speeds and rise from the
-15--20 m/s interval. Both severity groups show upper-wind over-representation
-when all seasons are pooled. The blue and red bars must nevertheless be read
-as separate descriptive comparisons: their heights alone do not test whether
-injury severity differs between wind categories.
+Figure~\ref{fig:wind-oe-panels} shows the main result. The all-year O/E values
+are close to one at low and moderate mean wind speeds and rise in the upper
+intervals. At 20 m/s or above, 68 injury accidents were observed compared with
+31.6 expected, giving the combined all-injury O/E of 2.15. The disjoint
+severity groups show the same broad upper-wind pattern: minor-injury accidents
+have O/E 2.22 and serious or fatal accidents O/E 1.87 in the highest interval.
+The latter group contains only 12 accidents, so the difference between the two
+bars is not evidence that severity itself changes with wind.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{wind_oe_panels.png}
-\caption{All-year and seasonal mean-wind O/E, 2007--2025. Blue bars show
-minor injury (\textit{meiðsli}\(=3\)); red bars show serious or fatal injury
-(\textit{meiðsli}\(\leq2\)). Expected counts use local weather frequency separately for each group;
-numbers above bars are observed accidents.}
+\caption[All-year and seasonal mean-wind O/E, 2007--2025.]{All-year and seasonal mean-wind O/E, 2007--2025. Blue bars show minor
+injury (\textit{meiðsli}\(=3\)) and red bars show serious or fatal injury
+(\textit{meiðsli}\(\leq2\)). Expected counts are calculated from local
+station--season weather frequency separately for each group; labels above bars
+are observed accident counts. The grey reference line is O/E = 1. Seasonal
+upper-wind bars should be interpreted with their small observed counts.}
 \label{fig:wind-oe-panels}
 \end{figure}
 
-At 20 m/s or above, the minor-injury group contains 56 accidents
-compared with 25.2 expected (O/E 2.22). The serious-or-fatal group contains 12
-accidents compared with 6.4 expected (O/E 1.87). These are descriptive ratios;
-the smaller serious-or-fatal count does not support a precise statement about
-whether severity changes with wind. Combining both groups gives the retained
-all-injury result: 68 observed, 31.6 expected and O/E 2.15.
-
-The seasonal panels show why the pooled pattern should not be interpreted
-as a uniform increase in every group and season. The tallest spring bars
-are based on few accidents, and the winter serious-or-fatal bar in the
-highest interval falls below one with only two observed accidents. Such
-small cells can produce large changes in O/E from a small change in counts.
-The figure supports an overall upper-wind pattern, but does not establish
-which season or injury group has the strongest association.
-
-The 5 m/s grouping is used throughout because it gives a direct, readable
-description of the upper wind intervals without implying that the boundaries
-are physical thresholds.
+The seasonal panels are less stable than the pooled result. In particular,
+some of the largest seasonal O/E values are based on only a few accidents, so
+they do not support ranking seasons or injury groups. The 5 m/s intervals are
+used as descriptive bins rather than physical wind thresholds.
 
 \subsection{Wind Gust}
 
-Accident-time wind gust is an additional weather measure rather than a daily
-maximum. Figure~\ref{fig:gust-oe-panels} shows that over-representation is
-concentrated towards the upper gust intervals. At 30 m/s or above,
-52 minor-injury accidents were observed compared
-with 14.6 expected (O/E 3.56). The serious-or-fatal group contained nine
-accidents compared with 3.6 expected (O/E 2.47). Gust and mean wind are related
-measures and should not be treated as independent findings. Across both groups,
-the all-injury result remains 61 observed, 18.2 expected and O/E 3.34.
+Wind gust shows a similar upper-tail pattern in Figure~\ref{fig:gust-oe-panels}.
+Across all injury accidents, 61 accidents were observed at gusts of at least
+30 m/s compared with 18.2 expected, giving O/E 3.34. Both severity groups are
+also above one in this interval. Because gust and mean wind come from the same
+10-minute observation and are strongly related measures, agreement between the
+two figures supports a general high-wind pattern rather than an independent
+replication.
 
-The seasonal upper bars are less stable than the pooled result because
-splitting the sample leaves few accidents in several cells. A tall
-seasonal bar therefore needs to be read alongside its count. Gust is taken
-from the same weather observation as mean wind, so agreement between the two
-figures is complementary evidence about windy conditions rather than an
-independent replication of the association.
-
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{gust_oe_panels.png}
-\caption{All-year and seasonal wind-gust O/E. Gust is taken
-from the 10-minute observation matched to the accident time; it is not a daily
-maximum. Blue denotes minor injury and red denotes serious or fatal injury;
-the groups do not overlap. Numbers above bars are
-observed accidents.}
+\caption[All-year and seasonal wind-gust O/E.]{All-year and seasonal wind-gust O/E. Gust is taken from the same
+10-minute observation as the accident-time mean wind and is not a daily
+maximum. Blue bars show minor injury and red bars show serious or fatal injury;
+labels above bars are observed accident counts. The grey reference line is
+O/E = 1. Several seasonal upper-gust cells contain few accidents and are
+therefore descriptive.}
 \label{fig:gust-oe-panels}
 \end{figure}
 
 \subsection{Temperature}
 
-Figure~\ref{fig:temperature-oe-panels} shows a non-monotonic temperature pattern,
-which requires a different interpretation from the upper-wind elevation.
-Valid temperature was available for 6,259
-accidents (97.58\%). Coverage by year is shown in Figure~\ref{fig:annual-coverage}, and no
-temperature value is imputed. After adjustment by
-temperature station and season, the estimates were non-monotonic. O/E was
-below one at 3--6\(^{\circ}\)C for minor-injury accidents (632 observed and
-881.7 expected; O/E 0.72), but above one at -3--0\(^{\circ}\)C. At
-12\(^{\circ}\)C or above, 563 minor-injury accidents were observed compared
-with 362.0 expected (O/E 1.56). This pattern may reflect travel
-behaviour or weather and road conditions that vary with temperature. It is
-not interpreted as a causal temperature effect.
-For the serious-or-fatal group, all-year O/E is 0.69 at 3--6\(^{\circ}\)C
-and 1.71 at 12\(^{\circ}\)C or above (176 and 226 accidents, respectively).
+Temperature does not show the monotonic upper-tail pattern seen for wind. In
+Figure~\ref{fig:temperature-oe-panels}, O/E is below one around 3--6\(^{\circ}\)C,
+while some colder and warmer intervals are above one. For minor-injury
+accidents, O/E is 0.72 at 3--6\(^{\circ}\)C and 1.56 at 12\(^{\circ}\)C or
+above. The serious or fatal group shows the same non-monotonic character, but
+several seasonal temperature extremes contain very few accidents. The pattern
+is therefore treated as secondary and is not interpreted as a causal
+temperature effect.
 
-The pooled curve should not be read as a single temperature gradient:
-temperature intervals occur with different frequencies across seasons,
-and the rare seasonal extremes provide limited information. Standardising
-within station and season accounts for those local frequencies, but does not
-control traffic volume, road-surface condition or other circumstances that
-vary within a season. The matched-time comparison below is therefore
-particularly important for assessing whether the warm-end pattern persists.
-
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{temperature_oe_panels.png}
-\caption{All-year and seasonal temperature O/E, standardised
-by matched temperature station and study season. Blue shows minor injury and
-red shows serious or fatal injury, with no overlap; numbers above bars are observed accidents.
-The non-monotonic pattern is interpreted cautiously.}
+\caption[All-year and seasonal temperature O/E.]{All-year and seasonal temperature O/E, standardised within matched
+temperature station and study season. Blue bars show minor injury and red bars
+show serious or fatal injury; labels above bars are observed accident counts.
+The grey reference line is O/E = 1. The non-monotonic pattern and sparse
+seasonal extremes are interpreted cautiously.}
 \label{fig:temperature-oe-panels}
 \end{figure}
 
-Adding year to the station--season standardisation changes the selected
-estimates by no more than 0.02: for example, mean-wind O/E at 20 m/s or above
-changes from 2.15 to 2.17. The pre-specified station--season result is retained.
+Adding year to the station--season standardisation changes the selected O/E
+estimates only slightly; for example, the all-injury mean-wind estimate at
+20 m/s or above changes from 2.15 to 2.17. The pre-specified station--season
+comparison is therefore retained as Q1.
 
-\section{Matched-Time Results}
+\section{Q2: Approximate Traffic Correction to O/E}
 
-The case-crossover analysis includes 6,257 accident strata for each weather
-measure. Table~\ref{tab:matched-time-summary} collects the main categorical
-contrasts, leaving the text to explain their relationship to O/E.
-For categorical mean wind, the clearest
-increase occurs at 15 m/s or above: the odds ratio relative to 0--5 m/s is 1.61 (95\% CI
-1.38--1.87). This supports the high-wind pattern after exact control for
-station, year, month, weekday, and clock time. The lower and moderate wind
-contrasts are near one. The persistence of the upper-wind pattern under these
-controls makes an explanation based only on recurring calendar differences
-less plausible, while leaving unusual traffic or road conditions on a
-particular day uncontrolled.
+The primary O/E uses weather time rather than vehicle exposure. Daily-counter
+data from 2019--2024 show that traffic is lower in the strongest wind and gust
+intervals, so Q2 applies the estimated counter response to the primary
+station--season denominator as a sensitivity analysis. The observed accident
+counts remain unchanged; only the expected distribution is reweighted.
 
-\input{generated/matched_time_summary.tex}
-
-For gust, the categorical estimates rise across the upper intervals and
-agree with the upper-gust O/E pattern. The largest contrast is less precise
-than those based on more common conditions. Because mean wind and gust
-describe related aspects of the same observation, agreement does not
-separate their individual contributions.
-
-The temperature estimates are not monotonic. Relative to 0--3\(^{\circ}\)C,
-the estimate is somewhat higher just below freezing, lower at
-3--6\(^{\circ}\)C, and near one at 15\(^{\circ}\)C or above.
-This last interval is narrower than the O/E
-at-least-12\(^{\circ}\)C interval. The matched-time result reproduces the
-dip at moderate temperatures but not the warm-tail increase in the O/E
-analysis. The methods therefore give different results at warm temperatures,
-which calls for caution.
-
-When mean wind and temperature are included together, the matched odds ratio
-for mean wind of at least 15 versus 0--5 m/s is 1.68 (95\% CI 1.44--1.96).
-This is close to the single-variable estimate of 1.61, and the non-monotonic
-temperature pattern remains.
-
-\section{Daylight, Season, and Severity}
-
-The matched-date daylight comparison holds location, month, weekday, and clock
-time fixed. Relative to daylight, the odds ratio is 1.14 (95\% CI 0.88--1.49)
-for darkness and 1.10 (0.92--1.31) for civil twilight. Only 985 of the 6,414
-strata change daylight class within their matched dates. The result provides
-no clear evidence of a daylight association and is much less
-informative than the wind analysis; it does not use vehicle counts. Most
-matched sets remain in the same daylight category and therefore cannot
-distinguish the categories. This limited within-set variation, together with
-intervals spanning one, is a reason for caution rather than evidence that
-daylight is irrelevant to road safety.
-
-Among the 6,259 accidents in the adjusted severity model, 1,424 are serious or
-fatal. Mean wind of at least 15 m/s has an odds ratio of 0.93 (95\% CI
-0.69--1.26) relative to 0--10 m/s. Darkness has an odds ratio of 0.89
-(0.71--1.12) relative to daylight. Thus the data show a clear strong-wind
-pattern for accident occurrence, but not for severity conditional on a
-recorded injury accident. The complete adjusted estimates are shown in
-Table~\ref{tab:severity-conditions} in the appendix.
-
-The matched-time wind-by-season comparison uses the same 6,257
-mean-wind strata as the case-crossover analysis, with coarse intervals for
-stability. The omnibus interaction test gives
-\(\chi^2(6)=14.30\), \(p=0.026\). The estimated odds ratios for at least
-15 versus 0--10 m/s are 1.44 in winter, 2.02 in spring, 2.53 in summer, and
-1.37 in autumn. The omnibus test provides evidence that at least some seasonal
-wind associations differ, but it does not identify a particular pair of
-seasons as different. Season-specific estimates are therefore not ranked.
-
-\section{Traffic Results}
-
-\subsection{Approximate Traffic-Corrected O/E}
-
-Daily counter traffic is lower in the strongest weather intervals after
-standardisation by counter section, year, month and weekday. Applying this
-2019--2024 response to the broad primary denominator changes mean-wind O/E at
-20 m/s or above from 2.15 (68 observed; 31.6 expected) to 2.71 (25.1 expected).
-For gusts of at least 30 m/s, O/E changes from 3.34 (61 observed; 18.2 expected)
-to 4.20 (14.5 expected). Observed accident counts do not change.
+For mean wind of at least 20 m/s, the correction reduces the expected count
+from 31.6 to 25.1 and changes O/E from 2.15 to 2.71. For gusts of at least
+30 m/s, expected accidents fall from 18.2 to 14.5 and O/E changes from 3.34 to
+4.20. Figure~\ref{fig:traffic-corrected-oe} shows the corrected values for the
+same broad 2007--2025 accident population used in Q1.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{weather_oe_traffic_corrected.png}
-\caption{Approximate traffic-corrected O/E for the 2007--2025 primary sample.
+\caption[Approximate traffic-corrected O/E, 2007--2025.]{Approximate traffic-corrected O/E for the 2007--2025 primary sample.
 Observed counts use weather at each accident time. Expected counts start from
-local station--season weather frequencies, multiply each interval by the
-daily-counter traffic response estimated in 2019--2024, and renormalise within
-stratum. Because daily totals contain no hourly traffic and the counter response
-is extrapolated to the broader population, this is a model-based sensitivity
+the Q1 station--season weather frequencies and are reweighted using the daily
+traffic response estimated from counters in 2019--2024. The bars remain
+separated by injury group; the combined all-injury values are 2.71 for mean wind at \(\geq20\) m/s and 4.20 for gust at \(\geq30\) m/s.
+Because the counter response is extrapolated to other roads and years and daily
+totals do not provide hourly traffic, this is an approximate sensitivity
 analysis rather than a directly observed traffic-adjusted accident rate.}
 \label{fig:traffic-corrected-oe}
 \end{figure}
 
-\subsection{Monthly-Frequency Daily-Counter Rate}
+The correction therefore increases the upper-wind contrast under the
+assumption that the traffic response observed at the selected counters is
+informative for the wider road network. It does not establish the magnitude of
+a national per-vehicle-kilometre contrast, because the traffic response is
+estimated over a shorter period and from a geographically selective set of
+counters.
 
-The denominator contains 533,649 rural counter-section days, including 4,219 with a
-recorded zero count, and
-5.630 billion rural vehicle-kilometres. Allocating by mean wind or gust
-reconstructs the same total exposure. All 694 selected accidents have valid
-event-time mean wind and gust. Table~\ref{tab:monthly-vkt-rate} gives observed
-counts, exposure and rates.
+\section{Q3: Monthly-Frequency Daily-Counter Rate}
+
+Question 3 restricts the analysis to accidents and roads that can be linked to
+daily traffic counts. Its denominator contains 533,649 eligible rural
+counter-section days and 5.630 billion estimated vehicle-kilometres, including
+accident-free days. The 694 selected accidents are classified by weather at
+the recorded accident time, whereas each day's traffic exposure is distributed
+across weather intervals using the pooled calendar-month weather frequency at
+the station assigned to that counter section. Table~\ref{tab:monthly-vkt-rate}
+reports the resulting accident counts, estimated exposure and rates.
 
 \input{generated/monthly_vkt_rate.tex}
 
-At mean wind of at least 20 m/s, 11 accidents occur in 16.5 million estimated
-VKT, or 0.667 per million VKT. The corresponding 0--5 m/s rate is 0.114, giving
-a descriptive rate ratio of 5.83. For gusts of at least 30 m/s, 11 accidents
-occur in 12.7 million estimated VKT, or 0.866 per million VKT; the ratio to the
-0--5 m/s rate is 7.78. These upper intervals contain only 11 accidents each.
+The resulting rates increase in the upper wind intervals. At mean wind of at
+least 20 m/s, 11 accidents occur in 16.5 million estimated VKT, corresponding
+to 0.667 accidents per million VKT. The 0--5 m/s rate is 0.114, so the
+descriptive rate ratio is 5.83. For gusts of at least 30 m/s, the corresponding
+rate is 0.866 per million VKT, 7.78 times the 0--5 m/s rate. Both upper intervals contain only 11 accidents, which limits the precision of
+the large ratios. The geographic selectivity of the counter-linked sample also
+limits their generalisability. Figure~\ref{fig:monthly-vkt-rate} shows the
+corresponding rate pattern across all wind and gust intervals.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{monthly_vkt_rate.png}
-\caption{Rural injury accidents per million estimated vehicle-kilometres,
-2019--2024. The denominator includes every eligible recorded counter-section day,
-including accident-free days. The full observed 24-hour count is multiplied by
-rural section length and allocated using the assigned station's pooled
-2007--2025 calendar-month weather frequency for 07:00--24:00. Accident labels
-above bars are counts classified by observed event-time weather. Monthly
-allocation and absence of hourly traffic remain modelling assumptions.}
+\caption[Rural injury accidents per million estimated VKT, 2019--2024.]{Rural injury accidents per million estimated vehicle-kilometres in
+the 694-accident counter-linked sample, 2019--2024. The denominator includes
+every eligible counter-section day, including days without accidents. The
+observed 24-hour traffic count is multiplied by rural road length and allocated
+across wind or gust intervals using the assigned station's pooled 2007--2025
+calendar-month weather frequency for 07:00--24:00. Accident labels above bars
+are counts classified by observed event-time weather. The monthly allocation
+and absence of hourly traffic are modelling assumptions.}
 \label{fig:monthly-vkt-rate}
 \end{figure}
 
-The larger raw rate ratios are partly compositional. Reallocating accidents
-within counter-section--year--season strata in proportion to the same monthly
-VKT gives upper-bin O/E 3.39 for mean wind and 4.84 for gust. The five largest
-accident-contributing sections account for six of the 11 accidents in each
-upper bin, while the five largest exposure shares are 10.5\% and 13.3\%.
-Different samples, monthly allocation, road weighting and sparse cells all
-contribute to the difference from the approximate corrected O/E.
+A stratified diagnostic gives smaller upper-bin contrasts when the comparison
+is made within counter-section--year--season strata: O/E is 3.39 for mean wind
+and 4.84 for gust. This suggests that sample and road-exposure composition
+contribute to the larger pooled VKT rate ratios. The interpretation of this difference is considered in Chapter~5 rather than treated as a separate
+main result here.
 
-\subsection{Supporting Traffic Analyses}
-
-The annual analysis has broader coverage, whereas the other daily-counter
-analyses use observed daily totals at fewer locations. None observes traffic
-at the accident minute. Table~\ref{tab:traffic-methods} contrasts the existing
-annual and same-day constructions; they are retained as supporting evidence.
-
-\input{generated/traffic_methods.tex}
-
-\subsection{Broader Annual-Traffic Comparison}
-
-Table~\ref{tab:estimated-rate} reports descriptive accident rates based on
-estimated vehicle-kilometres. The rates rise across the wind intervals, but
-these pooled values also reflect which road sections and periods contribute
-exposure to each interval. The conditional comparison described below instead
-compares intervals within road section, year and traffic period.
-
-\input{generated/estimated_rate.tex}
-
-The within-stratum model also shows higher rates in the upper wind intervals.
-Its estimate for 20--25 versus 0--5 m/s is 2.34. This conditional comparison
-differs from the pooled descriptive rates because it controls the comparison
-within road section, year and traffic period.
-
-The annual analysis retains 5,125 accidents. The conditional Poisson fit uses
-5,122 of these in 4,133 informative road-section--year--traffic-period groups.
-Relative to 0--5 m/s, the estimated
-within-stratum rate ratio is 1.67 (95\% CI 1.44--1.95) at 15--20 m/s, 2.34
-(1.72--3.17) at 20--25 m/s, and 5.16 (3.15--8.44) at 25 m/s or above. The
-uppermost estimate contains 17 accidents and is less precise. Traffic is
-allocated within each period according to local wind frequency.
-
-The elevation from 15--20 m/s agrees in direction with both primary O/E and
-matched time. Its numerical size is not directly comparable with either:
-the annual model uses a selected road-linked sample, a different reference
-comparison and constructed exposure. The wider upper-bin intervals also
-mean that the largest point estimate should not carry the main conclusion.
-
-The serious-or-fatal model includes 1,088 accidents. Relative to 0--5 m/s, its
-rate ratio is 2.04 (95\% CI 1.49--2.79) at 15--20 m/s and 1.88
-(0.88--4.02) at 20--25 m/s. The latter interval includes one and does not
-provide clear evidence of an elevated rate in that bin. The at-least-25 m/s
-estimate is 5.51 (1.97--15.40), but contains only four accidents and is
-correspondingly imprecise.
-
-Using wider seasonal intervals, the estimated rate ratio for at least 15
-versus 0--10 m/s is above one in all four seasons. These values are supporting
-checks only: spring and autumn use derived VHDU, and the upper seasonal cells
-are too small for a precise ranking.
-
-\subsection{Daily-Counter Checks}
-
-Observed daily traffic falls as strong wind persists. Relative to the calendar
-expectation at the same counter, traffic is 86.8\% on days with at least six
-hours at \(f\geq15\) m/s. This shows that traffic volume is not constant
-across weather conditions at the selected counters. It does not quantify
-how traffic changed across the full primary accident sample, because the
-counters are geographically selective and do not provide complete hourly
-traffic at accident times. The finding motivates the exposure checks rather
-than supplying a numerical correction to primary O/E.
-
-The allocated daily-counter model retains 762 accidents. Its rate ratio for at
-least 15 versus 0--10 m/s is 3.62 (95\% CI 2.65--4.94), based on 47 accidents
-in the upper interval. A counter-section calculation includes rural road
-length and actual same-day weather for 694 daytime accidents. Its upper
-mean-wind interval contains only eleven accidents. Both calculations start from
-observed daily totals but estimate their within-day distribution, and both are
-limited to selected counter locations. They are therefore supporting checks,
-not the primary result.
-
-The two daily calculations also ask different exposure questions: one fits
-relative rates using allocated counter totals, while the same-day calculation
-includes assigned road length and reports accidents per estimated VKT.
-Their agreement in direction is useful, but cannot remove the uncertainty
-in the within-day allocation or the sparse upper-wind counts.
-
-Appendix Table~\ref{tab:traffic-sensitivity} addresses the two most
-important data questions. Restricting the rate model to the official VDU
-and SDU periods
-reduces the upper estimates, but they remain above one. Excluding daily
-counter records reported as zero changes the 20--25 m/s traffic estimate from
-68.9\% to 69.3\%, so those records do not explain the observed decline.
-
-Table~\ref{tab:evidence-summary} brings the primary result and supporting
-comparisons together. The common finding is an upper-wind association; the
-table also shows why each estimate retains a distinct interpretation.
+Table~\ref{tab:evidence-summary} places the headline mean-wind results from
+Q1--Q3 beside the matched-time robustness estimate. The entries are intended as
+an interpretation guide rather than a numerical ranking because the analyses
+use different samples, denominators, and estimands.
 
 \input{generated/evidence.tex}
 
-The estimates measure different quantities and should not be compared by
-magnitude. Their direction is consistent, but hourly traffic is unavailable
-for the hour-of-day and daylight analyses.
+\section{Supporting Analyses}
+
+The remaining analyses test specific aspects of the main Q1--Q3 pattern. They
+are reported as supporting checks because they either use different
+conditioning, smaller selected samples, or additional exposure assumptions.
+
+\subsection{Matched-Time and Secondary Weather Checks}
+
+The time-stratified case-crossover analysis contains 6,257 accident strata for
+each weather measure. Table~\ref{tab:matched-time-summary} summarises the main
+categorical contrasts. Mean wind of at least 15 m/s has an odds ratio of 1.61
+(95\% CI 1.38--1.87) relative to 0--5 m/s, while lower and moderate wind
+contrasts are near one. This supports the upper-wind pattern after controlling
+for station, year, month, weekday and clock time, but it does not control
+unusual traffic or road conditions on a particular day.
+
+\input{generated/matched_time_summary.tex}
+
+The gust model also rises in the upper intervals, whereas the temperature
+results remain non-monotonic. Including temperature in the mean-wind model
+changes the upper-wind estimate only slightly, from OR 1.61 to 1.68. The
+matched-time temperature result reproduces the dip at moderate temperatures but
+not the warm-end increase seen in Q1, reinforcing the cautious interpretation
+of temperature.
+
+Daylight and severity provide additional context rather than separate main
+findings. The matched daylight estimates are imprecise because only 985 matched
+sets change daylight class. In the adjusted severity model, mean wind of at
+least 15 m/s has OR 0.93 (95\% CI 0.69--1.26) relative to 0--10 m/s, providing
+no clear evidence that strong wind is associated with greater severity once an
+injury accident has occurred. The full severity model is reported in
+Table~\ref{tab:severity-conditions} in the appendix. A matched-time
+wind-by-season interaction test gives \(\chi^2(6)=14.30\), \(p=0.026\), but
+sparse upper-wind cells do not support ranking individual seasons.
+
+\subsection{Supporting Traffic Models}
+
+The additional traffic models provide checks using different exposure
+constructions. The broad annual model retains 5,125 accidents and compares rates within road
+section, year and traffic period. Its rate ratio is 2.34 (95\% CI 1.72--3.17)
+for 20--25 versus 0--5 m/s and rises further in the sparse \(\geq25\) m/s
+interval. These estimates are consistent in direction with Q1--Q3, but their
+magnitude is not directly comparable because seasonal traffic is allocated by
+weather frequency and the linked road sample differs.
+
+A separate allocated daily-counter model retains 762 accidents and gives RR
+3.62 (95\% CI 2.65--4.94) for \(\geq15\) versus 0--10 m/s. It uses observed
+daily totals but an estimated within-day allocation and is therefore retained
+as a robustness check rather than a main result. Appendix
+Table~\ref{tab:traffic-sensitivity} reports the principal traffic sensitivity
+checks, including the official VDU/SDU restriction and the effect of excluding
+recorded zero counter-days.
+
+Across the primary and supporting analyses, the common feature is an elevation
+in the upper wind intervals. The analyses differ in population, denominator
+and estimand, so agreement in direction is more informative than comparison of
+their numerical magnitudes.
+
 
 \chapter{Discussion}
 
 \section{Interpretation}
 
-The primary O/E analysis shows that strong mean wind is over-represented at
-the times of rural injury accidents relative to its local frequency. The rough
-traffic correction increases the upper-bin O/E when the 2019--2024 counter
-response is extrapolated to the primary population. The monthly-frequency
-counter rate also rises in the upper intervals, but is based on 694 accidents
-and only 11 upper-bin events. The matched-time analysis supports the pattern
-after controlling for station and recurring calendar time. Together these
-results support an association, not a causal effect or a national per-vehicle
-risk.
+The three main analyses address the wind result using different levels of traffic information and different exposure assumptions. Q1
+shows that rural injury accidents are
+over-represented during strong mean wind relative to how often those conditions
+occur locally: at \(\geq20\) m/s, the all-injury O/E is 2.15. Q2 applies an
+approximate traffic correction derived from daily counters and increases the
+same upper-bin O/E to 2.71. Q3 uses observed daily traffic and rural road length
+in a smaller counter-linked sample and gives a rate at \(\geq20\) m/s that is
+5.83 times the 0--5 m/s rate. The three values are not estimates of the same
+quantity, but each places the strongest contrast in the upper wind intervals.
 
-Observed daily traffic is lower when strong wind persists at the selected
-counters. This cautions against treating weather time as a direct measure of
-vehicle exposure, but cannot establish how traffic contributed to the
-primary O/E pattern across the wider network. No traffic source observes
-traffic at the accident minute. The rough correction combines daily totals
-with same-day daytime weather; the monthly rate allocates daily VKT using a
-pooled station-month distribution; and the supporting annual and same-day
-analyses use still other allocations. Their different magnitudes reflect both
-exposure definitions and sample composition.
+Q2 addresses an important limitation of weather-frequency O/E: traffic volume
+is not constant across weather conditions. At the selected counters, daily
+traffic is lower during stronger wind. If that response also applies to the
+broader rural road network, weighting expected accidents by the observed
+traffic response makes the upper-wind contrast larger rather than explaining it
+away. The correction remains approximate, however. It extrapolates a
+2019--2024 counter relationship to the 2007--2025 primary population, and it
+uses daily traffic totals rather than traffic observed in the same 10-minute
+intervals used to classify accidents. Q2 is therefore best interpreted as a
+sensitivity analysis of the primary O/E rather than as a measured
+traffic-adjusted accident rate.
 
-Gust also has an upper-tail pattern, although it is closely related to mean
-wind. Temperature is non-monotonic and differs at the warm end between the O/E
-and matched-time analyses. The daylight comparison gives no clear association,
-and the severity model gives no clear evidence that strong wind increases
-severity among recorded injury accidents. Sparse seasonal upper intervals do
-not support ranking seasons or outcome groups.
+Q3 incorporates day-to-day traffic variation directly in the denominator, but
+its larger rate ratio requires separate interpretation. The 694-accident sample
+covers only roads and years with usable counter information, and only 11
+accidents occur in the \(\geq20\) m/s mean-wind interval. In addition, pooled
+vehicle-kilometre rates can be influenced by which road sections contribute
+exposure to each wind interval. A diagnostic comparison within
+counter-section--year--season strata gives upper-bin O/E 3.39 for mean wind and 4.84 for gust, smaller than the pooled Q3
+rate ratios. This suggests that differences in road and exposure composition
+account for part of the larger pooled contrasts. It does not establish that
+particular roads are intrinsically more dangerous, and the sparse upper bins
+leave substantial uncertainty about the exact magnitude of the contrast.
 
-The main result agrees with earlier studies comparing accident
-shares with the time spent in adverse weather \citep{edwards1994} and with the
-engineering evidence that crosswind can impair vehicle stability
-\citep{baker1986,baker1994risk}. This study adds a longer Icelandic series,
-local station-and-season standardisation, and matched-time and traffic checks;
-it does not establish a new physical wind threshold.
-The non-monotonic temperature estimates are consistent with previous evidence
-that temperature associations can vary by range and season
-\citep{lee2014,zhan2020}. The decrease in daily traffic during sustained wind is
-consistent with recorder-based evidence that adverse weather changes travel
+The supporting analyses are consistent with this interpretation but answer
+different questions. The matched-time comparison retains an upper-wind
+association after controlling for station and recurring calendar time. This
+makes an explanation based solely on regular differences between months,
+weekdays or times of day less plausible. Gust shows a similar upper-tail
+pattern, although mean wind and gust are related measurements from the same
+weather observations. Temperature is less consistent: its O/E pattern is
+non-monotonic and the matched-time analysis does not reproduce the warm-end
+increase. The severity model likewise gives no clear evidence that strong wind
+is associated with a greater probability of serious or fatal injury once an
+injury accident has occurred. These results support a distinction between the
+occurrence of accidents and their severity.
+
+The main wind result is consistent with earlier work comparing accident shares
+with the time spent in adverse weather \citep{edwards1994} and with engineering
+research showing mechanisms by which crosswind can impair vehicle stability
+\citep{baker1986,baker1994risk}. The contribution here is not a new physical
+wind threshold, but a long Icelandic accident series linked to local weather
+frequency and then examined under several complementary exposure
+constructions. The non-monotonic temperature findings are also consistent with
+previous evidence that temperature associations can vary by range and season
+\citep{lee2014,zhan2020}, while the observed reduction in traffic during strong
+wind agrees with recorder-based evidence that adverse weather changes travel
 demand \citep{sathiaraj2018}.
 
 \section{Strengths}
 
-The study combines a long accident series with 10-minute weather observations,
-local weather-frequency standardisation, and explicit reporting of match
-coverage and observed counts. The matched-time and traffic analyses address
-different weaknesses of the primary comparison. Documented transformations,
-exclusions, and automated checks make the reported results reproducible.
+A principal strength is the broad primary sample: 6,259 rural injury accidents
+are linked to quality-controlled 10-minute weather observations, and expected
+counts are standardised within weather station and study season rather than
+against a single national weather distribution. Match coverage, observed
+counts and weather-quality exclusions are reported explicitly, which makes the
+primary O/E calculation transparent and auditable.
+
+The exposure analyses complement rather than replace this broad comparison.
+Q2 tests how the primary result changes under an empirically estimated traffic
+response, while Q3 uses observed daily traffic, road length and all eligible
+counter-days, including days without an accident. The matched-time and additional traffic models provide supporting checks under
+different conditioning and exposure assumptions. Keeping these analyses separate makes their assumptions
+visible instead of combining incompatible data sources into one apparently
+precise measure. Documented transformations, automated tests and stage-specific
+audits further support reproducibility.
 
 \section{Limitations}
 
-\begin{itemize}
-  \item The primary O/E is not a rate per vehicle-kilometre. Its traffic
-  correction is approximate and extrapolates a 2019--2024 daily-counter
-  response to the wider 2007--2025 population.
-  \item The case-crossover analysis controls recurring calendar time but not
-  unusual traffic, road conditions, visibility, or closures on a particular
-  day. Its $\geq15$ m/s category summarises the upper-wind
-  pattern rather than a physical threshold.
-  \item A weather station up to 20 km away is a proxy for conditions at the
-  accident location. Terrain can produce important differences over shorter
-  distances.
-  \item The annual traffic analysis allocates seasonal traffic across wind
-  intervals and does not observe traffic at the accident minute.
-  \item Daily counters cover selected sites in 2019--2024 and provide no
-  hourly traffic. Their totals are allocated within the day, and an assigned
-  counter need not have been passed by the accident vehicle.
-  \item Estimated rates are restricted to rural injury accidents on linked
-  road sections. They should not be compared directly with broad national or
-  international accident rates unless the outcome and vehicle-kilometre
-  traffic quantity are defined in the same way.
-  \item The highest wind intervals contain relatively few accidents. Several
-  intervals and comparison results are shown, so individual estimates in
-  the upper tail should be interpreted with caution.
-  \item Fixed 2020--2024 urban boundaries are applied to the entire 2007--2025
-  accident period.
-  \item The analysis is observational. Unmeasured road condition, vehicle type,
-  speed, visibility, and driver behaviour can contribute to the pattern.
-\end{itemize}
+The main limitation is incomplete traffic exposure. Q1 uses weather time rather
+than vehicle-kilometres. Q2 introduces traffic only through an approximate
+response estimated from selected counters in 2019--2024 and extrapolated to the
+broader 2007--2025 population. The counter data are daily totals, so neither Q2
+nor Q3 observes how many vehicles were travelling during the specific
+10-minute weather interval in which an accident occurred.
+
+Q3 is more exposure-based but also more selective. It is limited to rural
+counter sections with usable traffic, road geometry and weather in 2019--2024.
+The full observed daily count is allocated to 07:00--24:00 using pooled
+station-month weather frequencies, an assumption that preserves daily exposure
+but does not reconstruct hourly traffic. The monthly weather frequencies use
+the longer 2007--2025 weather record for stability, while the traffic and
+accidents themselves are restricted to 2019--2024. Only 11 Q3 accidents occur
+in each of the highest mean-wind and gust intervals, so the corresponding large
+rate ratios should be interpreted as directional evidence rather than precise
+estimates. An assigned counter also represents exposure on a road section; it
+does not establish that the vehicle involved in an accident passed that
+counter.
+
+Weather measurement introduces a separate source of uncertainty. A station up
+to 20 km from an accident or counter location is a proxy for conditions on the
+road, and Icelandic terrain can produce substantial variation over shorter
+distances. The five-minute matching rule can also select an observation on the
+adjacent calendar day for accidents close to midnight; this preserves the time
+tolerance but should be understood as part of the matching definition. The
+fixed 2020--2024 urban-boundary dataset is applied to the full 2007--2025
+accident period, so historical changes in settlement boundaries are not
+represented.
+
+The supporting models have their own restrictions. The case-crossover design
+controls recurring calendar time but not unusual traffic, road-surface
+conditions, visibility or closures on a particular day. The annual traffic
+model distributes seasonal traffic across wind intervals using weather
+frequency rather than observed wind-specific traffic. More generally, all
+analyses are observational. Unmeasured road characteristics, vehicle type,
+speed, visibility, driver behaviour and weather-related road management may
+contribute to the observed patterns. The study therefore supports associations
+and exposure contrasts, not causal effects of wind.
 
 \section{Future Work}
 
-The most valuable addition would be verified hourly traffic with counter
-coordinates, road-section identifiers, direction information, and documented
-downtime. Linked to the same weather stations, these data could distinguish
-vehicle classes and wind direction relative to the road. Daily totals cannot
-provide that information.
+The most valuable extension would be verified hourly traffic linked to stable
+counter coordinates, road-section identifiers, direction information and
+counter downtime. Hourly exposure would remove the need to distribute daily
+traffic totals across weather intervals and would allow accident-time weather
+to be paired with traffic measured at a compatible temporal resolution. A
+second useful extension would examine baseline accident rates and exposure
+composition across road sections to determine how much of the difference
+between pooled VKT rates and locally standardised O/E is attributable to road
+mix. With sufficiently detailed data, vehicle class, road geometry and wind
+direction relative to the road could also be incorporated.
 
 \chapter{Conclusion}
 
-Of 6,414 rural injury accidents during 2007--2025, 6,259 were matched to valid
-weather observations within 20 km and five minutes. At mean wind speeds of at
-least 20 m/s, 68 injury accidents occurred compared with 31.6 expected from
-local weather frequency (O/E 2.15). The serious-or-fatal subset had O/E 1.87,
-but its smaller count limits comparison between severity groups.
+The primary weather-frequency analysis identifies a clear upper-wind pattern
+in rural injury accidents in Iceland. Of 6,414 rural injury accidents in
+2007--2025, 6,259 have qualifying weather matches within 20 km and five
+minutes. At mean wind speeds of at least 20 m/s, 68 accidents were observed
+compared with 31.6 expected from local weather frequency, giving O/E 2.15.
+This is the main result of the thesis: strong wind is over-represented at
+accident times relative to how often it occurs locally.
 
-The matched-time analysis supports the upper-wind pattern: the odds ratio for
-at least 15 m/s versus 0--5 m/s was 1.61. Gust gives a similar upper-tail
-pattern, whereas the non-monotonic temperature estimates differ between the
-O/E and matched-time analyses at warmer temperatures. The temperature finding
-therefore remains uncertain.
+The traffic analyses refine the interpretation while also defining its
+limits. Reweighting the primary expected counts with the traffic response
+observed at counters increases the upper-wind O/E from 2.15 to 2.71, but this
+is an approximate extrapolation rather than a measured traffic-adjusted rate.
+In the separate 694-accident monthly-frequency counter analysis, the
+\(\geq20\) m/s rate is 0.667 accidents per million estimated VKT, 5.83 times
+the 0--5 m/s rate. Only 11 accidents occur in this upper interval, and part of
+the larger pooled contrast is related to road and exposure composition.
 
-The approximate traffic correction changes mean-wind O/E at 20 m/s or above
-from 2.15 to 2.71. In the 694-accident monthly-frequency counter analysis, the
-rate at 20 m/s or above is 0.667 per million estimated VKT, 5.83 times the
-0--5 m/s rate; the corresponding upper-gust rate ratio is 7.78. Each upper
-interval contains 11 accidents. Supporting annual, same-day and matched-time
-analyses point in the same direction, but use different selected samples and
-exposure assumptions.
-
-The analyses therefore show that rural injury accidents are relatively more
-frequent during strong mean wind in Iceland. This is not a causal estimate or a complete
-national measure of accident risk per vehicle. Such a measure would require
-linked hourly traffic data with wider geographic coverage.
+Supporting matched-time and traffic models place the strongest contrasts in
+the same upper-wind range, while the temperature results are less consistent
+and no clear increase in injury severity is evident in strong wind. Taken
+together, the analyses show that rural injury accidents are relatively more
+frequent during strong mean wind, but they do not establish a causal effect or
+a complete national accident risk per vehicle-kilometre. Estimating such a
+quantity directly would require wider geographic coverage and traffic measured
+at an hourly or finer temporal resolution.
 
 \begin{thebibliography}{23}
 
@@ -1313,7 +1185,7 @@ Hagstofa Íslands. (2026).
 Hrafnkelsdóttir, E. (2020).
 \newblock \emph{Effects of wind on vehicles: Development of a calculation model}
 (in Icelandic).
-\newblock Vegager\dh in research report 1800-707-2.
+\newblock Vegagerðin research report 1800-707-2.
 \newblock \url{https://www.vegagerdin.is/vegagerdin/gagnasafn/skyrslur/utgefnar-rannsoknaskyrslur/umferd/2020-umferd/ahrif-vinds-a-farartaeki-throun-reiknilikans/}.
 
 \bibitem[Janes et al.(2005)]{janes2005}
@@ -1341,7 +1213,8 @@ traffic injuries in Seoul, Korea.
 Lord, D. and Mannering, F. (2010).
 \newblock The statistical analysis of crash-frequency data: a review and
 assessment of methodological alternatives.
-\newblock \emph{Transportation Research Part A}, 44(5), 291--305.
+\newblock \emph{Transportation Research Part A: Policy and Practice},
+44(5), 291--305.
 \newblock \url{https://doi.org/10.1016/j.tra.2010.02.001}.
 
 \bibitem[Pu et al.(2018)]{pu2018}
@@ -1377,7 +1250,7 @@ Theofilatos, A., and Yannis, G. (2014).
 \newblock \url{https://doi.org/10.1016/j.aap.2014.06.017}.
 
 \bibitem[Veðurstofa Íslands(2025)]{vedurSummer2025}
-Veðurstofa Íslands (2025).
+Veðurstofa Íslands. (2025).
 \newblock Tíðarfar í september 2025. Section: Sumarið (júní til september).
 \newblock Published 2 October 2025.
 \newblock \url{https://www.vedur.is/um-vi/frettir/tidarfar-i-september-2025}.

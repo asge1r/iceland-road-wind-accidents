@@ -44,9 +44,9 @@ VARIABLE_NAMES = {
     "temperature": "Temperature",
 }
 X_LABELS = {
-    "f": "Mean wind, f (m/s)",
-    "fg": "Wind gust, fg (m/s)",
-    "temperature": "Temperature °C",
+    "f": "Mean wind (m/s)",
+    "fg": "Wind gust (m/s)",
+    "temperature": "Temperature (°C)",
 }
 OUTCOMES = (
     "Minor injury accidents",
