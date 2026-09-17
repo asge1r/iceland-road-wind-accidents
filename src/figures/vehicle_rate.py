@@ -42,7 +42,7 @@ def main() -> None:
         x = np.arange(len(data))
         bars = axis.bar(x, values, width=0.7, color="#287271")
         axis.axhline(1, color="#202020", linestyle="--", linewidth=1)
-        axis.set_xticks(x, interval_labels(data["bin_label"]), rotation=30)
+        axis.set_xticks(x, interval_labels(data["bin_label"]), rotation=0)
         axis.set_title(name)
         axis.grid(axis="y", alpha=0.2)
         axis.set_axisbelow(True)

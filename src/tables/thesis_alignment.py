@@ -34,7 +34,7 @@ def selection_tex(data: pd.DataFrame) -> str:
 
     return r"""\begin{table}[H]
 \centering
-\caption[Selection for the traffic-based rate analysis.]{Selection for the traffic-based rate analysis. The first row includes urban and rural injury accidents; the rural restriction is applied in step (b). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
+\caption[Selection for the monthly-frequency VKT analysis.]{Selection for the monthly-frequency VKT analysis. The first row includes urban and rural injury accidents; the rural restriction is applied in step (b). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
 \label{tab:monthly-vkt-selection}
 \small
 \begin{tabular}{p{0.64\textwidth}rr}
@@ -70,7 +70,7 @@ def rates_tex(data: pd.DataFrame) -> str:
         )
     return """\\begin{table}[htbp]
 \\centering
-\\caption{Monthly-frequency daily-counter rates, 2019--2024. Exposure is the full observed daily traffic count times rural section length, allocated by the assigned station's pooled 2007--2025 calendar-month weather frequency for 07:00--24:00.}
+\\caption{Monthly-frequency VKT rates, 2019--2024. Exposure is the full observed daily traffic count times rural section length, allocated by the assigned station's pooled 2007--2025 calendar-month weather frequency for 07:00--24:00.}
 \\label{tab:monthly-vkt-rate}
 \\small
 \\begin{tabular}{llrrr}

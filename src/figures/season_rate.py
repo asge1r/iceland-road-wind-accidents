@@ -46,7 +46,7 @@ def main() -> None:
         axis.set_ylim(0, ymax)
         axis.grid(axis="y", alpha=0.2)
         axis.set_axisbelow(True)
-        axis.set_xticks(x, interval_labels(subset["bin_label"]), rotation=25, ha="right")
+        axis.set_xticks(x, interval_labels(subset["bin_label"]), rotation=0, ha="center")
         for bar, row in zip(bars, subset.itertuples(index=False), strict=True):
             axis.text(
                 bar.get_x() + bar.get_width() / 2,

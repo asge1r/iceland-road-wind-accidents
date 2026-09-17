@@ -51,7 +51,7 @@ def main() -> None:
         colours = np.where(panel["observed_accidents"].lt(20), "#A7A7A7", "#287271")
         bars = axis.bar(x, ratio, color=colours, width=0.7)
         axis.axhline(1, color="#202020", linestyle="--", linewidth=1)
-        axis.set_xticks(x, interval_labels(panel["wind_bin"]), rotation=25)
+        axis.set_xticks(x, interval_labels(panel["wind_bin"]), rotation=0)
         axis.set_xlabel("Mean wind, f (m/s)")
         axis.set_title(
             f"{TITLES[method]}\nN={int(panel['analysis_accidents'].iloc[0]):,}",

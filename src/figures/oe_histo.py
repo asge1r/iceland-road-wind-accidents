@@ -10,6 +10,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE, panel_limit
 import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
@@ -55,8 +57,8 @@ OUTCOMES = (
 SOURCE_OUTCOMES = ("All injury accidents", "Severe/fatal accidents")
 COLORS = ("#79BCE0", "#D62728")
 DISPLAY_OUTCOMES = {
-    "Minor injury accidents": "Minor injury accidents",
-    "Severe/fatal accidents": "Serious or fatal injury accidents",
+    "Minor injury accidents": "Minor injury",
+    "Severe/fatal accidents": "Serious or fatal injury",
 }
 BAR_WIDTH = 0.425
 TICK_FONT_SIZE = 12
@@ -143,17 +145,12 @@ def disjoint_outcomes(
 
 
 def display_limit(panel: pd.DataFrame) -> float:
-    """Leave vertical room for the tallest bar's count."""
-    maximum = float(panel["relative_accident_frequency"].max())
-    return max(1.5, maximum * 1.18)
+    """Scale each panel independently, retaining room for accident counts."""
+    return panel_limit(float(panel["relative_accident_frequency"].max()))
 
 
 def panel_readability_limit(panel: pd.DataFrame) -> float:
-    """Use a clean zero-based limit with count-label headroom for one Q1 panel."""
-    maximum = max(1.0, float(panel["relative_accident_frequency"].max()))
-    target = maximum / .86
-    step = 10 ** np.floor(np.log10(target)) / 5
-    return float(np.ceil(target / step) * step)
+    return display_limit(panel)
 
 
 def add_counts(axis: Axes, bars: BarContainer, counts: np.ndarray) -> None:
@@ -221,7 +218,7 @@ def draw_panel(
     )
     axis.tick_params(axis="both", labelsize=TICK_FONT_SIZE)
     if variable == "temperature":
-        axis.tick_params(axis="x", labelrotation=25, labelsize=11)
+        axis.tick_params(axis="x", labelrotation=0, labelsize=11)
     axis.yaxis.set_major_locator(MaxNLocator(nbins=6, steps=[1, 2, 5, 10]))
     axis.yaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
     axis.set_ylim(0, display_limit(panel))
@@ -233,8 +230,8 @@ def draw_panel(
         transform=axis.transAxes,
         ha="left",
         va="top",
-        fontsize=12,
-        fontweight="semibold",
+        fontsize=PANEL_TITLE_SIZE,
+        fontweight="bold",
         zorder=4,
     )
 
@@ -283,7 +280,7 @@ def plot_variable(data: pd.DataFrame, variable: str, output: Path) -> None:
         "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE
     )
     separate_count_labels(figure)
-    figure.savefig(output, dpi=240)
+    save_figure(figure, output, dpi=240)
     plt.close(figure)
 
 
@@ -316,7 +313,7 @@ def plot_whole_year(
         len(variables),
         1,
         figsize=(10.875, 4.35 * len(variables)),
-        sharey=y_limits is None,
+        sharey=False,
         layout="constrained",
     )
     axes = np.atleast_1d(axes)
@@ -329,23 +326,19 @@ def plot_whole_year(
             VARIABLE_NAMES[variable],
         )
         axis.text(.98, 1.025, "All year", transform=axis.transAxes, ha="right",
-                  va="bottom", fontsize=TICK_FONT_SIZE)
+                  va="bottom", fontsize=PANEL_TITLE_SIZE, fontweight="bold")
         axis.set_xlabel(labels[variable], fontsize=AXIS_TITLE_FONT_SIZE)
         if y_limits is not None:
             axis.set_ylim(0, y_limits[variable])
         if y_steps is not None:
             axis.yaxis.set_major_locator(MultipleLocator(y_steps[variable]))
-    if y_limits is None:
-        common_limit = display_limit(data)
-        for axis in axes:
-            axis.set_ylim(0, common_limit)
     add_legend(figure, axes[0])
     figure.supylabel(
         "Observed / expected accidents (O/E)", fontsize=AXIS_TITLE_FONT_SIZE
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     separate_count_labels(figure)
-    figure.savefig(output, dpi=240)
+    save_figure(figure, output, dpi=240)
     plt.close(figure)
     return output
 

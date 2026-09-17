@@ -9,6 +9,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE
 import pandas as pd
 
 
@@ -33,11 +35,11 @@ def main() -> None:
     figure, coverage = plt.subplots(figsize=(12, 4.5), constrained_layout=True)
     counts.bar(data["year"], data["rural_injury_accidents"], color="#547A99")
     counts.set_ylabel("Accidents")
-    counts.set_title("Rural injury accidents by year")
+    counts.set_title("Rural injury accidents by year", fontweight="bold", loc="left")
     counts.grid(axis="y", alpha=0.2)
     counts.set_xlabel("Year")
-    counts.set_xticks(data["year"])
-    counts.tick_params(axis="x", labelrotation=45)
+    counts.set_xticks(data["year"].iloc[::2])
+    counts.tick_params(axis="x", labelrotation=0)
     identical = data["wind_coverage_pct"].equals(data["temperature_coverage_pct"])
     if identical:
         coverage.plot(
@@ -53,16 +55,16 @@ def main() -> None:
     coverage.set_ylabel("Matched accidents (%)")
     coverage.set_xlabel("Year")
     coverage.set_ylim(70, 101)
-    coverage.set_title("Weather-match coverage")
+    coverage.set_title("Weather-match coverage", fontweight="bold", loc="left")
     coverage.grid(axis="y", alpha=0.2)
     coverage.legend(frameon=False, ncol=2)
-    coverage.set_xticks(data["year"])
-    coverage.tick_params(axis="x", labelrotation=45)
+    coverage.set_xticks(data["year"].iloc[::2])
+    coverage.tick_params(axis="x", labelrotation=0)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     count_path = args.output.with_name("annual_accident_counts.png")
-    count_figure.savefig(count_path, dpi=240)
+    save_figure(count_figure, count_path, dpi=240)
     plt.close(count_figure)
-    figure.savefig(args.output, dpi=240)
+    save_figure(figure, args.output, dpi=240)
     plt.close(figure)
     print(f"wrote={args.output}")
 

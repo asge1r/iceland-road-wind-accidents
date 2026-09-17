@@ -10,9 +10,11 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE, panel_limit
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import MultipleLocator, StrMethodFormatter
+from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from src.figures.oe_histo import (
     AXIS_TITLE_FONT_SIZE, COUNT_FONT_SIZE, TICK_FONT_SIZE, SEASON_LABELS,
@@ -26,8 +28,6 @@ OUTCOMES = ("Minor injury accidents", "Severe/fatal accidents")
 PERIODS = ("All year", "Winter", "Spring", "Summer", "Autumn")
 COLORS = ("#79BCE0", "#D62728")
 RATE = "rate_per_million_vehicle_km"
-ANNUAL_Y_MAX = {"f": 1.3, "fg": 1.3, "temperature": .3}
-SEASONAL_Y_MAX = {"f": .8, "fg": .5}
 X_LABELS = {
     "f": "Mean wind (m/s)",
     "fg": "Wind gust (m/s)",
@@ -47,18 +47,6 @@ def display_interval(value: str, bracketed: bool = False) -> str:
     separator = ", " if bracketed else "–"
     interval = separator.join(part.replace("-", "−") for part in match.groups())
     return f"[{interval}]" if bracketed else interval
-
-
-def seasonal_limit(data: pd.DataFrame, variable: str) -> float:
-    """Use requested wind/gust scales; fit the temperature stacks automatically."""
-    if variable in SEASONAL_Y_MAX:
-        return SEASONAL_Y_MAX[variable]
-    selected = data[data["variable"].eq(variable)
-                    & data["period"].isin(PERIODS[1:])
-                    & data["outcome"].isin(OUTCOMES)]
-    maximum = selected.groupby(["period", "bin_label"])[RATE].sum(min_count=1).max()
-    step = .1
-    return float(np.ceil(maximum * 1.2 / step) * step) if np.isfinite(maximum) and maximum > 0 else step
 
 
 def combine_seasonal_tails(data: pd.DataFrame) -> pd.DataFrame:
@@ -115,18 +103,13 @@ def draw(axis, data: pd.DataFrame, variable: str, period: str) -> None:
     axis.grid(axis="y", color="#E8E8E8", linewidth=.7)
     axis.set_axisbelow(True)
     axis.tick_params(axis="both", which="both", labelsize=TICK_FONT_SIZE, length=0)
-    axis.yaxis.set_major_locator(
-        MultipleLocator(.05 if annual and variable == "temperature" else .1)
-    )
+    axis.yaxis.set_major_locator(MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10]))
     axis.yaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
-    limit = ANNUAL_Y_MAX[variable] if annual else seasonal_limit(panel, variable)
-    if np.nanmax(bottom) > limit:
-        raise ValueError(f"{variable}, {period}: stack exceeds recovered supervisor y limit {limit}")
-    axis.set_ylim(0, limit)
+    axis.set_ylim(0, panel_limit(float(np.nanmax(bottom))))
     axis.margins(x=.025)
     title = "All year" if annual else SEASON_LABELS[period]
     axis.text(.015, .965, title, transform=axis.transAxes, ha="left", va="top",
-              fontsize=TICK_FONT_SIZE, fontweight="semibold", zorder=5)
+              fontsize=PANEL_TITLE_SIZE, fontweight="bold", zorder=5)
 
 
 def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefix="") -> list[Path]:
@@ -147,7 +130,7 @@ def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefi
     handles, labels = axes[0].get_legend_handles_labels()
     figure.legend(handles, labels, loc="outside upper center", ncols=2, frameon=False, fontsize=TICK_FONT_SIZE)
     annual = output / f"{prefix}weather_rate_annual.png"
-    figure.savefig(annual, dpi=240)
+    save_figure(figure, annual, dpi=240)
     plt.close(figure)
     paths.append(annual)
     for variable in variables:
@@ -160,7 +143,7 @@ def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefi
         handles, labels = axes[0].get_legend_handles_labels()
         figure.legend(handles, labels, loc="outside upper center", ncols=len(handles), frameon=False, fontsize=TICK_FONT_SIZE)
         path = output / f"{prefix}{variable}_traffic_rate_panels.png"
-        figure.savefig(path, dpi=240)
+        save_figure(figure, path, dpi=240)
         plt.close(figure)
         paths.append(path)
     return paths

@@ -47,7 +47,7 @@ def data_chapter_tables(output: Path) -> None:
         ("Accidents for weather-only analysis", samples.rural_injury_2007_2025, samples.weather_oe, "No qualifying weather within 20 km and five minutes."),
         ("Accidents for VKT analysis", samples.rural_injury_2019_2024, samples.same_day_weather_vkt, "Separate 2019--2024 sample: counter linkage, daytime, weather and traffic eligibility."),
         ("Wind observations", weather.input_rows.sum(), weather.clean_wind_rows.sum(), "Wind exclusions in the cleaning overview."),
-        ("Daily counter-days", daily.counter_days, daily.counter_days_with_daytime_wind, "No usable daytime wind summary."),
+        ("Counter-days for traffic-response analysis", daily.counter_days, daily.counter_days_with_daytime_wind, "Usable daytime weather summary."),
     ]
     rows = [[name, f"{int(before):,}", f"{100*(before-after)/before:.2f}\\%", f"{int(after):,}", reason]
             for name, before, after, reason in entries]
@@ -272,8 +272,12 @@ def severity_conditions(output: Path) -> None:
         if row.predictor == "Mean wind":
             unit = " m/s"
         elif row.predictor == "Temperature":
-            unit = r" $^{\circ}$C"
+            unit = r"~$^{\circ}$C"
+            if comparison_value == "<-6":
+                left = r"$<-6$"
         comparison = f"{left}{unit} vs {right}{unit}"
+        if row.predictor == "Temperature":
+            comparison = r"\mbox{" + f"{left}{unit}" + r"} vs \mbox{" + f"{right}{unit}" + "}"
         rows.append([
             row.predictor,
             comparison,
@@ -407,7 +411,7 @@ def traffic_tables(output: Path) -> None:
         ["Assigned counter within 20 km", f"{int(audit['within_distance']):,}", f"{100*audit['within_distance']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
         ["Positive count and valid full-day wind", f"{int(audit['with_valid_counter_day']):,}", f"{100*audit['with_valid_counter_day']/audit['rural_injury_accidents_2019_2024']:.1f}%"],
     ]
-    write_table(output / "daily_selection.tex", "Selection of accidents for the supporting allocated daily-counter model.", "tab:allocated-selection", "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth")
+    write_table(output / "daily_selection.tex", "Selection of accidents for the supporting allocated daily-counter model.", "tab:allocated-selection", "Xrr", ["Selection step", "Accidents", "Share of 2019--2024 sample"], rows, width=r"0.86\textwidth", short_caption="Selection for the supporting counter model.")
 
     sample = pd.read_csv("reports/main/tables/daily_sample.csv").set_index("group")
     groups = [
@@ -439,6 +443,7 @@ def traffic_tables(output: Path) -> None:
         rows,
         size="footnotesize",
         width=r"\textwidth",
+        short_caption="Characteristics by counter-linkage status.",
     )
     exclusions = pd.read_csv("reports/main/tables/daily_exclusions.csv")
     rows = [
@@ -465,7 +470,7 @@ def traffic_tables(output: Path) -> None:
     radius = pd.read_csv("reports/main/tables/counter_radius.csv")
     radius = radius[radius["wind_bin"].eq(">=15")]
     rows = [[f"{int(row.max_counter_distance_km)} km", f"{int(row.with_valid_counter_day):,}", f"{int(row.observed_accidents):,}", f"{row.rate_ratio:.2f}", f"{row.ci_95_low:.2f}--{row.ci_95_high:.2f}"] for row in radius.itertuples(index=False)]
-    write_table(output / "daily_radius.tex", "Upper-bin estimate from the supporting allocated daily-counter model under three assignment distances.", "tab:allocated-radius", "rrrrr", ["Maximum distance", "Included accidents", "Upper-bin accidents", "Rate ratio", r"95\% CI"], rows)
+    write_table(output / "daily_radius.tex", "Upper-bin estimate from the daily-mean-wind counter model under three accident-to-counter assignment distances.", "tab:allocated-radius", "rrrrr", ["Maximum distance", "Included accidents", "Upper-bin accidents", "Rate ratio", r"95\% CI"], rows, short_caption="Assignment-distance sensitivity of the daily-mean-wind model.")
 
     absolute = pd.read_csv("reports/main/tables/absolute_rate.csv")
     rows = [[interval(row.wind_bin), f"{int(row.observed_accidents):,}", f"{row.rate_per_100m_vehicle_km:.1f}"] for row in absolute.itertuples(index=False)]

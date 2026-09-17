@@ -7,6 +7,8 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE
 import numpy as np
 import pandas as pd
 
@@ -41,8 +43,8 @@ def draw(axis, part: pd.DataFrame, variable: str) -> None:
         axis.text(.03, .9, f"{interval_label(row.bin_label)} m/s: "
                   f"{row.time_oe:.2f} → {row.traffic_corrected_oe:.2f}",
                   transform=axis.transAxes, fontsize=12)
-    axis.set_title(VARIABLE_NAMES[variable], fontsize=15, loc="left")
-    axis.text(1, 1.025, "All year", transform=axis.transAxes, ha="right", fontsize=12)
+    axis.set_title(VARIABLE_NAMES[variable], fontsize=PANEL_TITLE_SIZE, fontweight="bold", loc="left")
+    axis.text(1, 1.025, "All year", transform=axis.transAxes, ha="right", fontsize=PANEL_TITLE_SIZE, fontweight="bold")
     axis.set_xticks(x, [interval_label(v, variable == "temperature") for v in part.bin_label])
     axis.set_xlabel(X_LABELS[variable], fontsize=13)
     axis.set_ylabel("Observed / expected accidents (O/E)", fontsize=12)
@@ -68,7 +70,7 @@ def make_figure(data: pd.DataFrame, output: Path, variables: tuple[str, ...]) ->
     handles, labels = axes.flat[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="outside upper center", ncols=2, frameon=False, fontsize=12)
     output.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output, dpi=240)
+    save_figure(fig, output, dpi=240)
     plt.close(fig)
 
 
@@ -80,10 +82,7 @@ def main() -> None:
     args = parser.parse_args()
     data = pd.read_csv(args.input)
     variables = tuple(v for v in VARIABLE_NAMES if v in set(data.variable))
-    source_scales = {"f": 6.0, "fg": 6.0, "temperature": 2.0} if "2019_2024" in args.input.stem else None
-    plot_whole_year(plotting_table(data), args.output, "", variables=variables,
-                    y_limits=source_scales,
-                    y_steps={"f": 1.0, "fg": 1.0, "temperature": .2} if source_scales else None)
+    plot_whole_year(plotting_table(data), args.output, "", variables=variables)
     if args.split or args.input == INPUT:
         for variable in variables:
             make_figure(data, args.output.with_name(f"{args.output.stem}_{variable}.png"), (variable,))

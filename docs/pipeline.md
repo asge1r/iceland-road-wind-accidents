@@ -428,10 +428,11 @@ to `reports/`.
 |---|---|---|---|
 | Data preparation | Accident, weather, road and traffic data | Quality-controlled datasets | Defines the study data. |
 | Accident selection | Accident data and urban boundaries | Rural injury accidents | Defines the study population. |
-| Weather matching | Accidents, weather observations and stations | Accident weather, local frequencies and control times | Creates the weather comparisons. |
+| Weather matching | Accidents, weather observations and stations | Accident-time weather and local frequencies | Common input to the weather analyses. |
 | Weather-frequency O/E | Accident weather and local frequencies | Observed and expected counts | Primary analysis. |
-| Matched-time analysis | Accident and control times | Matched odds ratios | Time-matched supporting comparison. |
-| Traffic analyses | Accident weather, traffic and road lengths | Traffic-linked rates | Supporting analyses in smaller samples. |
+| Approximate traffic-corrected O/E | Primary O/E and 2019–2024 counter response | Traffic-corrected expected counts | Second main analysis. |
+| Monthly-frequency VKT analysis | Recorded counter-days, rural lengths and monthly weather frequencies | Accidents per million vehicle-km | Main counter-linked traffic analysis. |
+| Supporting analyses | Matched control times and alternative traffic panels | Matched odds ratios and alternative rate estimates | Robustness checks. |
 
 ## Detailed analysis inventory
 

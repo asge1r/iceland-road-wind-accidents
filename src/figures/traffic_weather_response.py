@@ -9,6 +9,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE
 import numpy as np
 import pandas as pd
 from matplotlib.ticker import MaxNLocator, StrMethodFormatter
@@ -80,12 +82,12 @@ def make_figure(data: pd.DataFrame, output: Path) -> Path:
             transform=axis.transAxes,
             ha="left",
             va="top",
-            fontsize=TICK_FONT_SIZE,
-            fontweight="semibold",
+            fontsize=PANEL_TITLE_SIZE,
+            fontweight="bold",
             zorder=4,
         )
         axis.text(.98, .965, "All year", transform=axis.transAxes,
-                  ha="right", va="top", fontsize=TICK_FONT_SIZE)
+                  ha="right", va="top", fontsize=PANEL_TITLE_SIZE, fontweight="bold")
         for bar, change in zip(
             bars, panel["traffic_change_pct"].to_numpy(float), strict=True
         ):
@@ -106,7 +108,7 @@ def make_figure(data: pd.DataFrame, output: Path) -> Path:
         fontsize=AXIS_TITLE_FONT_SIZE,
     )
     output.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(output, dpi=240)
+    save_figure(figure, output, dpi=240)
     plt.close(figure)
     return output
 

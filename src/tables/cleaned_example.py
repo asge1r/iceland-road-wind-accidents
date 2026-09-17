@@ -12,7 +12,7 @@ def cleaned_example(output: Path) -> None:
     row = eligible.sort_values(["timestamp", "id"]).iloc[0]
     timestamp = pd.Timestamp(row.timestamp)
     rows = [
-        ["Example identifier", "A (source identifier omitted)"],
+        ["Source record identifier", "Withheld"],
         ["Date", timestamp.strftime("%Y-%m-%d")],
         ["Recorded time", timestamp.strftime("%H:%M:%S")],
         ["Registered road section", row.registered_road_section],
@@ -24,7 +24,7 @@ def cleaned_example(output: Path) -> None:
     write_table(output / "cleaned_accident_example.tex",
         "Example of a cleaned rural injury accident record. The table illustrates "
         "accident-level information retained before weather matching. The source "
-        "identifier alone is masked; time and coordinates are reproduced as recorded.",
+        "record identifier is withheld; other displayed fields are reproduced from the cleaned accident record.",
         "tab:cleaned-accident-example", "ll", ["Field", "Example value"], rows,
         short_caption="Example of a cleaned rural injury accident record.")
 

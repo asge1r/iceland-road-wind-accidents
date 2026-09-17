@@ -8,6 +8,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE
 import numpy as np
 import pandas as pd
 
@@ -84,7 +86,7 @@ def plot_accident_families(family: pd.DataFrame, path: Path) -> None:
     axis.set_xlim(0, data["count"].max() * 1.24)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right", "left"]].set_visible(False)
-    fig.savefig(path, dpi=240, bbox_inches="tight")
+    save_figure(fig, path, dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -96,20 +98,22 @@ def plot_vehicles(vehicles: pd.DataFrame, path: Path) -> None:
     for bar, count, percent in zip(
         bars, vehicles["count"], vehicles["percent"], strict=True
     ):
+        if count <= 0:
+            continue
         axis.text(
             bar.get_x() + bar.get_width() / 2,
             bar.get_height(),
             f"{count:,}\n({percent:.1f}%)",
             ha="center",
             va="bottom",
-            color=TEXT,
+            color=TEXT, fontsize=9,
         )
-    axis.set_title("Vehicles involved in rural injury accidents", weight="bold")
+    axis.set_title("Vehicles involved in rural injury accidents", weight="bold", loc="left")
     axis.set_ylabel("Accidents")
     axis.set_ylim(0, vehicles["count"].max() * 1.18)
     axis.grid(axis="y", alpha=0.2)
     axis.spines[["top", "right"]].set_visible(False)
-    fig.savefig(path, dpi=240, bbox_inches="tight")
+    save_figure(fig, path, dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -140,11 +144,11 @@ def plot_severity(severity: pd.DataFrame, family: pd.DataFrame, path: Path) -> N
     )
     axis.set_yticks(y, wrap(pd.Series(pivot.index), width=38))
     axis.set_xlabel("Share within severity group (%)")
-    axis.set_title("Accident types by injury severity", weight="bold")
+    axis.set_title("Accident types by injury severity", weight="bold", loc="left")
     axis.legend(frameon=False)
     axis.grid(axis="x", alpha=0.2)
     axis.spines[["top", "right"]].set_visible(False)
-    fig.savefig(path, dpi=240, bbox_inches="tight")
+    save_figure(fig, path, dpi=240, bbox_inches="tight")
     plt.close(fig)
 
 

@@ -102,7 +102,7 @@ class WeatherRateFigureTests(unittest.TestCase):
         finally:
             plt.close(figure)
 
-    def test_requested_limits_labels_and_grid_spacing(self):
+    def test_panel_specific_limits_labels_and_grid_spacing(self):
         figures = []
         try:
             with tempfile.TemporaryDirectory() as directory:
@@ -111,8 +111,8 @@ class WeatherRateFigureTests(unittest.TestCase):
                 ):
                     paths = make_figures(sample(), Path(directory))
             self.assertEqual(len(paths), 4)
-            for axis, limit in zip(figures[0].axes, [1.3, 1.3, .3], strict=True):
-                self.assertEqual(axis.get_ylim(), (0, limit))
+            for axis in figures[0].axes:
+                self.assertEqual(axis.get_ylim(), (0, .08))
                 self.assertIn("All year", [t.get_text() for t in axis.texts])
                 self.assertFalse(any("Jan" in t.get_text() for t in axis.texts))
                 self.assertNotIn(", f", axis.get_xlabel())
@@ -126,14 +126,17 @@ class WeatherRateFigureTests(unittest.TestCase):
             self.assertEqual(figures[3]._supxlabel.get_position()[0], .5)
             for axis in figures[3].axes[1:]:
                 self.assertEqual(axis.get_xlabel(), "")
-                np.testing.assert_allclose(np.diff(axis.get_yticks()), .1)
+                spacing = np.diff(axis.get_yticks())
+                np.testing.assert_allclose(spacing, spacing[0])
                 self.assertTrue(any(t.get_text() in PERIODS for t in axis.texts))
-            for figure, limit in zip(figures[1:3], [.8, .5], strict=True):
-                for axis in figure.axes[1:]:
-                    self.assertEqual(axis.get_ylim(), (0, limit))
-                    np.testing.assert_allclose(np.diff(axis.get_yticks()), .1)
-                    self.assertNotIn(", f", axis.get_xlabel())
-                    self.assertTrue(any(t.get_text() in PERIODS for t in axis.texts))
+            for figure in figures[1:]:
+                # The denser Summer sample has larger rates and its own limit.
+                self.assertGreater(figure.axes[3].get_ylim()[1], figure.axes[1].get_ylim()[1])
+                for axis in figure.axes:
+                    self.assertTrue(all(t.get_rotation() == 0 for t in axis.get_xticklabels()))
+                    tallest = max(bar.get_y() + bar.get_height() for bar in axis.patches)
+                    self.assertGreaterEqual(tallest / axis.get_ylim()[1], .75)
+                    self.assertLessEqual(tallest / axis.get_ylim()[1], .85)
             for figure in figures[1:]:
                 self.assertEqual(len(figure.axes), 5)
                 for axis in figure.axes[1:]:

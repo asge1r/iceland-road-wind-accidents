@@ -1,10 +1,20 @@
-# Kristján README figure mapping — 15 September 2026
+# Kristján README figure mapping — 16 September 2026
 
 The actual source specification is `reports/main/figures/README.md`. All eleven
 listed images remain in the thesis. No historical bitmap was substituted for
-current results. Current image paths are identical to the README paths.
+current results. PNG previews retain the README paths; the thesis now embeds their vector PDF counterparts.
 Numbers below follow the revised thesis: splitting the coverage figure and
-moving period checks after the main rates changes their numbering.
+moving period checks to Appendix A.3 changes their numbering.
+
+## Latest clarity-pass override — 16 September 2026
+
+The final clarity instruction supersedes the recovered y-axis limits listed
+in the historical comparison below: O/E and VKT panels now use independent,
+rounded zero-based limits with approximately 75–85% tallest-bar occupancy.
+Scientific values, bins, seasonal aggregation and light-blue/red colours are
+unchanged. The response figure retains its percentage scale. Figures 4.7 and
+4.8 remain separate. See `docs/final_clarity_figure_efficiency_audit.md` for
+validation and the monthly/same-day wording changes.
 
 ## Figure-by-figure comparison
 
@@ -15,10 +25,10 @@ injury / serious or fatal injury throughout O/E and rate plots.
 
 | README figure | Current thesis figure | Same scientific quantity? | Same denominator? | Same bins? | Same season layout? | Same y-axis? | Same colours? | Action required / implemented |
 |---|---|---|---|---|---|---|---|---|
-| `weather_oe_2007_2018.png` | 4.17 | Yes, period O/E | Yes, period station-season weather frequency | Yes | Yes, All year × three parameters | Retained recovered automatic limits | Light blue/red | Kept; placed under supporting checks |
-| `weather_oe_2019_2024.png` | 4.18 | Yes, period O/E | Yes, period station-season weather frequency | Yes | Yes, All year × three parameters | Retained recovered automatic limits | Light blue/red | Kept; placed under supporting checks |
+| `weather_oe_2007_2018.png` | A.3 | Yes, period O/E | Yes, period station-season weather frequency | Yes | Yes, All year × three parameters | Retained recovered automatic limits | Light blue/red | Kept in the period-sensitivity appendix |
+| `weather_oe_2019_2024.png` | A.4 | Yes, period O/E | Yes, period station-season weather frequency | Yes | Yes, All year × three parameters | Retained recovered automatic limits | Light blue/red | Kept in the period-sensitivity appendix |
 | `traffic_weather_response.png` | 4.6 | Yes, observed/expected daily traffic | Yes, counter-section/year/month/weekday expected traffic | Yes | Yes, All year × three parameters | Retained 0–120% | Original response blue | Kept before correction; percentage labels retain one decimal |
-| `weather_oe_traffic_corrected_2019_2024.png` | 4.19 | Yes, counter-era corrected O/E | Yes, traffic-reweighted period weather frequency | Yes | Yes, All year × three parameters | Retained 6 / 6 / 2 | Light blue/red | Kept as supporting counter-era correction |
+| `weather_oe_traffic_corrected_2019_2024.png` | A.5 | Yes, counter-era corrected O/E | Yes, traffic-reweighted period weather frequency | Yes | Yes, All year × three parameters | Retained 6 / 6 / 2 | Light blue/red | Kept in the period-sensitivity appendix |
 | `weather_rate_annual.png` | 4.13 | Yes, same-day traffic rates | Yes, same-day covered exposure, not monthly exposure | Yes, fine bins | Yes, All year × three parameters | Retained 1.3 / 1.3 / 0.3 | Light blue/red | Kept and explicitly identified as sensitivity |
 | `f_traffic_rate_panels.png` | 4.14 | Yes, same-day wind rates | Yes | Seasonal ≥15 tail retained; All year fine bins added | Updated: centred All year above four seasons | All year 1.3; seasons 0.8 retained | Light blue/red | Regenerated presentation only |
 | `fg_traffic_rate_panels.png` | 4.15 | Yes, same-day gust rates | Yes | Seasonal ≥20 tail retained; All year fine bins added | Updated as requested | All year 1.3; seasons 0.5 retained | Light blue/red | Regenerated presentation only |

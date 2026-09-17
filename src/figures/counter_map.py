@@ -9,6 +9,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+from src.figures.presentation import save_figure, PANEL_TITLE_SIZE
 import pandas as pd
 
 
@@ -44,11 +46,11 @@ def main() -> None:
     axis.set_ylim(63.2, 66.7)
     axis.set_xlabel("Longitude")
     axis.set_ylabel("Latitude")
-    axis.set_title("Daily-counter coverage")
+    axis.set_title("Daily-counter coverage", fontweight="bold", loc="left")
     axis.grid(alpha=0.15)
-    axis.legend(frameon=False, loc="lower left", fontsize=8.5)
+    axis.legend(frameon=False, loc="lower left", fontsize=10)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(args.output, dpi=240)
+    save_figure(figure, args.output, dpi=240)
     plt.close(figure)
     print(f"wrote={args.output}")
 
