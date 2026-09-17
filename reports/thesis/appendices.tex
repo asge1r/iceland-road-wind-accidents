@@ -193,8 +193,7 @@ Table~\ref{tab:allocated-radius} is a separate daily-mean-wind check under
 whole day's accident count and observed traffic by that day's mean wind,
 without allocation among 10-minute weather intervals. The conditional Poisson
 fit otherwise uses the counter--year strata, 0--10 m/s reference, BFGS
-estimation, and RR/CI calculation described above; its offset is log summed
-observed daily traffic in each counter--year--wind group. The upper bin is at
+estimation, and RR/CI calculation described above; its offset is the logarithm of summed observed daily traffic in each counter--year--wind group. The upper bin is at
 least 15 m/s. Included accidents count the linked sample before model filtering.
 
 \input{generated/daily_radius.tex}

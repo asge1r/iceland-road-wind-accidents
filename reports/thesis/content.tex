@@ -60,8 +60,7 @@ The analysis proceeds in three stages:
   weather frequencies. Compare with allocation using the actual day's weather.
 \end{enumerate}
 
-Q1--Q3 identify distinct analysis stages rather than repeated estimates of one
-parameter. The baseline and approximate correction cover 2007--2025, whereas the
+The three analyses use different denominators and, for the VKT analysis, a different study sample. The baseline and approximate correction cover 2007--2025, whereas the
 monthly-frequency VKT analysis uses a smaller 2019--2024 sample. Supporting models
 provide robustness checks. The study estimates associations, not causal effects
 or a complete national accident rate per vehicle-kilometre.
@@ -355,9 +354,7 @@ Appendix~\ref{app:accident-characteristics}.
 and matched temperature. Blue shows minor injury (code 3), and red shows
 serious or fatal injury (codes 1--2). Spring and autumn are combined only in
 this descriptive figure. Hour, season and daylight use 6,414 accidents;
-temperature uses 6,259 qualifying matches. Temperature brackets show displayed
-interval endpoints; finite bins include the lower endpoint and exclude the
-upper.}
+temperature uses 6,259 qualifying matches.}
 \label{fig:accident-conditions}
 \end{figure}
 
@@ -428,12 +425,7 @@ observed and expected counts rather than averaging group ratios. Because this
 is a descriptive standardised ratio rather than a fitted model, the O/E figures
 do not show model-based confidence intervals.
 
-Temperature intervals are below \(-6\), \(-6\) to \(-3\), \(-3\) to 0,
-0 to 3, 3 to 6, 6 to 9, 9 to 12, and at least 12\(^{\circ}\)C. Square brackets
-in figures are a display convention; finite bins include the lower endpoint and
-exclude the upper. The matched-time models retain separate 12--15 and
-at-least-15\(^{\circ}\)C intervals, so those upper-temperature estimates are
-not compared directly with O/E.
+Temperature was grouped into 3$^{\circ}$C intervals from $-6$ to 12$^{\circ}$C, with open-ended groups below $-6$$^{\circ}$C and at or above 12$^{\circ}$C. Finite intervals include the lower bound and exclude the upper. In the matched-time models, the upper tail is split further into 12--15$^{\circ}$C and at least 15$^{\circ}$C, so those estimates are not directly comparable with the O/E $\geq$12$^{\circ}$C category.
 
 \subsection{Use of Traffic Data}
 
@@ -609,7 +601,7 @@ road-length inputs and the different weather-allocation assumptions.
  & \textbf{Monthly-frequency VKT analysis} & \textbf{Same-day VKT allocation sensitivity} \\
 \hline
 Traffic and road input & Observed daily count $\times$ rural road length & Same \\
-Weather allocation & Typical pooled station-month distribution & Weather observed on the actual date \\
+Weather allocation & Pooled 2007--2025 station-month weather distribution & Weather observed on the actual date \\
 Accident classification & Actual accident-time weather & Actual accident-time weather \\
 Accident-free days & Included when eligible & Included where weather defines exposure \\
 Hourly traffic observed? & No & No \\
@@ -727,8 +719,7 @@ use axis values rather than relative bar height.
 
 \subsection{Mean Wind}
 
-Figure~\ref{fig:wind-oe-panels} shows the main result: O/E is close to one
-at low and moderate mean wind speeds and rises in the upper intervals. At 20 m/s or above, the all-injury O/E is 2.15, and O/E also increases in the upper wind intervals in both injury groups.
+Figure~\ref{fig:wind-oe-panels} shows the main result: O/E is close to one at low and moderate mean wind speeds and rises in the upper intervals. At 20 m/s or above, the all-injury O/E is 2.15, and O/E also increases in the upper wind intervals in both injury groups. This means that strong wind is over-represented at accident times relative to how often it occurs locally; it does not yet account for traffic exposure.
 
 \begin{figure}[!htbp]
 \centering
@@ -778,8 +769,7 @@ The grey reference line is O/E = 1. Temperature intervals follow the display con
 \end{figure}
 
 Adding year to the station--season standardisation changes the selected O/E
-estimates only slightly. The pre-specified comparison is therefore retained
-as the weather-frequency O/E analysis.
+estimates only slightly. The station--season standardisation is therefore retained as the primary weather-frequency O/E comparison.
 
 \section{Approximate Traffic-Corrected O/E Analysis}
 
@@ -815,8 +805,7 @@ unchanged.
 Figures~\ref{fig:traffic-corrected-wind} and
 \ref{fig:traffic-corrected-gust} show the effect directly: upper-bin O/E rises
 from 2.15 to 2.71 for mean wind and from 3.34 to 4.20 for gust. Accounting for
-lower traffic therefore strengthens the high-wind contrast. The validated
-full-period correction is available only for All year.
+lower traffic therefore strengthens the high-wind contrast. In other words, the observed reduction in traffic during strong wind does not explain the primary O/E excess; within this approximate correction, it makes the contrast larger. The full-period correction is reported only for the All-year comparison.
 
 \begin{figure}[H]
 \centering
@@ -863,11 +852,7 @@ Section~\ref{sec:same-day-results} tests the allocation choice using same-day we
 
 \input{generated/monthly_vkt_rate.tex}
 
-Rates rise markedly in the upper wind intervals. At mean wind of at least
-20 m/s, the rate is 5.83 times the 0--5 m/s rate; for gusts of at least
-30 m/s, the contrast is 7.78. Only 11 accidents contribute to each upper interval, so
-these large differences are imprecise. The selective counter coverage also
-limits their generalisability.
+Rates rise markedly in the upper wind intervals. At mean wind of at least 20 m/s, the rate is 5.83 times the 0--5 m/s rate; for gusts of at least 30 m/s, the contrast is 7.78. Unlike the O/E analyses, these are rates per estimated travel exposure. The persistence of the upper-wind increase therefore shows that the wind association remains when an estimated VKT denominator is introduced. Only 11 accidents contribute to each upper interval, so the magnitude of these contrasts is uncertain, and the selective counter coverage limits their generalisability.
 
 \subsection{All year rates}
 
@@ -909,9 +894,7 @@ blue and red show minor and serious or fatal injury; positive labels give counts
 Figure~\ref{fig:monthly-vkt-gust} shows the corresponding gust rates, with the
 seasonal upper tail combined at 20 m/s. Each season shows higher rates in its
 upper interval than in its lowest interval, although sparse counts preclude
-ranking seasons. The
-main monthly-frequency analysis supports mean wind and gust only; temperature
-is shown in the same-day sensitivity below.
+ranking seasons. The main monthly-frequency VKT analysis is reported for mean wind and gust only; temperature is shown in the same-day sensitivity below.
 
 \begin{figure}[H]
 \centering
@@ -924,11 +907,7 @@ blue and red show minor and serious or fatal injury; positive labels give counts
 \end{figure}
 \clearpage
 
-A stratified diagnostic gives smaller upper-bin contrasts when the comparison
-is made within counter-section--year--season strata: O/E is 3.39 for mean wind
-and 4.84 for gust. This suggests that sample and road-exposure composition
-contribute to the larger pooled traffic-based rate ratios. The interpretation of this difference is considered in Chapter~5 rather than treated as a separate
-main result here.
+A stratified diagnostic gives smaller upper-bin contrasts when the comparison is made within counter-section--year--season strata: O/E is 3.39 for mean wind and 4.84 for gust. The reduction from the pooled to the stratified contrasts is consistent with road and exposure composition explaining part of the larger pooled VKT contrast. The upper-wind increase remains after stratification, so composition alone does not account for the pattern. This diagnostic therefore qualifies the magnitude of the pooled VKT rate ratios rather than serving as a separate main result.
 
 Table~\ref{tab:evidence-summary} summarises the headline wind and gust results
 for the three main analyses. The estimates use different denominators and should
@@ -939,15 +918,7 @@ therefore be interpreted separately.
 \section{Same-Day VKT Allocation Sensitivity}
 \label{sec:same-day-results}
 
-Figures~\ref{fig:same-day-annual}--\ref{fig:same-day-temperature} test the
-allocation choice using actual daily weather rather than pooled monthly
-frequencies, with the same 694 linked accidents. Both allocations show higher
-rates in the upper wind intervals. Same-day rates are higher in the highest
-mean-wind and gust intervals, where only 11 accidents contribute to each upper
-interval. Direct numerical comparison is not the main purpose because the exposure
-denominators differ. Temperature remains non-monotonic across the
-weather-frequency and same-day figures; no monthly VKT temperature comparison
-is available.
+Figures~\ref{fig:same-day-annual}--\ref{fig:same-day-temperature} test the allocation choice using actual daily weather rather than pooled monthly frequencies, with the same 694 linked accidents. Both allocations show higher rates in the upper wind intervals. Because the accident numerator is identical, the higher same-day rates in the upper wind intervals reflect lower allocated VKT in those intervals, not additional accidents. The monthly method distributes the full daily VKT using a pooled station--month weather distribution, whereas the same-day method allocates exposure according to the weather realised on each date and excludes time without qualifying weather observations. The difference in absolute rates therefore shows sensitivity to the exposure-allocation assumption rather than disagreement about the direction of the wind association. Only 11 accidents contribute to each highest mean-wind and gust interval. Temperature remains non-monotonic across the weather-frequency and same-day figures; no monthly VKT temperature comparison is available.
 
 \begin{figure}[p]
 \centering
@@ -996,12 +967,7 @@ Blue and red show minor and serious or fatal injury; positive labels give counts
 
 \section{Secondary Robustness Checks}
 
-The matched-time comparison tests whether the wind pattern persists after
-controlling for station and recurring calendar time.
-Table~\ref{tab:matched-time-summary} shows an OR of 1.61 (95\% CI 1.38--1.87)
-for mean wind of at least 15 m/s relative to 0--5 m/s, with lower and moderate
-contrasts near one. This check does not control unusual
-traffic or road conditions on a particular day.
+The matched-time comparison tests whether the wind pattern persists after controlling for station and recurring calendar time. Table~\ref{tab:matched-time-summary} shows an OR of 1.61 (95\% CI 1.38--1.87) for mean wind of at least 15 m/s relative to 0--5 m/s, with lower and moderate contrasts near one. This supports the primary O/E result because the upper-wind association persists when each accident is compared with control times at the same station and recurring calendar time, reducing the influence of generally windier locations or calendar periods. It still does not control unusual traffic or road conditions on a particular day.
 
 \input{generated/matched_time_summary.tex}
 
@@ -1024,15 +990,13 @@ and recorded-zero-counter-day traffic-response sensitivity
 (Table~\ref{tab:traffic-sensitivity}) are reported in
 Appendix~\ref{app:traffic-sensitivity}.
 
+Taken together, the supporting analyses strengthen the interpretation of the main wind result without providing an independent estimate of its magnitude. The matched-time comparison shows that the upper-wind association remains after controlling for station and recurring calendar time, and adjustment for temperature changes the wind estimate little. Period-restricted and alternative traffic analyses also retain an upper-wind increase. In contrast, the severity model does not show a clear increase in the probability of serious or fatal injury once an injury accident has occurred. The combined evidence therefore points more consistently to wind being associated with accident occurrence than with injury severity.
+
 \chapter{Discussion}
 
 \section{Interpretation}
 
-Across the analyses, the strongest contrasts occur in the upper wind intervals.
-The primary weather-frequency result shows that strong wind is over-represented
-at rural injury accident times, and introducing the available traffic
-information does not attenuate this pattern. The exact magnitudes differ because the analyses use different
-denominators and, for VKT, a smaller counter-linked sample.
+Across the analyses, the strongest contrasts occur in the upper wind intervals. The primary weather-frequency result shows that strong wind is over-represented at rural injury accident times. The approximate traffic correction shows that lower traffic during strong wind does not explain that over-representation, and the monthly-frequency VKT analysis retains the upper-wind increase when estimated travel exposure is introduced. The analyses therefore agree on the direction of the wind association, but they do not estimate the same quantity: their denominators differ and the VKT analysis uses a smaller counter-linked sample.
 
 The approximate traffic correction strengthens the upper-wind O/E because
 daily traffic at the selected counters is lower in strong wind. Within the
@@ -1051,11 +1015,7 @@ composition explain part of the difference between pooled VKT rate ratios and
 locally standardised O/E, without implying that particular roads are
 intrinsically more dangerous.
 
-Monthly-frequency allocation is used in the main VKT analysis because only
-daily traffic totals are available. The same-day allocation is retained as a
-sensitivity check because it depends more directly on the weather observed on
-each day and on within-day traffic assumptions. Neither method reconstructs true
-hourly exposure. Both show higher rates in the upper wind intervals, but their
+Monthly-frequency allocation is used for the main VKT analysis because only daily traffic totals are observed and the pooled station--month distribution provides a more stable allocation of that exposure. The same-day allocation is retained as a sensitivity analysis because it uses the realised weather on each date but depends more strongly on assumptions about within-day traffic and on weather-data completeness. Neither method observes true hourly exposure. Both show higher rates in the upper wind intervals, but their
 differing magnitudes show that the allocation choice matters.
 
 The matched-time analysis also shows an upper-wind association after controlling
@@ -1078,8 +1038,7 @@ agrees with recorder-based evidence that adverse weather changes travel demand
 
 \section{Strengths}
 
-The primary analysis combines a long accident series with quality-controlled
-10-minute weather observations and standardises expected counts within station
+The primary analysis combines a long accident series with 10-minute weather observations screened using explicit validity rules and standardises expected counts within station
 and study season rather than against one national weather distribution. High
 match coverage and explicit reporting of weather exclusions make the O/E
 calculation transparent.
@@ -1104,9 +1063,7 @@ reconstruct the hourly exposure corresponding to accident-time weather.
 The monthly-frequency VKT analysis is also selective: it is limited to rural counter sections with
 usable traffic, road geometry, and weather in 2019--2024. Its monthly weather
 frequencies are pooled over 2007--2025 for stability, while traffic and accidents
-remain restricted to the counter era. Only a few accidents occur in the highest
-wind and gust intervals, so the large rate ratios are directional rather than
-precise estimates. A counter represents exposure on a road section and does not
+remain restricted to the counter era. Only a few accidents occur in the highest wind and gust intervals, so the large rate ratios should not be treated as precise estimates of magnitude. A counter represents exposure on a road section and does not
 show that an accident-involved vehicle passed that counter.
 
 Weather stations are proxies for road conditions. A station may be up to 20 km
