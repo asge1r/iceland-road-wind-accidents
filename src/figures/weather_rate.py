@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from src.figures.presentation import save_figure, PANEL_TITLE_SIZE, panel_limit
+from src.figures.thesis_style import save_figure, PANEL_TITLE_SIZE, panel_limit
 import numpy as np
 import pandas as pd
 from matplotlib.ticker import MaxNLocator, StrMethodFormatter
@@ -112,7 +112,7 @@ def draw(axis, data: pd.DataFrame, variable: str, period: str) -> None:
               fontsize=PANEL_TITLE_SIZE, fontweight="bold", zorder=5)
 
 
-def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefix="") -> list[Path]:
+def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefix="", annual_variables=None) -> list[Path]:
     required = {"variable", "outcome", "period", "bin_label", "bin_order",
                 "accidents", "estimated_vehicle_km", "rate_per_million_vehicle_km"}
     if not required <= set(data):
@@ -122,11 +122,13 @@ def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefi
     data = combine_seasonal_tails(data)
     output.mkdir(parents=True, exist_ok=True)
     paths = []
-    figure, axes = plt.subplots(len(variables), 1, figsize=(10.2, 4 * len(variables)), layout="constrained")
-    for axis, variable in zip(axes, variables, strict=True):
+    annual_variables = variables if annual_variables is None else annual_variables
+    figure, axes = plt.subplots(len(annual_variables), 1, figsize=(10.2, 4 * len(annual_variables)), layout="constrained", squeeze=False)
+    axes = axes.flat
+    for axis, variable in zip(axes, annual_variables, strict=True):
         draw(axis, data, variable, "All year")
         axis.set_xlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE)
-    figure.supylabel("Accidents per million vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
+    figure.supylabel("Accidents per million estimated vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
     handles, labels = axes[0].get_legend_handles_labels()
     figure.legend(handles, labels, loc="outside upper center", ncols=2, frameon=False, fontsize=TICK_FONT_SIZE)
     annual = output / f"{prefix}weather_rate_annual.png"
@@ -139,7 +141,7 @@ def make_figures(data: pd.DataFrame, output: Path, *, variables=VARIABLES, prefi
         for axis, period in zip(axes, PERIODS, strict=True):
             draw(axis, data, variable, period)
         figure.supxlabel(X_LABELS[variable], fontsize=AXIS_TITLE_FONT_SIZE, x=.5)
-        figure.supylabel("Accidents per million vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
+        figure.supylabel("Accidents per million estimated vehicle-km", fontsize=AXIS_TITLE_FONT_SIZE)
         handles, labels = axes[0].get_legend_handles_labels()
         figure.legend(handles, labels, loc="outside upper center", ncols=len(handles), frameon=False, fontsize=TICK_FONT_SIZE)
         path = output / f"{prefix}{variable}_traffic_rate_panels.png"

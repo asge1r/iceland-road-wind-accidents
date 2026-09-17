@@ -1,16 +1,27 @@
 # University of Iceland thesis template
 
-The official University of Iceland MSc LaTeX template is maintained at
-[`gitlab.com/uice/thesistemplate`](https://gitlab.com/uice/thesistemplate).
+The cover retains the supplied University of Iceland banner. The revised thesis
+uses one-sided A4 pages, 2 cm margins, centred page numbers, 12-point Times body
+text and sans-serif headings. No blank recto/verso pages or appendix are included.
+`draft_en.tex` loads `content.tex` and the retained generated tables. The examiner
+is rendered using the existing `thesisexaminer` field.
 
-The thesis follows the reference thesis for its title-page structure, two-sided A4
-layout, Times body text, clean sans-serif headings, 12-point body text,
-italic captions, unindented paragraphs, half-line paragraph spacing, outer
-page numbers and no running headers. The 155 mm text block uses 30 mm inner
-and 25 mm outer margins. `draft_en.tex` is the master file; it loads
-`content.tex` for the main text and `appendices.tex` for additional analyses.
-`banner.png` is the unmodified cover asset supplied with the University of
-Iceland template.
+Build in a separate output directory to preserve the unrelated untracked
+`draft_en.pdf`. The final deliverable retains its existing long PDF filename.
 
-The template change affects presentation only. It does not change the data,
-analysis scripts or statistical results.
+## Current isolated build
+
+From `reports/thesis`, create an empty output directory and run pdfLaTeX three
+times, keeping all auxiliary files out of the source directory:
+
+```bash
+mkdir -p /private/tmp/thesis-build
+pdflatex -interaction=nonstopmode -halt-on-error -output-directory=/private/tmp/thesis-build draft_en.tex
+pdflatex -interaction=nonstopmode -halt-on-error -output-directory=/private/tmp/thesis-build draft_en.tex
+pdflatex -interaction=nonstopmode -halt-on-error -output-directory=/private/tmp/thesis-build draft_en.tex
+```
+
+Review the PDF and log, then copy only the PDF to
+`Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.pdf`. Preserve
+local `draft_en.pdf` backups. Python dependencies are pinned at the repository
+root; preparation and retained analysis commands are in `docs/pipeline.md`.

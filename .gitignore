@@ -41,6 +41,7 @@ __pycache__/
 !/reports/main/tables/*.csv
 !/reports/main/tables/*.md
 !/reports/thesis/*.tex
+!/reports/thesis/placeins.sty
 !/reports/thesis/*.pdf
 !/reports/thesis/*.png
 !/reports/thesis/*.md
@@ -62,3 +63,13 @@ __pycache__/
 # OS/editor
 .DS_Store
 .vscode/
+
+# Regenerable tool caches and presentation build products
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+/reports/presentation/build/
+/reports/presentation/*.nav
+/reports/presentation/*.snm
+/reports/presentation/*.vrb
+/reports/presentation/*.xdv

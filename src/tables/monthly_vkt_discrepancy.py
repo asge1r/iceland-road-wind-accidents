@@ -55,7 +55,10 @@ def build(panel: pd.DataFrame) -> pd.DataFrame:
                 "accident_top_section_share": observed_share.max(),
                 "accident_top_five_share": observed_share.nlargest(5).sum(),
             })
-    return pd.DataFrame(rows).sort_values(["variable", "bin_order"])
+    result = pd.DataFrame(rows).sort_values(["variable", "bin_order"])
+    reference = result[result.bin_label.eq("0-5")].set_index("variable").within_section_year_season_oe
+    result["within_stratum_relative_contrast"] = result.within_section_year_season_oe / result.variable.map(reference)
+    return result
 
 
 def main() -> None:

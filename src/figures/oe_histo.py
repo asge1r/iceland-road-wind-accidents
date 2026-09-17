@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from src.figures.presentation import save_figure, PANEL_TITLE_SIZE, panel_limit
+from src.figures.thesis_style import save_figure, PANEL_TITLE_SIZE, panel_limit
 import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes

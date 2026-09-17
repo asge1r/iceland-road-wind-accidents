@@ -244,8 +244,9 @@ def main() -> None:
         exist_ok=True,
     )
 
-    figure.savefig(
-        args.output,
+    from src.figures.thesis_style import save_figure
+    save_figure(
+        figure, args.output,
         dpi=300,
         bbox_inches="tight",
         pad_inches=0.05,

@@ -14,7 +14,7 @@ OUTPUT_DIR = Path("reports/thesis/generated")
 def selection_tex(data: pd.DataFrame) -> str:
     rows = []
     for index, row in enumerate(data.itertuples(index=False)):
-        removed = "--" if row.removed == 0 else f"{row.removed:,}"
+        removed = "--" if row.removed == 0 else f"{100 * row.removed / (row.remaining + row.removed):.1f}\\%"
         step = str(row.step)
         step = step.replace(">=", "$\\geq$").replace("<=", "$\\leq$")
         # Reader-facing ranges use en dashes in LaTeX.
@@ -34,12 +34,12 @@ def selection_tex(data: pd.DataFrame) -> str:
 
     return r"""\begin{table}[H]
 \centering
-\caption[Selection for the monthly-frequency VKT analysis.]{Selection for the monthly-frequency VKT analysis. The first row includes urban and rural injury accidents; the rural restriction is applied in step (b). The final set contains minor, serious and fatal injury accidents and is distinct from the supporting allocated daily-counter sample.}
+\caption[Selection for the VKT analysis.]{Selection for the VKT analysis. The first row includes urban and rural injury accidents; the rural restriction is applied in step (b). The final set contains minor, serious and fatal injury accidents. Removal percentages use the number entering each step.}
 \label{tab:monthly-vkt-selection}
 \small
 \begin{tabular}{p{0.64\textwidth}rr}
 \toprule
-Step & Removed & Remaining \\ \midrule
+Step & Removed (\%) & Remaining \\ \midrule
 """ + "\n".join(rows) + r"""
 \bottomrule
 \end{tabular}
@@ -59,23 +59,24 @@ of the recorded accident time.
 
 
 def rates_tex(data: pd.DataFrame) -> str:
-    data = data[data["outcome"].eq("All injury accidents")].copy()
-    names = {"f": "Mean wind", "fg": "Gust"}
+    data = data[data["outcome"].eq("All injury accidents") & data.variable.isin(["f", "fg"])].copy()
+    names = {"f": "Mean wind", "fg": "Wind gust"}
     rows = []
     for row in data.sort_values(["variable", "bin_order"]).itertuples(index=False):
-        label = str(row.bin_label).replace(">=", "$\\geq$")
+        from src.tables.thesis import interval
+        label = interval(row.bin_label)
         rows.append(
             f"{names[row.variable]} & {label} & {row.observed_accidents:,} & "
             f"{row.estimated_vehicle_km / 1e6:.1f} & {row.rate_per_million_vehicle_km:.3f} \\\\ \\grayhline"
         )
-    return """\\begin{table}[htbp]
+    return """\\begin{table}[H]
 \\centering
-\\caption{Monthly-frequency VKT rates, 2019--2024. Exposure is the full observed daily traffic count times rural section length, allocated by the assigned station's pooled 2007--2025 calendar-month weather frequency for 07:00--24:00.}
+\\caption[VKT wind and gust counts, exposure and rates.]{VKT wind and gust rates, 2019--2024. Exposure is the full observed daily traffic count times rural section length, allocated by the assigned station's pooled 2007--2025 calendar-month weather frequency for 07:00--24:00.}
 \\label{tab:monthly-vkt-rate}
 \\small
 \\begin{tabular}{llrrr}
 \\toprule
-Measure & Interval (m/s) & Observed & \\shortstack{Million\\\\vehicle-km} & \\shortstack{Accidents per\\\\million vehicle-km} \\\\ \\midrule
+Measure & Interval (m/s) & Observed & \\shortstack{Million estimated\\\\vehicle-km} & \\shortstack{Accidents per million\\\\estimated vehicle-km} \\\\ \\midrule
 """ + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
 
 

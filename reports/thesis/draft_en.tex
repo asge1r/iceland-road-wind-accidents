@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt,twoside,BCOR=10mm,numbers=noenddot]{scrbook}
+\documentclass[a4paper,12pt,oneside,open=any,numbers=noenddot]{scrbook}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -8,13 +8,15 @@
 \usepackage{lmodern}
 \renewcommand{\rmdefault}{ptm}
 \usepackage{microtype}
-\usepackage[inner=30mm,outer=25mm,top=25mm,bottom=25mm]{geometry}
+\usepackage[margin=20mm]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{colortbl}
 \usepackage{float}
+\usepackage{placeins}
+\usepackage{pdflscape}
 \usepackage[format=plain,labelformat=simple,labelsep=colon]{caption}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -36,21 +38,25 @@
 \setlength{\parindent}{0pt}
 \setlength{\emergencystretch}{2em}
 \raggedbottom
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.75}
 \setkomafont{captionlabel}{\normalfont\normalsize\itshape}
 \setkomafont{caption}{\normalfont\normalsize\itshape}
 \setkomafont{section}{\Large}
 \setkomafont{subsection}{\large}
-\DeclareTOCStyleEntry[numwidth=3.2em]{tocline}{figure}
-\DeclareTOCStyleEntry[numwidth=3.2em]{tocline}{table}
+\DeclareTOCStyleEntry[numwidth=3.7em]{tocline}{figure}
+\DeclareTOCStyleEntry[numwidth=3.7em]{tocline}{table}
 \captionsetup{width=\textwidth,indent=0pt,justification=raggedright,
   singlelinecheck=false,skip=0.5\baselineskip}
 % Centre short table captions; keep captions that wrap left-aligned.
 \captionsetup[table]{justification=raggedright,singlelinecheck=true}
 \clearpairofpagestyles
-\ofoot*{\pagemark}
+\cfoot*{\pagemark}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
 \hypersetup{
-  pdftitle={Meteorological Conditions and Rural Injury Accidents in Iceland: Analysis of Accident Frequency and Traffic, 2007--2025},
+  pdftitle={Wind, Temperature, and Rural Injury Accidents in Iceland},
   pdfauthor={Ásgeir Snær Magnússon},
   pdfsubject={M.Sc. thesis in Software Engineering}
 }
@@ -58,28 +64,29 @@
 \def\thesisyear{2026}
 \def\thesismonth{September}
 \def\thesisauthor{Ásgeir Snær Magnússon}
-\def\thesistitle{Meteorological Conditions and Rural Injury Accidents in Iceland}
-\def\thesissubtitle{Analysis of Accident Frequency and Traffic, 2007--2025}
-\def\thesisshorttitle{Meteorological Conditions and Rural Injury Accidents}
+\def\thesistitle{Wind, Temperature, and\\ Rural Injury Accidents in Iceland}
+\def\thesisshorttitle{Wind, Temperature, and Rural Injury Accidents in Iceland}
 \def\thesiscredits{30}
 \def\thesissubject{Software Engineering}
 \def\thesiskind{M.Sc.}
 \def\thesiskindformal{Master of Science}
 \def\thesisschool{School of Engineering and Natural Sciences}
-\def\thesisfaculty{Industrial Engineering, Mechanical Engineering and Computer Science}
+\def\thesisfaculty{Department of Computer Science}
 \def\thesisaddress{Dunhagi 5}
 \def\thesispostalcode{107}
 \def\thesistelephone{525 4000}
 \def\thesissupervisors{Kristján Jónasson \\ Guðmundur Freyr Úlfarsson}
 \def\thesisnrofsupervisors{2}
 \def\thesiscommittee{}
-\def\thesisexaminer{}
+\def\thesisexaminer{Guðrún Nína Petersen}
 \def\thesisISBN{}
 \def\thesisprinting{}
 \def\thesislicense{This thesis may not be copied in any form without author permission.}
 
 \newcommand{\removelinebreaks}[1]{%
   \begingroup\def\\{}#1\endgroup}
+
+\addto\captionsenglish{\renewcommand{\listfigurename}{List of figures}\renewcommand{\listtablename}{List of tables}}
 
 \begin{document}
 \hypersetup{pageanchor=false}
@@ -93,15 +100,13 @@
     \node(bottom)[shape=rectangle, fill=hiblue, minimum height=10mm,
       minimum width=\paperwidth, anchor=south west] at (current page.south west) {};
     \node[above=0.4cm of bottom] {\sffamily\small
-      \textcolor{hiblue}{\textbf{\MakeUppercase{Faculty of \thesisfaculty{}}}}};
+      \textcolor{hiblue}{\textbf{\MakeUppercase{\thesisfaculty{}}}}};
   \end{tikzpicture}
 
   \vspace*{4.1cm}
   \begin{center}
     \huge\sffamily\bfseries \thesistitle{}
 
-    \vspace{0.35cm}
-    \normalfont\LARGE\sffamily \thesissubtitle{}
 
     \vspace{2.5cm}
     \normalfont\Large\sffamily \thesisauthor{}
@@ -116,8 +121,6 @@
     \vspace{1.45cm}
   \end{center}
 
-  \newpage
-  \thispagestyle{empty}\mbox{}
 
   \newpage
   \thispagestyle{empty}
@@ -125,7 +128,6 @@
     \vspace*{\stretch{0.5}}
     \Large\sffamily\bfseries \thesistitle{}
 
-    \normalfont\large\sffamily \thesissubtitle{}
 
     \vspace*{\stretch{1.0}}
     {\sffamily \thesisauthor{}}
@@ -138,8 +140,12 @@
     Supervisors \\
     \thesissupervisors{}
 
+    \vspace{0.6cm}
+    External examiner \\
+    \thesisexaminer{}
+
     \vspace*{\stretch{1.0}}
-    Faculty of \thesisfaculty{} \\
+    \thesisfaculty{} \\
     \thesisschool{} \\
     University of Iceland \\
     Reykjavík, \thesismonth{}~\thesisyear{}
@@ -149,12 +155,11 @@
   \thispagestyle{empty}
   \vspace*{\fill}
   \sffamily\removelinebreaks{\thesistitle{}} \\
-  \sffamily\removelinebreaks{\thesissubtitle{}} \\
 
   \thesiscredits{} ECTS thesis submitted in partial fulfilment of a
   \thesiskind{} degree in \thesissubject{} \\
 
-  Faculty of \thesisfaculty{} \\
+  \thesisfaculty{} \\
   \thesisschool{} \\
   University of Iceland \\
   \thesisaddress{} \\
@@ -163,16 +168,16 @@
 
   Bibliographic information: \\
   \thesisauthor{} (\thesisyear{}). \emph{\removelinebreaks{\thesistitle{}}},
-  \thesiskind{} thesis, Faculty of \thesisfaculty{}, University of Iceland.\\
+  \thesiskind{} thesis, \thesisfaculty{}, University of Iceland.\\
 
   Copyright \textcopyright{} \thesisyear{} \thesisauthor{} \\
   \thesislicense{} \\
   Reykjavík, Iceland, \thesismonth{}~\thesisyear{}
 \end{titlepage}
 
-\cleardoublepage
+\clearpage
 \pagenumbering{roman}
-\setcounter{page}{5}
+\setcounter{page}{1}
 \setkomafont{section}{\huge}
 
 \section*{Abstract}
@@ -188,9 +193,8 @@ Strong wind was over-represented at accident times. At mean wind speeds of at
 least 20 m/s, the observed-to-expected accident ratio (O/E) was 2.15.
 Counters showed lower traffic in strong wind. Accounting approximately for
 this reduction strengthened rather than removed
-this pattern. The monthly-frequency VKT analysis also showed higher rates in the strongest wind intervals, although those intervals contained few accidents.
-Gust showed a similar pattern, while temperature associations were less
-consistent across methods.
+this pattern. The VKT analysis also showed higher rates in the strongest wind intervals, although those intervals contained few accidents.
+Gust showed a similar pattern. Temperature had a non-linear association: O/E was elevated just below freezing and at the warm end, while VKT rates were highest in cold conditions and rose again above the 9--12$^{\circ}$C minimum. The warm-end VKT increase was smaller than the O/E increase.
 
 The findings support an association between strong wind and rural injury
 accidents, not a causal effect. Weather observations cannot fully describe
@@ -212,9 +216,7 @@ hins vegar með samanburði á slysatíðni miðað við áætlaðan akstur á v
 umferðarteljarar voru til staðar. Meðalvindur var meginveðurbreytan, en vindhviður og
 hitastig voru einnig skoðuð.
 
-Mikill vindur var oftar til staðar við slys en vænta mátti út frá tíðni hans. Við meðalvindhraða 20 m/s eða meiri var fjöldi skráðra slysa 2,15-faldur miðað við þann fjölda sem vænta mátti út frá tíðni slíks vinds. Umferð samkvæmt teljuragögnum dróst saman í miklum vindi og þegar gróflega var leiðrétt fyrir því jókst hlutfall skráðra og væntanlegra slysa enn frekar. Greining byggð á áætluðum eknum kílómetrum sýndi einnig hærri slysatíðni við mesta vindinn, en fá slys lágu að baki þeim niðurstöðum. Vindhviður sýndu svipað
-mynstur, en niðurstöður fyrir hitastig voru óreglulegri og breyttust meira eftir
-greiningaraðferð.
+Mikill vindur var oftar til staðar við slys en vænta mátti út frá tíðni hans. Við meðalvindhraða 20 m/s eða meiri var fjöldi skráðra slysa 2,15-faldur miðað við þann fjölda sem vænta mátti út frá tíðni slíks vinds. Umferð samkvæmt teljuragögnum dróst saman í miklum vindi og þegar gróflega var leiðrétt fyrir því jókst hlutfall skráðra og væntanlegra slysa enn frekar. Greining byggð á áætluðum eknum kílómetrum sýndi einnig hærri slysatíðni við mesta vindinn, en fá slys lágu að baki þeim niðurstöðum. Vindhviður sýndu svipað mynstur. Tengsl hitastigs við slys voru ólínuleg: slys voru hlutfallslega algengari rétt undir frostmarki og við hæsta hitastigið miðað við veðurtíðni. Slysatíðni á hvern áætlaðan ekinn kílómetra var hæst í kulda og jókst aftur við hæsta hitastigið miðað við lágmarkið á bilinu 9--12 gráður. Sú aukning var þó minni en í samanburðinum við veðurtíðni.
 
 Niðurstöðurnar benda því til tengsla milli mikils vinds og slysa með meiðslum í dreifbýli,
 en sýna ekki að vindur valdi slysum. Veðurmæling frá einni stöð lýsir ekki fullkomlega aðstæðum á vegi og umferðargögnin ná aðeins til hluta vegakerfisins og liggja fyrir sem daglegar tölur en ekki eftir klukkustundum. Til að meta slysaáhættu á hvern ekinn kílómetra fyrir landið allt
@@ -226,22 +228,17 @@ en sýna ekki að vindur valdi slysum. Veðurmæling frá einni stöð lýsir ek
 \listoffigures
 \listoftables
 
-\chapter*{Abbreviations}
+\section*{Abbreviations}
 \addcontentsline{toc}{chapter}{Abbreviations}
 \begin{tabularx}{\textwidth}{L{0.18\textwidth}X}
-CI & Confidence interval. \\
 O/E & Observed-to-expected accident ratio. \\
-OR & Odds ratio. \\
-RR & Rate ratio. \\
 VKT & Vehicle-kilometres travelled. \\
 \end{tabularx}
 
-\cleardoublepage
+\clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
 \input{content.tex}
 
-\appendix
-\input{appendices.tex}
 
 \end{document}

@@ -8,7 +8,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.weather.frequency import TEMPERATURE_LABELS, TEMPERATURE_THRESHOLDS
+from src.weather.frequency import (
+    OE_TEMPERATURE_LABELS as TEMPERATURE_LABELS,
+    OE_TEMPERATURE_UPPER_BOUNDS as TEMPERATURE_THRESHOLDS,
+)
 
 
 DEFAULT_ACCIDENTS = Path("data/analysis/accidents.csv")

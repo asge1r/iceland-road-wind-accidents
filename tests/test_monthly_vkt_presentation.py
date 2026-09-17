@@ -35,8 +35,8 @@ class SeasonalPresentationTests(unittest.TestCase):
             self.skipTest('local monthly VKT outputs unavailable')
         result = seasonal_rates(pd.read_csv(sections), pd.read_csv(pooled))
         totals = result[result.period.ne('All year')].groupby('variable').observed_accidents.sum()
-        self.assertEqual(totals.to_dict(), {'f': 694, 'fg': 694})
-        self.assertEqual(len(result), 60)
+        self.assertEqual(totals.to_dict(), {'f': 694, 'fg': 694, 'temperature': 694})
+        self.assertEqual(len(result), 100)
 
 
 class SeverityDecompositionTests(unittest.TestCase):

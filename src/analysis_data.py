@@ -161,6 +161,8 @@ def main() -> None:
         "daily_season_panel.csv",
         "Canonical counter-year-season input for seasonal allocated-traffic analyses.",
     )
+    from src.prepare_revision import register_inputs
+    register_inputs(args.output)
     print(f"Wrote {len(entries)} analysis-layer files to {args.output}")
 
 

@@ -1,0 +1,418 @@
+% !TeX program = xelatex
+% Vista sem: reports/presentation/defense_slides.tex
+% Byggja fra rot repo-sins:
+%   latexmk -xelatex -interaction=nonstopmode -outdir=reports/presentation/build reports/presentation/defense_slides.tex
+
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage{lmodern}
+\usepackage{fontspec}
+\usefonttheme{professionalfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath}
+\usepackage{microtype}
+
+\IfFontExistsTF{Noto Sans}{\setsansfont{Noto Sans}}{\IfFontExistsTF{DejaVu Sans}{\setsansfont{DejaVu Sans}}{\setsansfont{lmsans10-regular.otf}[BoldFont=lmsans10-bold.otf,ItalicFont=lmsans10-oblique.otf,BoldItalicFont=lmsans10-boldoblique.otf]}}
+
+\definecolor{navy}{HTML}{193A63}
+\definecolor{blue}{HTML}{2D7FB8}
+\definecolor{lightblue}{HTML}{EAF4FA}
+\definecolor{orange}{HTML}{ED8B2C}
+\definecolor{ink}{HTML}{17212B}
+\definecolor{muted}{HTML}{63717C}
+
+\setbeamercolor{normal text}{fg=ink,bg=white}
+\setbeamercolor{structure}{fg=blue}
+\setbeamercolor{frametitle}{fg=navy,bg=white}
+\setbeamercolor{title}{fg=navy}
+\setbeamercolor{alerted text}{fg=orange}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\color{blue}$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{blue}$\bullet$}
+\setbeamertemplate{frametitle}{%
+  \vspace{0.35cm}\hspace{0.25cm}\insertframetitle\par
+  \vspace{0.12cm}\hspace{0.25cm}\color{blue}\rule{\dimexpr\textwidth-0.5cm\relax}{0.7pt}}
+\setbeamertemplate{footline}{%
+  \leavevmode\hbox{%
+    \begin{beamercolorbox}[wd=.88\paperwidth,ht=2.7ex,dp=1.2ex,leftskip=.55cm]{author in head/foot}%
+      \color{muted}\scriptsize Wind, Temperature, and Rural Injury Accidents in Iceland
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.12\paperwidth,ht=2.7ex,dp=1.2ex,rightskip=.55cm plus1fil]{date in head/foot}%
+      \color{muted}\scriptsize\hfill\insertframenumber
+    \end{beamercolorbox}}}
+
+% Virkar bæði þegar byggt er frá rót repo-sins og úr reports/presentation/.
+\graphicspath{{reports/main/figures/}{../main/figures/}}
+
+% Missing repository assets are build errors.
+\newcommand{\repofigure}[2][]{\includegraphics[#1]{#2}}
+
+\newcommand{\takeaway}[1]{%
+  \begin{beamercolorbox}[rounded=true,sep=0.75em,wd=0.94\linewidth]{block body}
+    \centering\color{navy}\bfseries #1
+  \end{beamercolorbox}}
+
+\title{Vindur, hitastig og umferðarslys\\með meiðslum í dreifbýli}
+\subtitle{Veður, umferð og slys á Íslandi, 2007--2025}
+\author{Ásgeir Snær Magnússon}
+\institute{M.Sc. í hugbúnaðarverkfræði, Háskóli Íslands\\[2mm]
+Leiðbeinendur: Kristján Jónasson og Guðmundur Freyr Úlfarsson}
+\date{September 2026}
+
+\begin{document}
+
+% 1
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[blue] (current page.north west) rectangle ([xshift=0.23cm]current page.south west);
+  \end{tikzpicture}
+  \titlepage
+\end{frame}
+
+% 2
+\begin{frame}{Af hverju er þetta áhugavert?}
+\begin{columns}[T,onlytextwidth]
+  \column{0.49\textwidth}
+  \begin{itemize}\setlength\itemsep{1em}
+    \item Sterkur vindur getur truflað akstur.
+    \item Slæmt veður dregur líka úr umferð.
+    \item Slysafjöldi einn mælir því ekki áhættu.
+  \end{itemize}
+  \vspace{0.25cm}
+  \takeaway{Við þurfum að aðgreina veður, umferð og slys.}
+  \column{0.49\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.63\textheight,keepaspectratio]{accident_map}
+\end{columns}
+\end{frame}
+
+% 3
+\begin{frame}{Rannsóknarspurning og sögulína}
+\textbf{Hvernig tengist veður slysum með meiðslum í dreifbýli, sérstaklega sterkur vindur?}
+\vspace{0.55cm}
+\begin{columns}[onlytextwidth]
+\column{0.32\textwidth}
+  \begin{block}{1. Veðurtíðni O/E}
+  Slys miðað við hversu oft veðrið kemur fyrir.
+  \end{block}
+\column{0.32\textwidth}
+  \begin{block}{2. Nálguð leiðrétting}
+  Athuga hvort minni umferð skýri mynstrið.
+  \end{block}
+\column{0.32\textwidth}
+  \begin{block}{3. VKT}
+  Slys miðað við áætlaða ekna kílómetra.
+  \end{block}
+\end{columns}
+\vfill
+\takeaway{Þetta eru ólíkir nefnarar, ekki þrjár endurtekningar á sömu tölu.}
+\end{frame}
+
+% 4
+\begin{frame}{Gögnin og tengingin}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+  \begin{itemize}\setlength\itemsep{0.8em}
+    \item 6.414 slys með meiðslum í dreifbýli, 2007--2025.
+    \item 10 mínútna veðurmælingar.
+    \item Daglegir umferðarteljarar, 2019--2024.
+    \item 6.259 slys tengdust veðurstöð innan 20 km og 5 mínútna (97,6\%).
+  \end{itemize}
+\column{0.50\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.58\textheight,keepaspectratio]{weather_coverage}
+\end{columns}
+\end{frame}
+
+% 5
+\begin{frame}{O/E á mannamáli}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\[
+  O/E = \frac{\text{slys sem sjást}}{\text{slys sem vænst er}}
+\]
+\begin{itemize}\setlength\itemsep{0.85em}
+  \item Vænt gildi byggist á staðbundinni veðurtíðni.
+  \item Reiknað innan veðurstöðvar og árstíðar.
+  \item $O/E=1$ þýðir „eins og veðurtíðnin“.
+  \item $O/E>1$ þýðir fleiri slys en vænst er.
+\end{itemize}
+\column{0.48\textwidth}
+\begin{exampleblock}{Dæmi}
+Ef 1\% veðurtímans er mikill vindur en 2\% slysa verða þá, er $O/E=2$.
+\end{exampleblock}
+\vspace{0.5cm}
+\takeaway{O/E mælir hlutfallslega umframfjölda slysa, ekki slysaáhættu á hvern bíl.}
+\end{columns}
+\end{frame}
+
+% 6
+\begin{frame}{Niðurstaða 1: sterkur vindur er oftar við slys}
+\begin{columns}[T,onlytextwidth]
+\column{0.70\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.66\textheight,keepaspectratio]{wind_oe_panels}
+\column{0.28\textwidth}
+  \centering
+  {\color{blue}\fontsize{30}{34}\selectfont\bfseries 2,15}\par
+  \small O/E við meðalvind $\geq20$ m/s
+  \vspace{0.4cm}
+  \begin{itemize}\small
+    \item 68 slys sáust; 31,6 var vænt.
+    \item Hæsta vindbilið sker sig úr.
+    \item Efstu árstíðabil eru fámenn.
+  \end{itemize}
+\end{columns}
+\end{frame}
+
+% 7
+\begin{frame}{Umferð minnkar í roki}
+\begin{columns}[T,onlytextwidth]
+\column{0.68\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.65\textheight,keepaspectratio]{traffic_weather_response}
+\column{0.30\textwidth}
+  \centering
+  {\color{blue}\fontsize{30}{34}\selectfont\bfseries $-22{,}3\%$}\par
+  \small umferð við $\geq20$ m/s
+  \vspace{0.45cm}
+  \begin{itemize}\small
+    \item Teljarar sýna minni umferð.
+    \item Þetta skiptir máli fyrir nefnarann.
+    \item Minni umferð skýrir ekki vindmynstrið.
+  \end{itemize}
+\end{columns}
+\end{frame}
+
+% 8
+\begin{frame}{Nálgað umferðarleiðrétt O/E: mynstrið styrkist}
+\centering
+\repofigure[width=0.93\linewidth,height=0.57\textheight,keepaspectratio]{weather_oe_traffic_corrected}
+\vfill
+\begin{columns}[onlytextwidth]
+\column{0.5\textwidth}\centering
+{\Large\bfseries\color{blue}2,15 $\rightarrow$ 2,71}\par
+\small meðalvindur $\geq20$ m/s
+\column{0.5\textwidth}\centering
+{\Large\bfseries\color{blue}3,34 $\rightarrow$ 4,20}\par
+\small hviða $\geq30$ m/s
+\end{columns}
+\end{frame}
+
+% 9
+\begin{frame}{Monthly-frequency VKT: aðalumferðargreiningin}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+  \begin{block}{Hugmyndin}
+  Dagleg umferð $\times$ vegalengd gefur heildar-VKT dagsins.
+  \end{block}
+  \begin{block}{Úthlutun}
+  Mánaðardreifing veðurtíðni skiptir VKT í veðurbil.
+  \end{block}
+  \begin{block}{Teljari}
+  Veður á slysatíma flokkar slysið.
+  \end{block}
+\column{0.48\textwidth}
+  \begin{itemize}\setlength\itemsep{0.7em}
+    \item 694 slys, 2019--2024.
+    \item Notar líka daga án slysa.
+    \item Tíðnin er sameinuð yfir 2007--2025.
+    \item Ekki mæling á klukkustundarumferð.
+  \end{itemize}
+  \vspace{0.35cm}
+  \takeaway{VKT lýsir áætluðum akstri; klukkustundarumferð er ekki mæld.}
+\end{columns}
+\end{frame}
+
+% 10
+\begin{frame}{VKT-niðurstaða: sama átt, meiri óvissa}
+\begin{columns}[T,onlytextwidth]
+\column{0.70\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.65\textheight,keepaspectratio]{monthly_weather_rate_annual}
+\column{0.28\textwidth}
+  \centering
+  {\color{blue}\Large\bfseries 5,83$\times$}\par
+  \small meðalvindur: $\geq20$ á móti 0--5 m/s
+  \vspace{0.35cm}
+  {\color{blue}\Large\bfseries 7,78$\times$}\par
+  \small hviða: $\geq30$ á móti 0--5 m/s
+  \vspace{0.45cm}
+  \begin{itemize}\small
+    \item Fá slys í hæstu bilum.
+    \item 11 slys í hvoru efsta bili.
+    \item Sama stefna, óviss stærð.
+  \end{itemize}
+\end{columns}
+\end{frame}
+
+% 11
+\begin{frame}{Vindur og hitastig saman}
+\begin{columns}[T,onlytextwidth]
+\column{0.66\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.66\textheight,keepaspectratio]{joint_wind_temperature_detail}
+\column{0.32\textwidth}
+  \begin{itemize}\small\setlength\itemsep{0.7em}
+    \item Hækkað O/E við mikinn vind sést í fleiri en einu hitabili.
+    \item Rétt undir frostmarki er O/E yfir 1 í öllum vindflokkum.
+    \item Efsti vindur og $\geq12\,^{\circ}$C er gisinn reitur ($n=7$) og ekki túlkaður.
+  \end{itemize}
+\end{columns}
+\vfill
+\takeaway{Lýsandi mynstur; ekkert formlegt samspil er metið.}
+\end{frame}
+
+% 12
+\begin{frame}{Samræmi og takmarkanir}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+  {\color{blue}\large\bfseries Það sem styrkir niðurstöðuna}
+  \begin{itemize}\setlength\itemsep{0.8em}
+    \item Þrjár varðveittar greiningar benda í sömu átt.
+    \item 97,6\% slysanna tengdust veðurstöð innan 20 km.
+    \item Töflur og myndir eru endurgerðar úr forskriftum og prófaðar.
+  \end{itemize}
+\column{0.48\textwidth}
+  {\color{orange}\large\bfseries Helstu takmarkanir}
+  \begin{itemize}\setlength\itemsep{0.8em}
+    \item Engin klukkustundarumferð; VKT er áætlað og teljarar valdir.
+    \item Veðurstöð nálgar aðstæður á vegi; efstu bil eru fámenn.
+    \item Slysaskrá byggist einkum á lögregluskýrslum; minniháttar meiðsli eru sérstaklega vanskráð (ITA, 2026b).
+  \end{itemize}
+\end{columns}
+\vfill
+\takeaway{Sterkt og samræmt samband, en ekki sönnun um orsök eða landsáhættu.}
+\end{frame}
+
+% 13
+\begin{frame}{Niðurstaða}
+\begin{enumerate}\setlength\itemsep{0.75em}
+  \item Sterkur vindur er oftar við dreifbýlisslys en staðbundin veðurtíðni spáir fyrir um.
+  \item Umferð minnkar í sterkum vindi, en það eyðir ekki mynstrinu.
+  \item VKT-greiningin bendir í sömu átt, en stærðin er óviss.
+  \item Hitastig sýnir ólínulegt mynstur; sameiginlega greiningin er lýsandi.
+\end{enumerate}
+\vfill
+\takeaway{Helsta framlagið er skýrari aðgreining á veðurtíðni, umferð og slysum.}
+\end{frame}
+
+\pdfstringdefDisableCommands{\def\translate#1{#1}}
+\appendix
+
+% 14
+\begin{frame}{Backup: 20 km veðurtenging}
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+\begin{tabular}{rrr}
+\toprule
+Mesta fjarlægð & Slys & Match \\
+\midrule
+5 km  & 3.060 & 47,7\% \\
+10 km & 5.098 & 79,5\% \\
+20 km & 6.259 & 97,6\% \\
+30 km & 6.402 & 99,8\% \\
+\bottomrule
+\end{tabular}
+\column{0.46\textwidth}
+\begin{itemize}\setlength\itemsep{0.8em}
+  \item 20 km er hagnýt málamiðlun.
+  \item Ekki „náttúrulegur“ vindþröskuldur.
+  \item Meiri þekja, en óvissari nálgun við aðstæður á vegi.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+% 15
+\begin{frame}{Backup: umfang gagnanna}
+\begin{columns}[T,onlytextwidth]
+\column{0.52\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.61\textheight,keepaspectratio]{annual_accident_counts}
+\column{0.45\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.61\textheight,keepaspectratio]{conditions}
+\end{columns}
+\end{frame}
+
+% 16
+\begin{frame}{Backup: hviður og hitastig í O/E}
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.62\textheight,keepaspectratio]{gust_oe_panels}
+\column{0.50\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.62\textheight,keepaspectratio]{temperature_oe_panels}
+\end{columns}
+\end{frame}
+
+% 17
+\begin{frame}{Backup: VKT eftir árstíðum}
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.63\textheight,keepaspectratio]{monthly_f_traffic_rate_panels}
+\column{0.50\textwidth}
+  \centering
+  \repofigure[width=\linewidth,height=0.63\textheight,keepaspectratio]{monthly_fg_traffic_rate_panels}
+\end{columns}
+\end{frame}
+
+% 18
+\begin{frame}{Backup: gagnavinnsla og endurgeranleiki}
+\centering
+\begin{tikzpicture}[node distance=0.34cm, every node/.style={font=\small\bfseries,align=center}]
+  \node[draw=blue,fill=lightblue,rounded corners,minimum width=2.1cm,minimum height=1.05cm] (a) {Upprunagögn};
+  \node[draw=blue,fill=lightblue,rounded corners,minimum width=2.1cm,minimum height=1.05cm,right=of a] (b) {Hreinsun\\og QC};
+  \node[draw=blue,fill=lightblue,rounded corners,minimum width=2.1cm,minimum height=1.05cm,right=of b] (c) {Tenging veðurs\\og umferðar};
+  \node[draw=blue,fill=lightblue,rounded corners,minimum width=2.1cm,minimum height=1.05cm,right=of c] (d) {Þrjár\\greiningar};
+  \node[draw=blue,fill=lightblue,rounded corners,minimum width=2.1cm,minimum height=1.05cm,right=of d] (e) {Töflur, myndir\\og sannprófun};
+  \foreach \x/\y in {a/b,b/c,c/d,d/e}{\draw[->,very thick,blue] (\x) -- (\y);}
+\end{tikzpicture}
+\vspace{0.65cm}
+\begin{itemize}\setlength\itemsep{0.75em}
+  \item Upprunalegar stofnanaskrár eru ekki dreifðar með verkefninu.
+  \item Sjálfvirk próf sannreyna talningar, tengingar og áætlaðan akstur.
+  \item Úr undirbúnum gögnum endurgerir \texttt{src.thesis\_pipeline} niðurstöður og myndir.
+\end{itemize}
+\vfill
+\takeaway{Kafli 3.2 og \texttt{docs/pipeline.md} greina á milli undirbúnings og greiningar.}
+\end{frame}
+
+% 19
+\begin{frame}{Backup: framtíðarvinna}
+\begin{columns}[T,onlytextwidth]
+\column{0.32\textwidth}
+\begin{block}{Betri umferðarmæling}
+\begin{itemize}\small
+  \item Klukkustundarumferð
+  \item Stöðug auðkenni teljara
+  \item Betri landfræðileg þekja
+\end{itemize}
+\end{block}
+\column{0.32\textwidth}
+\begin{block}{Betri veðurlýsing}
+\begin{itemize}\small
+  \item Vindátt og vegstefna
+  \item Vegyfirborð og vegveður
+  \item Lokanir og viðvaranir
+\end{itemize}
+\end{block}
+\column{0.32\textwidth}
+\begin{alertblock}{Nákvæmari slysamynd}
+\begin{itemize}\small
+  \item Eins-ökutækis slys, útafakstur og velta
+  \item Ökutækjasamsetning, ekki áhætta án aksturs eftir flokki
+  \item Kóðun og heilleiki útdrátta 2007--2024 og 2025
+\end{itemize}
+\end{alertblock}
+\end{columns}
+\vfill
+\takeaway{Næsta skref er ekki bara stærra úrtak, heldur betri tími, staður og nefnari.}
+\end{frame}
+
+\end{document}

@@ -207,14 +207,16 @@ def validate_daily_vkt() -> pd.DataFrame:
     return result
 
 
-def validate_monthly_vkt() -> pd.DataFrame:
-    """Check the supervisor-specified monthly-frequency VKT rate."""
+def validate_monthly_vkt(result: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Validate all three retained variables, their complete bins and exposure."""
     from src.traffic.monthly_vkt import ALLOCATION_METHOD, OUTCOMES
+    from src.weather.monthly_frequency import VARIABLES
 
-    result = pd.read_csv(DEFAULT_MONTHLY_VKT)
+    if result is None:
+        result = pd.read_csv(DEFAULT_MONTHLY_VKT)
     keys = ["variable", "outcome", "bin_label"]
     required = {
-        *keys, "observed_accidents", "estimated_vehicle_km",
+        *keys, "bin_order", "observed_accidents", "estimated_vehicle_km",
         "rate_per_million_vehicle_km", "counter_days", "counter_sections",
         "analysed_accidents", "allocation_method",
     }
@@ -222,23 +224,57 @@ def validate_monthly_vkt() -> pd.DataFrame:
     require(not result.duplicated(keys).any(), "Duplicate monthly-frequency rate rows")
     require(result["allocation_method"].eq(ALLOCATION_METHOD).all(),
             "Monthly-frequency rates use an unexpected allocation")
-    require(set(result["variable"]) == {"f", "fg"}, "Unexpected monthly VKT variables")
+    require(set(result["variable"]) == {"f", "fg", "temperature"}, "Unexpected monthly VKT variables")
     require(set(result["outcome"]) == set(OUTCOMES), "Unexpected monthly VKT outcomes")
+    expected_keys = {
+        (variable, outcome, label)
+        for variable, (_, labels) in VARIABLES.items()
+        for outcome in OUTCOMES for label in labels
+    }
+    require(set(result[keys].itertuples(index=False, name=None)) == expected_keys,
+            "Monthly VKT must contain every variable/outcome/bin combination")
+    for variable, (_, labels) in VARIABLES.items():
+        part = result[result.variable.eq(variable)]
+        require(part.bin_order.map(dict(enumerate(labels))).eq(part.bin_label).all(),
+                "Monthly VKT bin ordering disagrees with the allocation")
+    require(np.isfinite(result.observed_accidents).all()
+            and result.observed_accidents.ge(0).all()
+            and result.observed_accidents.mod(1).eq(0).all(),
+            "Monthly VKT accident counts must be nonnegative integers")
+    require(np.isfinite(result.estimated_vehicle_km).all()
+            and result.estimated_vehicle_km.gt(0).all(),
+            "Monthly VKT exposure must be finite and positive")
+    require(result.counter_days.eq(533649).all(),
+            "Monthly VKT does not retain 533649 eligible counter-section days")
+    require(result.counter_sections.eq(1598).all(),
+            "Monthly VKT does not retain the intended counter sections")
     all_injury = result[result["outcome"].eq("All injury accidents")]
     require(all_injury.groupby("variable")["observed_accidents"].sum().eq(694).all(),
             "Monthly-frequency numerator does not retain 694 accidents")
-    require(all_injury.groupby("variable")["analysed_accidents"].first().eq(694).all(),
-            "Monthly-frequency analysed sample is not 694")
+    outcome_totals = result.groupby(["variable", "outcome"]).observed_accidents.sum()
+    for outcome in OUTCOMES:
+        require(outcome_totals.xs(outcome, level="outcome").nunique() == 1,
+                "Monthly VKT variables do not retain the same injury outcome sample")
+    expected_sample = result.set_index(["variable", "outcome"]).index.map(outcome_totals)
+    require(np.array_equal(result.analysed_accidents.to_numpy(), expected_sample),
+            "Monthly-frequency analysed sample does not match its outcome counts")
+    counts = result.pivot(index=["variable", "bin_label"], columns="outcome", values="observed_accidents")
+    require(counts["All injury accidents"].eq(
+        counts["Minor injury accidents"] + counts["Serious or fatal injury accidents"]).all(),
+        "Monthly VKT injury groups do not reconstruct all injury counts")
     denominator = result["estimated_vehicle_km"].where(result["estimated_vehicle_km"].gt(0))
     require(np.allclose(
         result["rate_per_million_vehicle_km"],
         result["observed_accidents"] / denominator * 1_000_000,
+        rtol=1e-10, atol=1e-12,
     ), "Incorrect monthly-frequency rate arithmetic")
     paired = result.groupby(["variable", "bin_label"])["estimated_vehicle_km"]
     require(paired.nunique().eq(1).all(), "Monthly VKT outcomes do not share denominators")
     totals = all_injury.groupby("variable")["estimated_vehicle_km"].sum()
-    require(np.isclose(totals["f"], totals["fg"], rtol=0, atol=1e-3),
-            "Wind and gust allocations do not conserve the same total VKT")
+    require(np.allclose(totals.to_numpy(), totals["f"], rtol=0, atol=1e-3),
+            "Weather-variable allocations do not conserve the same total VKT")
+    require(np.allclose(totals.to_numpy(), 5630267210.07299, rtol=0, atol=1e-3),
+            "Monthly VKT allocations do not conserve the validated source total")
     return result
 
 def validate_traffic_models(

@@ -89,6 +89,10 @@ def main() -> None:
         args.daily_serious,
         args.daily_07_24,
     )
+    if Path("reports/main/tables/joint_wind_temperature_detail.csv").exists():
+        from src.validation.joint_detail import validate_joint_products
+        validate_joint_products()
+        print("Validated detailed joint O/E: 20 cells; coarse reconciliation and contrasts passed")
     write_report(values, args.output)
     print(f"Validated primary analysis; wrote {args.output}")
 

@@ -101,7 +101,7 @@ def write_table(
         body.append(" & ".join(tex(value) for value in row) + rule)
     content = "\n".join(
         [
-            r"\begin{table}[H]", r"\centering", rf"\{size}",
+            r"\begin{table}[htbp]", r"\centering", rf"\{size}",
             caption_line, label_line, begin, r"\toprule",
             " & ".join(headers) + r" \\", r"\midrule", *body,
             r"\bottomrule", rf"\end{{{environment}}}", r"\end{table}", "",
@@ -574,14 +574,8 @@ def main() -> None:
     from src.tables.headline_summary import headline_summary
     headline_summary(args.output)
     data_chapter_tables(args.output)
-    accident_sample(args.output)
     weather_cleaning(args.output)
     match_quality(args.output)
-    year_comparison(args.output)
-    coverage(args.output)
-    severity_conditions(args.output)
-    traffic_methods(args.output)
-    traffic_tables(args.output)
     print(f"wrote generated thesis tables to {args.output}")
 
 

@@ -97,8 +97,8 @@ def build_result(
             "relative_accident_frequency": "time_oe",
         }
     )
-    original = original[original["variable"].isin(["f", "fg"])]
-    corrected = corrected[corrected["variable"].isin(["f", "fg"])]
+    original = original[original["variable"].isin(["f", "fg", "temperature"])]
+    corrected = corrected[corrected["variable"].isin(["f", "fg", "temperature"])]
     corrected = corrected[
         [*keys, "observed_accidents", "expected_accidents",
          "relative_accident_frequency", "analysed_accidents"]

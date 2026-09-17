@@ -1,0 +1,46 @@
+% Generated directly from cleaned files by src.tables.exact_data.
+\begin{table}[H]
+\centering
+\captionsetup{width=\linewidth}
+\caption[First two stored records from the cleaned accident dataset.]{First two stored records from the cleaned accident dataset.}
+\label{tab:exact-accidents}
+\fontsize{11}{14}\selectfont\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lllll}
+\toprule
+\texttt{id} & \texttt{timestamp} & \texttt{lat} & \texttt{lon} & \texttt{meidsli} \\
+\midrule
+\texttt{3166374} & \texttt{2007-01-01 00:38:00} & \texttt{64.12584278999495} & \texttt{-21.84899049625977} & \texttt{3} \\
+\texttt{3166372} & \texttt{2007-01-01 00:44:00} & \texttt{64.13069955245595} & \texttt{-21.915262585087383} & \texttt{4} \\
+\bottomrule
+\end{tabular}
+\par\medskip{\small\itshape Same records, remaining columns.}\par\smallskip
+\begin{tabular}{llll}
+\toprule
+\texttt{tegohapps} & \texttt{vehicle\_count} & \texttt{urban\_rural} & \texttt{registered\_road\_section} \\
+\midrule
+\texttt{121} & \texttt{2} & \texttt{Urban} & \texttt{41-04} \\
+\texttt{920} & \texttt{1} & \texttt{Urban} & \texttt{418-01} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\small
+\textit{Note:} All columns are shown in source order across the two blocks; CSV values are reproduced without relabelling or rounding.
+\end{minipage}
+\end{table}
+\begin{table}[H]
+\centering
+\captionsetup{width=\linewidth}
+\caption[First two stored records from the cleaned weather dataset.]{First two stored records from the cleaned weather dataset.}
+\label{tab:exact-weather}
+\fontsize{11}{14}\selectfont\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lllll}
+\toprule
+\texttt{station} & \texttt{time} & \texttt{f} & \texttt{fg} & \texttt{t} \\
+\midrule
+\texttt{1350} & \texttt{2011-06-01T20:30:00} & \texttt{7.28} & \texttt{9.28} & \texttt{7.11} \\
+\texttt{1350} & \texttt{2011-06-01T20:40:00} & \texttt{7.13} & \texttt{9.28} & \texttt{7.14} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\small
+\textit{Note:} Floating-point values use the shortest decimal representation that round-trips to the stored Parquet dtype.
+\end{minipage}
+\end{table}

@@ -11,6 +11,14 @@ fg,20-25,4,29,123282803.0372026,All year,0.23523151068562886,All injury accident
 fg,25-30,5,12,34474285.78386289,All year,0.34808552888475197,All injury accidents
 fg,5-10,1,238,2133464937.320954,All year,0.11155561820428257,All injury accidents
 fg,>=30,6,11,12695873.67148594,All year,0.866423239914969,All injury accidents
+temperature,-3-0,2,120,478638615.8239965,All year,0.2507110710100458,All injury accidents
+temperature,-6--3,1,61,239187830.47901025,All year,0.25502969727949015,All injury accidents
+temperature,0-3,3,134,769141452.962176,All year,0.17422022891098773,All injury accidents
+temperature,3-6,4,84,901807030.1886468,All year,0.09314631311138509,All injury accidents
+temperature,6-9,5,95,1108184295.5759876,All year,0.08572581327785646,All injury accidents
+temperature,9-12,6,79,1176539306.6983008,All year,0.06714607795101733,All injury accidents
+temperature,<-6,0,40,141667600.98916227,All year,0.2823510790096604,All injury accidents
+temperature,>=12,7,81,815101077.3557103,All year,0.09937417855313617,All injury accidents
 f,0-5,0,74,425039290.473728,Autumn,0.17410155168837033,All injury accidents
 f,0-5,0,42,443709445.5076167,Spring,0.09465653802332462,All injury accidents
 f,0-5,0,115,1572888035.0334647,Summer,0.07311391366617731,All injury accidents
@@ -59,3 +67,35 @@ fg,>=30,6,3,2733676.1998921405,Autumn,1.0974233159429663,All injury accidents
 fg,>=30,6,4,1251459.1312961227,Spring,3.1962689791213905,All injury accidents
 fg,>=30,6,3,1537474.9332095883,Summer,1.9512513246230863,All injury accidents
 fg,>=30,6,1,7173263.407088088,Winter,0.13940656340764984,All injury accidents
+temperature,-3-0,2,26,105833320.87467083,Autumn,0.245669320258688,All injury accidents
+temperature,-3-0,2,12,61869938.28162697,Spring,0.19395526055605497,All injury accidents
+temperature,-3-0,2,4,10355412.081744215,Summer,0.38627144612155884,All injury accidents
+temperature,-3-0,2,78,300579944.5859545,Winter,0.25949835112067815,All injury accidents
+temperature,-6--3,1,5,44186596.03470344,Autumn,0.1131564874577141,All injury accidents
+temperature,-6--3,1,6,22368213.502069607,Spring,0.26823778302388135,All injury accidents
+temperature,-6--3,1,0,744632.7750755501,Summer,0.0,All injury accidents
+temperature,-6--3,1,50,171888388.16716164,Winter,0.2908864323713068,All injury accidents
+temperature,0-3,3,43,201391203.02314696,Autumn,0.2135147879078799,All injury accidents
+temperature,0-3,3,14,142185949.3280253,Spring,0.09846261227754488,All injury accidents
+temperature,0-3,3,7,53685873.223653406,Summer,0.13038811850630153,All injury accidents
+temperature,0-3,3,70,371878427.3873503,Winter,0.18823355926233298,All injury accidents
+temperature,3-6,4,32,226132719.8322493,Autumn,0.1415098178792453,All injury accidents
+temperature,3-6,4,17,237293247.4855098,Spring,0.07164131377585069,All injury accidents
+temperature,3-6,4,11,201182798.10210037,Summer,0.05467664285302113,All injury accidents
+temperature,3-6,4,24,237198264.76878735,Winter,0.10118117863718087,All injury accidents
+temperature,6-9,5,16,155435174.89904785,Autumn,0.10293680314247848,All injury accidents
+temperature,6-9,5,29,274907891.88270336,Spring,0.10548987808750725,All injury accidents
+temperature,6-9,5,42,583076711.6351271,Summer,0.07203168839005598,All injury accidents
+temperature,6-9,5,8,94764517.15910928,Winter,0.08441978326727534,All injury accidents
+temperature,9-12,6,6,50132747.186462834,Autumn,0.11968225035990364,All injury accidents
+temperature,9-12,6,17,120123108.01675572,Spring,0.14152147976081927,All injury accidents
+temperature,9-12,6,56,1000013768.2530243,Summer,0.05599922898844612,All injury accidents
+temperature,9-12,6,0,6269683.242057996,Winter,0.0,All injury accidents
+temperature,<-6,0,3,20086944.229232755,Autumn,0.14935074074801613,All injury accidents
+temperature,<-6,0,4,7636271.7208683705,Spring,0.5238158287464834,All injury accidents
+temperature,<-6,0,0,45144.606468829625,Summer,0.0,All injury accidents
+temperature,<-6,0,33,113899240.4325923,Winter,0.2897297635582567,All injury accidents
+temperature,>=12,7,0,4846445.262870986,Autumn,0.0,All injury accidents
+temperature,>=12,7,4,37085310.84181984,Spring,0.10785941682034754,All injury accidents
+temperature,>=12,7,77,772869773.2776144,Summer,0.09962868605076323,All injury accidents
+temperature,>=12,7,0,299547.973405133,Winter,0.0,All injury accidents

@@ -17,8 +17,8 @@ def seasonal_rates(sections: pd.DataFrame, pooled: pd.DataFrame) -> pd.DataFrame
     unique = ["variable", "counter_section_id", "year", "season", "bin_label"]
     if sections.duplicated(unique).any():
         raise ValueError("Duplicate section-year-season bins")
-    if set(sections.variable) != {"f", "fg"}:
-        raise ValueError("Monthly VKT supports only mean wind and gust")
+    if not {"f", "fg"} <= set(sections.variable) <= {"f", "fg", "temperature"}:
+        raise ValueError("Unexpected monthly VKT weather variables")
     if (sections[values] < 0).any().any():
         raise ValueError("Negative seasonal counts or exposure")
     data = sections.assign(period=sections.season.replace({"Fall": "Autumn"}))
@@ -58,7 +58,7 @@ def severity_rates(sections: pd.DataFrame, pooled: pd.DataFrame,
     totals = seasonal_rates(sections, pooled)
     keys = ['variable', 'bin_label', 'bin_order', 'period']
     parts = []
-    for variable in ('f', 'fg'):
+    for variable in sorted(sections.variable.unique()):
         events = accidents.copy()
         events['bin_label'] = _bin_values(events[variable], variable)
         if events.bin_label.isna().any():

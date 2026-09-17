@@ -38,7 +38,7 @@ def _bin_values(values: pd.Series, variable: str) -> pd.Categorical:
     bounds, labels = VARIABLES[variable]
     return pd.cut(
         pd.to_numeric(values, errors="coerce"),
-        [0, *bounds, np.inf], labels=list(labels), right=False,
+        [-np.inf if variable == "temperature" else 0, *bounds, np.inf], labels=list(labels), right=False,
         include_lowest=True,
     )
 
@@ -81,6 +81,13 @@ def allocate_monthly_exposure(
     ):
         raise ValueError("Monthly frequency does not represent pooled 2007-2025 07:00-24:00 weather")
     keys = ["weather_station_id", "month"]
+    if freq.duplicated([*keys, "bin_order"]).any():
+        raise ValueError("Duplicate station-month weather bins")
+    if freq.frequency.dropna().lt(0).any():
+        raise ValueError("Negative monthly frequency")
+    sizes = freq.groupby(keys, observed=True).size()
+    if not sizes.eq(len(VARIABLES[variable][1])).all():
+        raise ValueError("Incomplete station-month weather bins")
     valid = freq.groupby(keys, observed=True)["frequency"].sum()
     valid = valid[np.isclose(valid, 1.0, rtol=0, atol=1e-10)].index
     freq = freq.set_index(keys).loc[valid].reset_index()
@@ -117,7 +124,7 @@ def build_tables(
     output: list[pd.DataFrame] = []
     sections: list[pd.DataFrame] = []
     audit: dict[str, int | float] = {"numerator_eligible_accidents": 694}
-    for variable in ("f", "fg"):
+    for variable in ("f", "fg", "temperature"):
         exposure = allocate_monthly_exposure(counter_days, frequency, variable)
         eligible_days = exposure[["counter_section_id", "date"]].drop_duplicates()
         events = accidents.merge(
@@ -196,6 +203,9 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     rates.to_csv(args.output, index=False)
     sections.to_csv(args.section_output, index=False)
+    audit_path = Path("reports/working/tables/monthly_vkt_allocation_audit.csv")
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(list(audit.items()), columns=["metric", "value"]).to_csv(audit_path, index=False)
     print("; ".join(f"{key}={value:,}" for key, value in audit.items()))
     print(f"wrote={args.output} rows={len(rates):,}")
     print(f"wrote={args.section_output} rows={len(sections):,}")

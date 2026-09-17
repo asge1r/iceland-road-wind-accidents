@@ -1,0 +1,14 @@
+contrast,group,numerator_cell,reference_cell,adequate_support,oe_ratio
+High/low wind,<−3,15,0,True,2.449764161642348
+High/low wind,−3–0,16,1,True,1.9872302166690088
+High/low wind,0–6,17,2,True,1.2527943558631236
+High/low wind,6–12,18,3,True,2.172051253586695
+High/low wind,≥12,19,4,False,
+Warm/moderate temperature,0–5,4,3,True,1.904130972446591
+Below-freezing/moderate temperature,0–5,1,3,True,1.28259450371567
+Warm/moderate temperature,5–10,9,8,True,1.6015893220675153
+Below-freezing/moderate temperature,5–10,6,8,True,1.1904408597575997
+Warm/moderate temperature,10–15,14,13,True,1.5685793235460046
+Below-freezing/moderate temperature,10–15,11,13,True,1.6643184846640569
+Warm/moderate temperature,≥15,19,18,False,
+Below-freezing/moderate temperature,≥15,16,18,True,1.1734578313051016

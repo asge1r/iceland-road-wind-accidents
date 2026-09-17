@@ -29,13 +29,13 @@ class MonthlyVKTTests(unittest.TestCase):
         by_day = result.groupby("date")["estimated_vehicle_km"].sum()
         self.assertEqual(by_day.tolist(), [200.0, 400.0, 0.0])
 
-    def test_current_result_has_694_events_for_both_weather_variables(self) -> None:
+    def test_current_result_has_694_events_for_all_weather_variables(self) -> None:
         path = Path("data/processed/traffic/monthly_vkt.csv")
         if not path.exists():
             self.skipTest("generated monthly VKT result is unavailable")
         result = pd.read_csv(path)
         all_injury = result[result["outcome"].eq("All injury accidents")]
-        self.assertEqual(set(all_injury["variable"]), {"f", "fg"})
+        self.assertEqual(set(all_injury["variable"]), {"f", "fg", "temperature"})
         self.assertTrue(all_injury.groupby("variable")["observed_accidents"].sum().eq(694).all())
         self.assertTrue(all_injury.groupby("variable")["analysed_accidents"].first().eq(694).all())
         totals = all_injury.groupby("variable")["estimated_vehicle_km"].sum()

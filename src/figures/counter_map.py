@@ -10,7 +10,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from src.figures.presentation import save_figure, PANEL_TITLE_SIZE
+from src.figures.thesis_style import save_figure, PANEL_TITLE_SIZE
 import pandas as pd
 
 
