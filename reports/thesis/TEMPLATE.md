@@ -11,6 +11,14 @@ Build in a separate output directory to preserve the unrelated untracked
 
 ## Current isolated build
 
+In Emacs with AUCTeX, open `content.tex` and press `C-c C-c`. Its
+`TeX-master` setting selects `draft_en.tex`, and the local `.latexmkrc` writes
+`Meteorological_Conditions_and_Rural_Injury_Accidents_in_Iceland.pdf` directly.
+The same command works from `draft_en.tex`. `latexmk` may leave ignored
+auxiliary files here, but it does not overwrite `draft_en.pdf`.
+
+For an isolated command-line build, use the following procedure.
+
 From `reports/thesis`, create an empty output directory and run pdfLaTeX three
 times, keeping all auxiliary files out of the source directory:
 

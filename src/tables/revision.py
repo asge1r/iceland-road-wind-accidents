@@ -111,8 +111,8 @@ def main():
     write_table(TEX/'rural_seasonal_rates.tex',
         'Descriptive rural injury accidents and estimated seasonal travel, 2007--2025. Winter or summer average daily traffic is multiplied by mapped rural road length and calendar days. Unmapped portions are excluded.',
         'tab:rural-seasonal-rates','lrr',['Quantity','Winter','Summer'],[
-            ['Injury accidents',*[f'{int(seasons.loc[p,"accidents"]):,}' for p in ['Winter','Summer']]],
-            ['Serious or fatal injury accidents',*[f'{int(seasons.loc[p,"severe"]):,}' for p in ['Winter','Summer']]],
+            ['Injury accidents',*[f'{int(seasons.loc[p,"accidents"])}' for p in ['Winter','Summer']]],
+            ['Serious or fatal injury accidents',*[f'{int(seasons.loc[p,"severe"])}' for p in ['Winter','Summer']]],
             ['Estimated driving (billion vehicle-km)',*[f'{seasons.loc[p,"estimated_vehicle_km"]/1e9:.2f}' for p in ['Winter','Summer']]],
             ['Injury accidents per million estimated vehicle-km',*[f'{seasons.loc[p,"accidents_per_million_vkt"]:.3f}' for p in ['Winter','Summer']]]],short_caption='Rural winter and summer counts and estimated travel.')
     roads,linked=road_rates(all_events,exposure)
@@ -128,9 +128,9 @@ def main():
     print('ROAD TOP',roads.head(12).to_string(index=False));print('ROAD numerator',linked.road_number.notna().sum(),'/',len(linked))
     # The unfiltered ranking is sparse; make the proposed display restriction explicit.
     write_table(TEX/'road_rates.tex',
-        'Highest estimated injury-accident rates among roads with at least 20 linked injury accidents, 2007--2025; the complete unfiltered ranking is retained as an audit CSV. Counts include only injury accidents linked to exposed road-section years. Exposure uses annual average daily traffic, mapped rural length and calendar days. Small counts and uncertain road linkage make this a descriptive ranking.',
+        'Roads with the highest estimated injury-accident rates, 2007--2025. Only roads with at least 20 linked injury accidents are shown; the rates are approximate.',
         'tab:road-rates',r'rL{0.24\textwidth}rrr',['Road', 'Road name','Injury accidents',r'\shortstack{Million estimated\\vehicle-km}',r'\shortstack{Accidents per million\\estimated vehicle-km}'],
-        [[int(r.road_number),r.road_name,r.accidents,f'{r.estimated_vehicle_km/1e6:.2f}',f'{r.rate_per_million_vkt:.3f}'] for r in display.itertuples()],short_caption='Highest estimated rates among roads with at least 20 linked injury accidents.')
+        [[int(r.road_number),r.road_name,r.accidents,f'{r.estimated_vehicle_km/1e6:.0f}',f'{r.rate_per_million_vkt:.2f}'] for r in display.itertuples()],short_caption='Roads with the highest estimated injury-accident rates.')
     events=pd.read_csv('data/analysis/accidents.csv').merge(pd.read_csv('data/analysis/accident_conditions.csv'),on='id',validate='one_to_one')
     eligible=(events.weather_station_dist_km.le(20)&events.weather_time_difference_minutes.le(5)&events.temp_distance_km.le(20)&events.temp_time_diff_min.le(5)&events.f.notna()&events.temperature_c.between(-30,30))
     events=events[eligible].copy()

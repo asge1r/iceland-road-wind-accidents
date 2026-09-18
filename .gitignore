@@ -41,6 +41,7 @@ __pycache__/
 !/reports/main/tables/*.csv
 !/reports/main/tables/*.md
 !/reports/thesis/*.tex
+!/reports/thesis/.latexmkrc
 !/reports/thesis/placeins.sty
 !/reports/thesis/*.pdf
 !/reports/thesis/*.png

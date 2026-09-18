@@ -9,6 +9,7 @@
 \renewcommand{\rmdefault}{ptm}
 \usepackage{microtype}
 \usepackage[margin=20mm]{geometry}
+\addtolength{\footskip}{-4mm}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
@@ -75,7 +76,8 @@
 \def\thesisaddress{Dunhagi 5}
 \def\thesispostalcode{107}
 \def\thesistelephone{525 4000}
-\def\thesissupervisors{Kristján Jónasson \\ Guðmundur Freyr Úlfarsson}
+\def\thesissupervisor{Kristján Jónasson}
+\def\thesiscosupervisor{Guðmundur Freyr Úlfarsson}
 \def\thesisnrofsupervisors{2}
 \def\thesiscommittee{}
 \def\thesisexaminer{Guðrún Nína Petersen}
@@ -103,7 +105,7 @@
       \textcolor{hiblue}{\textbf{\MakeUppercase{\thesisfaculty{}}}}};
   \end{tikzpicture}
 
-  \vspace*{4.1cm}
+  \vspace*{6.1cm}
   \begin{center}
     \huge\sffamily\bfseries \thesistitle{}
 
@@ -115,10 +117,9 @@
     \thesismonth{}~\thesisyear{}
 
     \vspace{0.65cm}
-    \normalfont\large\sffamily \thesiskind{}~thesis \\
-    in \thesissubject{}
+    \normalfont\large\sffamily \thesiskind{}~thesis in \thesissubject{}
 
-    \vspace{1.45cm}
+    \vspace{0.58cm}
   \end{center}
 
 
@@ -137,8 +138,12 @@
     \textit{\thesiskindformal{}} degree in \thesissubject{}
 
     \vspace*{\stretch{1.0}}
-    Supervisors \\
-    \thesissupervisors{}
+    Supervisor \\
+    \thesissupervisor{}
+
+    \vspace{0.3cm}
+    Co-supervisor \\
+    \thesiscosupervisor{}
 
     \vspace{0.6cm}
     External examiner \\

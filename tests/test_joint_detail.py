@@ -66,6 +66,26 @@ def test_sparse_rule_and_contrasts_require_both_cells():
     assert result['sparse'].all()
 
 
+def test_fine_joint_grid_uses_joint_station_season_frequencies():
+    from src.tables.joint_grid import calculate
+    events=pd.DataFrame({'id':[1,2],'weather_station_id':[1,2],
+                         'season':['Winter','Winter'],'f':[2.,21.],
+                         'temperature_c':[-7.,13.]})
+    frequency=pd.DataFrame([(station,'Winter',cell,weight)
+                            for station,weights in ((1,{0:.25,10:.75}),
+                                                    (2,{0:.5,39:.5}))
+                            for cell in range(40)
+                            for weight in [weights.get(cell,0.)]],
+                           columns=['weather_station_id','season','cell','frequency'])
+    result=calculate(events,frequency).set_index('cell')
+    assert result.observed_accidents.sum()==2
+    assert result.expected_accidents.sum()==pytest.approx(2)
+    assert result.loc[0,'expected_accidents']==pytest.approx(.75)
+    assert result.loc[10,'expected_accidents']==pytest.approx(.75)
+    assert result.loc[39,'expected_accidents']==pytest.approx(.5)
+    assert result.loc[39,'oe']==pytest.approx(2)
+
+
 def test_thesis_citations_resolve_and_no_entries_unused():
     text=Path('reports/thesis/content.tex').read_text()+Path('reports/thesis/draft_en.tex').read_text()
     for path in Path('reports/thesis/generated').glob('*.tex'):
@@ -81,7 +101,9 @@ def test_thesis_citations_resolve_and_no_entries_unused():
 
 def test_real_joint_outputs_conserve_and_reproduce_coarse():
     p=Path('reports/main/tables/joint_wind_temperature_detail.csv')
-    if not p.exists():pytest.skip('Joint outputs not yet generated')
+    audit=Path('reports/working/tables')
+    if not p.exists() or not (audit/'joint_atomic_oe.csv').exists() or not (audit/'joint_wind_temperature_oe.csv').exists():
+        pytest.skip('Full joint outputs not available locally')
     detail=pd.read_csv(p);atom=pd.read_csv('reports/working/tables/joint_atomic_oe.csv')
     old=pd.read_csv('reports/working/tables/joint_wind_temperature_oe.csv')
     assert len(detail)==20 and detail.observed_accidents.sum()==6259
@@ -94,27 +116,42 @@ def test_real_joint_outputs_conserve_and_reproduce_coarse():
 
 
 def test_heatmap_annotations_and_generated_interpretation_match_values():
-    p=Path('reports/main/tables/joint_wind_temperature_detail.csv')
-    if not p.exists():pytest.skip('Local joint outputs unavailable')
+    p=Path('reports/main/tables/joint_wind_temperature_5x8.csv')
+    if not p.exists():pytest.skip('Local 5x8 joint output unavailable')
     from src.figures.joint_detail import make_figure,narrative
+    from src.tables.joint_grid import category,check_previous_partition
     import matplotlib.pyplot as plt
     d=pd.read_csv(p);fig=make_figure(d)
     try:
         labels=[t.get_text() for t in fig.axes[0].texts]
-        assert len(labels)==20
-        for row,label in zip(d.sort_values('cell').itertuples(),labels):
+        assert len(labels)==54
+        for row,label in zip(d.sort_values('cell').itertuples(),labels[:40]):
             assert label==f'{row.oe:.2f}'+('*' if row.sparse else '')+f'\nn={row.observed_accidents}'.replace('\\n','\n')
-        assert fig.axes[0].images[0].norm(1)==.5
-        assert [t.get_text() for t in fig.axes[0].get_xticklabels()]==['<−3', '[−3, 0)', '[0, 6)', '[6, 12)', '≥12']
+        for labels_slice,group_column in ((labels[40:45],'wind_order'),(labels[45:53],'temperature_order')):
+            for label,(_,group) in zip(labels_slice,d.groupby(group_column)):
+                observed=int(group.observed_accidents.sum())
+                expected=group.expected_accidents.sum()
+                assert label==f'{observed/expected:.2f}\nn={observed}'
+        assert labels[-1]=='1.00\nn=6259'
+        assert len(fig.axes[0].patches)==58  # 54 cells and four black block outlines
+        assert all(p.get_edgecolor()[:3]==(0,0,0) for p in fig.axes[0].patches[-4:])
+        assert all(t.get_fontsize()==8 for t in fig.axes[0].texts)
+        assert fig.axes[1]._colorbar.mappable.norm(1)==pytest.approx(np.log(1/.62)/np.log(7.63/.62))
+        assert fig.get_size_inches()[0]*25.4==pytest.approx(190)
+        assert fig.axes[1].get_position().width*190==pytest.approx(8)
+        assert [t.get_text() for t in fig.axes[0].get_xticklabels()]==[
+            '<−6','[−6, −3]','[−3, 0]','[0, 3]','[3, 6]',
+            '[6, 9]','[9, 12]','≥12','All\ntemperatures']
     finally:plt.close(fig)
+    assert category([0,4.999,5,19.999,20],[-7,-6,-3,11.999,12]).tolist()==[0,1,10,30,39]
+    check_previous_partition(d)
     text,discussion=narrative(d)
-    assert f'{d.loc[19,"expected_accidents"]:.2f}' in text
-    assert 'however, no formal interaction is estimated' in text
-    assert 'warm-to-moderate' not in text and 'below-freezing-to-moderate' not in text
-    assert '1.12' in text and '2.15' in text and '1.25' in text and '2.45' in text
-    assert 'does not establish interaction' in discussion
-    from src.validation.joint_detail import validate_joint_products
-    assert validate_joint_products()['sparse_cells']==1
+    assert '0.93' in text and '2.06' in text and '7.63' in text
+    assert '2 observed accidents versus 0.26 expected' in text
+    assert 'do not establish interaction' in discussion
+    if Path('reports/working/tables/joint_atomic_oe.csv').exists():
+        from src.validation.joint_detail import validate_joint_products
+        assert validate_joint_products()['sparse_cells']==1
 
 
 def test_semantic_float_order_and_future_work_length():

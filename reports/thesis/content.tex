@@ -1,3 +1,4 @@
+% -*- TeX-master: "draft_en"; -*-
 \chapter{Introduction}
 
 \section{Context and motivation}
@@ -173,9 +174,9 @@ Administration (\textit{Vegagerðin}; IRCA), the Icelandic Meteorological Office
 \toprule
 Data & Provider & Contents & Coverage & Reference \\
 \midrule
-Accidents & ITA & Accident events & 126,607 events, 2007--2025 & \citet{samgongustofaAccidents} \\
-Weather & IMO & 10-minute observations & 232,459,562 observations; 338 stations, 2007--2025 & \citet{vedurApi} \\
-Traffic/roads & IRCA & Seasonal averages, daily counts and road geometry & 1,226 mapped road sections; 33,757 section-year records of seasonal averages, 2000--2025; 1,033,659 daily channel records, 2019--2024 & \citet{vegagerdinTraffic} \\
+Accidents & ITA & Accident events & 126,607 events, 2007--2025 & \citet{samgongustofaAccidents} \\ \grayhline
+Weather & IMO & 10-minute observations & 232,459,562 observations; 338 stations, 2007--2025 & \citet{vedurApi} \\ \grayhline
+Traffic/roads & IRCA & Seasonal averages, daily counts and road geometry & 1,226 mapped road sections; 33,757 section-year records of seasonal averages, 2000--2025; 1,033,659 daily channel records, 2019--2024 & \citet{vegagerdinTraffic} \\ \grayhline
 Urban areas & Statistics Iceland & Urban boundaries & 97 polygons, 2020--2024 release & \citet{hagstofaThettbyli} \\
 \bottomrule
 \end{tabularx}
@@ -243,9 +244,10 @@ accident record before weather matching.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.96\textwidth]{accident_map.png}
-\caption[Rural injury accidents, highlighting mean wind of at least 15 m/s.]{Locations of the 6,414 rural injury accidents. Accidents matched to
-mean wind of at least 15 m/s are highlighted. The map shows the spatial
-coverage of the study. Accidents follow the main rural road network; the highlighted accidents are geographically dispersed.}
+\caption[Rural injury accidents, highlighting mean wind of at least 15
+m/s.]{Locations of the 6,414 rural injury accidents. Accidents matched to mean
+  wind of at least 15 m/s are highlighted. The map shows the spatial coverage of
+  the study. Accidents follow the main rural road network.}
 \label{fig:accident-map}
 \end{figure}
 
@@ -347,7 +349,7 @@ as risk.
 \includegraphics[width=\textwidth]{conditions.pdf}
 \caption[Distribution of rural injury accidents by time and weather.]{Distribution of rural injury accidents by hour, study season, estimated daylight
 and matched temperature. Blue shows minor injury (code 3), and red shows
-serious or fatal injury (codes 1--2). Spring and autumn are combined only in
+serious or fatal injury (codes 1--2). Spring and autumn are combined in
 this descriptive figure. Hour, season and daylight use 6,414 accidents;
 temperature uses 6,259 qualifying matches.}
 \label{fig:accident-conditions}
@@ -364,23 +366,89 @@ The descriptive full-period traffic calculation multiplies winter or summer aver
 The reproducible clipping gives 6.32 billion winter and 13.89 billion summer vehicle-kilometres. Treating every unmapped portion as rural changes the overall ratio from 1.92 to 1.91. The 2007 workbook omits station distances: origins are recovered from the nearest available records for the same section and named starting point, requiring agreement when both earlier and later records exist. Published lengths are retained; unresolved origins and unmapped geometry are excluded. These approximations include all rural injury counts but incomplete historical road exposure and may overestimate absolute rates. Section~\ref{sec:monthly-vkt-results} uses observed daily counters in a smaller sample; Figure~\ref{fig:monthly-vkt-wind} gives its seasonal wind comparison.
 
 \section{Data preparation and reproducibility}
+The workflow separates the preparation and cleaning of data from the analysis of
+prepared inputs. Four institutions supply the primary data used in the study:
+Samgöngustofa provides data on accidents; the Meteorological Offices provides
+weather observations and station information; Vegagerðin provides daily
+counters, annual traffic summaries and road geometry; and Statistics Iceland
+provides urban-locality boundaries.
 
-The workflow separates institutional source preparation from analysis of prepared inputs (Figure~\ref{fig:reproducible-workflow}). Four institutions supply complementary material: Samgöngustofa provides accident events, separate injured-person and vehicle extracts, and register documentation; the IMO provides weather observations and station information; Vegagerðin provides daily counters, annual traffic summaries and road geometry; and Statistics Iceland provides urban-locality boundaries. The register dictionary describes the source database rather than guaranteeing the contents of each extract. The 2007--2024 and separate 2025 register deliveries require consistent field names and codes; daily counters cover 2019--2024.
+The preparation standardises identifiers,
+dates, coordinates and injury codes, applies the rural classification, and
+screens weather using the validity rules of Section 3.1. Road geometry and
+counter records establish rural counter sections and their daily traffic.
+Accident-time wind and temperature are linked to nearby valid observations
+within 20 km and five minutes. Station and time checks distinguish a successful
+match from an unmatched event. The primary prepared data files are shown in
+Table~\ref{tab:prepared-files}.
 
-Preparation standardises identifiers, dates, coordinates and injury codes, applies the rural classification, and screens weather using the validity rules in Section 3.1. Road geometry and counter records establish rural counter sections and their daily traffic. Accident-time wind and temperature are linked to nearby valid observations within 20 km and five minutes. Station and time checks distinguish a successful match from an unmatched event; the joint analysis additionally verifies that wind and temperature occur in the same archive observation.
+\begin{table}[H]
+\centering
+\caption{Principal prepared data files used in the analyses. Paths are relative to \texttt{data/processed/}.}
+\label{tab:prepared-files}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{\textwidth}{L{0.43\textwidth}X}
+\toprule
+Prepared file & Contents \\
+\midrule
+\texttt{accidents/all.csv} & Standardised accident records. \\ \addlinespace[3mm]
+\texttt{weather/weather.parquet} & Cleaned ten-minute weather observations. \\ \addlinespace[3mm]
+\texttt{weather/frequency.csv} & Weather-interval frequencies by station and season. \\ \addlinespace[3mm]
+\texttt{accidents/rural\_injury.csv} & Rural injury accidents matched to weather at the time of the accident. \\ \addlinespace[3mm]
+\texttt{traffic/annual.csv} & Annual and seasonal traffic estimates by road section. \\ \addlinespace[3mm]
+\texttt{traffic/counter\_days.csv} & Daily traffic counts and rural vehicle-kilometres by counter-section. \\ \addlinespace[3mm]
+\texttt{traffic/counter\_accidents.csv} & Eligible accidents linked to counter-sections and weather observations. \\ \addlinespace[3mm]
+\texttt{weather/monthly\_frequency.csv} & Weather-interval frequencies by station and calendar month. \\ \addlinespace[3mm]
+\texttt{traffic/traffic\_weather\_response.csv} & Estimated variation in traffic across weather intervals. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-Three denominator constructions then serve the retained analyses. Station--season weather frequencies provide expected accident counts for weather-frequency O/E, including simultaneous joint wind--temperature frequencies. The approximate traffic correction reweights these frequencies using the 2019--2024 daily counter response and applies them to the 2007--2025 accident sample. For the smaller counter-linked sample, daily traffic multiplied by rural section length gives estimated VKT, allocated to weather intervals using pooled station--month frequencies. Accident-time weather classifies the numerator independently of this allocation. These constructions preserve different samples and meanings; none reconstructs hourly traffic.
+The preparation and analysis stages of the project are described in a separate
+file, \path{docs/pipeline.md}. Table~\ref{tab:first-preparation-stages} shows
+its first four preparation stages. Tables~\ref{tab:exact-accidents}
+and~\ref{tab:exact-weather} are generated directly from the downstream cleaned
+files \path{data/processed/accidents/all.csv} and
+\path{data/processed/weather/weather.parquet}, respectively. They show the first
+two stored records of each file.
 
-\input{pipeline_prepare.tex}
 
-\begin{samepage}
-The analysis entry point, \mbox{\texttt{python -m src.thesis\_pipeline}}, reads prepared data and regenerates the retained numerical tables, figure files and data-derived LaTeX fragments in dependency order. It does not obtain restricted source deliveries or replace the separate preparation stages. Automated checks verify sample selection, matching tolerances, disjoint injury counts, expected-count totals, VKT conservation and consistency between reported ratios and their underlying counts. The detailed joint partition must also reproduce the retained coarse joint summary. Validation is run with \mbox{\texttt{python -m src.validate}}; the unit suite checks calculation and presentation contracts.\par
-\end{samepage}
+\begin{table}[H]
+\centering
+\caption{First four preparation stages from \texttt{docs/pipeline.md}. Input and output paths are relative to \texttt{data/}; script paths are relative to \texttt{src/}.}
+\label{tab:first-preparation-stages}
+\fontsize{9.5}{12}\selectfont
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{L{0.17\textwidth}L{0.28\textwidth}L{0.26\textwidth}X}
+\toprule
+Script & Input files & Output files & Description \\
+\midrule
+\texttt{accidents/}\newline\texttt{build.py}
+& \path{raw/accidents/}:\newline\path{accidents_*.txt},\newline\path{vehicles_*.txt},\newline\path{road_links_2007_2025.csv},\newline\path{urban_boundaries_2020_2024.geojson}
+& \path{processed/accidents/all.csv}
+& Joins accident, vehicle, road-link and boundary data. \\
+\midrule
+\texttt{weather/}\newline\texttt{download\_}\newline\texttt{weather.py}
+& Official delivery:\newline\path{stod.txt}, \path{f_*.txt},\newline\path{fj_*.txt}, \path{fv_*.txt}
+& \path{raw/weather/}:\newline\path{stations.csv},\newline\path{weather_10min_raw.parquet},\newline\path{weather_10min_raw_audit.csv}
+& Downloads and combines the complete station-file delivery without filtering. \\
+\midrule
+\texttt{weather/}\newline\texttt{clean.py}
+& \path{raw/weather/weather_10min_raw.parquet}
+& \path{processed/weather/}:\newline\path{weather.parquet},\newline\path{cleaning.csv}
+& Applies the fixed weather-quality rules and records annual counts. \\
+\midrule
+\texttt{weather/}\newline\texttt{frequency.py}
+& \path{processed/weather/weather.parquet}
+& \path{processed/weather/}:\newline\path{frequency.csv},\newline\path{yearly_frequency.csv},\newline\path{temperature_frequency.csv},\newline\path{traffic_frequency.csv}
+& Counts station-season and station-year-season wind, gust and temperature frequencies. \\
+\midrule
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-The repository provides the analysis code, selected numerical outputs, thesis sources and figures, allowing inspection of the reported calculations and reconstruction of the document. End-to-end numerical reproduction additionally requires the original register extracts and documentation, weather archive and station metadata, counter records, annual traffic files, road geometry and locality boundaries described in Section 3.1. These institutional deliveries are not redistributed with the repository. Exact preparation and analysis commands are documented in \path{docs/pipeline.md}; pinned analysis dependencies are in \path{requirements.txt}. Document build commands and their TeX requirements are documented alongside the thesis and presentation sources. The examples below illustrate the prepared file structures, not an independently reproducible sample of the restricted inputs.
-
-\paragraph{Cleaned-data examples.}
-Tables~\ref{tab:exact-accidents} and~\ref{tab:exact-weather} are generated directly from the downstream cleaned files \path{data/processed/accidents/all.csv} and \path{data/processed/weather/weather.parquet}. They show the first two stored records and all columns in source order, illustrating file structure rather than statistical representativeness.
 
 \input{generated/exact_data.tex}
 
@@ -437,13 +505,13 @@ observed and expected counts rather than averaging group ratios. Because this
 is a descriptive standardised ratio rather than a fitted model, the O/E figures
 do not show model-based confidence intervals.
 
-Temperature was grouped into 3$^{\circ}$C intervals from $-6$ to 12$^{\circ}$C, with open-ended groups below $-6$$^{\circ}$C and at or above 12$^{\circ}$C. For compact display, finite temperature intervals are shown with square brackets in figures. Computationally, each finite interval includes its lower bound and excludes its upper bound.
+Temperature was grouped into 3$^{\circ}$C intervals from $-6$ to 12$^{\circ}$C, with open-ended groups below $-6$$^{\circ}$C and at or above 12$^{\circ}$C.
 
-The original 5 m/s intervals are the normal descriptive scale for wind. The pooled primary contrast uses the extreme mean-wind category of at least 20 m/s. Joint and seasonal grouped displays instead combine mean winds from 15 m/s to avoid excessively sparse subdivisions. These grouping choices were not statistically optimised and are not universal physical danger thresholds.
+The original 5 m/s intervals are the normal descriptive scale for wind. The pooled primary contrast uses the extreme mean-wind category of at least 20 m/s. The coarse joint summary and some seasonal displays combine mean winds from 15 m/s to avoid excessively sparse subdivisions; the detailed joint figure retains 15--20 and at least 20 m/s as separate groups. These grouping choices were not statistically optimised and are not universal physical danger thresholds.
 
-The detailed joint wind--temperature description uses mean-wind intervals $[0,5)$, $[5,10)$, $[10,15)$ and $[15,\infty)$ m/s, and temperature intervals $(-\infty,-3)$, $[-3,0)$, $[0,6)$, $[6,12)$ and $[12,\infty)$ $^{\circ}$C, within the existing weather-validity limits. These categories were specified before examining the joint results: wind retains the normal 5 m/s scale with its sparse upper tail combined; the temperature groups distinguish conditions immediately below freezing, moderately cool conditions, a moderate reference range and the existing warm-end signal. They are descriptive categories, not physical safety thresholds.
+The detailed joint wind--temperature figure uses mean-wind intervals $[0,5]$, $[5,10]$, $[10,15]$, $[15,20]$ and $\geq20$ m/s, and temperature intervals $<-6$, $[-6,-3]$, $[-3,0]$, $[0,3]$, $[3,6]$, $[6,9]$, $[9,12]$ and $\geq12$ $^{\circ}$C, within the existing weather-validity limits. These are descriptive categories, not physical safety thresholds.
 
-Each simultaneous valid wind and temperature observation enters exactly one of the 20 cells. Expected counts use the actual joint frequency within the same station--season groups as Equation~\ref{eq:weather-oe}, rather than products of marginal frequencies. Accident matches must share station and observation time. Internally, the 0--6$^{\circ}$C cell retains separate 0--3 and 3--6$^{\circ}$C components so that the calculation can be checked against the existing wind $<15$/\(\geq15\) m/s and temperature $<3$/\(\geq3\)$^{\circ}$C summary. Both observed and expected counts must reproduce that coarser result and sum to the eligible joint sample.
+Computationally, each simultaneous valid wind and temperature observation enters exactly one of the 40 cells. Expected counts use the actual joint frequency within the same station--season groups as Equation~\ref{eq:weather-oe}, rather than products of marginal frequencies. Accident matches must share station and observation time. The 40 cells can be pooled into the coarser wind $<15$/\(\geq15\) m/s and temperature $<3$/\(\geq3\)$^{\circ}$C summary; observed and expected totals each equal the eligible joint sample.
 
 The joint description uses weather-frequency O/E because simultaneous observations and the larger 2007--2025 matched sample support a joint weather-time denominator. The 694-accident VKT sample instead uses allocated station--month exposure, not directly observed simultaneous wind--temperature travel. Cell O/E therefore describes accident occurrence relative to local weather frequency, not a vehicle-based rate. Cells with fewer than 10 observed or 5 expected accidents are marked as sparse. Descriptive contrasts divide O/E at wind \(\geq15\) m/s by O/E at 0--5 m/s within temperature groups, and O/E at \(\geq12\)$^{\circ}$C or $-3$--0$^{\circ}$C by O/E at 6--12$^{\circ}$C within wind groups. Contrasts are reported only when both cells meet the support rule; they are not relative risks or formal interaction estimates.
 
@@ -676,7 +744,7 @@ intervals.
 \caption[All year and seasonal temperature O/E analysis.]{All year and seasonal temperature O/E analysis, standardised within matched
 temperature station and study season. Blue bars show minor injury and red bars
 show serious or fatal injury; labels above bars are observed accident counts.
-The grey reference line is O/E = 1. Temperature intervals follow the display convention defined in Methods.}
+The grey reference line is O/E = 1.}
 \label{fig:temperature-oe-panels}
 \end{figure}
 
@@ -689,8 +757,14 @@ estimates only slightly. The station--season standardisation is therefore retain
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.94\textwidth]{joint_wind_temperature_detail.pdf}
-\caption[Joint wind--temperature O/E analysis.]{Joint wind--temperature O/E standardised within station--season groups, using simultaneous joint weather frequencies for expected counts. Cells show O/E and observed $n$; categories are descriptive, not physical safety thresholds. Asterisks mark limited support (observed $n<10$ or expected count $<5$). This is not a formal interaction test.}
+\makebox[\textwidth][c]{\includegraphics[width=190mm]{joint_wind_temperature_detail.pdf}}
+\caption[Joint wind--temperature O/E analysis.]{O/E analysis of accident
+  frequency according to both temperature and wind speed. Note that, independent
+  of wind speed, the rate is significantly increased in warm weather. Also
+  temperatures around zero are associed with increased accident rate at all wind
+  speeds. Interestingly, calm and very cold weather is among the safest
+  conditions. Also calm weather is a little bit riskier than a moderate breeze.
+  Perhaps good weather makes drivers speed too much?}
 \label{fig:joint-weather-detail}
 \end{figure}
 \input{generated/joint_detail_results.tex}
@@ -863,11 +937,11 @@ Temperature further illustrates why the methods should not be equated: the O/E a
 
 The estimates differ because they answer different questions. Weather-frequency O/E compares accident occurrence with local weather time. Its approximate correction reweights that time using the relative traffic response at selected counters, extrapolating 2019--2024 behaviour to the broader 2007--2025 accident population. VKT instead divides accidents by estimated travel in a smaller counter-linked 2019--2024 sample. The contributing roads, periods and exposure weights differ; identical ratio notation does not make the estimands identical.
 
-Pooled VKT rates depend on which sections contribute exposure to each interval and on their underlying accident counts per estimated kilometre. Rare extreme-wind bins contain only 11 accidents, and station--month allocation approximates rather than observes travel under those conditions. These features can produce larger pooled contrasts than local station--season standardisation.
+The pooled VKT comparison also depends on where and when travel occurs. Windy and calm vehicle-kilometres need not come from the same mix of counter sections, years and seasons. If groups contributing more windy travel have higher accident rates overall, pooling can enlarge the wind ratio even without an equally large increase within each group. Counter placement on hazardous roads alone would not do this: those roads must contribute a different share of windy than of calm travel.
 
-A simple composition diagnostic compares the local frequency of mean wind of at least 15 m/s for primary weather-matched accidents in 2019--2024. Each accident weights its assigned station--season frequency once. The average is 3.18\% for 694 accidents retained by the VKT linkage and 2.63\% for 1,146 others. This is consistent with greater wind exposure in the linked accident sample, but it combines counter placement with daytime and linkage eligibility. It is not a survey of all roads and cannot establish that counters are deliberately placed where wind is especially hazardous.
+An exploratory diagnostic uses the same 694 VKT accidents but calculates expected counts within each counter-section--year--season group from its distribution of estimated VKT. The resulting upper-to-0--5 m/s ratios are 3.43 for mean wind and 5.16 for gust, compared with pooled VKT rate ratios of 5.83 and 7.78. Differences in exposure composition account arithmetically for factors of about 1.70 and 1.51 in the pooled ratios. This does not establish that particular roads are intrinsically dangerous, nor does it remove the wind association within groups.
 
-A diagnostic standardises expected accidents within counter-section--year--season strata using each stratum's VKT distribution. The upper-bin O/E values are 3.39 for mean wind and 4.84 for gust. Dividing by each diagnostic's own 0--5 m/s O/E gives relative contrasts of 3.43 and 5.16, compared with pooled VKT rate ratios of 5.83 and 7.78. The smaller standardised contrasts are consistent with road and exposure composition explaining part of the difference. This descriptive diagnostic qualifies the magnitude of the VKT result; it is not a separate main analysis or proof that composition accounts for a particular fraction of the association.
+Other differences remain. Restricting corrected O/E to 2019--2024 gives ratios of 2.84 for mean wind and 5.95 for gust; the change of years therefore explains little of the mean-wind gap but some of the gust gap. The VKT upper bins each contain only 11 accidents, making their ratios sensitive to sampling variation. Moreover, VKT allocates daily traffic across wind intervals using pooled station--month weather frequencies, not observed travel during the actual windy hours. A comparison using one common accident sample, with uncertainty estimates and more direct traffic exposure, is needed to determine the contribution of each mechanism.
 
 
 

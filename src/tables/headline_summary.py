@@ -26,11 +26,13 @@ def headline_summary(output):
         pd.read_csv('reports/main/tables/weather_oe_traffic_corrected.csv'),pd.read_csv('reports/main/tables/monthly_vkt_rate.csv'))
     data.to_csv('reports/working/tables/primary_relative_contrasts.csv',index=False)
     write_table(output/'evidence.tex',
-        'Primary mean-wind and gust results. Each method is rescaled to its own 0--5 m/s reference: upper-bin O/E divided by reference O/E, or upper-bin VKT rate divided by reference rate. '
-        'The dimensionless ratios have a common upper-to-reference interpretation, but different samples and denominators mean they are not identical estimands.',
+        'Mean-wind and gust results. Ratios compare the upper interval with 0--5 m/s. '
+        'Both O/E methods use 2007--2025 weather-matched rural injury accidents; the correction uses 2019--2024 counter data. '
+        'VKT uses 2019--2024 accidents on counter-covered sections.',
         'tab:evidence-summary',r'L{0.13\textwidth}XL{0.23\textwidth}L{0.15\textwidth}',
-        ['Parameter','Method','Comparison (m/s)','Relative contrast'],
+        ['Parameter','Method','Comparison (m/s)','Ratio'],
         [[r.parameter,r.method,rf'$\geq{r.upper_bin[2:]}$ vs 0--5',f'{r.relative_contrast:.2f}'] for r in data.itertuples()],
-        width=r'\textwidth',short_caption='Primary mean-wind and gust results.')
+        width=r'\textwidth',short_caption='Mean-wind and gust results.',
+        row_rules={2: r'\specialrule{\lightrulewidth}{1mm}{1mm}'})
 
 if __name__=='__main__': headline_summary(Path('reports/thesis/generated'))

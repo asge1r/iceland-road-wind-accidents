@@ -12,7 +12,7 @@ MODULES = [
     'src.analysis.oe_analysis', 'src.tables.traffic_corrected_oe',
     'src.tables.monthly_vkt_rate', 'src.tables.monthly_vkt_discrepancy',
     'src.tables.annual_coverage', 'src.tables.conditions',
-    'src.tables.revision', 'src.tables.joint_detail', 'src.tables.thesis', 'src.tables.thesis_alignment', 'src.tables.results_context',
+    'src.tables.revision', 'src.tables.joint_detail', 'src.tables.joint_grid', 'src.tables.thesis', 'src.tables.thesis_alignment', 'src.tables.results_context',
     'src.figures.annual_coverage', 'src.figures.conditions',
     'src.figures.accident_map', 'src.figures.oe_histo',
     'src.figures.traffic_weather_response', 'src.figures.traffic_corrected_oe',

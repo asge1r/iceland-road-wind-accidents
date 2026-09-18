@@ -97,6 +97,7 @@ def render_table(headers, rows, caption, short_caption, label, note='', blocks=N
         result.extend([r'\begin{tabular}{' + 'l'*(end-start) + '}', r'\toprule',
                        ' & '.join(header_cell(v) for v in headers[start:end])+r' \\', r'\midrule'])
         result.extend(' & '.join(r'\texttt{'+escape(v)+'}' for v in row[start:end])+r' \\' for row in rows)
+        result.append(' & '.join([r'$\vdots$'] * (end-start)) + r' \\')
         result.extend([r'\bottomrule', r'\end{tabular}'])
     if note:
         result.extend([r'\par\smallskip\begin{minipage}{\linewidth}\small',

@@ -87,6 +87,7 @@ def write_table(
     size: str = "small",
     width: str | None = None,
     short_caption: str | None = None,
+    row_rules: dict[int, str] | None = None,
 ) -> None:
     environment = "tabularx" if width else "tabular"
     begin = rf"\begin{{{environment}}}{{{width}}}{{{columns}}}" if width else rf"\begin{{{environment}}}{{{columns}}}"
@@ -97,7 +98,8 @@ def write_table(
     )
     body = []
     for index, row in enumerate(rows):
-        rule = r" \\ \grayhline" if index < len(rows) - 1 else r" \\"
+        separator = (row_rules or {}).get(index, r"\grayhline")
+        rule = rf" \\ {separator}" if index < len(rows) - 1 else r" \\"
         body.append(" & ".join(tex(value) for value in row) + rule)
     content = "\n".join(
         [
@@ -204,14 +206,9 @@ def weather_cleaning(output: Path) -> None:
             f" {outside_scope:,} supplied observations from station-years without wind "
             "measurements are outside that scope."
         )
-    denominator_note = (
-        "Cleaning-rule shares use the rows in station-years containing wind data as their denominator."
-        if outside_scope else
-        "Cleaning-rule shares use all supplied observations."
-    )
     write_table(
         output / "weather_cleaning.tex",
-        "Overview of cleaning of wind measurement records, 2007--2025. " + denominator_note + scope_note,
+        "Overview of cleaning of wind measurement records, 2007--2025." + scope_note,
         "tab:weather-cleaning", "lrr", ["Category", "Records", "Share"], rows,
         short_caption="Overview of cleaning of wind measurement records, 2007--2025.",
     )
