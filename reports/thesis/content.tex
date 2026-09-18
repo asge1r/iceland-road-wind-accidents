@@ -200,7 +200,7 @@ Term & Definition & Use in this thesis \\
 \texttt{f} & 10-minute mean wind speed, m/s & Main weather measure, matched within five minutes of the accident time. \\ \grayhline
 \texttt{fg} & Wind gust reported in the same 10-minute observation, m/s & Additional weather measure; not a daily maximum. \\ \grayhline
 \texttt{t} & Air temperature reported with each 10-minute observation, \(^{\circ}\)C & Additional weather measure matched independently. \\ \grayhline
-O/E & Observed accidents divided by accidents expected from local weather frequency & Main relative-occurrence result; traffic is not included. \\ \grayhline
+Weather-frequency O/E & Observed accidents divided by accidents expected from local weather frequency & Main relative-occurrence result. Traffic is not included. \\ \grayhline
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -365,10 +365,10 @@ The descriptive full-period traffic calculation multiplies winter or summer
 average daily traffic by mapped rural road length and the number of winter or
 summer days in each calendar year. Urban portions are removed with the same
 boundaries as accident classification. Although winter had 12.7\% fewer injury
-accidents, estimated driving was 54.5\% lower. The estimated winter/summer rate
+accidents, estimated driving was 54.5\% lower (see Table~\ref{tab:rural-seasonal-rates}). The estimated winter/summer rate
 ratios were 1.92 for all injury accidents, 2.17 for minor injuries and 1.26 for
-serious/fatal injuries, when the reduced traffic in winter is taken into account
-(see chapter 4). The seasonal rate comparison uses estimated VKT as its
+serious/fatal injuries, when the reduced traffic in winter is taken into account.
+The seasonal rate comparison uses estimated VKT as its
 denominator, whereas the severity comparison conditions on an injury accident
 having occurred. The higher summer severity share and higher winter
 serious/fatal rate are therefore compatible.
@@ -378,7 +378,7 @@ The reproducible clipping gives 6.32 billion winter and 13.89 billion summer veh
 \section{Data preparation and reproducibility}
 The workflow separates the preparation and cleaning of data from the analysis of
 prepared inputs. Four institutions supply the primary data used in the study:
-Samgöngustofa provides data on accidents; the Meteorological Offices provides
+Samgöngustofa provides data on accidents. The Icelandic Meteorological Office provides
 weather observations and station information; Vegagerðin provides daily
 counters, annual traffic summaries and road geometry; and Statistics Iceland
 provides urban-locality boundaries.
@@ -421,7 +421,7 @@ its first four preparation stages. Tables~\ref{tab:exact-accidents}
 and~\ref{tab:exact-weather} are generated directly from the downstream cleaned
 files \path{data/processed/accidents/all.csv} and
 \path{data/processed/weather/weather.parquet}, respectively. They show the first
-two stored records of each file.
+two stored records of each file to illustrate its structure, not representative observations.
 
 
 \begin{table}[H]
@@ -511,19 +511,18 @@ distributions from dominating the pooled ratio.
 Minor injury (\textit{meiðsli}\(=3\)) and serious or fatal injury
 (\textit{meiðsli}\(\leq2\)) are analysed as disjoint groups, each with its
 own station--season expected counts. Combined all-injury O/E uses summed
-observed and expected counts rather than averaging group ratios. Because this
-is a descriptive standardised ratio rather than a fitted model, the O/E figures
-do not show model-based confidence intervals.
+observed and expected counts rather than averaging group ratios. O/E estimates are descriptive. Confidence intervals were not calculated,
+and differences between categories were not tested for statistical significance.
 
 Temperature was grouped into 3$^{\circ}$C intervals from $-6$ to 12$^{\circ}$C, with open-ended groups below $-6$$^{\circ}$C and at or above 12$^{\circ}$C.
 
 The original 5 m/s intervals are the normal descriptive scale for wind. The pooled primary contrast uses the extreme mean-wind category of at least 20 m/s. The coarse joint summary and some seasonal displays combine mean winds from 15 m/s to avoid excessively sparse subdivisions; the detailed joint figure retains 15--20 and at least 20 m/s as separate groups. These grouping choices were not statistically optimised and are not universal physical danger thresholds.
 
-The detailed joint wind--temperature figure uses mean-wind intervals $[0,5]$, $[5,10]$, $[10,15]$, $[15,20]$ and $\geq20$ m/s, and temperature intervals $<-6$, $[-6,-3]$, $[-3,0]$, $[0,3]$, $[3,6]$, $[6,9]$, $[9,12]$ and $\geq12$ $^{\circ}$C, within the existing weather-validity limits. These are descriptive categories, not physical safety thresholds.
+The detailed joint wind--temperature figure uses mean-wind intervals $[0,5]$, $[5,10]$, $[10,15]$, $[15,20]$ and $\geq20$ m/s, and temperature intervals $<-6$, $[-6,-3]$, $[-3,0]$, $[0,3]$, $[3,6]$, $[6,9]$, $[9,12]$ and $\geq12$ $^{\circ}$C, within the existing weather-validity limits. These are descriptive categories, not physical safety thresholds. Finite intervals include the lower bound and exclude the upper bound. Square brackets are used in display labels for readability.
 
 Computationally, each simultaneous valid wind and temperature observation enters exactly one of the 40 cells. Expected counts use the actual joint frequency within the same station--season groups as Equation~\ref{eq:weather-oe}, rather than products of marginal frequencies. Accident matches must share station and observation time. The 40 cells can be pooled into the coarser wind $<15$/\(\geq15\) m/s and temperature $<3$/\(\geq3\)$^{\circ}$C summary; observed and expected totals each equal the eligible joint sample.
 
-The joint description uses weather-frequency O/E because simultaneous observations and the larger 2007--2025 matched sample support a joint weather-time denominator. The 694-accident VKT sample instead uses allocated station--month exposure, not directly observed simultaneous wind--temperature travel. Cell O/E therefore describes accident occurrence relative to local weather frequency, not a vehicle-based rate. Cells with fewer than 10 observed or 5 expected accidents are marked as sparse. Descriptive contrasts divide O/E at wind \(\geq15\) m/s by O/E at 0--5 m/s within temperature groups, and O/E at \(\geq12\)$^{\circ}$C or $-3$--0$^{\circ}$C by O/E at 6--12$^{\circ}$C within wind groups. Contrasts are reported only when both cells meet the support rule; they are not relative risks or formal interaction estimates.
+The joint description uses weather-frequency O/E because simultaneous observations and the larger 2007--2025 matched sample support a joint weather-time denominator. The 694-accident VKT sample instead uses allocated station--month exposure, not directly observed simultaneous wind--temperature travel. Cell O/E therefore describes accident occurrence relative to local weather frequency, not a vehicle-based rate. Cells with fewer than 10 observed or 5 expected accidents are marked as sparse. For the supporting grouped contrasts, observed and expected counts are summed across combined intervals before O/E is calculated. Descriptive contrasts divide O/E at wind \(\geq15\) m/s by O/E at 0--5 m/s within temperature groups, and O/E at \(\geq12\)$^{\circ}$C or $-3$--0$^{\circ}$C by O/E at 6--12$^{\circ}$C within wind groups. Contrasts are reported only when both cells meet the support rule. They are not relative risks or formal interaction estimates.
 
 \subsection{Use of traffic data}
 
@@ -572,7 +571,8 @@ and \(r_j\) is the allocated observed-to-expected traffic ratio. The index
 
 Expected counts are then recalculated as \(A_g p^{*}_{jg}\), where \(A_g\) is the group accident total. Accident bins use
 weather at the recorded accident time, whereas \(r_j\) is based on a 24-hour
-traffic total repeated across the day's daytime weather composition. Daily
+traffic total allocated across weather intervals according to the observed
+weather between 07:00 and 24:00. Daily
 counters do not observe hourly traffic. The 2019--2024 response is also
 extrapolated to the 2007--2025 primary population. The result is therefore an approximate traffic-reweighted O/E adjustment rather than a directly observed traffic-adjusted O/E.
 
@@ -663,6 +663,10 @@ different samples and denominators.
 
 \section{Study sample and coverage}
 
+Annual rural injury accident counts vary across the study period
+(see Figure~\ref{fig:annual-counts}). These counts describe accident occurrence
+without adjustment for traffic exposure.
+
 Wind and temperature have identical match coverage in the rural injury
 accident sample: 6,259 of 6,414 accidents (97.6\%) for each measure.
 The annual match percentages remain high throughout the study
@@ -719,6 +723,11 @@ the grey line marks O/E = 1.}
 \label{fig:wind-oe-panels}
 \end{figure}
 
+Most accidents occurred in the lower wind intervals, even though O/E
+was higher in strong wind (see Figure~\ref{fig:wind-oe-panels}). Strong wind therefore
+accounts for a small share of recorded accidents but more accidents
+than expected from how rarely it occurs.
+
 The seasonal panels are less stable than the pooled result and do not support
 ranking seasons or injury groups. The 5 m/s intervals are descriptive bins,
 not physical wind thresholds.
@@ -729,6 +738,13 @@ Wind gust shows a similar upper-tail pattern in Figure~\ref{fig:gust-oe-panels},
 with all-injury O/E 3.34 at gusts of at least 30 m/s. Because gust and mean wind
 come from the same observation, the gust result supports the same high-wind
 pattern but is not independent evidence.
+
+In spring, summer and autumn, both injury groups have O/E above one
+in the highest gust interval (see Figure~\ref{fig:gust-oe-panels}). Winter differs:
+the highest-interval O/E is above one for minor injuries but below
+one for serious or fatal injuries. The latter estimate is based on
+only one accident, so it provides little evidence of a different
+winter pattern.
 
 \begin{figure}[!htbp]
 \centering
@@ -768,13 +784,12 @@ estimates only slightly. The station--season standardisation is therefore retain
 \begin{figure}[H]
 \centering
 \makebox[\textwidth][c]{\includegraphics[width=190mm]{joint_wind_temperature_detail.pdf}}
-\caption[Joint wind--temperature O/E analysis.]{O/E analysis of accident
-  frequency according to both temperature and wind speed. Note that, independent
-  of wind speed, the rate is significantly increased in warm weather. Also
-  temperatures around zero are associed with increased accident rate at all wind
-  speeds. Interestingly, calm and very cold weather is among the safest
-  conditions. Also calm weather is a little bit riskier than a moderate breeze.
-  Perhaps good weather makes drivers speed too much?}
+\caption[Joint wind--temperature O/E analysis.]{Joint wind--temperature O/E analysis,
+2007--2025. Cells show O/E and observed counts ($n$). The top and right margins
+summarise all wind speeds and all temperatures, respectively. Expected counts use
+local station--season weather frequencies. Asterisks mark cells with fewer than 10 observed or 5 expected accidents.
+They do not indicate statistical significance. O/E describes
+occurrence relative to weather frequency, not risk per vehicle-kilometre.}
 \label{fig:joint-weather-detail}
 \end{figure}
 \input{generated/joint_detail_results.tex}
@@ -852,6 +867,11 @@ counter response; labels give observed counts and the line marks O/E = 1.}
 
 The full-period temperature correction leaves the non-linear pattern largely intact (Figure~\ref{fig:traffic-corrected-temperature}). All-injury O/E is 1.23 at $-3$--0$^{\circ}$C, 0.71 at 3--6$^{\circ}$C and 1.58 at or above 12$^{\circ}$C, compared with 1.22, 0.71 and 1.60 before correction. The coldest interval, below $-6$$^{\circ}$C, remains below one (0.84). Thus the data support an excess just below freezing, not a universal excess throughout the cold range.
 
+The original and corrected temperature bars nearly overlap
+(see Figure~\ref{fig:traffic-corrected-temperature}), unlike the clearer changes in the upper wind
+and gust intervals. The approximate traffic correction therefore
+changes the wind results more than the temperature results.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{weather_oe_traffic_corrected_temperature.pdf}
@@ -878,6 +898,13 @@ Figure~\ref{fig:monthly-vkt-annual} shows the pooled wind and gust rates. The
 light-blue and red components share the same denominator, so their stack height
 is the all-injury rate; labels give contributing accident counts.
 
+The mean-wind rate is slightly lower at 5--10 m/s than at 0--5 m/s,
+then increases in each successive interval. Gust rates are similar
+across the three lowest intervals and increase more clearly from
+15--20 m/s onwards (see Table~\ref{tab:monthly-vkt-rate} and Figure~\ref{fig:monthly-vkt-annual}). The upper-wind
+increase is therefore visible across several intervals, rather than
+only in the highest category.
+
 \input{generated/monthly_vkt_rate.tex}
 
 \begin{figure}[H]
@@ -892,7 +919,7 @@ positive labels give accident counts.}
 
 \paragraph{Temperature.}
 \label{sec:temperature-vkt}
-The VKT extension uses the same 694 event-time observations and 533,649 counter-days. Allocated exposure sums to 5.630 billion vehicle-kilometres for each variable. All-injury rates decrease from 0.282 below $-6$$^{\circ}$C to 0.067 at 9--12$^{\circ}$C, then rise to 0.099 at or above 12$^{\circ}$C. The warm-end rate is 1.48 times the 9--12$^{\circ}$C rate, but remains well below the cold rates. This supports a modest warm-end upturn, not the same magnitude or reference comparison as the temperature O/E result. The eight temperature intervals contain 40, 61, 120, 134, 84, 95, 79 and 81 accidents, respectively; seasonal components are smaller.
+The temperature VKT analysis uses the same 694 event-time observations and 533,649 counter-days. Allocated exposure sums to 5.630 billion vehicle-kilometres for each variable. All-injury rates decrease from 0.282 below $-6$$^{\circ}$C to 0.067 at 9--12$^{\circ}$C, then rise to 0.099 at or above 12$^{\circ}$C (see Figure~\ref{fig:monthly-vkt-temperature}). These rates are accidents per million estimated vehicle-kilometres. The warm-end rate is 1.48 times the 9--12$^{\circ}$C rate, but remains well below the cold rates. This supports a modest warm-end upturn, not the same magnitude or reference comparison as the temperature O/E result. The eight temperature intervals contain 40, 61, 120, 134, 84, 95, 79 and 81 accidents, respectively. Seasonal components are smaller.
 
 \begin{figure}[H]
 \centering
@@ -943,7 +970,7 @@ Table~\ref{tab:evidence-summary} summarises the primary mean-wind and gust resul
 \input{generated/evidence.tex}
 
 
-Temperature further illustrates why the methods should not be equated: the O/E analyses show a pronounced warm-end increase, whereas the VKT warm-end upturn is smaller and the highest VKT rates occur in cold conditions.
+Temperature further illustrates why the methods should not be equated. Both approaches show a warm-end upturn, but VKT rates remain highest in cold conditions (see Figures~\ref{fig:temperature-oe-panels} and~\ref{fig:monthly-vkt-temperature}).
 
 The estimates differ because they answer different questions. Weather-frequency O/E compares accident occurrence with local weather time. Its approximate correction reweights that time using the relative traffic response at selected counters, extrapolating 2019--2024 behaviour to the broader 2007--2025 accident population. VKT instead divides accidents by estimated travel in a smaller counter-linked 2019--2024 sample. The contributing roads, periods and exposure weights differ; identical ratio notation does not make the estimands identical.
 
@@ -966,16 +993,23 @@ The unfiltered top ten contain eight roads with only one accident. Publishing th
 
 \input{generated/road_rates.tex}
 
+Among the roads shown, Laxárdalsvegur has the highest estimated rate,
+followed by Seyðisfjarðarvegur (see Table~\ref{tab:road-rates}). Djúpvegur has the
+largest accident count in the table, but a lower rate because its
+estimated traffic exposure is much greater. The ranking by accident
+rate therefore differs from the ranking by accident count.
+
 \chapter{Discussion}
 
 \section{Interpretation}
 
-Across the analyses, the strongest contrasts occur in the upper wind intervals. The primary weather-frequency result shows that strong wind is over-represented at rural injury accident times. The approximate traffic correction shows that lower traffic during strong wind does not explain that over-representation, and the VKT analysis retains the upper-wind increase when estimated travel exposure is introduced. The analyses therefore agree on the direction of the wind association, but they do not estimate the same quantity: their denominators differ and the VKT analysis uses a smaller counter-linked sample.
+Across the analyses, the strongest contrasts occur in the upper wind intervals. The primary weather-frequency result shows that strong wind is over-represented at rural injury accident times. The approximate traffic correction shows that lower traffic during strong wind does not explain that over-representation (see Figures~\ref{fig:traffic-corrected-wind} and~\ref{fig:traffic-corrected-gust}), and the VKT analysis retains the upper-wind increase when estimated travel exposure is introduced. The analyses therefore agree on the direction of the wind association, but they do not estimate the same quantity: their denominators differ and the VKT analysis uses a smaller counter-linked sample.
 
 The correction remains approximate: the 2019--2024 counter response is extrapolated to the 2007--2025 population, and hourly traffic is unavailable.
 
 The VKT analysis also shows higher rates in the upper wind
-intervals, but its rate ratios are larger than the O/E contrasts. Those
+intervals, but its rate ratios are larger than the O/E contrasts
+(see Table~\ref{tab:evidence-summary}). Those
 magnitudes are uncertain: only 11 accidents fall in each highest wind or gust
 interval, counter coverage is selective, and pooled rates
 depend partly on which road sections contribute exposure. The smaller
@@ -984,11 +1018,11 @@ composition explain part of the difference between pooled VKT rate ratios and
 locally standardised O/E, without implying that particular roads are
 intrinsically more dangerous.
 
-Pooled station--month allocation conserves daily VKT but approximates the weather distribution of travel. Gust shows a similar upper-tail pattern, although mean wind and gust come from the same observations. The temperature association is non-linear: the O/E analyses show an excess just below freezing and at the warm end, whereas VKT rates are highest in cold intervals and rise again above the 9--12$^{\circ}$C minimum. The coldest O/E interval is below one, and the warm-end VKT rate remains well below the cold rates. The three analyses therefore do not support identical temperature contrasts.
+Pooled station--month allocation conserves daily VKT but approximates the weather distribution of travel. Gust shows a similar upper-tail pattern, although mean wind and gust come from the same observations. The temperature association is non-linear: the O/E analyses show an excess just below freezing and at the warm end, whereas VKT rates are highest in cold intervals and rise again above the 9--12$^{\circ}$C minimum. The coldest O/E interval is below one, and the warm-end VKT rate remains well below the cold rates. The three analyses therefore do not support identical temperature contrasts (see Figures~\ref{fig:temperature-oe-panels}, \ref{fig:traffic-corrected-temperature} and~\ref{fig:monthly-vkt-temperature}).
 
 \input{generated/joint_detail_discussion.tex}
 
-Several alternative mechanisms could contribute to the joint pattern. Drivers may reduce speed, avoid travel or change routes when hazards are apparent, while warnings and closures may change who remains on the road. These are hypotheses, not evidence that drivers compensate when wind and near-freezing temperatures coincide. Warm-weather excess could reflect tourism, motorcycles, recreational travel, vehicle mix, road choice or speed rather than a direct temperature effect. Correlated precipitation, ice, road-surface state and geography may also contribute. Behavioural adaptation, travel avoidance, closures, changing vehicle composition and direct physical effects of weather cannot be distinguished with the available data.
+Several alternative mechanisms could contribute to the joint pattern. Drivers may reduce speed, avoid travel or change routes when hazards are apparent, while warnings and closures may change who remains on the road. These are hypotheses, not evidence that drivers compensate when wind and near-freezing temperatures coincide. Drivers may perceive warm conditions as less hazardous and choose higher speeds. However, speed and perceived risk were not measured. Tourism, motorcycle use, recreational travel, vehicle mix and route choice could also contribute to the warm-weather excess. Correlated precipitation, ice, road-surface state and geography may also contribute. Behavioural adaptation, travel avoidance, closures, changing vehicle composition and direct physical effects of weather cannot be distinguished with the available data.
 
 The full-period seasonal exposure summary similarly shows why raw counts can mislead: winter contained fewer injury accidents than summer, but the estimated injury-accident rate per rural VKT was about 1.92 times the summer rate because estimated winter travel was much lower.
 
@@ -1049,7 +1083,15 @@ Weather measurements should also better represent conditions along the road. Roa
 
 Behaviour and exposure response require separate observation. Speed measurements and repeated traffic records could test whether drivers slow down, avoid travel, change routes or respond to warnings as conditions deteriorate. Combining these records with closure times would help distinguish voluntary travel avoidance from enforced restrictions. With sufficient observations, later work could examine whether responses differ when several hazards occur together. The present analysis cannot distinguish behavioural adaptation from reduced exposure, and a lower accident count under combined hazards would not by itself demonstrate safer driving. Comparisons should therefore measure both travel volume and behaviour.
 
-The highest-priority extension would test whether the upper-wind association is concentrated in single-vehicle crashes, road departures, overturning or loss-of-control events, after auditing accident-type coding. This would connect the population-level association more directly to the crosswind mechanisms discussed in the Background. Separate person- and vehicle-level extracts supplied for 2007--2024 may support subgroup analyses, subject to completeness and coding audits. Those extracts alone exclude 2025; including that year would require harmonising the separate 2025 deliveries already available. Vehicle-class codes may support comparisons among passenger cars, vans, heavy goods vehicles, buses and motorcycles. Without traffic exposure by vehicle class, these would describe accident composition under different weather conditions, not vehicle-class-specific accident risk. Road curvature, gradient, elevation and orientation could distinguish exposed coastal roads, mountain passes and sheltered routes. Multilevel or spatial models could separate within-road weather variation from between-road differences, with reliable identifiers and exposure and allowance for dependence within roads and weather episodes.
+A complementary extension would examine whether the upper-wind association is concentrated in single-vehicle crashes, road departures, overturning or loss-of-control events, after auditing accident-type coding. This would connect the population-level association more directly to the crosswind mechanisms discussed in the Background. Separate person- and vehicle-level extracts supplied for 2007--2024 may support subgroup analyses, subject to completeness and coding audits. Those extracts alone exclude 2025. Including that year would require harmonising the separate 2025 deliveries already available. Vehicle-class codes may support comparisons among passenger cars, vans, heavy goods vehicles, buses and motorcycles. Without traffic exposure by vehicle class, these would describe accident composition under different weather conditions, not vehicle-class-specific accident risk. Road curvature, gradient, elevation and orientation could distinguish exposed coastal roads, mountain passes and sheltered routes. Multilevel or spatial models could separate within-road weather variation from between-road differences, with reliable identifiers and exposure and allowance for dependence within roads and weather episodes.
+
+Table~\ref{tab:road-rates} provides a starting point for closer examination of individual
+roads. Future work could compare accident types, severity, season and
+weather on these roads with patterns on roads with similar traffic and
+geometry. Examining shorter road sections could show whether accidents
+are concentrated at particular locations. More accurate traffic estimates
+and data from later years would help assess whether the high estimated
+rates persist.
 
 Statistical development should quantify uncertainty in O/E and VKT contrasts and assess sensitivity to weather bins, matching distance, temporal tolerance, season definitions and exposure-allocation assumptions. Resampling or other uncertainty methods should preserve relevant station, road and temporal dependence. Flexible non-linear models could examine temperature without relying solely on grouped intervals. Formal wind--temperature interaction should be considered only with adequate joint sample size and support across the exposure range. Validation in later years would test whether estimated patterns generalise beyond the study period, while comparison with simpler models would assess whether added complexity improves interpretation or predictive performance.
 
@@ -1063,7 +1105,7 @@ The accompanying \emph{Töflulýsingar í slysaskrá} describes the source datab
 
 Strong wind was the clearest and most consistent weather association in the study. Rural injury accidents were substantially over-represented during strong wind relative to how often those conditions occurred locally: at mean wind speeds of at least 20 m/s, O/E was 2.15. In the second step, observed lower daily traffic in strong wind did not explain away the pattern; the approximate correction strengthened the upper-wind contrast. The third step, the smaller counter-linked VKT analysis, also showed higher rates in the strongest wind conditions, although their magnitude remains uncertain because counter coverage is selective and only 11 accidents occur in each highest wind or gust category.
 
-Temperature showed a non-linear pattern. Both O/E analyses found elevated occurrence just below freezing and at temperatures of at least 12$^{\circ}$C, with lower relative occurrence at moderate temperatures; the coldest interval was not elevated above local weather frequency. VKT rates were highest in cold conditions and rose again at the warm end relative to the 9--12$^{\circ}$C minimum, but this warm-end increase was smaller than the O/E contrast. The retained analyses support non-linearity, not one common temperature effect. The warm-temperature increase should be treated as an association requiring further study rather than evidence of a direct causal effect.
+Temperature showed a non-linear pattern. Both O/E analyses found elevated occurrence just below freezing and at temperatures of at least 12$^{\circ}$C, with lower relative occurrence at moderate temperatures. The coldest interval was not elevated above local weather frequency. VKT rates were highest in cold conditions and rose again at the warm end relative to the 9--12$^{\circ}$C minimum. The retained analyses support non-linearity, not one common temperature effect. The warm-temperature increase should be treated as an association requiring further study rather than evidence of a direct causal effect.
 
 These findings describe associations, not causation or a direct national risk estimate. Exposure data remain the main limitation. Verified hourly traffic, broader counter coverage, stable locations and identifiers, and better measurement of road-level exposure composition would improve the comparison. Future work should incorporate vehicle class, wind direction relative to the road, road geometry, road-surface and closure information, and investigate the unexpected warm-temperature pattern.
 

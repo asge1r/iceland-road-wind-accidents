@@ -87,9 +87,11 @@ def make_figure(data):
 def narrative(data):
     if data.sort_values('cell').cell.tolist()!=list(range(40)):
         raise ValueError('Narrative requires the complete 5×8 grid')
-    wind=data.groupby('wind_order')[['observed_accidents','expected_accidents']].sum()
-    temp=data.groupby('temperature_order')[['observed_accidents','expected_accidents']].sum()
-    ratio=lambda group,index: group.loc[index,'observed_accidents']/group.loc[index,'expected_accidents']
+    cells=data.set_index(['wind_order','temperature_order'])
+    warm=data.query('temperature_order == 7').sort_values('wind_order')
+    freezing=data.query('temperature_order == 2')
+    assert warm.oe.gt(1).all() and freezing.oe.gt(1).all()
+    assert warm['sparse'].tolist()==[False,False,False,True,True]
     supported=data.query('wind_order == 3 and not sparse')
     high=data.query('wind_order == 4')
     highest=data.loc[data.oe.idxmax()]
@@ -99,16 +101,22 @@ def narrative(data):
     assert int(data.observed_accidents.sum())==6259
     assert np.isclose(data.expected_accidents.sum(),6259,rtol=0,atol=1e-8)
     results=(
-        r'Figure~\ref{fig:joint-weather-detail} uses the same five wind and eight temperature intervals as the marginal figures. '
-        +f'The all-temperature O/E rises from {ratio(wind,0):.2f} at 0--5 m/s to {ratio(wind,3):.2f} at 15--20 m/s and {ratio(wind,4):.2f} at 20 m/s or above. '
-        +rf'Within the 15--20 m/s row, adequately supported cells range from {supported.oe.min():.2f} at 3--6$^{{\circ}}$C to {supported.oe.max():.2f} immediately below freezing. '
-        +rf'The all-wind temperature margin is {ratio(temp,2):.2f} immediately below freezing and {ratio(temp,7):.2f} at 12$^{{\circ}}$C or above, but {ratio(temp,4):.2f} at 3--6$^{{\circ}}$C.'
+        r'The warm-weather excess is not confined to strong wind. '
+        +r'At temperatures of at least 12$^{\circ}$C, accidents were more frequent'+'\n'
+        +r'than expected from local weather frequency in every wind category.'+'\n'
+        +r'However, the two highest wind categories contained too few accidents'+'\n'
+        +r'for reliable comparisons. '
+        +r'O/E is also above one immediately below freezing in every wind category (see Figure~\ref{fig:joint-weather-detail}).'
+        +'\n\n'
+        +rf'Cold conditions do not show a uniform excess. Below $-6$$^{{\circ}}$C, O/E is {cells.loc[(0,0),"oe"]:.2f} at wind speeds below 5 m/s but {cells.loc[(3,0),"oe"]:.2f} at 15--20 m/s. '
+        +r'This illustrates how the temperature pattern varies across wind categories without establishing a statistical interaction.'
+        +rf' Within the 15--20 m/s row, cells meeting the support rule range from O/E {supported.oe.min():.2f} at 3--6$^{{\circ}}$C to {supported.oe.max():.2f} immediately below freezing.'
         +'\n\n'
         +r'Six of the eight cells at wind speeds of at least 20 m/s have limited support. '
         +rf'The largest O/E ({highest.oe:.2f}) occurs at 20 m/s or above and at least 12$^{{\circ}}$C, but represents only {int(highest.observed_accidents)} observed accidents versus {highest.expected_accidents:.2f} expected. '
-        +r'That extreme cell should not be read as evidence of a combined wind--temperature effect.'+'\n')
+        +r'That extreme cell should not be interpreted as reliable evidence of an especially strong combined effect.'+'\n')
     discussion=(r'The finer joint grid retains the upper-wind and non-linear temperature patterns visible in the marginal figures. '
-                +r'Crossing the two variables leaves most cells at 20 m/s or above sparsely supported, however; differences between individual temperature-specific wind ratios remain descriptive and do not establish interaction.'+'\n')
+                +r'Crossing the two variables leaves most cells at 20 m/s or above sparsely supported. Differences between individual temperature-specific wind ratios remain descriptive and do not establish interaction.'+'\n')
     return results,discussion
 
 
