@@ -1,7 +1,7 @@
 # Icelandic defence — PPTX rebuild
 
 New, independent version of `Meistaravorn_Asgeir_editable (3).pptx`.
-The existing `reports/defense/` presentation is preserved.
+This is the maintained defence presentation.
 
 From the repository root:
 
@@ -17,7 +17,6 @@ No analysis runs as part of the normal build.
 - `defense.tex`: editable slide text, formulas, workflow and tables.
 - `theme.tex`: fonts, margins, logo, and seasonal-slide placement.
 - `assets/`: presentation-specific vector figures and the original PPTX HÍ logo.
-- `speaker_notes.md`: short Icelandic reminders for essential off-slide interpretation.
 - `TIMING.md`: slide-by-slide timing, 29 minutes plus one-minute buffer.
 - `INVENTORY.md`: availability of all nine method–variable combinations.
 - `REVISION_REPORT.md`: order, timing, sources and validation.

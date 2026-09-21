@@ -14,7 +14,7 @@ Build: `make -C reports/defense_beamer` (XeLaTeX, auxiliaries in `build/`).
 6. Applied the supplied final sentence on slide 31. Kept the causal limitation on slide 32.
 7. Replaced slide 34 with the three supplied concise bullets, bold lead-ins and LaTeX degree symbol. No extra closing slide.
 
-The supplied q speaking paragraph is included verbatim in `speaker_notes.md`, not on the slide. No other main slide body or backup content was changed.
+The supplied q speaking paragraph was kept off the slide; the separate speaker notes have since been removed. No other main slide body or backup content was changed.
 
 ## Method and preservation checks
 
